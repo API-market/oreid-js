@@ -1,0 +1,15 @@
+{
+    "presets": [
+      ["@babel/env", {
+        "targets": {
+          "node": "6.11.5"
+        },
+        "debug": true,
+        "useBuiltIns": "usage"
+      }]
+    ],
+  
+    "ignore": [
+      "node_modules"
+    ]
+  

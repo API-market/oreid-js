@@ -1,0 +1,36 @@
+{
+    "name": "@aikon/oreid-js",
+    "version": "1.0.0",
+    "description": "Client library for ORE ID",
+    "main": "./dist/index.js",
+    "scripts": {
+      "build": "babel . --ignore node_modules,dist --out-dir dist && npm run copyfiles && npm run copypackagejson",
+      "copyfiles": "cp ./example/package.json ./dist/example/",
+      "copypackagejson": "cp ./package.json ./dist/",
+      "prepublish": "npm run build",
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/api-market/oreid-js.git"
+    },
+    "author": "aikon",
+    "bugs": {
+      "url": "https://github.com/api-market/oreid-js/issues"
+    },
+    "homepage": "https://github.com/api-market/oreid-js#readme",
+    "dependencies": {
+      "@babel/polyfill": "^7.0.0-beta.42",
+      "dotenv": "^6.0.0",
+      "tslint": "^5.9.1",
+      "typescript": "^2.8.1"
+    },
+    "devDependencies": {
+      "@babel/core": "^7.1.0",
+      "babel-cli": "^6.26.0",
+      "babel-preset-env": "^1.7.0",
+      "babel-preset-es2015": "^6.24.1",
+      "semver": "^5.6.0"
+    }
+  }
+  
