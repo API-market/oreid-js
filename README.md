@@ -33,7 +33,7 @@ let userInfo = await oreId.getUserInfo(account);
 To run sample code:
 
 ```
-// First populate .env file (copy from .env.example)
+// First populate .env file in root directory (copy from example/.env.example)
 
 npm install
 babel-node example/index.js
