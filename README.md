@@ -36,7 +36,7 @@ To run sample code:
 // First populate .env file in root directory (copy from example/.env.example)
 
 npm install
-babel-node example/index.js
+npx babel-node example/index.js
 ```
 
 
