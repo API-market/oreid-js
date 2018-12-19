@@ -64,7 +64,8 @@ export function urlParamsToArray (fullpath) {
       params = parts.slice(0);
     }
     // paramPairs  e.g. [ ['enabled'], [ 'abc', '123' ], [ 'dbc', '444' ] ]   -- if the parameter only has a name and no value, the value is set to true
-    let paramPairs = params.map(param => param.split('='));
+    let paramPairs = params.map(param => splitAt(param.search(/[=]/),1)(param)); //split at first '='
+
     let jsonParams = {};
     //convert array to json object e.g. { enabled: true, abc: '123', dbc: '444' }
     paramPairs.forEach(pair => {
@@ -77,6 +78,9 @@ export function urlParamsToArray (fullpath) {
     let target = this;
     return target.replace(new RegExp(search, 'g'), replacement);
   };
+
+  //split a string or array at a given index position
+  const splitAt = (index,dropChars) => x => [x.slice(0, index), x.slice(index + dropChars)];
 
   //Returns Null if parse fails
   export function tryParseJSON (jsonString, unescape) {
