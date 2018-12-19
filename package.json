@@ -1,5 +1,5 @@
 {
-  "name": "@aikon/oreid-js",
+  "name": "@apimarket/oreid-js",
   "version": "1.0.0",
   "description": "Client library for ORE ID",
   "main": "./dist/index.js",

@@ -1,5 +1,5 @@
-const {OREID} = require('./src')
+const {OreId} = require('./src')
 
 module.exports = {
-    OREID
+    OreId
 }
