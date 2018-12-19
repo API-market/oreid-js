@@ -21,13 +21,22 @@ let authUrl = await oreId.getOreIdAuthUrl({ loginType, callbackUrl, backgroundCo
 let authResults = oreId.handleAuthResponse(authCallbackResults);
 
 //Request that the user sign a transaction by setting the user's browser to this URL
-let signUrl = await oreId.getOreIdSignUrl({ account, signCallbackUrl, transaction, chain, broadcast });
+let signUrl = await oreId.getOreIdSignUrl({ account, transaction, signCallbackUrl, chain, state, broadcast });
 //...then handle the callback results of the Sign flow
 let signResults = oreId.handleSignResponse(signedCallbackResults);
 
 //Get the user's info given a blockchain account
 let userInfo = await oreId.getUserInfo(account);
 
+```
+
+To run sample code:
+
+```
+// First populate .env file (copy from .env.example)
+
+npm install
+babel-node example/index.js
 ```
 
 
