@@ -1,6 +1,6 @@
 require('dotenv').config();
-//const { OreId } = require('@apimarket/oreid-js');
-let { OreId } = require('../src');
+//const { OreId } = require('../src');
+const { OreId } = require('@apimarket/oreid-js');
 
 //Load settings
 let { 
