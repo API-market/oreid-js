@@ -56,6 +56,6 @@ To publish an updated package...
 
 - Update version number in package.json (and example's package.json)
 - `npm publish --tag staging` - to publish staging version
-- `npm publish` - to publish the production version
+- `npm publish --access public` - to publish the production version
 
 package name will be: @aikon/oreid-js@{version}
