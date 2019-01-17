@@ -1,6 +1,6 @@
 {
   "name": "@apimarket/oreid-js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Client library for ORE ID",
   "main": "./dist/index.js",
   "scripts": {
