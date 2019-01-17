@@ -4,6 +4,22 @@
 import jwtdecode from 'jwt-decode';
 const TRACING = false; //enable when debugging to see detailed outputs
 
+export function isNullOrEmpty (obj) {
+  if (!obj) {
+    return true;
+  }
+  if (obj === null) {
+    return true;
+  }
+  //Check for an empty array too
+  if (Array.isArray(obj)) {
+    if (obj.length === 0) {
+      return true;
+    }
+  }
+  return (Object.keys(obj).length === 0 && obj.constructor === Object);
+}
+
 // log data 
 export function log(message, data) {
     if (TRACING == true) {
@@ -48,7 +64,8 @@ export function urlParamsToArray (fullpath) {
       params = parts.slice(0);
     }
     // paramPairs  e.g. [ ['enabled'], [ 'abc', '123' ], [ 'dbc', '444' ] ]   -- if the parameter only has a name and no value, the value is set to true
-    let paramPairs = params.map(param => param.split('='));
+    let paramPairs = params.map(param => splitAt(param.search(/[=]/),1)(param)); //split at first '='
+
     let jsonParams = {};
     //convert array to json object e.g. { enabled: true, abc: '123', dbc: '444' }
     paramPairs.forEach(pair => {
@@ -57,29 +74,36 @@ export function urlParamsToArray (fullpath) {
     return jsonParams;
   }
 
+  String.prototype.replaceAll = function (search, replacement) { // eslint-disable-line
+    let target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+  };
+
+  //split a string or array at a given index position
+  const splitAt = (index,dropChars) => x => [x.slice(0, index), x.slice(index + dropChars)];
+
   //Returns Null if parse fails
-export function tryParseJSON (jsonString, unescape) {
-    if (!jsonString) return null;
-    let doubleQuotes = '';
-    try {
-      if (unescape) {
-        jsonString = decodeURI(jsonString);
+  export function tryParseJSON (jsonString, unescape) {
+      if (!jsonString) return null;
+      let doubleQuotes = '';
+      try {
+        if (unescape) {
+          jsonString = decodeURI(jsonString);
+        }
+        doubleQuotes = jsonString.replaceAll('\'', '"');
+        doubleQuotes = doubleQuotes.replaceAll('`', '"');
+        let o = JSON.parse(doubleQuotes);
+        // Handle non-exception-throwing cases:
+        // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
+        // but... JSON.parse(null) returns null, and typeof null === "object",
+        // so we must check for that, too. Thankfully, null is falsey, so this suffices:
+        if (o && typeof o === 'object') {
+          return o;
+        }
       }
-      doubleQuotes = jsonString.replaceAll('\'', '"');
-      doubleQuotes = doubleQuotes.replaceAll('`', '"');
-      let o = JSON.parse(doubleQuotes);
-      // Handle non-exception-throwing cases:
-      // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
-      // but... JSON.parse(null) returns null, and typeof null === "object",
-      // so we must check for that, too. Thankfully, null is falsey, so this suffices:
-      if (o && typeof o === 'object') {
-        return o;
+      catch (error) {
+        console.log(error)
       }
+      
+      return null;
     }
-    catch (error) {
-      logTrace(`error parsing JSON`, {jsonString, doubleQuotes, error} );
-    }
-  
-    return null;
-  
-  }

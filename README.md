@@ -11,10 +11,32 @@ oreid-js is a javascript helper library for interacting with the Aikon ORE ID se
 
 
 Example code:
-```json
-{
-    //example
-}
+```
+//Initialize the library
+let oreId = new OreId({ apiKey, oreIdUrl });
+
+//Start the OAuth flow by setting the user's browser to this URL
+let authUrl = await oreId.getOreIdAuthUrl({ loginType, callbackUrl, backgroundColor });
+//...then handle the callback results of the Auth flow
+let authResults = oreId.handleAuthResponse(authCallbackResults);
+
+//Request that the user sign a transaction by setting the user's browser to this URL
+let signUrl = await oreId.getOreIdSignUrl({ account, transaction, signCallbackUrl, chain, state, broadcast });
+//...then handle the callback results of the Sign flow
+let signResults = oreId.handleSignResponse(signedCallbackResults);
+
+//Get the user's info given a blockchain account
+let userInfo = await oreId.getUserInfo(account);
+
+```
+
+To run sample code:
+
+```
+// First populate .env file in root directory (copy from example/.env.example)
+
+npm install
+npx babel-node example/index.js
 ```
 
 

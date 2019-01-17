@@ -1,4 +1,4 @@
-const { log, tokenHasExpired } = require("./helpers.js");
+const { log, tokenHasExpired, tryParseJSON, urlParamsToArray } = require("./helpers.js");
 const Base64 = require('js-base64').Base64;
 const fetch = require('node-fetch');
 
@@ -8,13 +8,12 @@ class OreId {
         this.options;
         this.appAccessToken;
         this.validateOptions(options);
-        // await this.getAccessToken();
     }
 
     /*
-        Validate startup options
+        Validates startup options
     */
-   validateOptions(options) {
+    validateOptions(options) {
         let { apiKey, oreIdUrl } = options;
         let errorMessage = ''
 
@@ -62,17 +61,18 @@ class OreId {
         Returns a fully formed url to call the sign endpoint
     */
     async getOreIdSignUrl(signOptions) {
-        let { account, callbackUrl, transaction, chain, broadcast } = signOptions;
-        let { oreIdUrl} = this.options;
+        let { account, broadcast, callbackUrl, chain, state, transaction } = signOptions;
+        let { oreIdUrl } = this.options;
         
         if(!transaction || !account || !callbackUrl || !chain) {
             throw new Error(`Missing a required parameter`);
         }
 
         let appAccessToken = await this.getAccessToken();
-        const encodedTransaction = Base64.encode(JSON.stringify(transaction));
+        let encodedTransaction = Base64.encode(JSON.stringify(transaction));
+        let encodedStateParam = (state) ? `&state=${Base64.encode(JSON.stringify(state))}` : "";
 
-        return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&callback_url=${encodeURIComponent(callbackUrl)}&chain=${chain}&broadcast=${broadcast}&transaction=${encodedTransaction}`;
+        return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&callback_url=${encodeURIComponent(callbackUrl)}&chain=${chain}&broadcast=${broadcast}&transaction=${encodedTransaction}${encodedStateParam}`;
     };
 
     /*
@@ -81,9 +81,9 @@ class OreId {
     handleAuthResponse(callbackUrlString) {
         //Parses error codes and returns an errors array 
         //(if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
-        params = urlParamsToArray(callbackUrlString);
+        let params = urlParamsToArray(callbackUrlString);
         let { account } = params;
-        let errors = getErrorCodesFromParams(params);
+        let errors = this.getErrorCodesFromParams(params);
         return {account, errors};
     };
 
@@ -91,13 +91,16 @@ class OreId {
         Extracts the response parameters on the /sign callback URL string
     */
     handleSignResponse(callbackUrlString) {
-        params = urlParamsToArray(callbackUrlString);
-        let { signed_transaction:signedTransaction, state } = params;
-        let errors = getErrorCodesFromParams(params);
+        let signedTransaction;
+        let state;
+        let params = urlParamsToArray(callbackUrlString);
+        let {signed_transaction:encodedTransaction, state:encodedState} = params;
+        let errors = this.getErrorCodesFromParams(params);
+
         if(!errors) {
             //Decode base64 parameters
-            const signedTransaction =  tryParseJSON(Base64.decode(signedTransaction));
-            const state =  tryParseJSON(Base64.decode(encodedState));
+            signedTransaction = tryParseJSON(Base64.decode(encodedTransaction));
+            state = JSON.parse(Base64.decode(encodedState));
         }
         return {signedTransaction, state, errors};
     };
@@ -105,17 +108,8 @@ class OreId {
     /*  
         Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken 
     */
-   async getNewAppAccessToken() {
-        let { apiKey, oreIdUrl } = this.options;
-        let response = await fetch(`${oreIdUrl}/api/app-token`, {
-            headers: { 'api-key' : apiKey }}
-        );
-        let responseJson = await response.json();
-        const { error, message } = responseJson;
-        if (error) {
-            throw new Error(error);
-        };
-
+    async getNewAppAccessToken() {
+        let responseJson = await this.callOreIdApi(`app-token`)
         let { appAccessToken } = responseJson;
         this.appAccessToken = appAccessToken;
     };
@@ -123,53 +117,45 @@ class OreId {
     /*
         Get the user info from ORE ID for the given user account
     */
-   async getUserInfo(account) {
-        let { apiKey, oreIdUrl } = this.options;
-        let url =`${oreIdUrl}/api/user?account=${account}`;
-
-        let response = await fetch(url, {
-            headers: { 'api-key' : apiKey }}
-        );
-
-        let responseJson = await response.json();
-        const { error, message } = responseJson;
-        if (error) {
-            throw new Error(error);
-        };
-
+    async getUserInfo(account) {
+        let responseJson = await this.callOreIdApi(`user?account=${account}`)
         let userInfo = responseJson;
-
         return {userInfo};
     };
 
-   /*
+    /*
         Get the user info from ORE ID for the given user account
-   */
-   async getUserWalletInfo(account) {
-        let { apiKey, oreIdUrl } = this.options;
-        let url =`${oreIdUrl}/api/wallet?account=${account}`;
-
-        let response = await fetch(url, {
-            headers: { 'api-key' : apiKey }}
-        );
-
-        let responseJson = await response.json();
-        const { error, message } = responseJson;
-        if (error) {
-            throw new Error(error);
-        };
-
+    */
+    async getUserWalletInfo(account) {
+        let responseJson = await this.callOreIdApi(`wallet?account=${account}`)
         let userWalletInfo = responseJson;
-
         return {userWalletInfo, errors};
     };
 
     /*
-        params is a javascript object representing the parameters parsed from an URL string
+        Helper function to call api endpoint and inject api-key 
+    */
+    async callOreIdApi(endpointAndParams) {
+        let { apiKey, oreIdUrl } = this.options;
+        let url = `${oreIdUrl}/api/${endpointAndParams}`;
+        let response = await fetch(url, {
+            headers: { 'api-key' : apiKey }}
+        );
+
+        let responseJson = await response.json();
+        let { error, message } = responseJson;
+        if (error) {
+            throw new Error(error);
+        };
+        return responseJson;
+    }
+
+    /*
+        Params is a javascript object representing the parameters parsed from an URL string
     */
     getErrorCodesFromParams(params) {
         let errorCodes;
-        let errorString = params[error-code];
+        let errorString = params["error-code"];
         if(errorString) {
             errorCodes = errorString.split(/[/?/$&]/);
         }
