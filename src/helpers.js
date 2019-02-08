@@ -30,7 +30,7 @@ export function log(message, data) {
 export function tokenHasExpired(token) {
     var decoded = null;
     try {
-      decoded = jwtdecode(token);
+      decoded = jwtDecodeSafe(token);
     }
     catch (error) {
       return true;
@@ -106,4 +106,18 @@ export function urlParamsToArray (fullpath) {
       }
       
       return null;
+    }
+
+    export function jwtDecodeSafe(token) {
+      let decoded = {};
+      if(isNullOrEmpty(token)) {
+        return {};
+      }
+      try {
+        decoded = jwtdecode(token);
+      }
+      catch (error) {
+        logError('Problem decoding token:',token);
+      }
+      return decoded;
     }

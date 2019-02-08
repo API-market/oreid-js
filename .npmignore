@@ -1,4 +1,7 @@
-apimarket_config.json
+.env
 package-lock.json
 dist
 node_modules
+.vscode
+.npmrc.example
+

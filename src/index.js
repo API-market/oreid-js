@@ -1,14 +1,17 @@
-const { isNullOrEmpty, log, tokenHasExpired, tryParseJSON, urlParamsToArray } = require("./helpers.js");
+const { isNullOrEmpty, jwtDecodeSafe, log, tokenHasExpired, tryParseJSON, urlParamsToArray } = require("./helpers.js");
 // const StorageHandler = require("./storage.js");
 const Base64 = require('js-base64').Base64;
 const fetch = require('node-fetch');
 import StorageHandler from './storage';
+
+const APPID_CLAIM_URI = "https://oreid.aikon.com/appId";
 
 class OreId {
 
     constructor(options) {
         this.options;
         this.appAccessToken;
+        this.appId = 'missing_app_id';
         this.user;
         this.storage = new StorageHandler();
         this.validateOptions(options);
@@ -50,7 +53,7 @@ class OreId {
         Returns a fully formed url to call the auth endpoint
     */
     async getOreIdAuthUrl(authOptions) {
-        let { loginType, callbackUrl, backgroundColor } = authOptions;
+        let { loginType, callbackUrl, backgroundColor, state } = authOptions;
         let { oreIdUrl } = this.options;
 
         if(!loginType || !callbackUrl) {
@@ -58,7 +61,9 @@ class OreId {
         }
 
         let appAccessToken = await this.getAccessToken();
-        return `${oreIdUrl}/auth#app_access_token=${appAccessToken}?provider=${loginType}?callback_url=${encodeURIComponent(callbackUrl)}?background_color=${backgroundColor}`;
+        let encodedStateParam = (state) ? `&state=${Base64.encode(JSON.stringify(state))}` : "";
+
+        return `${oreIdUrl}/auth#app_access_token=${appAccessToken}?provider=${loginType}?callback_url=${encodeURIComponent(callbackUrl)}?background_color=${backgroundColor}${encodedStateParam}`;
     };
 
     /* 
@@ -86,9 +91,14 @@ class OreId {
         //Parses error codes and returns an errors array 
         //(if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
         let params = urlParamsToArray(callbackUrlString);
-        let { account } = params;
+        let state;
+        let { account, state:encodedState } = params;
         let errors = this.getErrorCodesFromParams(params);
-        return {account, errors};
+        if(!errors && encodedState) {
+            //Decode base64 parameters
+            state = JSON.parse(Base64.decode(encodedState));
+        }
+        return {account, state, errors};
     };
 
     /*
@@ -116,6 +126,8 @@ class OreId {
         let responseJson = await this.callOreIdApi(`app-token`)
         let { appAccessToken } = responseJson;
         this.appAccessToken = appAccessToken;
+        let decodedToken = jwtDecodeSafe(appAccessToken);
+        this.appId = decodedToken[APPID_CLAIM_URI]; //Get the appId from the app token
     };
 
     /*
@@ -167,16 +179,23 @@ class OreId {
         }
         return errorCodes;
     };
+
+    /* 
+        Local state 
+    */
+    userKey() {
+        return `${this.appId}_user`;
+    }
     
     saveUserLocally(user) {
         if(isNullOrEmpty(user)) { return; }
         this.user = user;
         let serialized = JSON.stringify(this.user);
-        this.storage.setItem('user', serialized);
+        this.storage.setItem(this.userKey(), serialized);
     }
 
     loadUserLocally() {
-        let serialized = this.storage.getItem('user');
+        let serialized = this.storage.getItem(this.userKey());
         //user state does not exist
         if(isNullOrEmpty(serialized)) { 
             this.user = {}; return; 
@@ -186,7 +205,7 @@ class OreId {
     }
 
     async clearLocalState() {
-        this.storage.removeItem('user');
+        this.storage.removeItem(this.userKey());
     }
 
 }
