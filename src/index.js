@@ -1,15 +1,19 @@
-const { log, tokenHasExpired, tryParseJSON, urlParamsToArray } = require("./helpers.js");
+const { isNullOrEmpty, log, tokenHasExpired, tryParseJSON, urlParamsToArray } = require("./helpers.js");
+// const StorageHandler = require("./storage.js");
 const Base64 = require('js-base64').Base64;
 const fetch = require('node-fetch');
+import StorageHandler from './storage';
 
 class OreId {
 
     constructor(options) {
         this.options;
         this.appAccessToken;
+        this.user;
+        this.storage = new StorageHandler();
         this.validateOptions(options);
     }
-
+  
     /*
         Validates startup options
     */
@@ -31,7 +35,7 @@ class OreId {
     };
 
     /*
-        Checks for the expiration of the locally stored app-access-token 
+        Checks for the expiration of the locally cached app-access-token 
         Refreshes token if needed using getNewAppAccessToken()
     */
     async getAccessToken() {
@@ -120,7 +124,9 @@ class OreId {
     async getUserInfo(account) {
         let responseJson = await this.callOreIdApi(`user?account=${account}`)
         let userInfo = responseJson;
-        return {userInfo};
+        this.saveUserLocally(userInfo);
+        let userInfoOut = this.loadUserLocally();
+        return userInfoOut;
     };
 
     /*
@@ -161,6 +167,27 @@ class OreId {
         }
         return errorCodes;
     };
+    
+    saveUserLocally(user) {
+        if(isNullOrEmpty(user)) { return; }
+        this.user = user;
+        let serialized = JSON.stringify(this.user);
+        this.storage.setItem('user', serialized);
+    }
+
+    loadUserLocally() {
+        let serialized = this.storage.getItem('user');
+        //user state does not exist
+        if(isNullOrEmpty(serialized)) { 
+            this.user = {}; return; 
+        }
+        this.user = JSON.parse(serialized);
+        return this.user;
+    }
+
+    async clearLocalState() {
+        this.storage.removeItem('user');
+    }
 
 }
 
