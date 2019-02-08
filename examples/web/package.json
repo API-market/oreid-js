@@ -4,7 +4,7 @@
   "description": "oreid-js example",
   "main": "index.js",
   "scripts": {
-    "start": "node index",
+    "start": "node backend",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
