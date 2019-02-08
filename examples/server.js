@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-import {loginHandler, userHandler} from './appRoutes'
+import {loginHandler, userHandler} from './backend/appRoutes'
 import dotenv from 'dotenv';
 dotenv.config();
 
