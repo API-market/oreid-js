@@ -26,7 +26,7 @@ let signUrl = await oreId.getOreIdSignUrl({ account, transaction, signCallbackUr
 let signResults = oreId.handleSignResponse(signedCallbackResults);
 
 //Get the user's info given a blockchain account
-let userInfo = await oreId.getUserInfo(account);
+let userInfo = await oreId.getUserInfoFromApi(account);
 
 ```
 

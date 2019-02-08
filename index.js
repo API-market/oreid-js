@@ -1,5 +1,9 @@
-const {OreId} = require('./src')
+const {OreId} = require('./src');
+const {asyncHandler, authCallbackHandler, signCallbackHandler } = require('./src/middleware');
 
 module.exports = {
-    OreId
-}
+    asyncHandler, 
+    authCallbackHandler,
+    OreId, 
+    signCallbackHandler
+};

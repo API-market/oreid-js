@@ -11,15 +11,12 @@ import Cookie from 'js-cookie';
 import { log } from './helpers';
 
 function CookieStorage() {}
-
 CookieStorage.prototype.getItem = function(key) {
   return Cookie.get(key);
 };
-
 CookieStorage.prototype.removeItem = function(key) {
   Cookie.remove(key);
 };
-
 CookieStorage.prototype.setItem = function(key, value, options) {
   var params = {
       expires: 1, // 1 day
@@ -30,13 +27,10 @@ CookieStorage.prototype.setItem = function(key, value, options) {
 
 
 function DummyStorage() {}
-
 DummyStorage.prototype.getItem = function() {
   return null;
 };
-
 DummyStorage.prototype.removeItem = function() {};
-
 DummyStorage.prototype.setItem = function() {};
 
 

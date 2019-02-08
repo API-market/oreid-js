@@ -2,8 +2,8 @@
     Usage Example:
     import {asyncHandler, authCallbackHandler, signCallbackHandler} from './middleware';
     let oreId = OreId({appId});
-    app.use('/authcallback', asyncHandler((req, res, next) => {  authCallbackHandler(req, res, next) }));
-    app.use('/signcallback', asyncHandler((req, res, next) => {  signCallbackHandler(req, res, next) }));
+    app.use('/authcallback', asyncHandler(authCallbackHandler(oreId)));
+    app.use('/signcallback', asyncHandler(signCallbackHandler(oreId)));
 */
 
 /* 
@@ -20,7 +20,7 @@ export function authCallbackHandler(oreId) {
         let {account, state, errors} = response;
         //attach user data to request object
         if(!errors) {
-            let user = await oreId.getUserInfo(account); //get user from server and also save in local cookie (or state)
+            let user = await oreId.getUserInfoFromApi(account); //get user from server and also save in local cookie (or state)
             req.user = user;
             req.appId = oreId.appId;
             console.log(`authCallbackHandler found account`,account)

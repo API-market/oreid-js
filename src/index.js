@@ -11,12 +11,12 @@ class OreId {
     constructor(options) {
         this.options;
         this.appAccessToken;
-        this.appId = 'missing_app_id';
+        this.appId = 'missing_app_id';  //evaluated from the apiKey (extracted from the app token)
         this.user;
         this.storage = new StorageHandler();
         this.validateOptions(options);
     }
-  
+
     /*
         Validates startup options
     */
@@ -37,14 +37,29 @@ class OreId {
         this.options = options;
     };
 
+    /* 
+        load user from local storage and call api to get latest info
+    */
+    async getUser() {
+        //current state
+        if(this.user) {
+            return this.user;
+        }
+        //load from saved state
+        let { account } = this.loadUserLocally() || {};
+        if(!account) { return null;}
+        await this.getUserInfoFromApi(account); //get the latest user data
+        return this.user
+    }
+
     /*
         Checks for the expiration of the locally cached app-access-token 
-        Refreshes token if needed using getNewAppAccessToken()
+        Refreshes token if needed using getNewAppAccessTokenFromApi()
     */
     async getAccessToken() {
         //check for expiration and renew token if expired
         if(!this.appAccessToken || tokenHasExpired(this.appAccessToken)) {
-            await this.getNewAppAccessToken();
+            await this.getNewAppAccessTokenFromApi();
         }
         return this.appAccessToken;
     };
@@ -122,7 +137,7 @@ class OreId {
     /*  
         Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken 
     */
-    async getNewAppAccessToken() {
+    async getNewAppAccessTokenFromApi() {
         let responseJson = await this.callOreIdApi(`app-token`)
         let { appAccessToken } = responseJson;
         this.appAccessToken = appAccessToken;
@@ -133,18 +148,19 @@ class OreId {
     /*
         Get the user info from ORE ID for the given user account
     */
-    async getUserInfo(account) {
+    async getUserInfoFromApi(account) {
         let responseJson = await this.callOreIdApi(`user?account=${account}`)
         let userInfo = responseJson;
         this.saveUserLocally(userInfo);
-        let userInfoOut = this.loadUserLocally();
-        return userInfoOut;
+        // let userInfoOut = this.loadUserLocally();
+        return userInfo;
     };
 
     /*
         Get the user info from ORE ID for the given user account
     */
-    async getUserWalletInfo(account) {
+    async getUserWalletInfoFromApi(account) {
+        throw Error('Not Implemented');
         let responseJson = await this.callOreIdApi(`wallet?account=${account}`)
         let userWalletInfo = responseJson;
         return {userWalletInfo, errors};
@@ -183,25 +199,28 @@ class OreId {
     /* 
         Local state 
     */
+
     userKey() {
-        return `${this.appId}_user`;
+        return `oreid.${this.appId}.user`;
     }
     
     saveUserLocally(user) {
         if(isNullOrEmpty(user)) { return; }
         this.user = user;
-        let serialized = JSON.stringify(this.user);
-        this.storage.setItem(this.userKey(), serialized);
+        // let serialized = JSON.stringify(this.user);
+        // this.storage.setItem(this.userKey(), serialized);
     }
 
     loadUserLocally() {
-        let serialized = this.storage.getItem(this.userKey());
-        //user state does not exist
-        if(isNullOrEmpty(serialized)) { 
-            this.user = {}; return; 
-        }
-        this.user = JSON.parse(serialized);
-        return this.user;
+        // let serialized = this.storage.getItem(this.userKey());
+        // //user state does not exist
+        // if(isNullOrEmpty(serialized)) { 
+        //     this.user = {}; 
+        //     return {}; 
+        // }
+        // this.user = JSON.parse(serialized);
+        // return this.user;
+        return {};
     }
 
     async clearLocalState() {

@@ -25,7 +25,7 @@ let authCallbackResults = "https://callback.sampleapp.com/?account=1pyb3dkuuxg5"
 async function run() {
     let authUrl = await oreId.getOreIdAuthUrl({ loginType, callbackUrl:authCallbackUrl, backgroundColor });
     let signUrl = await oreId.getOreIdSignUrl({ account, callbackUrl:signCallbackUrl, transaction, chain, broadcast:false, state, accountIsTransactionPermission: false });
-    let userInfo = await oreId.getUserInfo(account);
+    let userInfo = await oreId.getUserInfoFromApi(account);
     let signResults = oreId.handleSignResponse(signedCallbackResults);
     let authResults = oreId.handleAuthResponse(authCallbackResults);
     console.log(userInfo);
