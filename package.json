@@ -2,6 +2,8 @@
   "name": "@apimarket/oreid-js",
   "version": "1.1.0",
   "description": "Client library for ORE ID",
+  "author": "AIKON",
+  "license": "MIT",
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc --project ./tsconfig.json --pretty",
@@ -13,7 +15,6 @@
     "type": "git",
     "url": "git+https://github.com/api-market/oreid-js.git"
   },
-  "author": "aikon",
   "bugs": {
     "url": "https://github.com/api-market/oreid-js/issues"
   },

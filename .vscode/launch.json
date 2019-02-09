@@ -18,6 +18,7 @@
             "runtimeExecutable": "npm",
             "runtimeArgs": [
                 "run-script",
+                "preserve-symlinks",
                 "debug"
             ],
             "port": 9229

@@ -15,10 +15,11 @@ export function loginHandler(oreId) {
 }
 
 //display user state
-export function userHandler(oreId) {
-    return async function(req, res, next) {
-        const user = await oreId.getUser();
-        console.log(`user:`,user);
-        return res.status(200).json(user);
+export function displayUser() {
+    return function(req, res, next) {
+        const {user} = req;
+        if(user) {
+            return res.status(200).json(user);
+        }
     }
 }

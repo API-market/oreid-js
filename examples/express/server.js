@@ -1,11 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-import {loginHandler, userHandler} from './appRoutes'
+import {displayUser, loginHandler} from './appRoutes'
 import dotenv from 'dotenv';
 dotenv.config();
 
-//import {OreId, asyncHandler, authCallbackHandler, signCallbackHandler} from '@apimarket/oreid-js';
-import {OreId, asyncHandler, authCallbackHandler, signCallbackHandler} from '../../../index';
+import {OreId, asyncHandler, authCallbackHandler, signCallbackHandler} from '@apimarket/oreid-js';
 
 //Load settings from file
 var settings = process.env;
@@ -18,11 +17,11 @@ let oreId = new OreId({appId:OREID_APP_ID, apiKey: OREID_API_KEY, oreIdUrl: OREI
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
 //handle sample oreid-enabled routes
 app.use('/login/:logintype', asyncHandler(loginHandler(oreId)));
-app.use('/user', asyncHandler(userHandler(oreId)));
 
-app.use('/authcallback', asyncHandler(authCallbackHandler(oreId)));
+app.use('/authcallback', asyncHandler(authCallbackHandler(oreId)), displayUser());
 app.use('/signcallback', asyncHandler(signCallbackHandler(oreId)));
 
 app.listen(PORT, () => console.log(`Server listening on port: ${PORT}`));

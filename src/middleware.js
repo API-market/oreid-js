@@ -16,18 +16,23 @@ export function authCallbackHandler(oreId) {
         if(!query) { return {}; }
 
         oreId.errors = null;
+
         let response = oreId.handleAuthResponse(req.originalUrl);
         let {account, state, errors} = response;
+
+        if(errors) {
+            oreId.errors = errors;
+            let error = new Error(`Errors Processing auth callback: ${errors.join(",")}`);
+            return next(error);
+        }
+
         //attach user data to request object
-        if(!errors) {
+        if(account) {
             let user = await oreId.getUserInfoFromApi(account); //get user from server and also save in local cookie (or state)
             req.user = user;
             req.appId = oreId.appId;
-            console.log(`authCallbackHandler found account`,account)
         }
-        else {
-            oreId.errors = errors;
-        }
+
         return next();
     };
 }
@@ -43,14 +48,18 @@ export function signCallbackHandler(oreId) {
 
         oreId.errors = null;
         let {signedTransaction, state, errors} = oreId.handleSignResponse(body);
-        //attach user data to request object
-        if(!errors) {
+
+        if(errors) {
+            oreId.errors = errors;
+            let error = new Error(`Errors Processing sign callback: ${errors.join(",")}`);
+            return next(error);
+        }
+
+        if(signedTransaction) {
             req.signedTransaction = signedTransaction;
             req.appId = oreId.appId;
         }
-        else {
-            oreId.errors = errors;
-        }
+
         return next();
     };
 }

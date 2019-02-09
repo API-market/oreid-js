@@ -195,7 +195,7 @@ class OreId {
     */
     getErrorCodesFromParams(params) {
         let errorCodes;
-        let errorString = params["error-code"];
+        let errorString = params["error_code"];
         if(errorString) {
             errorCodes = errorString.split(/[/?/$&]/);
         }
