@@ -41,9 +41,11 @@ class App extends Component {
       await wallet.connect();
       console.log("Connected:", wallet.connected, wallet);
 
+      /*
       console.log("Logging in...");
       await wallet.login('facebook');
       console.log("Logged in:", wallet);
+      */
 
       // wallet.authenticated === true
       // wallet.auth === { accountName: 'some_user', permission: 'active', publicKey: '...' }

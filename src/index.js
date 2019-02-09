@@ -37,23 +37,27 @@ class OreId {
         this.options = options;
     };
 
-    /* 
+    /*
         load user from local storage and call api to get latest info
     */
-    async getUser() {
-        //current state
+    async getUser(account) {
+      console.log("getUser::account", account, this);
+        if (account) {
+            const user = await this.getUserInfoFromApi(account); //get the latest user data
+            console.log("oreid-js::getUser::user:", this, user);
+            return user;
+        }
+        // Check in state
         if(this.user) {
             return this.user;
         }
-        //load from saved state
+        // Check local storage
         let { account } = this.loadUserLocally() || {};
-        if(!account) { return null;}
-        await this.getUserInfoFromApi(account); //get the latest user data
-        return this.user
+        return account;
     }
 
     /*
-        Checks for the expiration of the locally cached app-access-token 
+        Checks for the expiration of the locally cached app-access-token
         Refreshes token if needed using getNewAppAccessTokenFromApi()
     */
     async getAccessToken() {
@@ -64,7 +68,7 @@ class OreId {
         return this.appAccessToken;
     };
 
-    /* 
+    /*
         Returns a fully formed url to call the auth endpoint
     */
     async getOreIdAuthUrl(authOptions) {
@@ -81,13 +85,13 @@ class OreId {
         return `${oreIdUrl}/auth#app_access_token=${appAccessToken}?provider=${loginType}?callback_url=${encodeURIComponent(callbackUrl)}?background_color=${backgroundColor}${encodedStateParam}`;
     };
 
-    /* 
+    /*
         Returns a fully formed url to call the sign endpoint
     */
     async getOreIdSignUrl(signOptions) {
         let { account, broadcast, callbackUrl, chain, state, transaction } = signOptions;
         let { oreIdUrl } = this.options;
-        
+
         if(!transaction || !account || !callbackUrl || !chain) {
             throw new Error(`Missing a required parameter`);
         }
@@ -103,7 +107,7 @@ class OreId {
         Extracts the response parameters on the /auth callback URL string
     */
     handleAuthResponse(callbackUrlString) {
-        //Parses error codes and returns an errors array 
+        //Parses error codes and returns an errors array
         //(if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
         let params = urlParamsToArray(callbackUrlString);
         let state;
@@ -134,8 +138,8 @@ class OreId {
         return {signedTransaction, state, errors};
     };
 
-    /*  
-        Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken 
+    /*
+        Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
     */
     async getNewAppAccessTokenFromApi() {
         let responseJson = await this.callOreIdApi(`app-token`)
@@ -167,7 +171,7 @@ class OreId {
     };
 
     /*
-        Helper function to call api endpoint and inject api-key 
+        Helper function to call api endpoint and inject api-key
     */
     async callOreIdApi(endpointAndParams) {
         let { apiKey, oreIdUrl } = this.options;
@@ -196,30 +200,30 @@ class OreId {
         return errorCodes;
     };
 
-    /* 
-        Local state 
+    /*
+        Local state
     */
 
     userKey() {
         return `oreid.${this.appId}.user`;
     }
-    
+
     saveUserLocally(user) {
         if(isNullOrEmpty(user)) { return; }
         this.user = user;
-        // let serialized = JSON.stringify(this.user);
-        // this.storage.setItem(this.userKey(), serialized);
+        let serialized = JSON.stringify(this.user);
+        this.storage.setItem(this.userKey(), serialized);
     }
 
     loadUserLocally() {
-        // let serialized = this.storage.getItem(this.userKey());
-        // //user state does not exist
-        // if(isNullOrEmpty(serialized)) { 
-        //     this.user = {}; 
-        //     return {}; 
-        // }
-        // this.user = JSON.parse(serialized);
-        // return this.user;
+        let serialized = this.storage.getItem(this.userKey());
+        //user state does not exist
+        if(isNullOrEmpty(serialized)) {
+            this.user = {};
+            return {};
+        }
+        this.user = JSON.parse(serialized);
+        return this.user;
         return {};
     }
 
