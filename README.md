@@ -7,6 +7,12 @@ oreid-js is a javascript helper library for interacting with the Aikon ORE ID se
 
 [ORE ID](https://github.com/api-market/ore-id-docs) is a simple way to add OAuth login to your blockchain enabled app.
 
+Install npm package:
+```
+npm install @api-market/oreid-js
+```
+
+
 # Usage
 
 
@@ -30,32 +36,23 @@ let userInfo = await oreId.getUserInfoFromApi(account);
 
 ```
 
+# Examples
+
 To run sample code:
 
-```
-// First populate .env file in root directory (copy from example/.env.example)
+Express Server
 
+```
+// First populate .env file in root of project directory (copy .env.example to examples/express/.env)
+
+cd examples/express
 npm install
-node -r esm example/index.js
+
+node index.js
+
+//to trigger login flow
+http://localhost:8888/login/facebook 
+
 ```
+Note: After callback is handled by handleAuthResponse middlewear, user state is stored on request object (e.g. req.user).
 
-
-# Publish NPM Package
-
-PREREQISITE:
-
-Option 1) Use an .npmrc token
-- Include an .npmrc file in the user's root or project root e.g. ~/.npmrc or .../{projectroot}/.npmrc
-- To create an .npmrc file, copy the .npmrc.example file and insert the token (retrieved from LastPass)
-
-OR 
-
-Option 2) log-in to npmjs with `npm login` (using account apimarket)
-
-To publish an updated package...
-
-- Update version number in package.json (and example's package.json)
-- `npm publish --tag staging` - to publish staging version
-- `npm publish --access public` - to publish the production version
-
-package name will be: @aikon/oreid-js@{version}
