@@ -11,7 +11,6 @@ class OreId {
     constructor(options) {
         this.options;
         this.appAccessToken;
-        this.appId = 'missing_app_id';  //evaluated from the apiKey (extracted from the app token)
         this.user;
         this.storage = new StorageHandler();
         this.validateOptions(options);
@@ -21,9 +20,12 @@ class OreId {
         Validates startup options
     */
     validateOptions(options) {
-        let { apiKey, oreIdUrl } = options;
+        let { appId, apiKey, oreIdUrl } = options;
         let errorMessage = ''
 
+        if (!appId) {
+            errorMessage += `\n --> Missing required parameter - appId. You can get an appId when you register your app with ORE ID.`
+        }
         if (!apiKey) {
             errorMessage += `\n --> Missing required parameter - apiKey. You can get an apiKey when you register your app with ORE ID.`
         }
@@ -41,7 +43,7 @@ class OreId {
         load user from local storage and call api to get latest info
     */
     async getUser(account) {
-      console.log("getUser::account", account, this);
+        console.log("--->getUser::account", account, this);
         if (account) {
             const user = await this.getUserInfoFromApi(account); //get the latest user data
             console.log("oreid-js::getUser::user:", this, user);
@@ -52,8 +54,8 @@ class OreId {
             return this.user;
         }
         // Check local storage
-        let { account } = this.loadUserLocally() || {};
-        return account;
+        let result = this.loadUserLocally() || {};
+        return result.account;
     }
 
     /*
@@ -146,7 +148,7 @@ class OreId {
         let { appAccessToken } = responseJson;
         this.appAccessToken = appAccessToken;
         let decodedToken = jwtDecodeSafe(appAccessToken);
-        this.appId = decodedToken[APPID_CLAIM_URI]; //Get the appId from the app token
+        // this.appId = decodedToken[APPID_CLAIM_URI]; //Get the appId from the app token
     };
 
     /*
@@ -156,7 +158,7 @@ class OreId {
         let responseJson = await this.callOreIdApi(`user?account=${account}`)
         let userInfo = responseJson;
         this.saveUserLocally(userInfo);
-        // let userInfoOut = this.loadUserLocally();
+        let userInfoOut = this.loadUserLocally();
         return userInfo;
     };
 
@@ -205,7 +207,7 @@ class OreId {
     */
 
     userKey() {
-        return `oreid.${this.appId}.user`;
+        return `oreid.${this.options.appId}.user`;
     }
 
     saveUserLocally(user) {

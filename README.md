@@ -13,7 +13,7 @@ oreid-js is a javascript helper library for interacting with the Aikon ORE ID se
 Example code:
 ```
 //Initialize the library
-let oreId = new OreId({ apiKey, oreIdUrl });
+let oreId = new OreId({ appId, apiKey, oreIdUrl });
 
 //Start the OAuth flow by setting the user's browser to this URL
 let authUrl = await oreId.getOreIdAuthUrl({ loginType, callbackUrl, backgroundColor });

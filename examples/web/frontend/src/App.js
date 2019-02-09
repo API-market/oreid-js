@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Button, Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
@@ -18,6 +18,7 @@ class App extends Component {
       },
       walletProviders: [
         oreid({
+          appId: '68aab02c-505c-4eeb-a355-bbaa8cfa2597',
           apiKey: '137186280e4841f5eb5968c946ec1d55912400827',
           oreIdUrl: 'https://staging.oreid.io',
           authCallback: 'http://localhost:3000/authcallback',
@@ -41,11 +42,9 @@ class App extends Component {
       await wallet.connect();
       console.log("Connected:", wallet.connected, wallet);
 
-      /*
       console.log("Logging in...");
       await wallet.login('facebook');
       console.log("Logged in:", wallet);
-      */
 
       // wallet.authenticated === true
       // wallet.auth === { accountName: 'some_user', permission: 'active', publicKey: '...' }
@@ -70,6 +69,7 @@ class App extends Component {
             Learn React
           </a>
         </header>
+
       </div>
     );
   }

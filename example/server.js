@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 //import {OreId, asyncHandler, authCallbackHandler, signCallbackHandler} from '@apimarket/oreid-js';
-import {OreId, asyncHandler, authCallbackHandler, signCallbackHandler} from '../../../index';
+import {OreId, asyncHandler, authCallbackHandler, signCallbackHandler} from '../index';
 
 //Load settings from file
 var settings = process.env;

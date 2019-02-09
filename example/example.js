@@ -4,8 +4,8 @@ const { OreId } = require('@apimarket/oreid-js');
 
 //Load settings
 let { 
+    OREID_APP_ID:appId, 
     OREID_API_KEY:apiKey, 
-    OREID_APP_ID:appId,
     AUTH_CALLBACK:authCallbackUrl, 
     SIGN_CALLBACK:signCallbackUrl, 
     OREID_URI:oreIdUrl, 
