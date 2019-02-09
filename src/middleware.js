@@ -8,7 +8,7 @@
 
 /* 
     Process the response from the /auth endpoint
-    attach user to request
+    attach user to HTTP request
 */
 export function authCallbackHandler(oreId) {
     return async function(req, res, next) {
@@ -22,7 +22,7 @@ export function authCallbackHandler(oreId) {
 
         if(errors) {
             oreId.errors = errors;
-            let error = new Error(`Errors Processing auth callback: ${errors.join(",")}`);
+            let error = new Error(`Errors Processing auth callback: ${errors.join(", ")}`);
             return next(error);
         }
 
@@ -39,7 +39,7 @@ export function authCallbackHandler(oreId) {
 
 /* 
     Process the response from the /sign endpoint
-    attach signedTransaction to request
+    attach signedTransaction to HTTP request
 */
 export function signCallbackHandler(oreId) {
     return async function(req, res, next) {
@@ -51,7 +51,7 @@ export function signCallbackHandler(oreId) {
 
         if(errors) {
             oreId.errors = errors;
-            let error = new Error(`Errors Processing sign callback: ${errors.join(",")}`);
+            let error = new Error(`Errors Processing sign callback: ${errors.join(", ")}`);
             return next(error);
         }
 

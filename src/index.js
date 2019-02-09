@@ -115,7 +115,8 @@ class OreId {
         let state;
         let { account, state:encodedState } = params;
         let errors = this.getErrorCodesFromParams(params);
-        if(!errors && encodedState) {
+
+        if(encodedState) {
             //Decode base64 parameters
             state = JSON.parse(Base64.decode(encodedState));
         }
@@ -196,9 +197,14 @@ class OreId {
     getErrorCodesFromParams(params) {
         let errorCodes;
         let errorString = params["error_code"];
+        let errorMessage = params["error_message"];
         if(errorString) {
             errorCodes = errorString.split(/[/?/$&]/);
         }
+        if(errorCodes || errorMessage) {
+            errorCodes = errorCodes || [];
+            errorCodes.push(errorMessage);
+        };
         return errorCodes;
     };
 
