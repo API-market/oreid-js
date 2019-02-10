@@ -4,7 +4,7 @@ import {displayUser, loginHandler} from './serverRoutes'
 import dotenv from 'dotenv';
 dotenv.config();
 
-import {OreId, asyncHandler, authCallbackHandler, signCallbackHandler} from '@apimarket/oreid-js';
+import {OreId, authCallbackHandler, signCallbackHandler} from '@apimarket/oreid-js';
 
 //Load settings from file
 var settings = process.env;
@@ -17,9 +17,9 @@ let oreId = new OreId({appId:OREID_APP_ID, apiKey: OREID_API_KEY, oreIdUrl: OREI
 const app = express();
 
 //handle sample oreid-enabled routes
-app.use('/login/:logintype', asyncHandler(loginHandler(oreId)));
+app.use('/login/:logintype', loginHandler(oreId));
 
-app.use('/authcallback', asyncHandler(authCallbackHandler(oreId)), displayUser());
-app.use('/signcallback', asyncHandler(signCallbackHandler(oreId)));
+app.use('/authcallback', authCallbackHandler(oreId), displayUser());
+app.use('/signcallback', signCallbackHandler(oreId));
 
 app.listen(PORT, () => console.log(`Server listening on port: ${PORT}`));

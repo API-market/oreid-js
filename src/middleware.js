@@ -11,7 +11,7 @@
     attach user to HTTP request
 */
 export function authCallbackHandler(oreId) {
-    return async function(req, res, next) {
+    return asyncHandler(async function(req, res, next) {
         let { query } = req;
         if(!query) { return {}; }
 
@@ -34,7 +34,7 @@ export function authCallbackHandler(oreId) {
         }
 
         return next();
-    };
+    });
 }
 
 /* 
@@ -42,7 +42,7 @@ export function authCallbackHandler(oreId) {
     attach signedTransaction to HTTP request
 */
 export function signCallbackHandler(oreId) {
-    return async function(req, res, next) {
+    return asyncHandler(async function(req, res, next) {
         let { body } = req;
         if(!body) { return {}; }
 
@@ -61,7 +61,7 @@ export function signCallbackHandler(oreId) {
         }
 
         return next();
-    };
+    });
 }
 
 //Generic async handler for Express Middleware

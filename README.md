@@ -38,9 +38,14 @@ let userInfo = await oreId.getUserInfoFromApi(account);
 
 # Express Middlewear
 
-This library includes Express middlewear that you can use to simplify handling the callbacks from the ORE ID service. These functions are asynchronous so we've included a handy handler (asyncHandler) to wrap them.
+This library includes Express middlewear that you can use to simplify handling the callbacks from the ORE ID service.
 
-You can see how to use it in the Express Server example.
+```
+// authCallbackHandler middlewear handles callback response from ORE ID and extracts results
+app.use('/authcallback', authCallbackHandler(oreId) );
+```
+
+Check out the Express Server example for a complete example.
 
 
 # Examples
