@@ -66,5 +66,5 @@ node index.js
 http://localhost:8888/login/facebook 
 
 ```
-Note: After callback is handled by handleAuthResponse middlewear, user state is stored on request object (e.g. req.user).
+Note: When the callback is handled by handleAuthResponse middlewear, it adds the new user state to the request object (e.g. req.user).
 
