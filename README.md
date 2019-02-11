@@ -36,12 +36,12 @@ let userInfo = await oreId.getUserInfoFromApi(account);
 
 ```
 
-# Express Middlewear
+# Express Middleware
 
-This library includes Express middlewear that you can use to simplify handling the callbacks from the ORE ID service.
+This library includes Express middleware that you can use to simplify handling the callbacks from the ORE ID service.
 
 ```
-// authCallbackHandler middlewear handles callback response from ORE ID and extracts results
+// authCallbackHandler middleware handles callback response from ORE ID and extracts results
 app.use('/authcallback', authCallbackHandler(oreId) );
 ```
 
@@ -66,5 +66,5 @@ node index.js
 http://localhost:8888/login/facebook 
 
 ```
-Note: When the callback is handled by handleAuthResponse middlewear, it adds the new user state to the request object (e.g. req.user).
+Note: When the callback is handled by handleAuthResponse middleware, it adds the new user state to the request object (e.g. req.user).
 
