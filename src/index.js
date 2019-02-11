@@ -43,10 +43,8 @@ class OreId {
         load user from local storage and call api to get latest info
     */
     async getUser(account) {
-        console.log("--->getUser::account", account, this);
         if (account) {
             const user = await this.getUserInfoFromApi(account); //get the latest user data
-            console.log("oreid-js::getUser::user:", this, user);
             return user;
         }
         // Check in state
@@ -54,8 +52,8 @@ class OreId {
             return this.user;
         }
         // Check local storage
-        let result = this.loadUserLocally() || {};
-        return result.account;
+        let result = this.loadUserLocally();
+        return result;
     }
 
     /*
@@ -159,7 +157,7 @@ class OreId {
         let responseJson = await this.callOreIdApi(`account/user?account=${account}`)
         let userInfo = responseJson;
         this.saveUserLocally(userInfo);
-        let userInfoOut = this.loadUserLocally();
+        await this.loadUserLocally(); //ensures this.user state is set
         return userInfo;
     };
 
@@ -219,6 +217,15 @@ class OreId {
     };
 
     /*
+        We don't really maintain a logged-in state 
+        However, we do have local cached user data, so clear that
+    */
+    logout() {
+        //clear local state
+        this.clearLocalState();
+    }
+
+    /*
         Local state
     */
 
@@ -237,12 +244,11 @@ class OreId {
         let serialized = this.storage.getItem(this.userKey());
         //user state does not exist
         if(isNullOrEmpty(serialized)) {
-            this.user = {};
-            return {};
+            this.user = null;
+            return null;
         }
         this.user = JSON.parse(serialized);
         return this.user;
-        return {};
     }
 
     async clearLocalState() {
