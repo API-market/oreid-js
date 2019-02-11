@@ -7,13 +7,19 @@ oreid-js is a javascript helper library for interacting with the Aikon ORE ID se
 
 [ORE ID](https://github.com/api-market/ore-id-docs) is a simple way to add OAuth login to your blockchain enabled app.
 
+Install npm package:
+```
+npm install @api-market/oreid-js
+```
+
+
 # Usage
 
 
 Example code:
 ```
 //Initialize the library
-let oreId = new OreId({ apiKey, oreIdUrl });
+let oreId = new OreId({ appId, apiKey, oreIdUrl });
 
 //Start the OAuth flow by setting the user's browser to this URL
 let authUrl = await oreId.getOreIdAuthUrl({ loginType, callbackUrl, backgroundColor });
@@ -26,36 +32,28 @@ let signUrl = await oreId.getOreIdSignUrl({ account, transaction, signCallbackUr
 let signResults = oreId.handleSignResponse(signedCallbackResults);
 
 //Get the user's info given a blockchain account
-let userInfo = await oreId.getUserInfo(account);
+let userInfo = await oreId.getUserInfoFromApi(account);
 
 ```
 
-To run sample code:
+# Express Middleware
+
+This library includes Express middleware that you can use to simplify handling the callbacks from the ORE ID service.
 
 ```
-// First populate .env file in root directory (copy from example/.env.example)
-
-npm install
-npx babel-node example/index.js
+// authCallbackHandler middleware handles callback response from ORE ID and extracts results
+app.use('/authcallback', authCallbackHandler(oreId) );
 ```
 
+Check out the Express Server example for a complete example.
 
-# Publish NPM Package
 
-PREREQISITE:
+# Example projects
 
-Option 1) Use an .npmrc token
-- Include an .npmrc file in the user's root or project root e.g. ~/.npmrc or .../{projectroot}/.npmrc
-- To create an .npmrc file, copy the .npmrc.example file and insert the token (retrieved from LastPass)
+Refer to the examples folder in the [ore-id-docs](https://github.com/API-market/ore-id-docs) repo for the following sample projects
 
-OR 
+- ReactJS - A simple ReactJS website that includes React Login button component
 
-Option 2) log-in to npmjs with `npm login` (using account apimarket)
+- React Native - A React Native app that includes a React OAuth flow modal component
 
-To publish an updated package...
-
-- Update version number in package.json (and example's package.json)
-- `npm publish --tag staging` - to publish staging version
-- `npm publish --access public` - to publish the production version
-
-package name will be: @aikon/oreid-js@{version}
+- Express Server - A simple Express server that includes the use of middleware to automate handling of callbacks

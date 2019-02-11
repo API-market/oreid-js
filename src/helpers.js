@@ -1,5 +1,5 @@
-/* 
-    helper functions 
+/*
+    helper functions
  */
 import jwtdecode from 'jwt-decode';
 const TRACING = false; //enable when debugging to see detailed outputs
@@ -20,7 +20,7 @@ export function isNullOrEmpty (obj) {
   return (Object.keys(obj).length === 0 && obj.constructor === Object);
 }
 
-// log data 
+// log data
 export function log(message, data) {
     if (TRACING == true) {
         console.log(message, data);
@@ -30,12 +30,12 @@ export function log(message, data) {
 export function tokenHasExpired(token) {
     var decoded = null;
     try {
-      decoded = jwtdecode(token);
+      decoded = jwtDecodeSafe(token);
     }
     catch (error) {
       return true;
     }
-  
+
     const now = Date.now().valueOf() / 1000
     if (typeof decoded.exp !== 'undefined' && decoded.exp < now) {
       return true;
@@ -50,14 +50,14 @@ export function urlParamsToArray (fullpath) {
     if (isNullOrEmpty(fullpath)) {
       return [];
     }
-  
+
     //Grab everything after hash if it exists
     if(fullpath.includes('?')) {
       fullpath = fullpath.split("?")[1];
     }
-  
+
     const parts = fullpath.split(/[/?/$&]/);
-  
+
     //Everything else delimited by '/' or ',' or '&' or '?' is a parameter
     let params = [];
     if (parts.length > 0) {
@@ -104,6 +104,20 @@ export function urlParamsToArray (fullpath) {
       catch (error) {
         console.log(error)
       }
-      
+
       return null;
+    }
+
+    export function jwtDecodeSafe(token) {
+      let decoded = {};
+      if(isNullOrEmpty(token)) {
+        return {};
+      }
+      try {
+        decoded = jwtdecode(token);
+      }
+      catch (error) {
+        //logError('Problem decoding token:',token);
+      }
+      return decoded;
     }
