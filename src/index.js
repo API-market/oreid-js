@@ -65,7 +65,7 @@ class OreId {
     async getAccessToken() {
         //check for expiration and renew token if expired
         if(!this.appAccessToken || tokenHasExpired(this.appAccessToken)) {
-            await this.getNewAppAccessTokenFromApi();
+            await this.getNewAppAccessToken(); //call api
         }
         return this.appAccessToken;
     };
@@ -144,7 +144,7 @@ class OreId {
     /*
         Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
     */
-    async getNewAppAccessTokenFromApi() {
+    async getNewAppAccessToken() {
         let responseJson = await this.callOreIdApi(`app-token`)
         let { appAccessToken } = responseJson;
         this.appAccessToken = appAccessToken;
@@ -156,7 +156,7 @@ class OreId {
         Get the user info from ORE ID for the given user account
     */
     async getUserInfoFromApi(account) {
-        let responseJson = await this.callOreIdApi(`user?account=${account}`)
+        let responseJson = await this.callOreIdApi(`account/user?account=${account}`)
         let userInfo = responseJson;
         this.saveUserLocally(userInfo);
         let userInfoOut = this.loadUserLocally();
@@ -164,13 +164,23 @@ class OreId {
     };
 
     /*
+        Adds a public key to an account with a specific permission name 
+        The permission name must be one defined in the App Registration record (Which defines its parent permission as well as preventing adding rougue permissions)
+        This feature allows your app to hold private keys locally (for certain actions enabled by the permission) while having the associated public key in the user's account
+    */
+   async addPermission(account, publicKey, permission) {
+        let responseJson = await this.callOreIdApi(`account/add-permission?account=${account}&public-key=${publicKey}&permission=${permission}`)
+        //if failed, error will be thrown
+    };
+
+    /*
         Get the user info from ORE ID for the given user account
     */
-    async getUserWalletInfoFromApi(account) {
+    async getUserWalletInfo(account) {
         throw Error('Not Implemented');
-        let responseJson = await this.callOreIdApi(`wallet?account=${account}`)
-        let userWalletInfo = responseJson;
-        return {userWalletInfo, errors};
+        // let responseJson = await this.callOreIdApi(`wallet?account=${account}`)
+        // let userWalletInfo = responseJson;
+        // return {userWalletInfo, errors};
     };
 
     /*
