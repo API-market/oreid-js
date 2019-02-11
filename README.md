@@ -48,23 +48,12 @@ app.use('/authcallback', authCallbackHandler(oreId) );
 Check out the Express Server example for a complete example.
 
 
-# Examples
+# Example projects
 
-To run sample code:
+Refer to the examples folder in the [ore-id-docs](https://github.com/API-market/ore-id-docs) repo for the following sample projects
 
-Express Server
+- ReactJS - A simple ReactJS website that includes React Login button component
 
-```
-// First populate .env file in root of project directory (copy .env.example to examples/express/.env)
+- React Native - A React Native app that includes a React OAuth flow modal component
 
-cd examples/express
-npm install
-
-node index.js
-
-//to trigger login flow
-http://localhost:8888/login/facebook 
-
-```
-Note: When the callback is handled by handleAuthResponse middleware, it adds the new user state to the request object (e.g. req.user).
-
+- Express Server - A simple Express server that includes the use of middleware to automate handling of callbacks
