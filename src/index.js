@@ -165,9 +165,10 @@ class OreId {
         Adds a public key to an account with a specific permission name 
         The permission name must be one defined in the App Registration record (Which defines its parent permission as well as preventing adding rougue permissions)
         This feature allows your app to hold private keys locally (for certain actions enabled by the permission) while having the associated public key in the user's account
+        chainAccount is the name of the account on the chain - 12/13-digit string on EOS and Ethereum Address on ETH
     */
-   async addPermission(account, publicKey, permission) {
-        let responseJson = await this.callOreIdApi(`account/add-permission?account=${account}&public-key=${publicKey}&permission=${permission}`)
+   async addPermission(account, chain, chainAccount, publicKey, permission) {
+        let responseJson = await this.callOreIdApi(`account/add-permission?account=${account}&chain=${chain}&chain-account=${chainAccount}&public-key=${publicKey}&permission=${permission}`)
         //if failed, error will be thrown
     };
 
