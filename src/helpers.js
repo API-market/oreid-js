@@ -121,3 +121,8 @@ export function urlParamsToArray (fullpath) {
       }
       return decoded;
     }
+
+    export function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    

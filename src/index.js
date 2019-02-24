@@ -1,10 +1,19 @@
-const { isNullOrEmpty, jwtDecodeSafe, log, tokenHasExpired, tryParseJSON, urlParamsToArray } = require("./helpers.js");
+const { isNullOrEmpty, jwtDecodeSafe, log, sleep, tokenHasExpired, tryParseJSON, urlParamsToArray } = require("./helpers.js");
 // const StorageHandler = require("./storage.js");
 const Base64 = require('js-base64').Base64;
 const fetch = require('node-fetch');
 import StorageHandler from './storage';
+import { initAccessContext } from 'eos-transit';
+import scatter from 'eos-transit-scatter-provider';
 
 const APPID_CLAIM_URI = "https://oreid.aikon.com/appId";
+
+const NETWORK_EOS = {
+    host: 'api.eosnewyork.io',
+    port: 443,
+    protocol: 'https',
+    chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906'
+  };
 
 class OreId {
 
@@ -14,7 +23,102 @@ class OreId {
         this.user;
         this.storage = new StorageHandler();
         this.validateOptions(options);
+        this.initTransit(); //todo: handle multiple networks
     }
+
+    initTransit() {
+        let { appName } = this.options;
+        this.accessContextEos = initAccessContext({
+            appName: appName || 'missing appName',
+            network: NETWORK_EOS,
+            walletProviders: [
+              scatter()
+            ]
+          });
+    }
+
+    async login(loginOptions) {
+        let { loginType } = loginOptions;
+        //handle log-in based on type
+        switch (loginType) {
+            case 'ledger':
+                return this.connectToTransitProvider('ledger');
+                break;
+            case 'metro':
+                return this.connectToTransitProvider('metro'); 
+                break;
+            case 'scatter':
+                return this.connectToTransitProvider('scatter');
+                break;
+            case 'stub':
+                return this.connectToTransitProvider('stub');
+                break;
+            default:
+                //assume ORE ID if not one of the others
+                return this.loginWithOreId(loginType);
+            break;
+        }
+    }
+
+    async loginWithOreId(loginType) {
+        let { authCallbackUrl, backgroundColor, state } = this.options;
+        let authOptions = {
+            loginType,
+            backgroundColor,
+            callbackUrl:authCallbackUrl,
+            state
+        };
+        let loginUrl = await this.getOreIdAuthUrl(authOptions);
+        return {loginUrl, errors:null};
+    }
+
+    async connectToTransitProvider(provider) {
+        let response;
+        const transitProvider = this.accessContextEos.getWalletProviders().find(wp => wp.id === provider);
+        const transitWallet = this.accessContextEos.initWallet(transitProvider);
+        
+        try { 
+            transitWallet.connect(); 
+        } catch(error) { 
+            console.log(`Failed to connect to ${provider} wallet:`, error) 
+        };
+
+        //try to connect to wallet
+        while(transitWallet.inProgress === true) { 
+            //todo: add timeout
+            await sleep(100);
+            console.log(`connecting to ${provider} via eos-transit wallet in progress:`, transitWallet.inProgress)
+        };
+
+        //return login results or throw error
+        if (transitWallet.connected === true) {
+            const {account_name, permissions} = await transitWallet.login();
+            if (transitWallet.authenticated) {
+                response = {
+                    wallet: transitWallet,
+                    isLoggedIn: true,
+                    account: account_name,
+                    permissions
+                };                      
+            }
+            return response;
+        } else {
+            const {hasError, errorMessage} = transitWallet;
+            throw(new Error(`Scatter not connected!` + (hasError) ? ` Error: ${errorMessage}` : ``));
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+    // --------------->
 
     /*
         Validates startup options

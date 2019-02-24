@@ -20,7 +20,10 @@
   },
   "homepage": "https://github.com/api-market/oreid-js#readme",
   "dependencies": {
+    "@babel/runtime": "^7.3.1",
     "dotenv": "^6.0.0",
+    "eos-transit": "^0.0.12",
+    "eos-transit-scatter-provider": "^0.0.13",
     "js-base64": "^2.5.0",
     "js-cookie": "^2.2.0",
     "jwt-decode": "^2.2.0",
