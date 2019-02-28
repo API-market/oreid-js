@@ -66,13 +66,11 @@ class OreId {
                 return this.connectToTransitProvider('ledger', chainNetwork);
                 break;
             case 'metro':
-                return this.connectToTransitProvider('metro', chainNetwork); 
+                throw new Error('Not Implemented');
+                //return this.connectToTransitProvider('metro', chainNetwork); 
                 break;
             case 'scatter':
                 return this.connectToTransitProvider('scatter', chainNetwork);
-                break;
-            case 'stub':
-                return this.connectToTransitProvider('stub', chainNetwork);
                 break;
             default:
                 //assume ORE ID if not one of the others
@@ -177,12 +175,12 @@ class OreId {
                     permissions
                 };                      
             }
-            console.log(`connectToTransitProvider result:`, response);
             //add accounts to ORE ID - if ORE ID user account is known
             let userOreAccount = this.user.accountName;
+            console.log(`connectToTransitProvider response:`, response, userOreAccount);
             if(userOreAccount) {
                 let {account:chainAccount, permissions} = response;
-                addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, permissions, userOreAccount);
+                await this.addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, permissions, userOreAccount, provider);
             }
 
             return response;
@@ -192,23 +190,21 @@ class OreId {
         }
     }
 
-    addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, permissions, userOreAccount) {
-        let {account:chainAccount, permissions} = response;
-        console.log(`got to add permission:`,userOreAccount,chainAccount,permissions);
-        await permissions.map(async (p) => {
+    //for each permission in the wallet, add to ORE ID (if not in user's record)
+    async addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, walletPermissions, userOreAccount, walletType) {
+        await walletPermissions.map( async (p) => {
             let permission = p.perm_name;
             let parentPermission = p.parent;
-            if(permission === 'owner') { 
-                return;  //don't save owner keys
-            }
             //filter out permission that the user already has in his record
-            
-            // let newPermissions = this.user.permissions.filter(p => p.chainAccount !==  && p.chainNetwork !==  && p.permission !==  )
-            //todo: loop through user's keys
-            let publicKey = p.required_auth.keys[0].key; //TODO: Handle multiple keys and weights
-            let walletType = provider;
-            await this.addPermission(userOreAccount, chainAccount, chainNetwork, publicKey, parentPermission, permission, walletType);
+            let skipThisPermission = this.user.permissions.some(up => (up.chainNetwork === chainNetwork && up.permission === permission) || permission === 'owner');
+            //don't add 'owner' permission and skip ones that are already stored in user's account
+            if(skipThisPermission !== true) {
+                let publicKey = p.required_auth.keys[0].key; //TODO: Handle multiple keys and weights
+                await this.addPermission(userOreAccount, chainAccount, chainNetwork, publicKey, parentPermission, permission, walletType);
+            };
         });
+        //reload user to get updated permissions
+        await this.getUserInfoFromApi(userOreAccount);
     }
 
     // --------------->
