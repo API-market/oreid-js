@@ -59,9 +59,9 @@ class OreId {
     }
 
     async login(loginOptions, chainNetwork = 'eos_main') {
-        let { loginType } = loginOptions;
+        let { provider } = loginOptions;
         //handle log-in based on type
-        switch (loginType) {
+        switch (provider) {
             case 'ledger':
                 return this.connectToTransitProvider('ledger', chainNetwork);
                 break;
@@ -74,37 +74,52 @@ class OreId {
                 break;
             default:
                 //assume ORE ID if not one of the others
-                return this.loginWithOreId(loginType);
+                return this.loginWithOreId(provider);
             break;
         }
     }
 
+    //sign transaction with keys in wallet - connect to wallet first
     async sign(signOptions) {
-        let { walletType, chainAccount, chainNetwork, permission, transaction } = signOptions;
-        //handle log-in based on type
-        switch (walletType) {
+        //handle sign transaction based on provider type
+        let { provider } = signOptions;
+        switch (provider) {
             case 'ledger':
-                return await this.signWithTransitProvider('ledger', signOptions)
+                return await this.signWithTransitProvider(signOptions)
                 break;
             case 'metro':
                 break;
             case 'scatter':
-                // return {signedTransaction:'sample'}
-                return await this.signWithTransitProvider('scatter', signOptions)
-                break;
-            case 'stub':
+                return await this.signWithTransitProvider(signOptions)
                 break;
             default:
                 //assume ORE ID if not one of the others
                 return this.signWithOreId(signOptions);
-            break;
+                break;
         }
     }
 
-    async loginWithOreId(loginType, state) {
+    //connect to wallet to discover keys
+    //any new keys discovered in wallet are added to user and ORE ID record
+    async discover(provider, chainNetwork = 'eos_main') {
+        switch (provider) {
+            case 'ledger':
+                await this.connectToTransitProvider(provider, chainNetwork)
+                break;
+            case 'metro':
+                break;
+            case 'scatter':
+                await this.connectToTransitProvider(provider, chainNetwork)
+                break;
+            default:
+                break;
+        }
+    }
+
+    async loginWithOreId(provider, state) {
         let { authCallbackUrl, backgroundColor } = this.options;
         let authOptions = {
-            loginType,
+            provider,
             backgroundColor,
             callbackUrl:authCallbackUrl,
             state
@@ -120,11 +135,11 @@ class OreId {
         return {signUrl, errors:null};
     }
 
-    async signWithTransitProvider(provider, signOptions) {
-        let { broadcast, chainNetwork, transaction } = signOptions;
+    async signWithTransitProvider(signOptions) {
+        let { broadcast, chainNetwork, transaction , provider} = signOptions;
         //connect to wallet
         let response = await this.connectToTransitProvider(provider, chainNetwork);
-        let {wallet, isLoggedIn, account, permissions} = response;
+        let {wallet, isLoggedIn} = response;
 
         if(!isLoggedIn || !wallet) {
             throw(new Error(`Couldn't connect to ${provider}`));
@@ -139,8 +154,6 @@ class OreId {
             expireSeconds: 60
           }
         )
-
-        console.log(`signWithTransitProvider response:`,response)
         return {signedTransaction:response};
     }
 
@@ -177,21 +190,19 @@ class OreId {
             }
             //add accounts to ORE ID - if ORE ID user account is known
             let userOreAccount = this.user.accountName;
-            console.log(`connectToTransitProvider response:`, response, userOreAccount);
             if(userOreAccount) {
                 let {account:chainAccount, permissions} = response;
                 await this.addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, permissions, userOreAccount, provider);
             }
-
             return response;
         } else {
             const {hasError, errorMessage} = transitWallet;
-            throw(new Error(`Scatter not connected!` + (hasError) ? ` Error: ${errorMessage}` : ``));
+            throw(new Error(`${provider} not connected!` + (hasError) ? ` Error: ${errorMessage}` : ``));
         }
     }
 
     //for each permission in the wallet, add to ORE ID (if not in user's record)
-    async addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, walletPermissions, userOreAccount, walletType) {
+    async addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, walletPermissions, userOreAccount, provider) {
         await walletPermissions.map( async (p) => {
             let permission = p.perm_name;
             let parentPermission = p.parent;
@@ -200,7 +211,7 @@ class OreId {
             //don't add 'owner' permission and skip ones that are already stored in user's account
             if(skipThisPermission !== true) {
                 let publicKey = p.required_auth.keys[0].key; //TODO: Handle multiple keys and weights
-                await this.addPermission(userOreAccount, chainAccount, chainNetwork, publicKey, parentPermission, permission, walletType);
+                await this.addPermission(userOreAccount, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider);
             };
         });
         //reload user to get updated permissions
@@ -273,17 +284,17 @@ class OreId {
         Returns a fully formed url to call the auth endpoint
     */
     async getOreIdAuthUrl(authOptions) {
-        let { loginType, callbackUrl, backgroundColor, state } = authOptions;
+        let { provider, callbackUrl, backgroundColor, state } = authOptions;
         let { oreIdUrl } = this.options;
 
-        if(!loginType || !callbackUrl) {
+        if(!provider || !callbackUrl) {
             throw new Error(`Missing a required parameter`);
         }
 
         let appAccessToken = await this.getAccessToken();
         let encodedStateParam = (state) ? `&state=${Base64.encode(JSON.stringify(state))}` : "";
 
-        return `${oreIdUrl}/auth#app_access_token=${appAccessToken}?provider=${loginType}?callback_url=${encodeURIComponent(callbackUrl)}?background_color=${backgroundColor}${encodedStateParam}`;
+        return `${oreIdUrl}/auth#app_access_token=${appAccessToken}?provider=${provider}?callback_url=${encodeURIComponent(callbackUrl)}?background_color=${backgroundColor}${encodedStateParam}`;
     };
 
     /*
@@ -392,8 +403,8 @@ class OreId {
         chainAccount = name of the account on the chain - 12/13-digit string on EOS and Ethereum Address on ETH - it may be the same as the account
         chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_kylin", 'ore_main', 'eos_test', etc. 
     */
-   async addPermission(account, chainAccount, chainNetwork, publicKey, parentPermission, permission, walletType) {
-        let optionalParams = (walletType) ? `&wallet-type=${walletType}` : '';
+   async addPermission(account, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider) {
+        let optionalParams = (provider) ? `&wallet-type=${provider}` : '';
         optionalParams += (parentPermission) ? `&parent-permission=${parentPermission}` : '';
         let responseJson = await this.callOreIdApi(`account/add-permission?account=${account}&chain-account=${chainAccount}&chain-network=${chainNetwork}&permission=${permission}&public-key=${publicKey}${optionalParams}`)
         //if failed, error will be thrown

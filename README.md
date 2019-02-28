@@ -22,7 +22,7 @@ Example code:
 let oreId = new OreId({ appId, apiKey, oreIdUrl });
 
 //Start the OAuth flow by setting the user's browser to this URL
-let authUrl = await oreId.getOreIdAuthUrl({ loginType, callbackUrl, backgroundColor });
+let authUrl = await oreId.getOreIdAuthUrl({ provider, callbackUrl, backgroundColor });
 //...then handle the callback results of the Auth flow
 let authResults = oreId.handleAuthResponse(authCallbackResults);
 
