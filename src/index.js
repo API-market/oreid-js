@@ -4,7 +4,8 @@ const Base64 = require('js-base64').Base64;
 const fetch = require('node-fetch');
 import StorageHandler from './storage';
 import { initAccessContext } from 'eos-transit';
-import scatter from 'eos-transit-scatter-provider';
+import scatterProvider from 'eos-transit-scatter-provider';
+import ledgerProvider from 'eos-transit-ledger-provider'
 
 const APPID_CLAIM_URI = "https://oreid.aikon.com/appId";
 
@@ -21,7 +22,7 @@ class OreId {
         this.init(); //todo: handle multiple networks
     }
 
-    //load chain configs from api
+    //Initialize the library
     async init() {
         //load the chainNetworks list from the ORE ID API
         let results = await this.getConfigFromApi('chains');
@@ -48,7 +49,8 @@ class OreId {
             appName: appName || 'missing appName',
             network: NETWORK_CONFIG,
             walletProviders: [
-              scatter()
+                scatterProvider(),
+                ledgerProvider()
             ]
         });
         //cache for future use
@@ -84,6 +86,7 @@ class OreId {
         //handle log-in based on type
         switch (walletType) {
             case 'ledger':
+                return await this.signWithTransitProvider('ledger', signOptions)
                 break;
             case 'metro':
                 break;
@@ -159,7 +162,7 @@ class OreId {
         //try to connect to wallet
         while(transitWallet.inProgress === true) { 
             //todo: add timeout
-            await sleep(100);
+            await sleep(250);
             console.log(`connecting to ${provider} via eos-transit wallet in progress:`, transitWallet.inProgress)
         };
 
@@ -174,24 +177,12 @@ class OreId {
                     permissions
                 };                      
             }
-
             console.log(`connectToTransitProvider result:`, response);
-
             //add accounts to ORE ID - if ORE ID user account is known
             let userOreAccount = this.user.accountName;
             if(userOreAccount) {
                 let {account:chainAccount, permissions} = response;
-                console.log(`got to add permission:`,userOreAccount,chainAccount,permissions);
-                await permissions.map(async (p) => {
-                    let permission = p.perm_name;
-                    let parentPermission = p.parent;
-                    if(permission !== 'owner') {
-                        let publicKey = p.required_auth.keys[0].key; //TODO: Handle multiple keys and weights
-                        let walletType = provider;
-                        await this.addPermission(userOreAccount, chainAccount, chainNetwork, publicKey, parentPermission, permission, walletType);
-                        console.log(`Added permission:${permission} to user account:${userOreAccount} on chain:${chainNetwork}`);
-                    }
-                });
+                addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, permissions, userOreAccount);
             }
 
             return response;
@@ -199,6 +190,25 @@ class OreId {
             const {hasError, errorMessage} = transitWallet;
             throw(new Error(`Scatter not connected!` + (hasError) ? ` Error: ${errorMessage}` : ``));
         }
+    }
+
+    addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, permissions, userOreAccount) {
+        let {account:chainAccount, permissions} = response;
+        console.log(`got to add permission:`,userOreAccount,chainAccount,permissions);
+        await permissions.map(async (p) => {
+            let permission = p.perm_name;
+            let parentPermission = p.parent;
+            if(permission === 'owner') { 
+                return;  //don't save owner keys
+            }
+            //filter out permission that the user already has in his record
+            
+            // let newPermissions = this.user.permissions.filter(p => p.chainAccount !==  && p.chainNetwork !==  && p.permission !==  )
+            //todo: loop through user's keys
+            let publicKey = p.required_auth.keys[0].key; //TODO: Handle multiple keys and weights
+            let walletType = provider;
+            await this.addPermission(userOreAccount, chainAccount, chainNetwork, publicKey, parentPermission, permission, walletType);
+        });
     }
 
     // --------------->
