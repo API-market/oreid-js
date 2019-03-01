@@ -50,7 +50,7 @@ class OreId {
             network: NETWORK_CONFIG,
             walletProviders: [
                 scatterProvider(),
-                ledgerProvider()
+                ledgerProvider({ pathIndexList: [ 0, 1, 2, 35 ] })
             ]
         });
         //cache for future use

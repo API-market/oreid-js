@@ -1,6 +1,6 @@
 {
   "name": "eos-auth",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Add user authentication and wallet access to any EOS dApp",
   "author": "AIKON",
   "license": "MIT",
@@ -22,9 +22,9 @@
   "dependencies": {
     "@babel/runtime": "^7.3.1",
     "dotenv": "^6.0.0",
-    "eos-transit": "^0.0.12",
-    "eos-transit-scatter-provider": "^0.0.13",
-    "eos-transit-ledger-provider": "^0.0.13",
+    "eos-transit": "^1.0.0",
+    "eos-transit-scatter-provider": "^1.0.0",
+    "eos-transit-ledger-provider": "^1.0.0",
     "js-base64": "^2.5.0",
     "js-cookie": "^2.2.0",
     "jwt-decode": "^2.2.0",
