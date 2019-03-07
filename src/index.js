@@ -185,11 +185,12 @@ class OreId {
                     wallet: transitWallet,
                     isLoggedIn: true,
                     account: account_name,
-                    permissions
-                };                      
+                    permissions,
+                    provider
+                };
             }
             //add accounts to ORE ID - if ORE ID user account is known
-            let userOreAccount = this.user.accountName;
+            let userOreAccount = (this.user || {}).accountName;
             if(userOreAccount) {
                 let {account:chainAccount, permissions} = response;
                 await this.addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, permissions, userOreAccount, provider);
