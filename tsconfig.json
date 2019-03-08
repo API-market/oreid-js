@@ -3,6 +3,7 @@
       "allowJs": true,
       "alwaysStrict": true,
       "downlevelIteration": true,
+      "esModuleInterop": true,
       "lib": [
         "es2017",
         "dom"
