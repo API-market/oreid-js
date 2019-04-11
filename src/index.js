@@ -6,8 +6,20 @@ import StorageHandler from './storage';
 import { initAccessContext } from 'eos-transit';
 import scatterProvider from 'eos-transit-scatter-provider';
 import ledgerProvider from 'eos-transit-ledger-provider'
+import lynxProvider from 'eos-transit-lynx-provider';
+import meetoneProvider from 'eos-transit-meetone-provider';
+import tokenpocketProvider from 'eos-transit-tokenpocket-provider';
 
 const APPID_CLAIM_URI = "https://oreid.aikon.com/appId";
+
+const providerNameMap = {
+    'ledger' : 'ledger',
+    'lynx' : 'EOS Lynx',
+    'meetone' : 'meetone_provider',
+    'metro' : 'metro',
+    'scatter': 'scatter',
+    'tokenpocket': 'TokenPocket'
+}
 
 class OreId {
 
@@ -50,7 +62,10 @@ class OreId {
             network: NETWORK_CONFIG,
             walletProviders: [
                 scatterProvider(),
-                ledgerProvider({ pathIndexList: [ 0, 1, 2, 35 ] })
+                ledgerProvider({ pathIndexList: [ 0, 1, 2, 35 ] }),
+                lynxProvider(),
+                meetoneProvider(),
+                tokenpocketProvider(),
             ]
         });
         //cache for future use
@@ -63,14 +78,23 @@ class OreId {
         //handle log-in based on type
         switch (provider) {
             case 'ledger':
-                return this.connectToTransitProvider('ledger', chainNetwork);
+                return this.connectToTransitProvider(provider, chainNetwork);
+                break;
+            case 'lynx':
+                return this.connectToTransitProvider(provider, chainNetwork);
+                break;
+            case 'meetone':
+                return this.connectToTransitProvider(provider, chainNetwork);
                 break;
             case 'metro':
                 throw new Error('Not Implemented');
-                //return this.connectToTransitProvider('metro', chainNetwork); 
+                //return this.connectToTransitProvider(provider, chainNetwork); 
                 break;
             case 'scatter':
-                return this.connectToTransitProvider('scatter', chainNetwork);
+                return this.connectToTransitProvider(provider, chainNetwork);
+                break;
+            case 'tokenpocket':
+                return this.connectToTransitProvider(provider, chainNetwork);
                 break;
             default:
                 //assume ORE ID if not one of the others
@@ -84,12 +108,21 @@ class OreId {
         //handle sign transaction based on provider type
         let { provider } = signOptions;
         switch (provider) {
+            case 'lynx':
+                return await this.signWithTransitProvider(signOptions)
+                break;
             case 'ledger':
+                return await this.signWithTransitProvider(signOptions)
+                break;
+            case 'meetone':
                 return await this.signWithTransitProvider(signOptions)
                 break;
             case 'metro':
                 break;
             case 'scatter':
+                return await this.signWithTransitProvider(signOptions)
+                break;
+            case 'tokenpocket':
                 return await this.signWithTransitProvider(signOptions)
                 break;
             default:
@@ -103,14 +136,23 @@ class OreId {
     //any new keys discovered in wallet are added to user and ORE ID record
     async discover(provider, chainNetwork = 'eos_main') {
         switch (provider) {
+            case 'lynx':
+                await this.connectToTransitProvider(provider, chainNetwork)
+            break;
             case 'ledger':
                 await this.connectToTransitProvider(provider, chainNetwork)
                 break;
+            case 'meetone':
+                await this.connectToTransitProvider(provider, chainNetwork)
+            break;
             case 'metro':
                 break;
             case 'scatter':
                 await this.connectToTransitProvider(provider, chainNetwork)
                 break;
+            case 'tokenpocket':
+                await this.connectToTransitProvider(provider, chainNetwork)
+            break;
             default:
                 break;
         }
@@ -160,8 +202,9 @@ class OreId {
 
     async connectToTransitProvider(provider, chainNetwork) {
         let response;
+        let providerId = providerNameMap[provider];
         const chainContext = this.getOrCreateChainContext(chainNetwork);
-        const transitProvider = chainContext.getWalletProviders().find(wp => wp.id === provider);
+        const transitProvider = chainContext.getWalletProviders().find(wp => wp.id === providerId);
         const transitWallet = chainContext.initWallet(transitProvider);
         
         try { 
