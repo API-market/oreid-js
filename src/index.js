@@ -1,4 +1,4 @@
-const { isNullOrEmpty, jwtDecodeSafe, log, sleep, tokenHasExpired, tryParseJSON, urlParamsToArray } = require("./helpers.js");
+const { base64DecodeSafe, isNullOrEmpty, jwtDecodeSafe, log, sleep, tokenHasExpired, tryParseJSON, urlParamsToArray } = require("./helpers.js");
 // const StorageHandler = require("./storage.js");
 const Base64 = require('js-base64').Base64;
 const fetch = require('node-fetch');
@@ -331,13 +331,8 @@ class OreId {
         //(if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
         let params = urlParamsToArray(callbackUrlString);
         let state;
-        let { account, state:encodedState } = params;
+        let { account, state } = params;
         let errors = this.getErrorCodesFromParams(params);
-
-        if(encodedState) {
-            //Decode base64 parameters
-            state = JSON.parse(Base64.decode(encodedState));
-        }
         return {account, state, errors};
     };
 
@@ -348,13 +343,12 @@ class OreId {
         let signedTransaction;
         let state;
         let params = urlParamsToArray(callbackUrlString);
-        let {signed_transaction:encodedTransaction, state:encodedState} = params;
+        let {signed_transaction:encodedTransaction, state} = params;
         let errors = this.getErrorCodesFromParams(params);
 
         if(!errors) {
             //Decode base64 parameters
-            signedTransaction = tryParseJSON(Base64.decode(encodedTransaction));
-            state = JSON.parse(Base64.decode(encodedState));
+            signedTransaction = tryParseJSON(base64DecodeSafe(encodedTransaction));
         }
         return {signedTransaction, state, errors};
     };

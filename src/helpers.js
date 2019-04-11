@@ -2,6 +2,7 @@
     helper functions
  */
 import jwtdecode from 'jwt-decode';
+const Base64 = require('js-base64').Base64;
 const TRACING = false; //enable when debugging to see detailed outputs
 
 export function isNullOrEmpty (obj) {
@@ -118,6 +119,21 @@ export function urlParamsToArray (fullpath) {
       }
       catch (error) {
         //logError('Problem decoding token:',token);
+      }
+      return decoded;
+    }
+
+    export function base64DecodeSafe(encodedString) {
+      let decoded = {};
+      if(isNullOrEmpty(encodedString)) {
+        return null;
+      }
+      try {
+        decoded = Base64.decode(encodedString);
+      }
+      catch (error) {
+        //logError('Problem decoding base64DecodeSafe:',error);
+        return null;
       }
       return decoded;
     }
