@@ -204,51 +204,54 @@ class OreId {
 
         try {
             await transitWallet.connect(); 
-        } catch(error) { 
-            console.log(`Failed to connect to ${provider} wallet:`, error) 
-        };
+            //try to connect to wallet
+            await this.waitWhileWalletIsBusy(transitWallet, provider);
 
-        //try to connect to wallet
-        await this.waitWhileWalletIsBusy(transitWallet, provider);
-
-        //some providers require login flow to connect (usually this means connect() does nothing but login selects an account)
-        if(providerAttributes[provider].requiresLogin === true) {
-            //if connected, but not authenticated, then login
-            if(transitWallet && transitWallet.authenticated !== true) {
-                let loginResults = await transitWallet.login(); //todo: pass along account and permission param to login()
-                await this.waitWhileWalletIsBusy(transitWallet, provider);
-            }
-            if(!transitWallet || transitWallet.authenticated !== true) {
-                throw(new Error(`Couldn't connect to ${provider}`));
-            }
-        }
-
-        //at least, return the wallet
-        response.transitWallet = transitWallet;
-        //For some wallets, connecting also performs login
-        //return login results or throw error
-        if (transitWallet.connected) {
-            if (transitWallet.authenticated) {
-                let { accountName, permission, publicKey } = transitWallet.auth;
-                response = {
-                    isLoggedIn: transitWallet.authenticated,
-                    account: accountName,
-                    permissions: [{name:permission, publicKey}], //todo: add parent permission when available
-                    provider,
-                    transitWallet,
+            //some providers require login flow to connect (usually this means connect() does nothing but login selects an account)
+            if(providerAttributes[provider].requiresLogin === true) {
+                //if connected, but not authenticated, then login
+                if(transitWallet && transitWallet.authenticated !== true) {
+                    let loginResults = await transitWallet.login(); //todo: pass along account and permission param to login()
+                    await this.waitWhileWalletIsBusy(transitWallet, provider);
+                }
+                if(!transitWallet || transitWallet.authenticated !== true) {
+                    throw(new Error(`Couldn't connect to ${provider}`));
                 }
             }
-        } else {
-            const {hasError, errorMessage} = transitWallet;
-            throw(new Error(`${provider} not connected!` + (hasError) ? ` Error: ${errorMessage}` : ``));
-        }
 
-        //if an account is selected, add it to the ORE ID account (if not already there)
-        let userOreAccount = (this.user || {}).accountName;
-        if(userOreAccount) {
-            let {account:chainAccount, permissions} = response;
-            let chainNetworkToUpdate = this.getChainNetworkFromTransitWallet(transitWallet);
-            await this.addWalletPermissionstoOreIdAccount(chainAccount, chainNetworkToUpdate, permissions, userOreAccount, provider)
+            //at least, return the wallet
+            response.transitWallet = transitWallet;
+            //For some wallets, connecting also performs login
+            //return login results or throw error
+            if (transitWallet.connected) {
+                if (transitWallet.authenticated) {
+                    let { accountName, permission, publicKey } = transitWallet.auth;
+                    response = {
+                        isLoggedIn: transitWallet.authenticated,
+                        account: accountName,
+                        permissions: [{name:permission, publicKey}], //todo: add parent permission when available
+                        provider,
+                        transitWallet,
+                    }
+                }
+            } else {
+                const {hasError, errorMessage} = transitWallet;
+                throw(new Error(`${provider} not connected!` + (hasError) ? ` Error: ${errorMessage}` : ``));
+            }
+
+            //if an account is selected, add it to the ORE ID account (if not already there)
+            let userOreAccount = (this.user || {}).accountName;
+            if(userOreAccount) {
+                let {account:chainAccount, permissions} = response;
+                let chainNetworkToUpdate = this.getChainNetworkFromTransitWallet(transitWallet);
+                await this.addWalletPermissionstoOreIdAccount(chainAccount, chainNetworkToUpdate, permissions, userOreAccount, provider)
+            }
+        } catch(error) { 
+            console.log(`Failed to connect to ${provider} wallet:`, error) 
+            throw error;
+        }
+        finally {
+            this.setIsBusy(false);
         }
 
         return response;
@@ -277,46 +280,54 @@ class OreId {
         return chainNetwork;
     }
 
-    //discover all accounts (and related permissions) in the wallet and add them to ORE ID
+    // Discover all accounts (and related permissions) in the wallet and add them to ORE ID
+    // Note: Most wallets don't support discovery (as of April 2019)
     async discoverCredentialsInWallet(chainNetwork, provider, discoveryPathIndexList = [0,1,2,3,4,5,6,7,8,9]) {
-
-        //Note: Most wallets don't support discovery (as of April 2019)
         let accountsAndPermissions = [];
-        let permissions;
-        let { transitWallet } = await this.connectToTransitProvider(provider, chainNetwork);
-        if( !transitWallet ) { 
-            return accountsAndPermissions; 
-        }
-        this.setIsBusy(true);
-        let discoveryData = await transitWallet.discover({ pathIndexList:discoveryPathIndexList });
-        //add accounts to ORE ID - if ORE ID user account is known
-        let userOreAccount = (this.user || {}).accountName;
-        //this data looks like this: keyToAccountMap[accounts[{account,permission}]] - e.g. keyToAccountMap[accounts[{'myaccount':'owner','myaccount':'active'}]]
-        let credentials = discoveryData.keyToAccountMap;
-        await credentials.forEach(async credential => {
-            let { accounts = [] } = credential;
-            if(accounts.length > 0) {
-                let { account, authorization } = accounts[0];
-                permissions = [{
-                    account,
-                    publicKey: credential.key,
-                    name: authorization,
-                    parent:null
-                }];
-                let chainNetworkToUpdate = this.getChainNetworkFromTransitWallet(transitWallet);
-                await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, userOreAccount, provider);
-                accountsAndPermissions = accountsAndPermissions.concat(permissions);
+        try {
+
+            let permissions;
+            let { transitWallet } = await this.connectToTransitProvider(provider, chainNetwork);
+            if( !transitWallet ) { 
+                return accountsAndPermissions; 
             }
-        });
-        this.setIsBusy(false);
+            this.setIsBusy(true);
+            let discoveryData = await transitWallet.discover({ pathIndexList:discoveryPathIndexList });
+            //add accounts to ORE ID - if ORE ID user account is known
+            let userOreAccount = (this.user || {}).accountName;
+            //this data looks like this: keyToAccountMap[accounts[{account,permission}]] - e.g. keyToAccountMap[accounts[{'myaccount':'owner','myaccount':'active'}]]
+            let credentials = discoveryData.keyToAccountMap;
+            await credentials.forEach(async credential => {
+                let { accounts = [] } = credential;
+                if(accounts.length > 0) {
+                    let { account, authorization } = accounts[0];
+                    permissions = [{
+                        account,
+                        publicKey: credential.key,
+                        name: authorization,
+                        parent:null
+                    }];
+                    let chainNetworkToUpdate = this.getChainNetworkFromTransitWallet(transitWallet);
+                    await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, userOreAccount, provider);
+                    accountsAndPermissions = accountsAndPermissions.concat(permissions);
+                }
+            });
+        } catch(error) {
+            throw error;
+        }
+        finally {
+            this.setIsBusy(false);
+        }
         //return a list of account names and related permissions found
         return accountsAndPermissions;
     }
 
     setIsBusy(value) {
         if(this.isBusy !== value) {
-            console.log(`isbusy:`,value);
             this.isBusy = value;
+            if(this.options.setBusyCallback) {
+                this.options.setBusyCallback(value);
+            }
         }
     }
 
