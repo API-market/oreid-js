@@ -47,6 +47,27 @@ app.use('/authcallback', authCallbackHandler(oreId) );
 
 Check out the Express Server example for a complete example.
 
+# Using EOS Transit
+
+eos-auth makes it easy for you to add many popular EOS wallets to your app. It integrates EOS Transit so that you can use any wallet that has published an [EOS Transit Wallet Provider](https://github.com/eosnewyork/eos-transit). eos-auth is the easiest way to use EOS Transit with your app. 
+
+```
+// add the provider package for each wallet you want to support
+import scatterProvider from 'eos-transit-scatter-provider';
+// pass in the array of providers when you initialize the library
+let eosTransitWalletProviders = [ scatterProvider(), ... ]
+let oreId = new OreId({ ..., eosTransitWalletProviders });
+```
+
+As of now, this library supports these wallets using EOS Transit
+- Ledger
+- Lynx
+- Meet One
+- Scatter
+- Token Pocket
+
+Check out the Express Server example for a complete example.
+
 
 # Example projects
 

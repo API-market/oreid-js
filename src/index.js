@@ -4,22 +4,19 @@ const Base64 = require('js-base64').Base64;
 const fetch = require('node-fetch');
 import StorageHandler from './storage';
 import { initAccessContext } from 'eos-transit';
-import scatterProvider from 'eos-transit-scatter-provider';
-import ledgerProvider from 'eos-transit-ledger-provider'
-import lynxProvider from 'eos-transit-lynx-provider';
-import meetoneProvider from 'eos-transit-meetone-provider';
-import tokenpocketProvider from 'eos-transit-tokenpocket-provider';
 
 const APPID_CLAIM_URI = "https://oreid.aikon.com/appId";
 
-const providerNameMap = {
-    'ledger' : 'ledger',
-    'lynx' : 'EOS Lynx',
-    'meetone' : 'meetone_provider',
-    'metro' : 'metro',
-    'scatter': 'scatter',
-    'tokenpocket': 'TokenPocket'
+const providerAttributes = {
+    'ledger' :      { providerId:'ledger', requiresLogin:false, supportsDiscovery:true },
+    'lynx' :        { providerId:'EOS Lynx', requiresLogin:false, supportsDiscovery:false },
+    'meetone' :     { providerId:'meetone_provider', requiresLogin:false, supportsDiscovery:false },
+    'metro' :       { providerId:'metro', requiresLogin:false, supportsDiscovery:false },
+    'scatter':      { providerId:'scatter', requiresLogin:true, supportsDiscovery:false },
+    'tokenpocket':  { providerId:'TokenPocket', requiresLogin:false, supportsDiscovery:false },
 }
+
+let isBusy = false;
 
 class OreId {
 
@@ -42,7 +39,7 @@ class OreId {
     }
 
     getOrCreateChainContext(chainNetwork) {
-        let { appName } = this.options;
+        let { appName, eosTransitWalletProviders = []} = this.options;
         if(this.chainContexts[chainNetwork]) {
             return this.chainContexts[chainNetwork];
         }
@@ -54,19 +51,13 @@ class OreId {
 
         let {hosts} = chainConfig;
         let {chainId, host, port, protocol} = hosts[0]; //using first host
-        const NETWORK_CONFIG = { host , port, protocol, chainId };
+        let NETWORK_CONFIG = { host , port, protocol, chainId };
 
         //create context
         let chainContext = initAccessContext({
             appName: appName || 'missing appName',
             network: NETWORK_CONFIG,
-            walletProviders: [
-                scatterProvider(),
-                ledgerProvider({ pathIndexList: [ 0, 1, 2, 35 ] }),
-                lynxProvider(),
-                meetoneProvider(),
-                tokenpocketProvider(),
-            ]
+            walletProviders: eosTransitWalletProviders
         });
         //cache for future use
         this.chainContexts[chainNetwork] = chainContext;
@@ -132,30 +123,29 @@ class OreId {
         }
     }
 
-    //connect to wallet to discover keys
-    //any new keys discovered in wallet are added to user and ORE ID record
-    async discover(provider, chainNetwork = 'eos_main') {
-        switch (provider) {
-            case 'lynx':
-                await this.connectToTransitProvider(provider, chainNetwork)
-            break;
-            case 'ledger':
-                await this.connectToTransitProvider(provider, chainNetwork)
-                break;
-            case 'meetone':
-                await this.connectToTransitProvider(provider, chainNetwork)
-            break;
-            case 'metro':
-                break;
-            case 'scatter':
-                await this.connectToTransitProvider(provider, chainNetwork)
-                break;
-            case 'tokenpocket':
-                await this.connectToTransitProvider(provider, chainNetwork)
-            break;
-            default:
-                break;
+    // connect to wallet and discover keys 
+    // any new keys discovered in wallet are added to user's ORE ID record
+    async discover(provider, chainNetwork = 'eos_main', discoveryPathIndexList) {
+        this.assertValidProvider(provider);
+        if(this.canDiscover(provider)) {
+            return await this.discoverCredentialsInWallet(chainNetwork, provider, discoveryPathIndexList); 
         }
+        else {
+            throw new Error(`Discover not support for provider: ${provider}`);
+        }
+    }
+
+    //throw error if invalid provider
+    export assertValidProvider(provider) {
+        if(!!(providerAttributes[provider])) {
+            return true;
+        }
+        throw new Error(`Provider ${provider} is not a valid option`);
+    }
+
+    // determine whether discovery is supported by the provider 
+    export canDiscover(provider) {
+        return (providerAttributes[provider].supportsDiscovery === true);
     }
 
     async loginWithOreId(provider, state) {
@@ -181,80 +171,174 @@ class OreId {
         let { broadcast, chainNetwork, transaction , provider} = signOptions;
         //connect to wallet
         let response = await this.connectToTransitProvider(provider, chainNetwork);
-        let {wallet, isLoggedIn} = response;
+        let {account, permissions = [], transitWallet, isLoggedIn} = response;
 
-        if(!isLoggedIn || !wallet) {
-            throw(new Error(`Couldn't connect to ${provider}`));
+        try {
+            //sign with transit wallet
+            this.setIsBusy(true);
+            response = await transitWallet.eosApi.transact({
+                actions: [transaction]
+            }, {
+                broadcast: broadcast,
+                blocksBehind: 3,
+                expireSeconds: 60
+            }
+            )
         }
-
-        //sign with transit wallet
-        response = await wallet.eosApi.transact({
-            actions: [transaction]
-          }, {
-            broadcast: broadcast,
-            blocksBehind: 3,
-            expireSeconds: 60
-          }
-        )
+        catch(error) {
+            throw error;
+        }
+        finally {
+            this.setIsBusy(false);
+        }
+        
         return {signedTransaction:response};
     }
 
-
     async connectToTransitProvider(provider, chainNetwork) {
-        let response;
-        let providerId = providerNameMap[provider];
+        let response = {};
+        let providerId = providerAttributes[provider].providerId;
         const chainContext = this.getOrCreateChainContext(chainNetwork);
         const transitProvider = chainContext.getWalletProviders().find(wp => wp.id === providerId);
         const transitWallet = chainContext.initWallet(transitProvider);
-        
-        try { 
-            transitWallet.connect(); 
+
+        try {
+            await transitWallet.connect(); 
         } catch(error) { 
             console.log(`Failed to connect to ${provider} wallet:`, error) 
         };
 
         //try to connect to wallet
-        while(transitWallet.inProgress === true) { 
+        await this.waitWhileWalletIsBusy(transitWallet, provider);
+
+        //some providers require login flow to connect (usually this means connect() does nothing but login selects an account)
+        if(providerAttributes[provider].requiresLogin === true) {
+            //if connected, but not authenticated, then login
+            if(transitWallet && transitWallet.authenticated !== true) {
+                let loginResults = await transitWallet.login(); //todo: pass along account and permission param to login()
+                await this.waitWhileWalletIsBusy(transitWallet, provider);
+            }
+            if(!transitWallet || transitWallet.authenticated !== true) {
+                throw(new Error(`Couldn't connect to ${provider}`));
+            }
+        }
+
+        //at least, return the wallet
+        response.transitWallet = transitWallet;
+        //For some wallets, connecting also performs login
+        //return login results or throw error
+        if (transitWallet.connected) {
+            if (transitWallet.authenticated) {
+                let { accountName, permission, publicKey } = transitWallet.auth;
+                response = {
+                    isLoggedIn: transitWallet.authenticated,
+                    account: accountName,
+                    permissions: [{name:permission, publicKey}], //todo: add parent permission when available
+                    provider,
+                    transitWallet,
+                }
+            }
+        } else {
+            const {hasError, errorMessage} = transitWallet;
+            throw(new Error(`${provider} not connected!` + (hasError) ? ` Error: ${errorMessage}` : ``));
+        }
+
+        //if an account is selected, add it to the ORE ID account (if not already there)
+        let userOreAccount = (this.user || {}).accountName;
+        if(userOreAccount) {
+            let {account:chainAccount, permissions} = response;
+            let chainNetworkToUpdate = this.getChainNetworkFromTransitWallet(transitWallet);
+            await this.addWalletPermissionstoOreIdAccount(chainAccount, chainNetworkToUpdate, permissions, userOreAccount, provider)
+        }
+
+        return response;
+    }
+
+    async waitWhileWalletIsBusy(transitWallet, provider) {
+        while(transitWallet.inProgress) { 
+            this.setIsBusy(true);
             //todo: add timeout
             await sleep(250);
             console.log(`connecting to ${provider} via eos-transit wallet in progress:`, transitWallet.inProgress)
         };
+        this.setIsBusy(false);
+        return;
+    }
+    
+    getChainNetworkFromTransitWallet(transitWallet) {
+        let chainNetwork;
+        if(transitWallet && transitWallet.eosApi) {
+            let chainId = transitWallet.eosApi.chainId;
+            let chainConfig = this.chainNetworks.find(n => n.hosts.find(h => h.chainId === chainId));
+            if(!isNullOrEmpty(chainConfig)) {
+                chainNetwork = chainConfig.network;
+            }
+        }
+        return chainNetwork;
+    }
 
-        //return login results or throw error
-        if (transitWallet.connected === true) {
-            const {account_name, permissions} = await transitWallet.login();
-            if (transitWallet.authenticated) {
-                response = {
-                    wallet: transitWallet,
-                    isLoggedIn: true,
-                    account: account_name,
-                    permissions,
-                    provider
-                };
+    //discover all accounts (and related permissions) in the wallet and add them to ORE ID
+    async discoverCredentialsInWallet(chainNetwork, provider, discoveryPathIndexList = [0,1,2,3,4,5,6,7,8,9]) {
+
+        //Note: Most wallets don't support discovery (as of April 2019)
+        let accountsAndPermissions = [];
+        let permissions;
+        let { transitWallet } = await this.connectToTransitProvider(provider, chainNetwork);
+        if( !transitWallet ) { 
+            return accountsAndPermissions; 
+        }
+        this.setIsBusy(true);
+        let discoveryData = await transitWallet.discover({ pathIndexList:discoveryPathIndexList });
+        //add accounts to ORE ID - if ORE ID user account is known
+        let userOreAccount = (this.user || {}).accountName;
+        //this data looks like this: keyToAccountMap[accounts[{account,permission}]] - e.g. keyToAccountMap[accounts[{'myaccount':'owner','myaccount':'active'}]]
+        let credentials = discoveryData.keyToAccountMap;
+        await credentials.forEach(async credential => {
+            let { accounts = [] } = credential;
+            if(accounts.length > 0) {
+                let { account, authorization } = accounts[0];
+                permissions = [{
+                    account,
+                    publicKey: credential.key,
+                    name: authorization,
+                    parent:null
+                }];
+                let chainNetworkToUpdate = this.getChainNetworkFromTransitWallet(transitWallet);
+                await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, userOreAccount, provider);
+                accountsAndPermissions = accountsAndPermissions.concat(permissions);
             }
-            //add accounts to ORE ID - if ORE ID user account is known
-            let userOreAccount = (this.user || {}).accountName;
-            if(userOreAccount) {
-                let {account:chainAccount, permissions} = response;
-                await this.addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, permissions, userOreAccount, provider);
-            }
-            return response;
-        } else {
-            const {hasError, errorMessage} = transitWallet;
-            throw(new Error(`${provider} not connected!` + (hasError) ? ` Error: ${errorMessage}` : ``));
+        });
+        this.setIsBusy(false);
+        //return a list of account names and related permissions found
+        return accountsAndPermissions;
+    }
+
+    setIsBusy(value) {
+        if(this.isBusy !== value) {
+            console.log(`isbusy:`,value);
+            this.isBusy = value;
         }
     }
 
     //for each permission in the wallet, add to ORE ID (if not in user's record)
     async addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, walletPermissions, userOreAccount, provider) {
+        if(isNullOrEmpty(userOreAccount) || isNullOrEmpty(walletPermissions) || isNullOrEmpty(chainNetwork)) {
+           return;
+        }
         await walletPermissions.map( async (p) => {
-            let permission = p.perm_name;
-            let parentPermission = p.parent;
+            let permission = p.name;
+            let parentPermission = p.parent; //pooky
+            if(!parentPermission) {
+                //HACK: assume parent permission - its missing from the discover() results
+                parentPermission = (permission === 'active') ? 'owner' : ((permission === 'owner') ?  '' : 'active');
+            }
             //filter out permission that the user already has in his record
-            let skipThisPermission = this.user.permissions.some(up => (up.chainNetwork === chainNetwork && up.permission === permission) || permission === 'owner');
+            let skipThisPermission = this.user.permissions.some(up => (up.chainAccount == chainAccount && up.chainNetwork === chainNetwork && up.permission === permission) || permission === 'owner');
+
             //don't add 'owner' permission and skip ones that are already stored in user's account
             if(skipThisPermission !== true) {
-                let publicKey = p.required_auth.keys[0].key; //TODO: Handle multiple keys and weights
+                // let publicKey = p.required_auth.keys[0].key; //TODO: Handle multiple keys and weights
+                let publicKey = p.publicKey;
                 await this.addPermission(userOreAccount, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider);
             };
         });
@@ -343,7 +427,7 @@ class OreId {
 
     /*
         Returns a fully formed url to call the sign endpoint
-        chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_kylin", 'ore_main', 'eos_test', etc. 
+        chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin', 'ore_main', 'eos_test', etc. 
     */
     async getOreIdSignUrl(signOptions) {
         let { account, broadcast, callbackUrl, chainAccount, chainNetwork, state, transaction, accountIsTransactionPermission } = signOptions;
@@ -376,6 +460,7 @@ class OreId {
         let state;
         let { account, state } = params;
         let errors = this.getErrorCodesFromParams(params);
+        this.setIsBusy(false);
         return {account, state, errors};
     };
 
@@ -393,6 +478,7 @@ class OreId {
             //Decode base64 parameters
             signedTransaction = tryParseJSON(base64DecodeSafe(encodedTransaction));
         }
+        this.setIsBusy(false);
         return {signedTransaction, state, errors};
     };
 
@@ -439,7 +525,7 @@ class OreId {
         The permission name must be one defined in the App Registration record (Which defines its parent permission as well as preventing adding rougue permissions)
         This feature allows your app to hold private keys locally (for certain actions enabled by the permission) while having the associated public key in the user's account
         chainAccount = name of the account on the chain - 12/13-digit string on EOS and Ethereum Address on ETH - it may be the same as the account
-        chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_kylin", 'ore_main', 'eos_test', etc. 
+        chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin", 'ore_main', 'eos_test', etc. 
     */
    async addPermission(account, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider) {
         let optionalParams = (provider) ? `&wallet-type=${provider}` : '';
