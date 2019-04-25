@@ -293,10 +293,10 @@ return e.set("extended_asset",R({name:"extended_asset",baseName:"",fields:[{name
 if(t.types)try{for(var y=a(t.types),v=y.next();!v.done;v=y.next()){var g=v.value,m=g.new_type_name,b=g.type
 d.set(m,R({name:m,aliasOfName:b}))}}catch(e){r={error:e}}finally{try{v&&!v.done&&(n=y.return)&&n.call(y)}finally{if(r)throw r.error}}if(t.structs)try{for(var w=a(t.structs),_=w.next();!_.done;_=w.next()){var x=_.value,S=x.name,O=x.base,T=x.fields
 d.set(S,R({name:S,baseName:O,fields:T.map(function(e){return{name:e.name,typeName:e.type,type:null}}),serialize:C,deserialize:k}))}}catch(e){i={error:e}}finally{try{_&&!_.done&&(s=w.return)&&s.call(w)}finally{if(i)throw i.error}}if(t.variants)try{for(var I=a(t.variants),P=I.next();!P.done;P=I.next()){var U=P.value,z=U.name,F=U.types
-d.set(z,R({name:z,fields:F.map(function(e){return{name:e,typeName:e,type:null}}),serialize:A,deserialize:E}))}}catch(e){c={error:e}}finally{try{P&&!P.done&&(u=I.return)&&u.call(I)}finally{if(c)throw c.error}}try{for(var N=a(d),j=N.next();!j.done;j=N.next()){var D=o(j.value,2)
-D[0],(b=D[1]).baseName&&(b.base=B(d,b.baseName))
+d.set(z,R({name:z,fields:F.map(function(e){return{name:e,typeName:e,type:null}}),serialize:A,deserialize:E}))}}catch(e){c={error:e}}finally{try{P&&!P.done&&(u=I.return)&&u.call(I)}finally{if(c)throw c.error}}try{for(var N=a(d),D=N.next();!D.done;D=N.next()){var j=o(D.value,2)
+j[0],(b=j[1]).baseName&&(b.base=B(d,b.baseName))
 try{for(var L=a(b.fields),M=L.next();!M.done;M=L.next()){var q=M.value
-q.type=B(d,q.typeName)}}catch(e){h={error:e}}finally{try{M&&!M.done&&(p=L.return)&&p.call(L)}finally{if(h)throw h.error}}}}catch(e){f={error:e}}finally{try{j&&!j.done&&(l=N.return)&&l.call(N)}finally{if(f)throw f.error}}return d},t.transactionHeader=function(e,t){return{expiration:d(p(e.timestamp)+t),ref_block_num:65535&e.block_num,ref_block_prefix:e.ref_block_prefix}},t.serializeActionData=F,t.serializeAction=function(e,t,r,n,o,i,a){return{account:t,name:r,authorization:n,data:F(e,t,r,o,i,a)}},t.deserializeActionData=N,t.deserializeAction=function(e,t,r,n,o,i,a){return{account:t,name:r,authorization:n,data:N(e,t,r,o,i,a)}}},function(e,t,r){"use strict"
+q.type=B(d,q.typeName)}}catch(e){h={error:e}}finally{try{M&&!M.done&&(p=L.return)&&p.call(L)}finally{if(h)throw h.error}}}}catch(e){f={error:e}}finally{try{D&&!D.done&&(l=N.return)&&l.call(N)}finally{if(f)throw f.error}}return d},t.transactionHeader=function(e,t){return{expiration:d(p(e.timestamp)+t),ref_block_num:65535&e.block_num,ref_block_prefix:e.ref_block_prefix}},t.serializeActionData=F,t.serializeAction=function(e,t,r,n,o,i,a){return{account:t,name:r,authorization:n,data:F(e,t,r,o,i,a)}},t.deserializeActionData=N,t.deserializeAction=function(e,t,r,n,o,i,a){return{account:t,name:r,authorization:n,data:N(e,t,r,o,i,a)}}},function(e,t,r){"use strict"
 var n,o=this&&this.__extends||(n=function(e,t){return(n=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)t.hasOwnProperty(r)&&(e[r]=t[r])})(e,t)},function(e,t){function r(){this.constructor=e}n(e,t),e.prototype=null===t?Object.create(t):(r.prototype=t.prototype,new r)})
 Object.defineProperty(t,"__esModule",{value:!0})
 var i=function(e){function t(r){var n=this
@@ -703,17 +703,15 @@ try{t&&(r=decodeURI(r)),n=v(r,"'",'"'),n=v(n,"`",'"')
 var o=JSON.parse(n)
 if(o&&"object"===h()(o))return o}catch(e){console.log(e)}return null}},{key:"base64DecodeSafe",value:function(e){var t={}
 if(this.isNullOrEmpty(e))return null
-try{t=y.decode(e)}catch(e){return null}return t}},{key:"sleep",value:function(e){return new Promise(function(t){return setTimeout(t,e)})}}]),e}(),m=r(26),b=r.n(m),w=r(27),_=r.n(w),x=r(6),C=r.n(x),k=function(){function e(){c()(this,e)}return f()(e,null,[{key:"getItem",value:function(e){return C.a.get(e)}},{key:"removeItem",value:function(e){C.a.remove(e)}},{key:"setItem",value:function(e,t,r){var n=_()({expires:1},r)
-C.a.set(e,t,n)}}]),e}(),A=function(){function e(){c()(this,e)}return f()(e,null,[{key:"getItem",value:function(){return null}},{key:"removeItem",value:function(){}},{key:"setItem",value:function(){}}]),e}()
-function E(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{tryLocalStorageFirst:!0}
-if(this.storage=new k,!0===e.tryLocalStorageFirst)try{if(window){var t=window.localStorage
-t&&(this.storage=t)}}catch(t){g.log("Can't use localStorage. Using CookieStorage instead.",e)}}E.prototype.failover=function(){this.storage instanceof A||(this.storage instanceof k?this.storage=new A:this.storage=new k)},E.prototype.getItem=function(e){try{return this.storage.getItem(e)}catch(t){return g.log("Can't getItem in storage.",t),this.failover(),this.getItem(e)}},E.prototype.removeItem=function(e){try{return this.storage.removeItem(e)}catch(t){return g.log("Can't removeItem in storage.",t),this.failover(),this.removeItem(e)}},E.prototype.setItem=function(e,t,r){try{return this.storage.setItem(e,t,r)}catch(n){return g.log("Can't setItem in storage.",n),this.failover(),this.setItem(e,t,r)}}
-var S=E,O=r(5)
-function T(e){var t=e,r=[]
+try{t=y.decode(e)}catch(e){return null}return t}},{key:"sleep",value:function(e){return new Promise(function(t){return setTimeout(t,e)})}}]),e}(),m=r(26),b=r.n(m),w=r(27),_=r.n(w),x=r(6),C=r.n(x),k=function(){function e(){c()(this,e)}return f()(e,[{key:"getItem",value:function(e){return C.a.get(e)}},{key:"removeItem",value:function(e){C.a.remove(e)}},{key:"setItem",value:function(e,t,r){var n=_()({expires:1},r)
+C.a.set(e,t,n)}}]),e}(),A=function(){function e(){c()(this,e)}return f()(e,[{key:"getItem",value:function(e){return console.log("DummyStorage getItem ",e),null}},{key:"removeItem",value:function(e){console.log("DummyStorage removeItem ",e)}},{key:"setItem",value:function(e,t,r){console.log("DummyStorage setItem ",e,t,r)}}]),e}(),E=function(){function e(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{tryLocalStorageFirst:!0}
+if(c()(this,e),this.storage=new k,!0===t.tryLocalStorageFirst)try{if(window){var r=window.localStorage
+r&&(this.storage=r)}else g.log("Not running in Browser. Using CookieStorage instead.",t)}catch(e){g.log("Can't use localStorage. Using CookieStorage instead.",t)}}return f()(e,[{key:"failover",value:function(){console.log("storage failover"),this.storage instanceof A||(this.storage instanceof k?this.storage=new A:this.storage=new k)}},{key:"getItem",value:function(e){try{return this.storage.getItem(e)}catch(t){return g.log("Can't getItem in storage.",t),this.failover(),this.storage.getItem(e)}}},{key:"removeItem",value:function(e){try{return this.storage.removeItem(e)}catch(t){return g.log("Can't removeItem in storage.",t),this.failover(),this.storage.removeItem(e)}}},{key:"setItem",value:function(e,t,r){try{return this.storage.setItem(e,t,r)}catch(n){return g.log("Can't setItem in storage.",n),this.failover(),this.storage.setItem(e,t,r)}}}]),e}(),S=r(5)
+function O(e){var t=e,r=[]
 return{getState:function(){return t},updateState:function(e){t="function"==typeof e?e(t):e
-for(var n=0,o=r;n<o.length;n++){(0,o[n])(t)}},subscribe:function(e){return r.push(e),function(){r=r.filter(function(t){return t!==e})}}}}var I=r(28),P=r.n(I)
-function U(e,t){return void 0===t&&(t="Error"),e?"string"==typeof e?e:e.message||t:t}var R=function(){return(R=Object.assign||function(e){for(var t,r=1,n=arguments.length;r<n;r++)for(var o in t=arguments[r])Object.prototype.hasOwnProperty.call(t,o)&&(e[o]=t[o])
-return e}).apply(this,arguments)},z=function(e,t,r,n){return new(r||(r=Promise))(function(o,i){function a(e){try{c(n.next(e))}catch(e){i(e)}}function s(e){try{c(n.throw(e))}catch(e){i(e)}}function c(e){e.done?o(e.value):new r(function(t){t(e.value)}).then(a,s)}c((n=n.apply(e,t||[])).next())})},B=function(e,t){var r,n,o,i,a={label:0,sent:function(){if(1&o[0])throw o[1]
+for(var n=0,o=r;n<o.length;n++){(0,o[n])(t)}},subscribe:function(e){return r.push(e),function(){r=r.filter(function(t){return t!==e})}}}}var T=r(28),I=r.n(T)
+function P(e,t){return void 0===t&&(t="Error"),e?"string"==typeof e?e:e.message||t:t}var U=function(){return(U=Object.assign||function(e){for(var t,r=1,n=arguments.length;r<n;r++)for(var o in t=arguments[r])Object.prototype.hasOwnProperty.call(t,o)&&(e[o]=t[o])
+return e}).apply(this,arguments)},R=function(e,t,r,n){return new(r||(r=Promise))(function(o,i){function a(e){try{c(n.next(e))}catch(e){i(e)}}function s(e){try{c(n.throw(e))}catch(e){i(e)}}function c(e){e.done?o(e.value):new r(function(t){t(e.value)}).then(a,s)}c((n=n.apply(e,t||[])).next())})},z=function(e,t){var r,n,o,i,a={label:0,sent:function(){if(1&o[0])throw o[1]
 return o[1]},trys:[],ops:[]}
 return i={next:s(0),throw:s(1),return:s(2)},"function"==typeof Symbol&&(i[Symbol.iterator]=function(){return this}),i
 function s(i){return function(s){return function(i){if(r)throw new TypeError("Generator is already executing.")
@@ -731,10 +729,10 @@ break}if(6===i[0]&&a.label<o[1]){a.label=o[1],o=i
 break}if(o&&a.label<o[2]){a.label=o[2],a.ops.push(i)
 break}o[2]&&a.ops.pop(),a.trys.pop()
 continue}i=t.call(e,a)}catch(e){i=[6,e],n=0}finally{r=o=0}if(5&i[0])throw i[1]
-return{value:i[0]?i[1]:void 0,done:!0}}([i,s])}}},F={connecting:!1,connected:!1,connectionError:!1,connectionErrorMessage:void 0,auth:void 0,authenticating:!1,authenticated:!1,authenticationConfirmed:!1,authenticationError:!1,authenticationErrorMessage:void 0,accountInfo:void 0,accountFetching:!1,accountFetchError:!1,accountFetchErrorMessage:void 0}
-function N(e,t){var r=P()(),n=T(R({},F)),o={keyToAccountMap:[]},i=n.getState,a=new O.Api({rpc:t.eosRpc,chainId:t.network.chainId,signatureProvider:e.signatureProvider})
-function s(e){return e?(n.updateState(function(e){return R({},e,{accountFetching:!0,accountFetchError:!1,accountFetchErrorMessage:void 0})}),t.eosRpc.get_account(e).then(function(e){var t=R({},e)
-return n.updateState(function(e){return R({},e,{accountFetching:!1,accountInfo:t})}),t}).catch(function(e){return n.updateState(function(t){return R({},t,{accountFetching:!1,accountInfo:void 0,accountFetchError:!0,accountFetchErrorMessage:U(e)})}),Promise.reject(e)})):Promise.reject("No `accountName` was passed in order to fetch the account info")}function c(){return e.disconnect().then(function(){return n.updateState(function(e){return R({},e,{connecting:!1,connected:!1,connectionError:!1,connectionErrorMessage:void 0})}),!0})}function u(){return e.logout().then(function(){return n.updateState(function(e){return R({},e,{accountInfo:void 0,authenticating:!1,authenticated:!1,authenticationError:!1,authenticationErrorMessage:void 0})}),!0})}var f={_instanceId:r,ctx:t,provider:e,eosApi:a,get state(){return i()||R({},F)},get auth(){var e=i()
+return{value:i[0]?i[1]:void 0,done:!0}}([i,s])}}},B={connecting:!1,connected:!1,connectionError:!1,connectionErrorMessage:void 0,auth:void 0,authenticating:!1,authenticated:!1,authenticationConfirmed:!1,authenticationError:!1,authenticationErrorMessage:void 0,accountInfo:void 0,accountFetching:!1,accountFetchError:!1,accountFetchErrorMessage:void 0}
+function F(e,t){var r=I()(),n=O(U({},B)),o={keyToAccountMap:[]},i=n.getState,a=new S.Api({rpc:t.eosRpc,chainId:t.network.chainId,signatureProvider:e.signatureProvider})
+function s(e){return e?(n.updateState(function(e){return U({},e,{accountFetching:!0,accountFetchError:!1,accountFetchErrorMessage:void 0})}),t.eosRpc.get_account(e).then(function(e){var t=U({},e)
+return n.updateState(function(e){return U({},e,{accountFetching:!1,accountInfo:t})}),t}).catch(function(e){return n.updateState(function(t){return U({},t,{accountFetching:!1,accountInfo:void 0,accountFetchError:!0,accountFetchErrorMessage:P(e)})}),Promise.reject(e)})):Promise.reject("No `accountName` was passed in order to fetch the account info")}function c(){return e.disconnect().then(function(){return n.updateState(function(e){return U({},e,{connecting:!1,connected:!1,connectionError:!1,connectionErrorMessage:void 0})}),!0})}function u(){return e.logout().then(function(){return n.updateState(function(e){return U({},e,{accountInfo:void 0,authenticating:!1,authenticated:!1,authenticationError:!1,authenticationErrorMessage:void 0})}),!0})}var f={_instanceId:r,ctx:t,provider:e,eosApi:a,get state(){return i()||U({},B)},get auth(){var e=i()
 return e&&e.auth||void 0},get accountInfo(){var e=i()
 return e&&e.accountInfo||void 0},get connected(){var e=i()
 return e&&e.connected||!1},get authenticated(){var e=i()
@@ -749,13 +747,13 @@ if(!e)return!1
 var t=e.connectionError,r=e.authenticationError,n=e.accountFetchError
 return!!(t||r||n)},get errorMessage(){var e=i()
 if(e&&f.hasError){var t=e.connectionErrorMessage,r=e.authenticationErrorMessage,n=e.accountFetchErrorMessage
-return t||r||n||"Wallet connection error"}},connect:function(){return n.updateState(function(e){return R({},e,{connected:!1,connecting:!0,connectionError:!1,connectionErrorMessage:void 0})}),e.connect(t.appName).then(function(){return n.updateState(function(e){return R({},e,{connecting:!1,connected:!0})}),!0}).catch(function(e){return n.updateState(function(t){return R({},t,{connecting:!1,connectionError:!0,connectionErrorMessage:U(e)})}),Promise.reject(e)})},discover:function(r){return z(this,void 0,void 0,function(){var n,i=this
-return B(this,function(a){switch(a.label){case 0:return n={keyToAccountMap:[]},[4,e.discover(r).then(function(e){return z(i,void 0,void 0,function(){var r,i,a,s,c,u=this
-return B(this,function(f){switch(f.label){case 0:for(delete(n=R({},n,e)).keys,r=[],i=function(e){var n=e.key,i=e.index,a=!1
-if(o.keyToAccountMap&&o.keyToAccountMap.findIndex(function(e){return e.index==i})>-1&&(a=!0),n&&!a){var s=t.eosRpc.history_get_key_accounts(n).then(function(e){return z(u,void 0,void 0,function(){var r,o,a,s,c,u=this
-return B(this,function(f){switch(f.label){case 0:if(r={index:i,key:n,accounts:[]},!(e.account_names.length>0))return[3,4]
-o=function(e){return B(this,function(o){switch(o.label){case 0:return[4,t.eosRpc.get_account(e).then(function(t){return z(u,void 0,void 0,function(){var o,i,a,s,c
-return B(this,function(u){for(o=0,i=t.permissions;o<i.length;o++)for(a=i[o],s=0,c=a.required_auth.keys;s<c.length;s++)c[s].key==n&&r.accounts.push({account:e,authorization:a.perm_name})
+return t||r||n||"Wallet connection error"}},connect:function(){return n.updateState(function(e){return U({},e,{connected:!1,connecting:!0,connectionError:!1,connectionErrorMessage:void 0})}),e.connect(t.appName).then(function(){return n.updateState(function(e){return U({},e,{connecting:!1,connected:!0})}),!0}).catch(function(e){return n.updateState(function(t){return U({},t,{connecting:!1,connectionError:!0,connectionErrorMessage:P(e)})}),Promise.reject(e)})},discover:function(r){return R(this,void 0,void 0,function(){var n,i=this
+return z(this,function(a){switch(a.label){case 0:return n={keyToAccountMap:[]},[4,e.discover(r).then(function(e){return R(i,void 0,void 0,function(){var r,i,a,s,c,u=this
+return z(this,function(f){switch(f.label){case 0:for(delete(n=U({},n,e)).keys,r=[],i=function(e){var n=e.key,i=e.index,a=!1
+if(o.keyToAccountMap&&o.keyToAccountMap.findIndex(function(e){return e.index==i})>-1&&(a=!0),n&&!a){var s=t.eosRpc.history_get_key_accounts(n).then(function(e){return R(u,void 0,void 0,function(){var r,o,a,s,c,u=this
+return z(this,function(f){switch(f.label){case 0:if(r={index:i,key:n,accounts:[]},!(e.account_names.length>0))return[3,4]
+o=function(e){return z(this,function(o){switch(o.label){case 0:return[4,t.eosRpc.get_account(e).then(function(t){return R(u,void 0,void 0,function(){var o,i,a,s,c
+return z(this,function(u){for(o=0,i=t.permissions;o<i.length;o++)for(a=i[o],s=0,c=a.required_auth.keys;s<c.length;s++)c[s].key==n&&r.accounts.push({account:e,authorization:a.perm_name})
 return[2]})})})]
 case 1:return o.sent(),[2]}})},a=0,s=e.account_names,f.label=1
 case 1:return a<s.length?(c=s[a],[5,o(c)]):[3,4]
@@ -765,21 +763,21 @@ case 4:return[2,r]}})})})
 r.push(s)}},a=0,s=e.keys;a<s.length;a++)c=s[a],i(c)
 return[4,Promise.all(r).then(function(e){return n.keyToAccountMap=e,Promise.resolve({accountsDataObjToMerge:n})})]
 case 1:return f.sent(),[2]}})})})]
-case 1:return a.sent(),0,0==o.keyToAccountMap.length?o=R({},o,n):n.keyToAccountMap.forEach(function(e){o.keyToAccountMap.push(e)}),[2,Promise.resolve(o)]}})})},disconnect:c,login:function(t,r){n.updateState(function(e){return R({},e,{accountInfo:void 0,authenticated:!1,authenticationConfirmed:!1,authenticating:!0,authenticationError:!1,authenticationErrorMessage:void 0})})
+case 1:return a.sent(),0,0==o.keyToAccountMap.length?o=U({},o,n):n.keyToAccountMap.forEach(function(e){o.keyToAccountMap.push(e)}),[2,Promise.resolve(o)]}})})},disconnect:c,login:function(t,r){n.updateState(function(e){return U({},e,{accountInfo:void 0,authenticated:!1,authenticationConfirmed:!1,authenticating:!0,authenticationError:!1,authenticationErrorMessage:void 0})})
 var i=-1,a=void 0
 if(o.keyToAccountMap.length>0&&(t&&r&&o.keyToAccountMap.forEach(function(e){e.accounts.find(function(e){return e.account==t&&e.authorization==r})&&(i=e.index,a=e.key)}),!a))throw"Loging was not able to determine the Key and Index for "+r+"@"+t
-return e.login(t,r,i,a).then(function(e){return n.updateState(function(t){return R({},t,{auth:e,authenticated:!0,authenticating:!1})}),s(e.accountName)}).then(function(e){return n.updateState(function(t){return R({},t,{accountInfo:e})}),e}).catch(function(e){return n.updateState(function(t){return R({},t,{authenticating:!1,authenticationError:!0,authenticationErrorMessage:U(e)})}),Promise.reject(e)})},logout:u,fetchAccountInfo:s,terminate:function(){return u().then(c).then(function(){return t.detachWallet(f),!0})},subscribe:function(e){return n.subscribe(e)},signArbitrary:function(t,r){return e.signArbitrary(t,r)}}
-return f}var j={wallets:[]}
-function D(e){var t=e.appName,r=e.network,n=e.walletProviders.map(function(e){return e(r)}),o=T(j),i=[]
-function a(){for(var e=0,t=i;e<t.length;e++){(0,t[e])(d)}}var s,c,u,f,l=new Map,h=o.subscribe(a),p=(c=(s=r).protocol,u=s.host,f=s.port,(c||"http")+"://"+u+(f?":"+f:"")),d={appName:t,eosRpc:new O.JsonRpc(p,{fetch:fetch}),network:r,initWallet:function(e){var t="string"==typeof e?function(e,t){if(e.length)return e.find(function(e){return e.id===t})}(n,e):e
+return e.login(t,r,i,a).then(function(e){return n.updateState(function(t){return U({},t,{auth:e,authenticated:!0,authenticating:!1})}),s(e.accountName)}).then(function(e){return n.updateState(function(t){return U({},t,{accountInfo:e})}),e}).catch(function(e){return n.updateState(function(t){return U({},t,{authenticating:!1,authenticationError:!0,authenticationErrorMessage:P(e)})}),Promise.reject(e)})},logout:u,fetchAccountInfo:s,terminate:function(){return u().then(c).then(function(){return t.detachWallet(f),!0})},subscribe:function(e){return n.subscribe(e)},signArbitrary:function(t,r){return e.signArbitrary(t,r)}}
+return f}var N={wallets:[]}
+function D(e){var t=e.appName,r=e.network,n=e.walletProviders.map(function(e){return e(r)}),o=O(N),i=[]
+function a(){for(var e=0,t=i;e<t.length;e++){(0,t[e])(d)}}var s,c,u,f,l=new Map,h=o.subscribe(a),p=(c=(s=r).protocol,u=s.host,f=s.port,(c||"http")+"://"+u+(f?":"+f:"")),d={appName:t,eosRpc:new S.JsonRpc(p,{fetch:fetch}),network:r,initWallet:function(e){var t="string"==typeof e?function(e,t){if(e.length)return e.find(function(e){return e.id===t})}(n,e):e
 if(!t)throw new Error("\n          Cannot initiate a session, invalid wallet provider\n          or wallet provider ID was passed\n        ")
-var r=N(t,d)
+var r=F(t,d)
 return o.updateState(function(e){return{wallets:(e&&e.wallets||[]).concat([r])}}),l.set(r._instanceId,r.subscribe(a)),r},addWalletProvider:function(e){n.push(e(r))},getWalletProviders:function(){return n},getWallets:function(){var e=o.getState()
 return e&&e.wallets||[]},getActiveWallets:function(){return d.getWallets().filter(function(e){return e.connected&&e.authenticated})},detachWallet:function(e){o.updateState(function(t){return{wallets:(t&&t.wallets||[]).filter(function(t){return t!==e})}})
 var t=e._instanceId
 if(l.has(t)){var r=l.get(t)
 "function"==typeof r&&r()}},logoutAll:function(){return Promise.all(d.getWallets().map(function(e){return e.logout()})).then(function(){return!0})},disconnectAll:function(){return Promise.all(d.getWallets().map(function(e){return e.disconnect()})).then(function(){return!0})},terminateAll:function(){return Promise.all(d.getWallets().map(function(e){return e.terminate()})).then(function(){return!0})},destroy:function(){return d.terminateAll().then(function(){h(),l.forEach(function(e){"function"==typeof e&&e()}),i=[]})},subscribe:function(e){return i=i.concat([e]),function(){i=i.filter(function(t){return t!==e})}}}
-return d}var L=r(10).Base64,M={ledger:{providerId:"ledger",requiresLogin:!1,supportsDiscovery:!0},lynx:{providerId:"EOS Lynx",requiresLogin:!1,supportsDiscovery:!1},meetone:{providerId:"meetone_provider",requiresLogin:!1,supportsDiscovery:!1},metro:{providerId:"metro",requiresLogin:!1,supportsDiscovery:!1},scatter:{providerId:"scatter",requiresLogin:!0,supportsDiscovery:!1},tokenpocket:{providerId:"TokenPocket",requiresLogin:!1,supportsDiscovery:!1}},q=function(){function e(t){c()(this,e),this.options=null,this.appAccessToken=null,this.user=null,this.storage=new S,this.validateOptions(t),this.chainContexts={},this.chainNetworks=[],this.init()}return f()(e,[{key:"init",value:function(){var e=a()(o.a.mark(function e(){var t
+return d}var j=r(10).Base64,L={ledger:{providerId:"ledger",requiresLogin:!1,supportsDiscovery:!0},lynx:{providerId:"EOS Lynx",requiresLogin:!1,supportsDiscovery:!1},meetone:{providerId:"meetone_provider",requiresLogin:!1,supportsDiscovery:!1},metro:{providerId:"metro",requiresLogin:!1,supportsDiscovery:!1},scatter:{providerId:"scatter",requiresLogin:!0,supportsDiscovery:!1},tokenpocket:{providerId:"TokenPocket",requiresLogin:!1,supportsDiscovery:!1}},M=function(){function e(t){c()(this,e),this.options=null,this.appAccessToken=null,this.user=null,this.storage=new E,this.validateOptions(t),this.chainContexts={},this.chainNetworks=[],this.init()}return f()(e,[{key:"init",value:function(){var e=a()(o.a.mark(function e(){var t
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.next=2,this.getConfigFromApi("chains")
 case 2:t=e.sent,this.chainNetworks=t.chains
 case 4:case"end":return e.stop()}},e,this)}))
@@ -818,8 +816,8 @@ break}return e.next=6,this.discoverCredentialsInWallet(r,t,n)
 case 6:return e.abrupt("return",e.sent)
 case 9:throw new Error("Discover not support for provider: ".concat(t))
 case 10:case"end":return e.stop()}},e,this)}))
-return function(t){return e.apply(this,arguments)}}()},{key:"assertValidProvider",value:function(e){if(M[e])return!0
-throw new Error("Provider ".concat(e," is not a valid option"))}},{key:"canDiscover",value:function(e){return!0===M[e].supportsDiscovery}},{key:"loginWithOreId",value:function(){var e=a()(o.a.mark(function e(t,r){var n,i,a,s,c
+return function(t){return e.apply(this,arguments)}}()},{key:"assertValidProvider",value:function(e){if(L[e])return!0
+throw new Error("Provider ".concat(e," is not a valid option"))}},{key:"canDiscover",value:function(e){return!0===L[e].supportsDiscovery}},{key:"loginWithOreId",value:function(){var e=a()(o.a.mark(function e(t,r){var n,i,a,s,c
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return n=this.options,i=n.authCallbackUrl,a=n.backgroundColor,s={provider:t,backgroundColor:a,callbackUrl:i,state:r},e.next=4,this.getOreIdAuthUrl(s)
 case 4:return c=e.sent,e.abrupt("return",{loginUrl:c,errors:null})
 case 6:case"end":return e.stop()}},e,this)}))
@@ -837,9 +835,9 @@ case 15:return e.prev=15,this.setIsBusy(!1),e.finish(15)
 case 18:return e.abrupt("return",{signedTransaction:s})
 case 19:case"end":return e.stop()}},e,this,[[5,12,15,18]])}))
 return function(t){return e.apply(this,arguments)}}()},{key:"connectToTransitProvider",value:function(){var e=a()(o.a.mark(function e(t,r){var n,i,a,s,c,u,f,l,h,p,d,y,v,g,m,b
-return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return n={},i=M[t].providerId,a=this.getOrCreateChainContext(r),s=a.getWalletProviders().find(function(e){return e.id===i}),c=a.initWallet(s),e.prev=5,e.next=8,c.connect()
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return n={},i=L[t].providerId,a=this.getOrCreateChainContext(r),s=a.getWalletProviders().find(function(e){return e.id===i}),c=a.initWallet(s),e.prev=5,e.next=8,c.connect()
 case 8:return e.next=10,this.waitWhileWalletIsBusy(c,t)
-case 10:if(!0!==M[t].requiresLogin){e.next=18
+case 10:if(!0!==L[t].requiresLogin){e.next=18
 break}if(!c||!0===c.authenticated){e.next=16
 break}return e.next=14,c.login()
 case 14:return e.next=16,this.waitWhileWalletIsBusy(c,t)
@@ -913,13 +911,13 @@ return function(){return e.apply(this,arguments)}}()},{key:"getOreIdAuthUrl",val
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=t.callbackUrl,i=t.backgroundColor,a=t.state,s=this.options.oreIdUrl,r&&n){e.next=4
 break}throw new Error("Missing a required parameter")
 case 4:return e.next=6,this.getAccessToken()
-case 6:return c=e.sent,u=a?"&state=".concat(L.encode(JSON.stringify(a))):"",e.abrupt("return","".concat(s,"/auth#app_access_token=").concat(c,"?provider=").concat(r,"?callback_url=").concat(encodeURIComponent(n),"?background_color=").concat(i).concat(u))
+case 6:return c=e.sent,u=a?"&state=".concat(j.encode(JSON.stringify(a))):"",e.abrupt("return","".concat(s,"/auth#app_access_token=").concat(c,"?provider=").concat(r,"?callback_url=").concat(encodeURIComponent(n),"?background_color=").concat(i).concat(u))
 case 9:case"end":return e.stop()}},e,this)}))
 return function(t){return e.apply(this,arguments)}}()},{key:"getOreIdSignUrl",value:function(){var e=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,h,p,d
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.account,n=t.broadcast,i=t.callbackUrl,a=t.chainNetwork,s=t.state,c=t.transaction,u=t.accountIsTransactionPermission,f=t.chainAccount,l=this.options.oreIdUrl,r&&i&&c){e.next=5
 break}throw new Error("Missing a required parameter")
 case 5:return f||(f=r),e.next=8,this.getAccessToken()
-case 8:return h=e.sent,p=L.encode(JSON.stringify(c)),d=s?"&state=".concat(L.encode(JSON.stringify(s))):"",d+=u?"&account_is_transaction_permission=".concat(u):"",e.abrupt("return","".concat(l,"/sign#app_access_token=").concat(h,"&account=").concat(r,"&broadcast=").concat(n,"&callback_url=").concat(encodeURIComponent(i),"&chain_account=").concat(f,"&chain_network=").concat(a,"&transaction=").concat(p).concat(d))
+case 8:return h=e.sent,p=j.encode(JSON.stringify(c)),d=s?"&state=".concat(j.encode(JSON.stringify(s))):"",d+=u?"&account_is_transaction_permission=".concat(u):"",e.abrupt("return","".concat(l,"/sign#app_access_token=").concat(h,"&account=").concat(r,"&broadcast=").concat(n,"&callback_url=").concat(encodeURIComponent(i),"&chain_account=").concat(f,"&chain_network=").concat(a,"&transaction=").concat(p).concat(d))
 case 13:case"end":return e.stop()}},e,this)}))
 return function(t){return e.apply(this,arguments)}}()},{key:"handleAuthResponse",value:function(e){var t=g.urlParamsToArray(e),r=t.account,n=t.state,o=this.getErrorCodesFromParams(t)
 return this.setIsBusy(!1),{account:r,state:n,errors:o}}},{key:"handleSignResponse",value:function(e){var t,r=g.urlParamsToArray(e),n=r.signed_transaction,o=r.state,i=this.getErrorCodesFromParams(r)
@@ -957,8 +955,8 @@ var t=JSON.stringify(this.user)
 this.storage.setItem(this.userKey(),t)}}},{key:"loadUserLocally",value:function(){var e=this.storage.getItem(this.userKey())
 return g.isNullOrEmpty(e)?(this.user=null,null):(this.user=JSON.parse(e),this.user)}},{key:"clearLocalState",value:function(){var e=a()(o.a.mark(function e(){return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:this.storage.removeItem(this.userKey())
 case 1:case"end":return e.stop()}},e,this)}))
-return function(){return e.apply(this,arguments)}}()}]),e}(),K=function(e){return function(t,r,n){Promise.resolve(e(t,r,n)).catch(n)}}
-function W(e){return K(function(){var t=a()(o.a.mark(function t(r,n,i){var a,s,c,u,f
+return function(){return e.apply(this,arguments)}}()}]),e}(),q=function(e){return function(t,r,n){Promise.resolve(e(t,r,n)).catch(n)}}
+function K(e){return q(function(){var t=a()(o.a.mark(function t(r,n,i){var a,s,c,u,f
 return o.a.wrap(function(t){for(;;)switch(t.prev=t.next){case 0:if(r.query){t.next=3
 break}return t.abrupt("return",{})
 case 3:if(e.errors=null,a=e.handleAuthResponse(r.originalUrl),s=a.account,!(c=a.errors)){t.next=10
@@ -968,11 +966,11 @@ break}return t.next=13,e.getUserInfoFromApi(s)
 case 13:f=t.sent,r.user=f,r.appId=e.appId
 case 16:return t.abrupt("return",i())
 case 17:case"end":return t.stop()}},t)}))
-return function(e,r,n){return t.apply(this,arguments)}}())}function V(e){return K(function(){var t=a()(o.a.mark(function t(r,n,i){var a,s,c,u,f
+return function(e,r,n){return t.apply(this,arguments)}}())}function W(e){return q(function(){var t=a()(o.a.mark(function t(r,n,i){var a,s,c,u,f
 return o.a.wrap(function(t){for(;;)switch(t.prev=t.next){case 0:if(a=r.body){t.next=3
 break}return t.abrupt("return",{})
 case 3:if(e.errors=null,s=e.handleSignResponse(a),c=s.signedTransaction,!(u=s.errors)){t.next=9
 break}return e.errors=u,f=new Error("Errors Processing sign callback: ".concat(u.join(", "))),t.abrupt("return",i(f))
 case 9:return c&&(r.signedTransaction=c,r.appId=e.appId),t.abrupt("return",i())
 case 11:case"end":return t.stop()}},t)}))
-return function(e,r,n){return t.apply(this,arguments)}}())}r.d(t,"asyncHandler",function(){return K}),r.d(t,"authCallbackHandler",function(){return W}),r.d(t,"OreId",function(){return q}),r.d(t,"signCallbackHandler",function(){return V})}])})
+return function(e,r,n){return t.apply(this,arguments)}}())}r.d(t,"asyncHandler",function(){return q}),r.d(t,"authCallbackHandler",function(){return K}),r.d(t,"OreId",function(){return M}),r.d(t,"signCallbackHandler",function(){return W})}])})
