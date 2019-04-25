@@ -1,4 +1,5 @@
 # oreid-js
+
 ORE ID Helper library written in Javascript
 
 # About
@@ -8,15 +9,15 @@ oreid-js is a javascript helper library for interacting with the Aikon ORE ID se
 [ORE ID](https://github.com/api-market/ore-id-docs) is a simple way to add OAuth login to your blockchain enabled app.
 
 Install npm package:
+
 ```
 npm install @api-market/oreid-js
 ```
 
-
 # Usage
 
-
 Example code:
+
 ```
 //Initialize the library
 let oreId = new OreId({ appId, apiKey, oreIdUrl });
@@ -49,7 +50,7 @@ Check out the Express Server example for a complete example.
 
 # Using EOS Transit
 
-eos-auth makes it easy for you to add many popular EOS wallets to your app. It integrates EOS Transit so that you can use any wallet that has published an [EOS Transit Wallet Provider](https://github.com/eosnewyork/eos-transit). eos-auth is the easiest way to use EOS Transit with your app. 
+eos-auth makes it easy for you to add many popular EOS wallets to your app. It integrates EOS Transit so that you can use any wallet that has published an [EOS Transit Wallet Provider](https://github.com/eosnewyork/eos-transit). eos-auth is the easiest way to use EOS Transit with your app.
 
 ```
 // add the provider package for each wallet you want to support
@@ -60,6 +61,7 @@ let oreId = new OreId({ ..., eosTransitWalletProviders });
 ```
 
 As of now, this library supports these wallets using EOS Transit
+
 - Ledger
 - Lynx
 - Meet One
@@ -67,7 +69,6 @@ As of now, this library supports these wallets using EOS Transit
 - Token Pocket
 
 Check out the Express Server example for a complete example.
-
 
 # Example projects
 

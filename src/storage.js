@@ -44,11 +44,19 @@ function StorageHandler(options = { tryLocalStorageFirst: true }) {
     return
   }
   try {
-    // some browsers throw an error when trying to access localStorage
-    // when localStorage is disabled.
-    const localStorage = window.localStorage
-    if (localStorage) {
-      this.storage = localStorage
+    // designed to work on browser or server, so window might not exist
+    if (window) {
+      // some browsers throw an error when trying to access localStorage
+      // when localStorage is disabled.
+      const localStorage = window.localStorage
+      if (localStorage) {
+        this.storage = localStorage
+      }
+    } else {
+      Helpers.log(
+        'Not running in Browser. Using CookieStorage instead.',
+        options
+      )
     }
   } catch (e) {
     Helpers.log("Can't use localStorage. Using CookieStorage instead.", options)

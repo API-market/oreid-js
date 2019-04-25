@@ -1,6 +1,6 @@
 import Helpers from './helpers'
 const Base64 = require('js-base64').Base64
-const fetch = require('node-fetch')
+import axios from 'axios'
 import StorageHandler from './storage'
 import { initAccessContext } from 'eos-transit'
 
@@ -672,16 +672,15 @@ export default class OreId {
   async callOreIdApi(endpointAndParams) {
     const { apiKey, oreIdUrl } = this.options
     const url = `${oreIdUrl}/api/${endpointAndParams}`
-    const response = await fetch(url, {
+    const response = await axios.get(url, {
       headers: { 'api-key': apiKey }
     })
 
-    const responseJson = await response.json()
-    const { error } = responseJson
+    const { error } = response
     if (error) {
       throw new Error(error)
     }
-    return responseJson
+    return response.data
   }
 
   /*
