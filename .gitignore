@@ -2,7 +2,6 @@ package-lock.json
 node_modules
 .npmrc
 .env
-dist
 node_modules
 example/apimarket_config.json
 example/node_modules
