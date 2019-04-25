@@ -7,88 +7,92 @@ https://github.com/auth0/auth0.js/tree/master/src/helper/storage
 
 */
 
-import Cookie from 'js-cookie';
-import { log } from './helpers';
+import Cookie from 'js-cookie'
+import Helpers from './helpers'
 
-function CookieStorage() {}
-CookieStorage.prototype.getItem = function(key) {
-  return Cookie.get(key);
-};
-CookieStorage.prototype.removeItem = function(key) {
-  Cookie.remove(key);
-};
-CookieStorage.prototype.setItem = function(key, value, options) {
-  var params = {
+class CookieStorage {
+  static getItem(key) {
+    return Cookie.get(key)
+  }
+  static removeItem(key) {
+    Cookie.remove(key)
+  }
+  static setItem(key, value, options) {
+    const params = {
       expires: 1, // 1 day
       ...options
-  };
-  Cookie.set(key, value, params);
-};
+    }
+    Cookie.set(key, value, params)
+  }
+}
 
+class DummyStorage {
+  static getItem() {
+    return null
+  }
+  static removeItem() {
+    // empty
+  }
+  static setItem() {
+    // empty
+  }
+}
 
-function DummyStorage() {}
-DummyStorage.prototype.getItem = function() {
-  return null;
-};
-DummyStorage.prototype.removeItem = function() {};
-DummyStorage.prototype.setItem = function() {};
-
-
-function StorageHandler(options = {tryLocalStorageFirst: true}) {
-  this.storage = new CookieStorage();
+function StorageHandler(options = { tryLocalStorageFirst: true }) {
+  this.storage = new CookieStorage()
   if (options.tryLocalStorageFirst !== true) {
-    return;
+    return
   }
   try {
     // some browsers throw an error when trying to access localStorage
     // when localStorage is disabled.
-    var localStorage = window.localStorage;
+    const localStorage = window.localStorage
     if (localStorage) {
-      this.storage = localStorage;
+      this.storage = localStorage
     }
   } catch (e) {
-    log("Can't use localStorage. Using CookieStorage instead.", options);
+    Helpers.log("Can't use localStorage. Using CookieStorage instead.", options)
   }
 }
 
 StorageHandler.prototype.failover = function() {
   if (this.storage instanceof DummyStorage) {
-    return;
+    return
   } else if (this.storage instanceof CookieStorage) {
-    this.storage = new DummyStorage();
+    this.storage = new DummyStorage()
   } else {
-    this.storage = new CookieStorage();
+    this.storage = new CookieStorage()
   }
-};
+}
 
 StorageHandler.prototype.getItem = function(key) {
   try {
-    return this.storage.getItem(key);
+    return this.storage.getItem(key)
   } catch (e) {
-    log("Can't getItem in storage.", e);
-    this.failover();
-    return this.getItem(key);
+    Helpers.log("Can't getItem in storage.", e)
+    this.failover()
+    return this.getItem(key)
   }
-};
+}
 
 StorageHandler.prototype.removeItem = function(key) {
   try {
-    return this.storage.removeItem(key);
+    return this.storage.removeItem(key)
   } catch (e) {
-    log("Can't removeItem in storage.", e);
-    this.failover();
-    return this.removeItem(key);
+    Helpers.log("Can't removeItem in storage.", e)
+    this.failover()
+    return this.removeItem(key)
   }
-};
+}
 
 StorageHandler.prototype.setItem = function(key, value, options) {
   try {
-    return this.storage.setItem(key, value, options);
+    return this.storage.setItem(key, value, options)
   } catch (e) {
-    log("Can't setItem in storage.", e);
-    this.failover();
-    return this.setItem(key, value, options);
+    Helpers.log("Can't setItem in storage.", e)
+    this.failover()
+    return this.setItem(key, value, options)
   }
-};
+}
 
-export default StorageHandler;
+export default StorageHandler
