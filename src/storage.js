@@ -2,7 +2,7 @@
 
 Handles storage to local storage, or cookies, whatever is available to the client
 
-Mostly copied directly from Auth0.js
+Mostly copied originally copied from Auth0.js but modifed to use a class
 https://github.com/auth0/auth0.js/tree/master/src/helper/storage
 
 */
@@ -30,17 +30,14 @@ class CookieStorage {
 
 class DummyStorage {
   getItem(key) {
-    console.log('DummyStorage getItem ', key)
     return null
   }
 
   removeItem(key) {
-    console.log('DummyStorage removeItem ', key)
     // empty
   }
 
   setItem(key, value, options) {
-    console.log('DummyStorage setItem ', key, value, options)
     // empty
   }
 }
@@ -75,8 +72,6 @@ class StorageHandler {
   }
 
   failover() {
-    console.log('storage failover')
-
     if (this.storage instanceof DummyStorage) {
       return
     } else if (this.storage instanceof CookieStorage) {
