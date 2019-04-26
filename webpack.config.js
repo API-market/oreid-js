@@ -1,13 +1,13 @@
-const TerserPlugin = require('terser-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin');
 
 // see https://github.com/webpack/webpack/issues/6460
 // wanted to get the mode
 module.exports = (env, argv) => {
-  let sourceMap = 'source-map'
-  let opt = {}
+  let sourceMap = 'source-map';
+  let opt = {};
 
   if (argv.mode === 'development') {
-    sourceMap = 'inline-source-map'
+    sourceMap = 'inline-source-map';
   } else {
     opt = {
       optimization: {
@@ -24,7 +24,7 @@ module.exports = (env, argv) => {
           })
         ]
       }
-    }
+    };
   }
 
   return {
@@ -55,5 +55,5 @@ module.exports = (env, argv) => {
         }
       ]
     }
-  }
-}
+  };
+};

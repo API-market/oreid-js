@@ -1,8 +1,8 @@
-import Helpers from './helpers'
-const Base64 = require('js-base64').Base64
-import axios from 'axios'
-import StorageHandler from './storage'
-import { initAccessContext } from 'eos-transit'
+import Helpers from './helpers';
+const Base64 = require('js-base64').Base64;
+import axios from 'axios';
+import StorageHandler from './storage';
+import { initAccessContext } from 'eos-transit';
 
 // const APPID_CLAIM_URI = 'https://oreid.aikon.com/appId'
 
@@ -37,199 +37,201 @@ const providerAttributes = {
     requiresLogin: false,
     supportsDiscovery: false
   }
-}
+};
 
 export default class OreId {
   constructor(options) {
-    this.options = null
-    this.appAccessToken = null
-    this.user = null
-    this.storage = new StorageHandler()
-    this.validateOptions(options)
-    this.chainContexts = {}
-    this.chainNetworks = []
-    this.init() // todo: handle multiple networks
+    this.options = null;
+    this.appAccessToken = null;
+    this.user = null;
+    this.storage = new StorageHandler();
+    this.validateOptions(options);
+    this.chainContexts = {};
+    this.chainNetworks = [];
+    this.init(); // todo: handle multiple networks
   }
 
   // Initialize the library
   async init() {
     // load the chainNetworks list from the ORE ID API
-    const results = await this.getConfigFromApi('chains')
-    this.chainNetworks = results.chains
+    const results = await this.getConfigFromApi('chains');
+    this.chainNetworks = results.chains;
   }
 
   getOrCreateChainContext(chainNetwork) {
-    const { appName, eosTransitWalletProviders = [] } = this.options
+    const { appName, eosTransitWalletProviders = [] } = this.options;
     if (this.chainContexts[chainNetwork]) {
-      return this.chainContexts[chainNetwork]
+      return this.chainContexts[chainNetwork];
     }
 
-    const chainConfig = this.chainNetworks.find(n => n.network === chainNetwork)
+    const chainConfig = this.chainNetworks.find(
+      n => n.network === chainNetwork
+    );
     if (!chainConfig) {
-      throw new Error(`Invalid chain network: ${chainNetwork}.`)
+      throw new Error(`Invalid chain network: ${chainNetwork}.`);
     }
 
-    const { hosts } = chainConfig
-    const { chainId, host, port, protocol } = hosts[0] // using first host
-    const NETWORK_CONFIG = { host, port, protocol, chainId }
+    const { hosts } = chainConfig;
+    const { chainId, host, port, protocol } = hosts[0]; // using first host
+    const NETWORK_CONFIG = { host, port, protocol, chainId };
 
     // create context
     const chainContext = initAccessContext({
       appName: appName || 'missing appName',
       network: NETWORK_CONFIG,
       walletProviders: eosTransitWalletProviders
-    })
+    });
     // cache for future use
-    this.chainContexts[chainNetwork] = chainContext
-    return chainContext
+    this.chainContexts[chainNetwork] = chainContext;
+    return chainContext;
   }
 
   // Two paths
   // send code - params: loginType and email|phone)
   // verify code - params: loginType, email|phone, and code to check
   async callPasswordlessApi(args, verify = false) {
-    const { 'login-type': loginType, phone, email, code } = args
-    const { apiKey, oreIdUrl } = this.options
+    const { 'login-type': loginType, phone, email, code } = args;
+    const { apiKey, oreIdUrl } = this.options;
 
     if (!loginType || !(phone || email) || (verify && !code)) {
-      throw new Error(`Missing a required parameter`)
+      throw new Error(`Missing a required parameter`);
     }
 
-    let action = 'send'
+    let action = 'send';
     if (verify) {
-      action = 'verify'
+      action = 'verify';
     }
 
-    let url = `${oreIdUrl}/api/account/login-passwordless-${action}-code?login-type=${loginType}`
+    let url = `${oreIdUrl}/api/account/login-passwordless-${action}-code?login-type=${loginType}`;
 
     if (email) {
-      url += `email=${email}`
+      url += `email=${email}`;
     }
     if (phone) {
-      url += `phone=${phone}`
+      url += `phone=${phone}`;
     }
 
     if (verify) {
-      url += `code=${code}`
+      url += `code=${code}`;
     }
 
     const response = await axios.get(url, {
       headers: { 'api-key': apiKey }
-    })
+    });
 
-    const { error } = response
+    const { error } = response;
     if (error) {
-      throw new Error(error)
+      throw new Error(error);
     }
 
-    return response.data
+    return response.data;
   }
 
   // email - localhost:8080/api/account/login-passwordless-send-code?login-type=email&email=me@aikon.com
   // phone - localhost:8080/api/account/login-passwordless-send-code?login-type=phone&phone=+12125551212
   async passwordlessSendCodeApi(args) {
-    let result = {}
+    let result = {};
 
     try {
-      result = await this.callPasswordlessApi(args)
+      result = await this.callPasswordlessApi(args);
     } catch (error) {
-      return { error }
+      return { error };
     }
 
-    return result
+    return result;
   }
 
   // email - localhost:8080/api/account/login-passwordless-verify-code?login-type=email&email=me@aikon.com&code=473830
   // phone - localhost:8080/api/account/login-passwordless-verify-code?login-type=phone&phone=12125551212&code=473830
   async passwordlessVerifyCodeApi(args) {
-    let result = {}
+    let result = {};
 
     try {
-      result = await this.callPasswordlessApi(args, true)
+      result = await this.callPasswordlessApi(args, true);
     } catch (error) {
-      return { error }
+      return { error };
     }
 
-    return result
+    return result;
   }
 
   async login(loginOptions, chainNetwork = 'eos_main') {
-    const { provider } = loginOptions
+    const { provider } = loginOptions;
     // handle log-in based on type
     switch (provider) {
       case 'ledger':
-        return this.connectToTransitProvider(provider, chainNetwork)
+        return this.connectToTransitProvider(provider, chainNetwork);
       case 'lynx':
-        return this.connectToTransitProvider(provider, chainNetwork)
+        return this.connectToTransitProvider(provider, chainNetwork);
       case 'meetone':
-        return this.connectToTransitProvider(provider, chainNetwork)
+        return this.connectToTransitProvider(provider, chainNetwork);
       case 'metro':
-        throw new Error('Not Implemented')
+        throw new Error('Not Implemented');
       // return this.connectToTransitProvider(provider, chainNetwork);
       case 'scatter':
-        return this.connectToTransitProvider(provider, chainNetwork)
+        return this.connectToTransitProvider(provider, chainNetwork);
       case 'tokenpocket':
-        return this.connectToTransitProvider(provider, chainNetwork)
+        return this.connectToTransitProvider(provider, chainNetwork);
       default:
         // assume ORE ID if not one of the others
-        return this.loginWithOreId(loginOptions)
+        return this.loginWithOreId(loginOptions);
     }
   }
 
   // sign transaction with keys in wallet - connect to wallet first
   async sign(signOptions) {
     // handle sign transaction based on provider type
-    const { provider } = signOptions
+    const { provider } = signOptions;
     switch (provider) {
       case 'lynx':
-        return await this.signWithTransitProvider(signOptions)
+        return await this.signWithTransitProvider(signOptions);
       case 'ledger':
-        return await this.signWithTransitProvider(signOptions)
+        return await this.signWithTransitProvider(signOptions);
       case 'meetone':
-        return await this.signWithTransitProvider(signOptions)
+        return await this.signWithTransitProvider(signOptions);
       case 'metro':
-        break
+        break;
       case 'scatter':
-        return await this.signWithTransitProvider(signOptions)
+        return await this.signWithTransitProvider(signOptions);
       case 'tokenpocket':
-        return await this.signWithTransitProvider(signOptions)
+        return await this.signWithTransitProvider(signOptions);
       default:
         // assume ORE ID if not one of the others
-        return this.signWithOreId(signOptions)
+        return this.signWithOreId(signOptions);
     }
   }
 
   // connect to wallet and discover keys
   // any new keys discovered in wallet are added to user's ORE ID record
   async discover(provider, chainNetwork = 'eos_main', discoveryPathIndexList) {
-    this.assertValidProvider(provider)
+    this.assertValidProvider(provider);
     if (this.canDiscover(provider)) {
       return await this.discoverCredentialsInWallet(
         chainNetwork,
         provider,
         discoveryPathIndexList
-      )
+      );
     } else {
-      throw new Error(`Discover not support for provider: ${provider}`)
+      throw new Error(`Discover not support for provider: ${provider}`);
     }
   }
 
   // throw error if invalid provider
   assertValidProvider(provider) {
     if (providerAttributes[provider]) {
-      return true
+      return true;
     }
-    throw new Error(`Provider ${provider} is not a valid option`)
+    throw new Error(`Provider ${provider} is not a valid option`);
   }
 
   // determine whether discovery is supported by the provider
   canDiscover(provider) {
-    return providerAttributes[provider].supportsDiscovery === true
+    return providerAttributes[provider].supportsDiscovery === true;
   }
 
   async loginWithOreId(loginOptions, state) {
-    const { code, email, phone, provider } = loginOptions
-    const { authCallbackUrl, backgroundColor } = this.options
+    const { code, email, phone, provider } = loginOptions;
+    const { authCallbackUrl, backgroundColor } = this.options;
     const args = {
       code,
       email,
@@ -238,27 +240,27 @@ export default class OreId {
       backgroundColor,
       callbackUrl: authCallbackUrl,
       state
-    }
-    const loginUrl = await this.getOreIdAuthUrl(args)
-    return { loginUrl, errors: null }
+    };
+    const loginUrl = await this.getOreIdAuthUrl(args);
+    return { loginUrl, errors: null };
   }
 
   async signWithOreId(signOptions) {
-    const { signCallbackUrl } = this.options
-    signOptions['callbackUrl'] = signCallbackUrl
-    const signUrl = await this.getOreIdSignUrl(signOptions)
-    return { signUrl, errors: null }
+    const { signCallbackUrl } = this.options;
+    signOptions['callbackUrl'] = signCallbackUrl;
+    const signUrl = await this.getOreIdSignUrl(signOptions);
+    return { signUrl, errors: null };
   }
 
   async signWithTransitProvider(signOptions) {
-    const { broadcast, chainNetwork, transaction, provider } = signOptions
+    const { broadcast, chainNetwork, transaction, provider } = signOptions;
     // connect to wallet
-    let response = await this.connectToTransitProvider(provider, chainNetwork)
-    const { transitWallet } = response
+    let response = await this.connectToTransitProvider(provider, chainNetwork);
+    const { transitWallet } = response;
 
     try {
       // sign with transit wallet
-      this.setIsBusy(true)
+      this.setIsBusy(true);
       response = await transitWallet.eosApi.transact(
         {
           actions: [transaction]
@@ -268,117 +270,117 @@ export default class OreId {
           blocksBehind: 3,
           expireSeconds: 60
         }
-      )
+      );
     } catch (error) {
-      throw error
+      throw error;
     } finally {
-      this.setIsBusy(false)
+      this.setIsBusy(false);
     }
 
-    return { signedTransaction: response }
+    return { signedTransaction: response };
   }
 
   async connectToTransitProvider(provider, chainNetwork) {
-    let response = {}
-    const providerId = providerAttributes[provider].providerId
-    const chainContext = this.getOrCreateChainContext(chainNetwork)
+    let response = {};
+    const providerId = providerAttributes[provider].providerId;
+    const chainContext = this.getOrCreateChainContext(chainNetwork);
     const transitProvider = chainContext
       .getWalletProviders()
-      .find(wp => wp.id === providerId)
-    const transitWallet = chainContext.initWallet(transitProvider)
+      .find(wp => wp.id === providerId);
+    const transitWallet = chainContext.initWallet(transitProvider);
 
     try {
-      await transitWallet.connect()
+      await transitWallet.connect();
       // try to connect to wallet
-      await this.waitWhileWalletIsBusy(transitWallet, provider)
+      await this.waitWhileWalletIsBusy(transitWallet, provider);
 
       // some providers require login flow to connect (usually this means connect() does nothing but login selects an account)
       if (providerAttributes[provider].requiresLogin === true) {
         // if connected, but not authenticated, then login
         if (transitWallet && transitWallet.authenticated !== true) {
-          await transitWallet.login() // todo: pass along account and permission param to login()
-          await this.waitWhileWalletIsBusy(transitWallet, provider)
+          await transitWallet.login(); // todo: pass along account and permission param to login()
+          await this.waitWhileWalletIsBusy(transitWallet, provider);
         }
         if (!transitWallet || transitWallet.authenticated !== true) {
-          throw new Error(`Couldn't connect to ${provider}`)
+          throw new Error(`Couldn't connect to ${provider}`);
         }
       }
 
       // at least, return the wallet
-      response.transitWallet = transitWallet
+      response.transitWallet = transitWallet;
       // For some wallets, connecting also performs login
       // return login results or throw error
       if (transitWallet.connected) {
         if (transitWallet.authenticated) {
-          const { accountName, permission, publicKey } = transitWallet.auth
+          const { accountName, permission, publicKey } = transitWallet.auth;
           response = {
             isLoggedIn: transitWallet.authenticated,
             account: accountName,
             permissions: [{ name: permission, publicKey }], // todo: add parent permission when available
             provider,
             transitWallet
-          }
+          };
         }
       } else {
-        const { hasError, errorMessage } = transitWallet
+        const { hasError, errorMessage } = transitWallet;
         throw new Error(
           `${provider} not connected!` + hasError
             ? ` Error: ${errorMessage}`
             : ``
-        )
+        );
       }
 
       // if an account is selected, add it to the ORE ID account (if not already there)
-      const userOreAccount = (this.user || {}).accountName
+      const userOreAccount = (this.user || {}).accountName;
       if (userOreAccount) {
-        const { account: chainAccount, permissions } = response
+        const { account: chainAccount, permissions } = response;
         const chainNetworkToUpdate = this.getChainNetworkFromTransitWallet(
           transitWallet
-        )
+        );
         await this.addWalletPermissionstoOreIdAccount(
           chainAccount,
           chainNetworkToUpdate,
           permissions,
           userOreAccount,
           provider
-        )
+        );
       }
     } catch (error) {
-      console.log(`Failed to connect to ${provider} wallet:`, error)
-      throw error
+      console.log(`Failed to connect to ${provider} wallet:`, error);
+      throw error;
     } finally {
-      this.setIsBusy(false)
+      this.setIsBusy(false);
     }
 
-    return response
+    return response;
   }
 
   async waitWhileWalletIsBusy(transitWallet, provider) {
     while (transitWallet.inProgress) {
-      this.setIsBusy(true)
+      this.setIsBusy(true);
       // todo: add timeout
-      await Helpers.sleep(250)
+      await Helpers.sleep(250);
       console.log(
         `connecting to ${provider} via eos-transit wallet in progress:`,
         transitWallet.inProgress
-      )
+      );
     }
-    this.setIsBusy(false)
-    return
+    this.setIsBusy(false);
+    return;
   }
 
   getChainNetworkFromTransitWallet(transitWallet) {
-    let chainNetwork
+    let chainNetwork;
     if (transitWallet && transitWallet.eosApi) {
-      const chainId = transitWallet.eosApi.chainId
+      const chainId = transitWallet.eosApi.chainId;
       const chainConfig = this.chainNetworks.find(n =>
         n.hosts.find(h => h.chainId === chainId)
-      )
+      );
       if (!Helpers.isNullOrEmpty(chainConfig)) {
-        chainNetwork = chainConfig.network
+        chainNetwork = chainConfig.network;
       }
     }
-    return chainNetwork
+    return chainNetwork;
   }
 
   // Discover all accounts (and related permissions) in the wallet and add them to ORE ID
@@ -388,28 +390,28 @@ export default class OreId {
     provider,
     discoveryPathIndexList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
   ) {
-    let accountsAndPermissions = []
+    let accountsAndPermissions = [];
     try {
-      let permissions
+      let permissions;
       const { transitWallet } = await this.connectToTransitProvider(
         provider,
         chainNetwork
-      )
+      );
       if (!transitWallet) {
-        return accountsAndPermissions
+        return accountsAndPermissions;
       }
-      this.setIsBusy(true)
+      this.setIsBusy(true);
       const discoveryData = await transitWallet.discover({
         pathIndexList: discoveryPathIndexList
-      })
+      });
       // add accounts to ORE ID - if ORE ID user account is known
-      const userOreAccount = (this.user || {}).accountName
+      const userOreAccount = (this.user || {}).accountName;
       // this data looks like this: keyToAccountMap[accounts[{account,permission}]] - e.g. keyToAccountMap[accounts[{'myaccount':'owner','myaccount':'active'}]]
-      const credentials = discoveryData.keyToAccountMap
+      const credentials = discoveryData.keyToAccountMap;
       await credentials.forEach(async credential => {
-        const { accounts = [] } = credential
+        const { accounts = [] } = credential;
         if (accounts.length > 0) {
-          const { account, authorization } = accounts[0]
+          const { account, authorization } = accounts[0];
           permissions = [
             {
               account,
@@ -417,34 +419,34 @@ export default class OreId {
               name: authorization,
               parent: null
             }
-          ]
+          ];
           const chainNetworkToUpdate = this.getChainNetworkFromTransitWallet(
             transitWallet
-          )
+          );
           await this.addWalletPermissionstoOreIdAccount(
             account,
             chainNetworkToUpdate,
             permissions,
             userOreAccount,
             provider
-          )
-          accountsAndPermissions = accountsAndPermissions.concat(permissions)
+          );
+          accountsAndPermissions = accountsAndPermissions.concat(permissions);
         }
-      })
+      });
     } catch (error) {
-      throw error
+      throw error;
     } finally {
-      this.setIsBusy(false)
+      this.setIsBusy(false);
     }
     // return a list of account names and related permissions found
-    return accountsAndPermissions
+    return accountsAndPermissions;
   }
 
   setIsBusy(value) {
     if (this.isBusy !== value) {
-      this.isBusy = value
+      this.isBusy = value;
       if (this.options.setBusyCallback) {
-        this.options.setBusyCallback(value)
+        this.options.setBusyCallback(value);
       }
     }
   }
@@ -462,11 +464,11 @@ export default class OreId {
       Helpers.isNullOrEmpty(walletPermissions) ||
       Helpers.isNullOrEmpty(chainNetwork)
     ) {
-      return
+      return;
     }
     await walletPermissions.map(async p => {
-      const permission = p.name
-      let parentPermission = p.parent // pooky
+      const permission = p.name;
+      let parentPermission = p.parent; // pooky
       if (!parentPermission) {
         // HACK: assume parent permission - its missing from the discover() results
         parentPermission =
@@ -474,7 +476,7 @@ export default class OreId {
             ? 'owner'
             : permission === 'owner'
             ? ''
-            : 'active'
+            : 'active';
       }
       // filter out permission that the user already has in his record
       const skipThisPermission = this.user.permissions.some(
@@ -483,12 +485,12 @@ export default class OreId {
             up.chainNetwork === chainNetwork &&
             up.permission === permission) ||
           permission === 'owner'
-      )
+      );
 
       // don't add 'owner' permission and skip ones that are already stored in user's account
       if (skipThisPermission !== true) {
         // let publicKey = p.required_auth.keys[0].key; //TODO: Handle multiple keys and weights
-        const publicKey = p.publicKey
+        const publicKey = p.publicKey;
         await this.addPermission(
           userOreAccount,
           chainAccount,
@@ -497,11 +499,11 @@ export default class OreId {
           parentPermission,
           permission,
           provider
-        )
+        );
       }
-    })
+    });
     // reload user to get updated permissions
-    await this.getUserInfoFromApi(userOreAccount)
+    await this.getUserInfoFromApi(userOreAccount);
   }
 
   // --------------->
@@ -510,23 +512,23 @@ export default class OreId {
         Validates startup options
     */
   validateOptions(options) {
-    const { appId, apiKey, oreIdUrl } = options
-    let errorMessage = ''
+    const { appId, apiKey, oreIdUrl } = options;
+    let errorMessage = '';
 
     if (!appId) {
-      errorMessage += `\n --> Missing required parameter - appId. You can get an appId when you register your app with ORE ID.`
+      errorMessage += `\n --> Missing required parameter - appId. You can get an appId when you register your app with ORE ID.`;
     }
     if (!apiKey) {
-      errorMessage += `\n --> Missing required parameter - apiKey. You can get an apiKey when you register your app with ORE ID.`
+      errorMessage += `\n --> Missing required parameter - apiKey. You can get an apiKey when you register your app with ORE ID.`;
     }
     if (!oreIdUrl) {
-      errorMessage += `\n --> Missing required parameter - oreIdUrl. Refer to the docs to get this value.`
+      errorMessage += `\n --> Missing required parameter - oreIdUrl. Refer to the docs to get this value.`;
     }
     if (errorMessage !== '') {
-      throw new Error(`Options are missing or invalid. ${errorMessage}`)
+      throw new Error(`Options are missing or invalid. ${errorMessage}`);
     }
 
-    this.options = options
+    this.options = options;
   }
 
   /*
@@ -534,16 +536,16 @@ export default class OreId {
     */
   async getUser(account) {
     if (account) {
-      const user = await this.getUserInfoFromApi(account) // get the latest user data
-      return user
+      const user = await this.getUserInfoFromApi(account); // get the latest user data
+      return user;
     }
     // Check in state
     if (this.user) {
-      return this.user
+      return this.user;
     }
     // Check local storage
-    const result = this.loadUserLocally()
-    return result
+    const result = this.loadUserLocally();
+    return result;
   }
 
   /*
@@ -551,7 +553,7 @@ export default class OreId {
         e.g. configType='chains' returns valid chain types and addresses
     */
   async getConfig(configType) {
-    return await this.getConfigFromApi(configType)
+    return await this.getConfigFromApi(configType);
   }
 
   /*
@@ -561,9 +563,9 @@ export default class OreId {
   async getAccessToken() {
     // check for expiration and renew token if expired
     if (!this.appAccessToken || Helpers.tokenHasExpired(this.appAccessToken)) {
-      await this.getNewAppAccessToken() // call api
+      await this.getNewAppAccessToken(); // call api
     }
-    return this.appAccessToken
+    return this.appAccessToken;
   }
 
   /*
@@ -578,8 +580,8 @@ export default class OreId {
       callbackUrl,
       backgroundColor,
       state
-    } = args
-    const { oreIdUrl } = this.options
+    } = args;
+    const { oreIdUrl } = this.options;
 
     if (
       !provider ||
@@ -587,19 +589,19 @@ export default class OreId {
       (provider === 'email' && !email) ||
       (provider === 'phone' && !phone)
     ) {
-      throw new Error(`Missing a required parameter`)
+      throw new Error(`Missing a required parameter`);
     }
 
-    const appAccessToken = await this.getAccessToken()
+    const appAccessToken = await this.getAccessToken();
 
     // optional params
     const encodedStateParam = state
       ? `&state=${Base64.encode(JSON.stringify(state))}`
-      : ''
+      : '';
     // handle passwordless params
-    const codeParam = code ? `&code=${code}` : ''
-    const emailParam = email ? `&code=${email}` : ''
-    const phoneParam = phone ? `&code=${phone}` : ''
+    const codeParam = code ? `&code=${code}` : '';
+    const emailParam = email ? `&code=${email}` : '';
+    const phoneParam = phone ? `&code=${phone}` : '';
 
     return (
       `${oreIdUrl}/auth#app_access_token=${appAccessToken}&provider=${provider}` +
@@ -607,7 +609,7 @@ export default class OreId {
       `&callback_url=${encodeURIComponent(
         callbackUrl
       )}&background_color=${backgroundColor}${encodedStateParam}`
-    )
+    );
   }
 
   /*
@@ -623,33 +625,33 @@ export default class OreId {
       state,
       transaction,
       accountIsTransactionPermission
-    } = signOptions
+    } = signOptions;
 
-    let { chainAccount } = signOptions
+    let { chainAccount } = signOptions;
 
-    const { oreIdUrl } = this.options
+    const { oreIdUrl } = this.options;
 
     if (!account || !callbackUrl || !transaction) {
-      throw new Error(`Missing a required parameter`)
+      throw new Error(`Missing a required parameter`);
     }
 
     // default chainAccount is the same as the user's account
     if (!chainAccount) {
-      chainAccount = account
+      chainAccount = account;
     }
 
-    const appAccessToken = await this.getAccessToken()
-    const encodedTransaction = Base64.encode(JSON.stringify(transaction))
+    const appAccessToken = await this.getAccessToken();
+    const encodedTransaction = Base64.encode(JSON.stringify(transaction));
     let optionalParams = state
       ? `&state=${Base64.encode(JSON.stringify(state))}`
-      : ''
+      : '';
     optionalParams += accountIsTransactionPermission
       ? `&account_is_transaction_permission=${accountIsTransactionPermission}`
-      : ''
+      : '';
 
     return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(
       callbackUrl
-    )}&chain_account=${chainAccount}&chain_network=${chainNetwork}&transaction=${encodedTransaction}${optionalParams}`
+    )}&chain_account=${chainAccount}&chain_network=${chainNetwork}&transaction=${encodedTransaction}${optionalParams}`;
   }
 
   /*
@@ -658,39 +660,39 @@ export default class OreId {
   handleAuthResponse(callbackUrlString) {
     // Parses error codes and returns an errors array
     // (if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
-    const params = Helpers.urlParamsToArray(callbackUrlString)
-    const { account, state } = params
-    const errors = this.getErrorCodesFromParams(params)
-    this.setIsBusy(false)
-    return { account, state, errors }
+    const params = Helpers.urlParamsToArray(callbackUrlString);
+    const { account, state } = params;
+    const errors = this.getErrorCodesFromParams(params);
+    this.setIsBusy(false);
+    return { account, state, errors };
   }
 
   /*
         Extracts the response parameters on the /sign callback URL string
     */
   handleSignResponse(callbackUrlString) {
-    let signedTransaction
-    const params = Helpers.urlParamsToArray(callbackUrlString)
-    const { signed_transaction: encodedTransaction, state } = params
-    const errors = this.getErrorCodesFromParams(params)
+    let signedTransaction;
+    const params = Helpers.urlParamsToArray(callbackUrlString);
+    const { signed_transaction: encodedTransaction, state } = params;
+    const errors = this.getErrorCodesFromParams(params);
 
     if (!errors) {
       // Decode base64 parameters
       signedTransaction = Helpers.tryParseJSON(
         Helpers.base64DecodeSafe(encodedTransaction)
-      )
+      );
     }
-    this.setIsBusy(false)
-    return { signedTransaction, state, errors }
+    this.setIsBusy(false);
+    return { signedTransaction, state, errors };
   }
 
   /*
         Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
     */
   async getNewAppAccessToken() {
-    const responseJson = await this.callOreIdApi(`app-token`)
-    const { appAccessToken } = responseJson
-    this.appAccessToken = appAccessToken
+    const responseJson = await this.callOreIdApi(`app-token`);
+    const { appAccessToken } = responseJson;
+    this.appAccessToken = appAccessToken;
     // const decodedToken = Helpers.jwtDecodeSafe(appAccessToken)
     // this.appId = decodedToken[APPID_CLAIM_URI]; //Get the appId from the app token
   }
@@ -701,11 +703,11 @@ export default class OreId {
   async getUserInfoFromApi(account) {
     const responseJson = await this.callOreIdApi(
       `account/user?account=${account}`
-    )
-    const userInfo = responseJson
-    this.saveUserLocally(userInfo)
-    await this.loadUserLocally() // ensures this.user state is set
-    return userInfo
+    );
+    const userInfo = responseJson;
+    this.saveUserLocally(userInfo);
+    await this.loadUserLocally(); // ensures this.user state is set
+    return userInfo;
   }
 
   /*
@@ -713,17 +715,17 @@ export default class OreId {
     */
   async getConfigFromApi(configType) {
     if (!configType) {
-      throw new Error(`Missing a required parameter: configType`)
+      throw new Error(`Missing a required parameter: configType`);
     }
     const responseJson = await this.callOreIdApi(
       `services/config?type=${configType}`
-    )
-    const results = responseJson
-    const { values } = results || {}
+    );
+    const results = responseJson;
+    const { values } = results || {};
     if (!values) {
-      throw new Error(`Not able to retrieve config values for ${configType}`)
+      throw new Error(`Not able to retrieve config values for ${configType}`);
     }
-    return values
+    return values;
   }
 
   /*
@@ -742,13 +744,13 @@ export default class OreId {
     permission,
     provider
   ) {
-    let optionalParams = provider ? `&wallet-type=${provider}` : ''
+    let optionalParams = provider ? `&wallet-type=${provider}` : '';
     optionalParams += parentPermission
       ? `&parent-permission=${parentPermission}`
-      : ''
+      : '';
     await this.callOreIdApi(
       `account/add-permission?account=${account}&chain-account=${chainAccount}&chain-network=${chainNetwork}&permission=${permission}&public-key=${publicKey}${optionalParams}`
-    )
+    );
     // if failed, error will be thrown
   }
 
@@ -756,7 +758,7 @@ export default class OreId {
         Get the user info from ORE ID for the given user account
     */
   async getUserWalletInfo(account) {
-    throw Error('Not Implemented')
+    throw Error('Not Implemented');
     // let responseJson = await this.callOreIdApi(`wallet?account=${account}`)
     // let userWalletInfo = responseJson;
     // return {userWalletInfo, errors};
@@ -766,34 +768,34 @@ export default class OreId {
         Helper function to call api endpoint and inject api-key
     */
   async callOreIdApi(endpointAndParams) {
-    const { apiKey, oreIdUrl } = this.options
-    const url = `${oreIdUrl}/api/${endpointAndParams}`
+    const { apiKey, oreIdUrl } = this.options;
+    const url = `${oreIdUrl}/api/${endpointAndParams}`;
     const response = await axios.get(url, {
       headers: { 'api-key': apiKey }
-    })
+    });
 
-    const { error } = response
+    const { error } = response;
     if (error) {
-      throw new Error(error)
+      throw new Error(error);
     }
-    return response.data
+    return response.data;
   }
 
   /*
         Params is a javascript object representing the parameters parsed from an URL string
     */
   getErrorCodesFromParams(params) {
-    let errorCodes
-    const errorString = params['error_code']
-    const errorMessage = params['error_message']
+    let errorCodes;
+    const errorString = params['error_code'];
+    const errorMessage = params['error_message'];
     if (errorString) {
-      errorCodes = errorString.split(/[/?/$&]/)
+      errorCodes = errorString.split(/[/?/$&]/);
     }
     if (errorCodes || errorMessage) {
-      errorCodes = errorCodes || []
-      errorCodes.push(errorMessage)
+      errorCodes = errorCodes || [];
+      errorCodes.push(errorMessage);
     }
-    return errorCodes
+    return errorCodes;
   }
 
   /*
@@ -802,7 +804,7 @@ export default class OreId {
     */
   logout() {
     // clear local state
-    this.clearLocalState()
+    this.clearLocalState();
   }
 
   /*
@@ -810,30 +812,30 @@ export default class OreId {
     */
 
   userKey() {
-    return `oreid.${this.options.appId}.user`
+    return `oreid.${this.options.appId}.user`;
   }
 
   saveUserLocally(user) {
     if (Helpers.isNullOrEmpty(user)) {
-      return
+      return;
     }
-    this.user = user
-    const serialized = JSON.stringify(this.user)
-    this.storage.setItem(this.userKey(), serialized)
+    this.user = user;
+    const serialized = JSON.stringify(this.user);
+    this.storage.setItem(this.userKey(), serialized);
   }
 
   loadUserLocally() {
-    const serialized = this.storage.getItem(this.userKey())
+    const serialized = this.storage.getItem(this.userKey());
     // user state does not exist
     if (Helpers.isNullOrEmpty(serialized)) {
-      this.user = null
-      return null
+      this.user = null;
+      return null;
     }
-    this.user = JSON.parse(serialized)
-    return this.user
+    this.user = JSON.parse(serialized);
+    return this.user;
   }
 
   async clearLocalState() {
-    this.storage.removeItem(this.userKey())
+    this.storage.removeItem(this.userKey());
   }
 }

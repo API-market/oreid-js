@@ -45,7 +45,6 @@ module.exports = {
         allowTemplateLiterals: true
       }
     ],
-    semi: [2, 'never'],
     'no-duplicate-imports': 2,
     'no-extra-parens': [
       2,
@@ -160,4 +159,4 @@ module.exports = {
     ],
     'jsx-quotes': [2, 'prefer-single']
   }
-}
+};

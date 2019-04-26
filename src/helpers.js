@@ -1,151 +1,151 @@
 /*
     helper functions
  */
-import jwtdecode from 'jwt-decode'
-const Base64 = require('js-base64').Base64
-const TRACING = false // enable when debugging to see detailed outputs
+import jwtdecode from 'jwt-decode';
+const Base64 = require('js-base64').Base64;
+const TRACING = false; // enable when debugging to see detailed outputs
 
 // split a string or array at a given index position
 const splitAt = (index, dropChars) => x => [
   x.slice(0, index),
   x.slice(index + dropChars)
-]
+];
 
 const replaceAll = function(inString, search, replacement) {
-  return inString.replace(new RegExp(search, 'g'), replacement)
-}
+  return inString.replace(new RegExp(search, 'g'), replacement);
+};
 
 export default class Helpers {
   static isNullOrEmpty(obj) {
     if (!obj) {
-      return true
+      return true;
     }
     if (obj === null) {
-      return true
+      return true;
     }
     // Check for an empty array too
     if (Array.isArray(obj)) {
       if (obj.length === 0) {
-        return true
+        return true;
       }
     }
-    return Object.keys(obj).length === 0 && obj.constructor === Object
+    return Object.keys(obj).length === 0 && obj.constructor === Object;
   }
 
   // log data
   static log(message, data) {
     if (TRACING) {
-      console.log(message, data)
+      console.log(message, data);
     }
   }
 
   static jwtDecodeSafe(token) {
-    let decoded = {}
+    let decoded = {};
     if (this.isNullOrEmpty(token)) {
-      return {}
+      return {};
     }
     try {
-      decoded = jwtdecode(token)
+      decoded = jwtdecode(token);
     } catch (error) {
       // logError('Problem decoding token:',token);
     }
-    return decoded
+    return decoded;
   }
 
   static tokenHasExpired(token) {
-    let decoded = null
+    let decoded = null;
     try {
-      decoded = this.jwtDecodeSafe(token)
+      decoded = this.jwtDecodeSafe(token);
     } catch (error) {
-      return true
+      return true;
     }
 
-    const now = Date.now().valueOf() / 1000
+    const now = Date.now().valueOf() / 1000;
     if (typeof decoded.exp !== 'undefined' && decoded.exp < now) {
-      return true
+      return true;
     }
     if (typeof decoded.nbf !== 'undefined' && decoded.nbf > now) {
-      return true
+      return true;
     }
-    return false
+    return false;
   }
 
   static urlParamsToArray(fullpathIn) {
-    let fullpath = fullpathIn
+    let fullpath = fullpathIn;
 
     if (this.isNullOrEmpty(fullpath)) {
-      return []
+      return [];
     }
 
     // Grab everything after hash if it exists
     if (fullpath.includes('?')) {
-      fullpath = fullpath.split('?')[1]
+      fullpath = fullpath.split('?')[1];
     }
 
-    const parts = fullpath.split(/[/?/$&]/)
+    const parts = fullpath.split(/[/?/$&]/);
 
     // Everything else delimited by '/' or ',' or '&' or '?' is a parameter
-    let params = []
+    let params = [];
     if (parts.length > 0) {
-      params = parts.slice(0)
+      params = parts.slice(0);
     }
     // paramPairs  e.g. [ ['enabled'], [ 'abc', '123' ], [ 'dbc', '444' ] ]   -- if the parameter only has a name and no value, the value is set to true
     const paramPairs = params.map(param =>
       splitAt(param.search(/[=]/), 1)(param)
-    ) // split at first '='
+    ); // split at first '='
 
-    const jsonParams = {}
+    const jsonParams = {};
     // convert array to json object e.g. { enabled: true, abc: '123', dbc: '444' }
     paramPairs.forEach(pair => {
-      jsonParams[pair[0]] = decodeURIComponent(pair[1]) || true
-    })
-    return jsonParams
+      jsonParams[pair[0]] = decodeURIComponent(pair[1]) || true;
+    });
+    return jsonParams;
   }
 
   // Returns Null if parse fails
   static tryParseJSON(jsonStringIn, unescape) {
-    let jsonString = jsonStringIn
+    let jsonString = jsonStringIn;
 
     if (!jsonString) {
-      return null
+      return null;
     }
-    let doubleQuotes = ''
+    let doubleQuotes = '';
     try {
       if (unescape) {
-        jsonString = decodeURI(jsonString)
+        jsonString = decodeURI(jsonString);
       }
-      doubleQuotes = replaceAll(jsonString, "'", '"')
-      doubleQuotes = replaceAll(doubleQuotes, '`', '"')
-      const o = JSON.parse(doubleQuotes)
+      doubleQuotes = replaceAll(jsonString, "'", '"');
+      doubleQuotes = replaceAll(doubleQuotes, '`', '"');
+      const o = JSON.parse(doubleQuotes);
       // Handle non-exception-throwing cases:
       // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
       // but... JSON.parse(null) returns null, and typeof null === "object",
       // so we must check for that, too. Thankfully, null is falsey, so this suffices:
       if (o && typeof o === 'object') {
-        return o
+        return o;
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
 
-    return null
+    return null;
   }
 
   static base64DecodeSafe(encodedString) {
-    let decoded = {}
+    let decoded = {};
     if (this.isNullOrEmpty(encodedString)) {
-      return null
+      return null;
     }
     try {
-      decoded = Base64.decode(encodedString)
+      decoded = Base64.decode(encodedString);
     } catch (error) {
       // logError('Problem decoding base64DecodeSafe:',error);
-      return null
+      return null;
     }
-    return decoded
+    return decoded;
   }
 
   static sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms))
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }

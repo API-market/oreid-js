@@ -1,8 +1,8 @@
-import OreId from './oreId'
+import OreId from './oreId';
 import {
   asyncHandler,
   authCallbackHandler,
   signCallbackHandler
-} from './middleware'
+} from './middleware';
 
-export { asyncHandler, authCallbackHandler, OreId, signCallbackHandler }
+export { asyncHandler, authCallbackHandler, OreId, signCallbackHandler };
