@@ -84,7 +84,10 @@ export default class OreId {
     return chainContext
   }
 
-  async getPasswordlessResult(args, verify = false) {
+  // Two paths
+  // send code - params: loginType and email|phone)
+  // verify code - params: loginType, email|phone, and code to check
+  async callPasswordlessApi(args, verify = false) {
     const { 'login-type': loginType, phone, email, code } = args
     const { apiKey, oreIdUrl } = this.options
 
@@ -97,24 +100,18 @@ export default class OreId {
       action = 'verify'
     }
 
-    let url =
-      oreIdUrl +
-      '/api/account/login-passwordless-' +
-      action +
-      '-code?login-type=' +
-      loginType
+    let url = `${oreIdUrl}/api/account/login-passwordless-${action}-code?login-type=${loginType}`
 
     if (email) {
-      url += '&email=' + email
-    } else {
-      url += '&phone=' + phone
+      url += `email=${email}`
+    }
+    if (phone) {
+      url += `phone=${phone}`
     }
 
     if (verify) {
-      url += '&code=' + code
+      url += `code=${code}`
     }
-
-    console.log(url)
 
     const response = await axios.get(url, {
       headers: { 'api-key': apiKey }
@@ -128,33 +125,29 @@ export default class OreId {
     return response.data
   }
 
-  // localhost:8080/api/account/login-passwordless-send-code?login-type=email&email=steve@aikon.com
-  // localhost:8080/api/account/login-passwordless-send-code?login-type=phone&phone=+13107705341
-  async loginPasswordless(args) {
+  // email - localhost:8080/api/account/login-passwordless-send-code?login-type=email&email=me@aikon.com
+  // phone - localhost:8080/api/account/login-passwordless-send-code?login-type=phone&phone=+12125551212
+  async passwordlessSendCodeApi(args) {
     let result = {}
 
     try {
-      result = await this.getPasswordlessResult(args)
+      result = await this.callPasswordlessApi(args)
     } catch (error) {
-      console.log(error)
-
-      return { error: error }
+      return { error }
     }
 
     return result
   }
 
-  // localhost:8080/api/account/login-passwordless-verify-code?login-type=email&email=steve@aikon.com&code=473830
-  // localhost:8080/api/account/login-passwordless-verify-code?login-type=phone&phone=13107705341&code=473830
-  async verifyPasswordless(args) {
+  // email - localhost:8080/api/account/login-passwordless-verify-code?login-type=email&email=me@aikon.com&code=473830
+  // phone - localhost:8080/api/account/login-passwordless-verify-code?login-type=phone&phone=12125551212&code=473830
+  async passwordlessVerifyCodeApi(args) {
     let result = {}
 
     try {
-      result = await this.getPasswordlessResult(args, true)
+      result = await this.callPasswordlessApi(args, true)
     } catch (error) {
-      console.log(error)
-
-      return { error: error }
+      return { error }
     }
 
     return result
@@ -179,7 +172,7 @@ export default class OreId {
         return this.connectToTransitProvider(provider, chainNetwork)
       default:
         // assume ORE ID if not one of the others
-        return this.loginWithOreId(provider)
+        return this.loginWithOreId(loginOptions)
     }
   }
 
@@ -234,15 +227,19 @@ export default class OreId {
     return providerAttributes[provider].supportsDiscovery === true
   }
 
-  async loginWithOreId(provider, state) {
+  async loginWithOreId(loginOptions, state) {
+    const { code, email, phone, provider } = loginOptions
     const { authCallbackUrl, backgroundColor } = this.options
-    const authOptions = {
+    const args = {
+      code,
+      email,
+      phone,
       provider,
       backgroundColor,
       callbackUrl: authCallbackUrl,
       state
     }
-    const loginUrl = await this.getOreIdAuthUrl(authOptions)
+    const loginUrl = await this.getOreIdAuthUrl(args)
     return { loginUrl, errors: null }
   }
 
@@ -571,23 +568,46 @@ export default class OreId {
 
   /*
         Returns a fully formed url to call the auth endpoint
-    */
-  async getOreIdAuthUrl(authOptions) {
-    const { provider, callbackUrl, backgroundColor, state } = authOptions
+  */
+  async getOreIdAuthUrl(args) {
+    const {
+      code,
+      email,
+      phone,
+      provider,
+      callbackUrl,
+      backgroundColor,
+      state
+    } = args
     const { oreIdUrl } = this.options
 
-    if (!provider || !callbackUrl) {
+    if (
+      !provider ||
+      !callbackUrl ||
+      (provider === 'email' && !email) ||
+      (provider === 'phone' && !phone)
+    ) {
       throw new Error(`Missing a required parameter`)
     }
 
     const appAccessToken = await this.getAccessToken()
+
+    // optional params
     const encodedStateParam = state
       ? `&state=${Base64.encode(JSON.stringify(state))}`
       : ''
+    // handle passwordless params
+    const codeParam = code ? `&code=${code}` : ''
+    const emailParam = email ? `&code=${email}` : ''
+    const phoneParam = phone ? `&code=${phone}` : ''
 
-    return `${oreIdUrl}/auth#app_access_token=${appAccessToken}?provider=${provider}?callback_url=${encodeURIComponent(
-      callbackUrl
-    )}?background_color=${backgroundColor}${encodedStateParam}`
+    return (
+      `${oreIdUrl}/auth#app_access_token=${appAccessToken}&provider=${provider}` +
+      `${codeParam}${emailParam}${phoneParam}` +
+      `&callback_url=${encodeURIComponent(
+        callbackUrl
+      )}&background_color=${backgroundColor}${encodedStateParam}`
+    )
   }
 
   /*
