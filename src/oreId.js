@@ -84,6 +84,82 @@ export default class OreId {
     return chainContext
   }
 
+  async getPasswordlessResult(args, verify = false) {
+    const { 'login-type': loginType, phone, email, code } = args
+    const { apiKey, oreIdUrl } = this.options
+
+    if (!loginType || !(phone || email) || (verify && !code)) {
+      throw new Error(`Missing a required parameter`)
+    }
+
+    let action = 'send'
+    if (verify) {
+      action = 'verify'
+    }
+
+    let url =
+      oreIdUrl +
+      '/api/account/login-passwordless-' +
+      action +
+      '-code?login-type=' +
+      loginType
+
+    if (email) {
+      url += '&email=' + email
+    } else {
+      url += '&phone=' + phone
+    }
+
+    if (verify) {
+      url += '&code=' + code
+    }
+
+    console.log(url)
+
+    const response = await axios.get(url, {
+      headers: { 'api-key': apiKey }
+    })
+
+    const { error } = response
+    if (error) {
+      throw new Error(error)
+    }
+
+    return response.data
+  }
+
+  // localhost:8080/api/account/login-passwordless-send-code?login-type=email&email=steve@aikon.com
+  // localhost:8080/api/account/login-passwordless-send-code?login-type=phone&phone=+13107705341
+  async loginPasswordless(args) {
+    let result = {}
+
+    try {
+      result = await this.getPasswordlessResult(args)
+    } catch (error) {
+      console.log(error)
+
+      return { error: error }
+    }
+
+    return result
+  }
+
+  // localhost:8080/api/account/login-passwordless-verify-code?login-type=email&email=steve@aikon.com&code=473830
+  // localhost:8080/api/account/login-passwordless-verify-code?login-type=phone&phone=13107705341&code=473830
+  async verifyPasswordless(args) {
+    let result = {}
+
+    try {
+      result = await this.getPasswordlessResult(args, true)
+    } catch (error) {
+      console.log(error)
+
+      return { error: error }
+    }
+
+    return result
+  }
+
   async login(loginOptions, chainNetwork = 'eos_main') {
     const { provider } = loginOptions
     // handle log-in based on type
