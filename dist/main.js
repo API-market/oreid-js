@@ -920,7 +920,7 @@ break}return e.next=3,this.getNewAppAccessToken()
 case 3:return e.abrupt("return",this.appAccessToken)
 case 4:case"end":return e.stop()}},e,this)}))
 return function(){return e.apply(this,arguments)}}()},{key:"getOreIdAuthUrl",value:function(){var e=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,h,p,d,y
-return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.code,n=t.email,i=t.phone,a=t.provider,s=t.callbackUrl,c=t.backgroundColor,u=t.state,f=this.options.oreIdUrl,a&&s&&("email"!==a||n)&&("phone"!==a||i)){e.next=4
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.code,n=t.email,i=t.phone,a=t.provider,s=t.callbackUrl,c=t.backgroundColor,u=t.state,f=this.options.oreIdUrl,a&&s){e.next=4
 break}throw new Error("Missing a required parameter")
 case 4:return e.next=6,this.getAccessToken()
 case 6:return l=e.sent,h=u?"&state=".concat(D.encode(JSON.stringify(u))):"",p=r?"&code=".concat(r):"",d=n?"&code=".concat(n):"",y=i?"&code=".concat(i):"",e.abrupt("return","".concat(f,"/auth#app_access_token=").concat(l,"&provider=").concat(a)+"".concat(p).concat(d).concat(y)+"&callback_url=".concat(encodeURIComponent(s),"&background_color=").concat(c).concat(h))

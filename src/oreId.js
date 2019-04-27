@@ -511,7 +511,7 @@ export default class OreId {
     const { code, email, phone, provider, callbackUrl, backgroundColor, state } = args;
     const { oreIdUrl } = this.options;
 
-    if (!provider || !callbackUrl || (provider === 'email' && !email) || (provider === 'phone' && !phone)) {
+    if (!provider || !callbackUrl) {
       throw new Error('Missing a required parameter');
     }
 
