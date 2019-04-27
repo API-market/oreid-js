@@ -11,12 +11,12 @@
     attach user to HTTP request
 */
 // Generic async handler for Express Middleware
-export const asyncHandler = fn => (req, res, next) => {
+export const asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
 
 export function authCallbackHandler(oreId) {
-  return asyncHandler(async function(req, res, next) {
+  return asyncHandler(async (req, res, next) => {
     const { query } = req;
     if (!query) {
       return {};
@@ -29,9 +29,7 @@ export function authCallbackHandler(oreId) {
 
     if (errors) {
       oreId.errors = errors;
-      const error = new Error(
-        `Errors Processing auth callback: ${errors.join(', ')}`
-      );
+      const error = new Error(`Errors Processing auth callback: ${errors.join(', ')}`);
       return next(error);
     }
 
@@ -51,7 +49,7 @@ export function authCallbackHandler(oreId) {
     attach signedTransaction to HTTP request
 */
 export function signCallbackHandler(oreId) {
-  return asyncHandler(async function(req, res, next) {
+  return asyncHandler(async (req, res, next) => {
     const { body } = req;
     if (!body) {
       return {};
@@ -62,9 +60,7 @@ export function signCallbackHandler(oreId) {
 
     if (errors) {
       oreId.errors = errors;
-      const error = new Error(
-        `Errors Processing sign callback: ${errors.join(', ')}`
-      );
+      const error = new Error(`Errors Processing sign callback: ${errors.join(', ')}`);
       return next(error);
     }
 

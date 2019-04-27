@@ -1,8 +1,9 @@
-import Helpers from './helpers';
-const Base64 = require('js-base64').Base64;
 import axios from 'axios';
-import StorageHandler from './storage';
 import { initAccessContext } from 'eos-transit';
+import Helpers from './helpers';
+import StorageHandler from './storage';
+
+const Base64 = require('js-base64').Base64;
 
 // const APPID_CLAIM_URI = 'https://oreid.aikon.com/appId'
 
@@ -10,33 +11,33 @@ const providerAttributes = {
   ledger: {
     providerId: 'ledger',
     requiresLogin: false,
-    supportsDiscovery: true
+    supportsDiscovery: true,
   },
   lynx: {
     providerId: 'EOS Lynx',
     requiresLogin: false,
-    supportsDiscovery: false
+    supportsDiscovery: false,
   },
   meetone: {
     providerId: 'meetone_provider',
     requiresLogin: false,
-    supportsDiscovery: false
+    supportsDiscovery: false,
   },
   metro: {
     providerId: 'metro',
     requiresLogin: false,
-    supportsDiscovery: false
+    supportsDiscovery: false,
   },
   scatter: {
     providerId: 'scatter',
     requiresLogin: true,
-    supportsDiscovery: false
+    supportsDiscovery: false,
   },
   tokenpocket: {
     providerId: 'TokenPocket',
     requiresLogin: false,
-    supportsDiscovery: false
-  }
+    supportsDiscovery: false,
+  },
 };
 
 export default class OreId {
@@ -64,9 +65,7 @@ export default class OreId {
       return this.chainContexts[chainNetwork];
     }
 
-    const chainConfig = this.chainNetworks.find(
-      n => n.network === chainNetwork
-    );
+    const chainConfig = this.chainNetworks.find((n) => n.network === chainNetwork);
     if (!chainConfig) {
       throw new Error(`Invalid chain network: ${chainNetwork}.`);
     }
@@ -79,7 +78,7 @@ export default class OreId {
     const chainContext = initAccessContext({
       appName: appName || 'missing appName',
       network: NETWORK_CONFIG,
-      walletProviders: eosTransitWalletProviders
+      walletProviders: eosTransitWalletProviders,
     });
     // cache for future use
     this.chainContexts[chainNetwork] = chainContext;
@@ -94,7 +93,7 @@ export default class OreId {
     const { apiKey, oreIdUrl } = this.options;
 
     if (!loginType || !(phone || email) || (verify && !code)) {
-      throw new Error(`Missing a required parameter`);
+      throw new Error('Missing a required parameter');
     }
 
     let action = 'send';
@@ -116,7 +115,7 @@ export default class OreId {
     }
 
     const response = await axios.get(url, {
-      headers: { 'api-key': apiKey }
+      headers: { 'api-key': apiKey },
     });
 
     const { error } = response;
@@ -206,14 +205,9 @@ export default class OreId {
   async discover(provider, chainNetwork = 'eos_main', discoveryPathIndexList) {
     this.assertValidProvider(provider);
     if (this.canDiscover(provider)) {
-      return await this.discoverCredentialsInWallet(
-        chainNetwork,
-        provider,
-        discoveryPathIndexList
-      );
-    } else {
-      throw new Error(`Discover not support for provider: ${provider}`);
+      return await this.discoverCredentialsInWallet(chainNetwork, provider, discoveryPathIndexList);
     }
+    throw new Error(`Discover not support for provider: ${provider}`);
   }
 
   // throw error if invalid provider
@@ -239,7 +233,7 @@ export default class OreId {
       provider,
       backgroundColor,
       callbackUrl: authCallbackUrl,
-      state
+      state,
     };
     const loginUrl = await this.getOreIdAuthUrl(args);
     return { loginUrl, errors: null };
@@ -247,7 +241,7 @@ export default class OreId {
 
   async signWithOreId(signOptions) {
     const { signCallbackUrl } = this.options;
-    signOptions['callbackUrl'] = signCallbackUrl;
+    signOptions.callbackUrl = signCallbackUrl;
     const signUrl = await this.getOreIdSignUrl(signOptions);
     return { signUrl, errors: null };
   }
@@ -263,13 +257,13 @@ export default class OreId {
       this.setIsBusy(true);
       response = await transitWallet.eosApi.transact(
         {
-          actions: [transaction]
+          actions: [transaction],
         },
         {
-          broadcast: broadcast,
+          broadcast,
           blocksBehind: 3,
-          expireSeconds: 60
-        }
+          expireSeconds: 60,
+        },
       );
     } catch (error) {
       throw error;
@@ -284,9 +278,7 @@ export default class OreId {
     let response = {};
     const providerId = providerAttributes[provider].providerId;
     const chainContext = this.getOrCreateChainContext(chainNetwork);
-    const transitProvider = chainContext
-      .getWalletProviders()
-      .find(wp => wp.id === providerId);
+    const transitProvider = chainContext.getWalletProviders().find((wp) => wp.id === providerId);
     const transitWallet = chainContext.initWallet(transitProvider);
 
     try {
@@ -318,32 +310,20 @@ export default class OreId {
             account: accountName,
             permissions: [{ name: permission, publicKey }], // todo: add parent permission when available
             provider,
-            transitWallet
+            transitWallet,
           };
         }
       } else {
         const { hasError, errorMessage } = transitWallet;
-        throw new Error(
-          `${provider} not connected!` + hasError
-            ? ` Error: ${errorMessage}`
-            : ``
-        );
+        throw new Error(`${provider} not connected!${hasError}` ? ` Error: ${errorMessage}` : '');
       }
 
       // if an account is selected, add it to the ORE ID account (if not already there)
       const userOreAccount = (this.user || {}).accountName;
       if (userOreAccount) {
         const { account: chainAccount, permissions } = response;
-        const chainNetworkToUpdate = this.getChainNetworkFromTransitWallet(
-          transitWallet
-        );
-        await this.addWalletPermissionstoOreIdAccount(
-          chainAccount,
-          chainNetworkToUpdate,
-          permissions,
-          userOreAccount,
-          provider
-        );
+        const chainNetworkToUpdate = this.getChainNetworkFromTransitWallet(transitWallet);
+        await this.addWalletPermissionstoOreIdAccount(chainAccount, chainNetworkToUpdate, permissions, userOreAccount, provider);
       }
     } catch (error) {
       console.log(`Failed to connect to ${provider} wallet:`, error);
@@ -360,22 +340,16 @@ export default class OreId {
       this.setIsBusy(true);
       // todo: add timeout
       await Helpers.sleep(250);
-      console.log(
-        `connecting to ${provider} via eos-transit wallet in progress:`,
-        transitWallet.inProgress
-      );
+      console.log(`connecting to ${provider} via eos-transit wallet in progress:`, transitWallet.inProgress);
     }
     this.setIsBusy(false);
-    return;
   }
 
   getChainNetworkFromTransitWallet(transitWallet) {
     let chainNetwork;
     if (transitWallet && transitWallet.eosApi) {
       const chainId = transitWallet.eosApi.chainId;
-      const chainConfig = this.chainNetworks.find(n =>
-        n.hosts.find(h => h.chainId === chainId)
-      );
+      const chainConfig = this.chainNetworks.find((n) => n.hosts.find((h) => h.chainId === chainId));
       if (!Helpers.isNullOrEmpty(chainConfig)) {
         chainNetwork = chainConfig.network;
       }
@@ -385,30 +359,23 @@ export default class OreId {
 
   // Discover all accounts (and related permissions) in the wallet and add them to ORE ID
   // Note: Most wallets don't support discovery (as of April 2019)
-  async discoverCredentialsInWallet(
-    chainNetwork,
-    provider,
-    discoveryPathIndexList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-  ) {
+  async discoverCredentialsInWallet(chainNetwork, provider, discoveryPathIndexList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]) {
     let accountsAndPermissions = [];
     try {
       let permissions;
-      const { transitWallet } = await this.connectToTransitProvider(
-        provider,
-        chainNetwork
-      );
+      const { transitWallet } = await this.connectToTransitProvider(provider, chainNetwork);
       if (!transitWallet) {
         return accountsAndPermissions;
       }
       this.setIsBusy(true);
       const discoveryData = await transitWallet.discover({
-        pathIndexList: discoveryPathIndexList
+        pathIndexList: discoveryPathIndexList,
       });
       // add accounts to ORE ID - if ORE ID user account is known
       const userOreAccount = (this.user || {}).accountName;
       // this data looks like this: keyToAccountMap[accounts[{account,permission}]] - e.g. keyToAccountMap[accounts[{'myaccount':'owner','myaccount':'active'}]]
       const credentials = discoveryData.keyToAccountMap;
-      await credentials.forEach(async credential => {
+      await credentials.forEach(async (credential) => {
         const { accounts = [] } = credential;
         if (accounts.length > 0) {
           const { account, authorization } = accounts[0];
@@ -417,19 +384,11 @@ export default class OreId {
               account,
               publicKey: credential.key,
               name: authorization,
-              parent: null
-            }
+              parent: null,
+            },
           ];
-          const chainNetworkToUpdate = this.getChainNetworkFromTransitWallet(
-            transitWallet
-          );
-          await this.addWalletPermissionstoOreIdAccount(
-            account,
-            chainNetworkToUpdate,
-            permissions,
-            userOreAccount,
-            provider
-          );
+          const chainNetworkToUpdate = this.getChainNetworkFromTransitWallet(transitWallet);
+          await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, userOreAccount, provider);
           accountsAndPermissions = accountsAndPermissions.concat(permissions);
         }
       });
@@ -452,54 +411,25 @@ export default class OreId {
   }
 
   // for each permission in the wallet, add to ORE ID (if not in user's record)
-  async addWalletPermissionstoOreIdAccount(
-    chainAccount,
-    chainNetwork,
-    walletPermissions,
-    userOreAccount,
-    provider
-  ) {
-    if (
-      Helpers.isNullOrEmpty(userOreAccount) ||
-      Helpers.isNullOrEmpty(walletPermissions) ||
-      Helpers.isNullOrEmpty(chainNetwork)
-    ) {
+  async addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, walletPermissions, userOreAccount, provider) {
+    if (Helpers.isNullOrEmpty(userOreAccount) || Helpers.isNullOrEmpty(walletPermissions) || Helpers.isNullOrEmpty(chainNetwork)) {
       return;
     }
-    await walletPermissions.map(async p => {
+    await walletPermissions.map(async (p) => {
       const permission = p.name;
       let parentPermission = p.parent; // pooky
       if (!parentPermission) {
         // HACK: assume parent permission - its missing from the discover() results
-        parentPermission =
-          permission === 'active'
-            ? 'owner'
-            : permission === 'owner'
-            ? ''
-            : 'active';
+        parentPermission = permission === 'active' ? 'owner' : permission === 'owner' ? '' : 'active';
       }
       // filter out permission that the user already has in his record
-      const skipThisPermission = this.user.permissions.some(
-        up =>
-          (up.chainAccount === chainAccount &&
-            up.chainNetwork === chainNetwork &&
-            up.permission === permission) ||
-          permission === 'owner'
-      );
+      const skipThisPermission = this.user.permissions.some((up) => (up.chainAccount === chainAccount && up.chainNetwork === chainNetwork && up.permission === permission) || permission === 'owner');
 
       // don't add 'owner' permission and skip ones that are already stored in user's account
       if (skipThisPermission !== true) {
         // let publicKey = p.required_auth.keys[0].key; //TODO: Handle multiple keys and weights
         const publicKey = p.publicKey;
-        await this.addPermission(
-          userOreAccount,
-          chainAccount,
-          chainNetwork,
-          publicKey,
-          parentPermission,
-          permission,
-          provider
-        );
+        await this.addPermission(userOreAccount, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider);
       }
     });
     // reload user to get updated permissions
@@ -516,13 +446,13 @@ export default class OreId {
     let errorMessage = '';
 
     if (!appId) {
-      errorMessage += `\n --> Missing required parameter - appId. You can get an appId when you register your app with ORE ID.`;
+      errorMessage += '\n --> Missing required parameter - appId. You can get an appId when you register your app with ORE ID.';
     }
     if (!apiKey) {
-      errorMessage += `\n --> Missing required parameter - apiKey. You can get an apiKey when you register your app with ORE ID.`;
+      errorMessage += '\n --> Missing required parameter - apiKey. You can get an apiKey when you register your app with ORE ID.';
     }
     if (!oreIdUrl) {
-      errorMessage += `\n --> Missing required parameter - oreIdUrl. Refer to the docs to get this value.`;
+      errorMessage += '\n --> Missing required parameter - oreIdUrl. Refer to the docs to get this value.';
     }
     if (errorMessage !== '') {
       throw new Error(`Options are missing or invalid. ${errorMessage}`);
@@ -572,32 +502,17 @@ export default class OreId {
         Returns a fully formed url to call the auth endpoint
   */
   async getOreIdAuthUrl(args) {
-    const {
-      code,
-      email,
-      phone,
-      provider,
-      callbackUrl,
-      backgroundColor,
-      state
-    } = args;
+    const { code, email, phone, provider, callbackUrl, backgroundColor, state } = args;
     const { oreIdUrl } = this.options;
 
-    if (
-      !provider ||
-      !callbackUrl ||
-      (provider === 'email' && !email) ||
-      (provider === 'phone' && !phone)
-    ) {
-      throw new Error(`Missing a required parameter`);
+    if (!provider || !callbackUrl || (provider === 'email' && !email) || (provider === 'phone' && !phone)) {
+      throw new Error('Missing a required parameter');
     }
 
     const appAccessToken = await this.getAccessToken();
 
     // optional params
-    const encodedStateParam = state
-      ? `&state=${Base64.encode(JSON.stringify(state))}`
-      : '';
+    const encodedStateParam = state ? `&state=${Base64.encode(JSON.stringify(state))}` : '';
     // handle passwordless params
     const codeParam = code ? `&code=${code}` : '';
     const emailParam = email ? `&code=${email}` : '';
@@ -606,9 +521,7 @@ export default class OreId {
     return (
       `${oreIdUrl}/auth#app_access_token=${appAccessToken}&provider=${provider}` +
       `${codeParam}${emailParam}${phoneParam}` +
-      `&callback_url=${encodeURIComponent(
-        callbackUrl
-      )}&background_color=${backgroundColor}${encodedStateParam}`
+      `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${backgroundColor}${encodedStateParam}`
     );
   }
 
@@ -617,22 +530,14 @@ export default class OreId {
         chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin', 'ore_main', 'eos_test', etc.
     */
   async getOreIdSignUrl(signOptions) {
-    const {
-      account,
-      broadcast,
-      callbackUrl,
-      chainNetwork,
-      state,
-      transaction,
-      accountIsTransactionPermission
-    } = signOptions;
+    const { account, broadcast, callbackUrl, chainNetwork, state, transaction, accountIsTransactionPermission } = signOptions;
 
     let { chainAccount } = signOptions;
 
     const { oreIdUrl } = this.options;
 
     if (!account || !callbackUrl || !transaction) {
-      throw new Error(`Missing a required parameter`);
+      throw new Error('Missing a required parameter');
     }
 
     // default chainAccount is the same as the user's account
@@ -642,15 +547,11 @@ export default class OreId {
 
     const appAccessToken = await this.getAccessToken();
     const encodedTransaction = Base64.encode(JSON.stringify(transaction));
-    let optionalParams = state
-      ? `&state=${Base64.encode(JSON.stringify(state))}`
-      : '';
-    optionalParams += accountIsTransactionPermission
-      ? `&account_is_transaction_permission=${accountIsTransactionPermission}`
-      : '';
+    let optionalParams = state ? `&state=${Base64.encode(JSON.stringify(state))}` : '';
+    optionalParams += accountIsTransactionPermission ? `&account_is_transaction_permission=${accountIsTransactionPermission}` : '';
 
     return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(
-      callbackUrl
+      callbackUrl,
     )}&chain_account=${chainAccount}&chain_network=${chainNetwork}&transaction=${encodedTransaction}${optionalParams}`;
   }
 
@@ -678,9 +579,7 @@ export default class OreId {
 
     if (!errors) {
       // Decode base64 parameters
-      signedTransaction = Helpers.tryParseJSON(
-        Helpers.base64DecodeSafe(encodedTransaction)
-      );
+      signedTransaction = Helpers.tryParseJSON(Helpers.base64DecodeSafe(encodedTransaction));
     }
     this.setIsBusy(false);
     return { signedTransaction, state, errors };
@@ -690,7 +589,7 @@ export default class OreId {
         Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
     */
   async getNewAppAccessToken() {
-    const responseJson = await this.callOreIdApi(`app-token`);
+    const responseJson = await this.callOreIdApi('app-token');
     const { appAccessToken } = responseJson;
     this.appAccessToken = appAccessToken;
     // const decodedToken = Helpers.jwtDecodeSafe(appAccessToken)
@@ -701,9 +600,7 @@ export default class OreId {
         Get the user info from ORE ID for the given user account
     */
   async getUserInfoFromApi(account) {
-    const responseJson = await this.callOreIdApi(
-      `account/user?account=${account}`
-    );
+    const responseJson = await this.callOreIdApi(`account/user?account=${account}`);
     const userInfo = responseJson;
     this.saveUserLocally(userInfo);
     await this.loadUserLocally(); // ensures this.user state is set
@@ -715,11 +612,9 @@ export default class OreId {
     */
   async getConfigFromApi(configType) {
     if (!configType) {
-      throw new Error(`Missing a required parameter: configType`);
+      throw new Error('Missing a required parameter: configType');
     }
-    const responseJson = await this.callOreIdApi(
-      `services/config?type=${configType}`
-    );
+    const responseJson = await this.callOreIdApi(`services/config?type=${configType}`);
     const results = responseJson;
     const { values } = results || {};
     if (!values) {
@@ -735,22 +630,10 @@ export default class OreId {
         chainAccount = name of the account on the chain - 12/13-digit string on EOS and Ethereum Address on ETH - it may be the same as the account
         chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin", 'ore_main', 'eos_test', etc.
     */
-  async addPermission(
-    account,
-    chainAccount,
-    chainNetwork,
-    publicKey,
-    parentPermission,
-    permission,
-    provider
-  ) {
+  async addPermission(account, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider) {
     let optionalParams = provider ? `&wallet-type=${provider}` : '';
-    optionalParams += parentPermission
-      ? `&parent-permission=${parentPermission}`
-      : '';
-    await this.callOreIdApi(
-      `account/add-permission?account=${account}&chain-account=${chainAccount}&chain-network=${chainNetwork}&permission=${permission}&public-key=${publicKey}${optionalParams}`
-    );
+    optionalParams += parentPermission ? `&parent-permission=${parentPermission}` : '';
+    await this.callOreIdApi(`account/add-permission?account=${account}&chain-account=${chainAccount}&chain-network=${chainNetwork}&permission=${permission}&public-key=${publicKey}${optionalParams}`);
     // if failed, error will be thrown
   }
 
@@ -771,7 +654,7 @@ export default class OreId {
     const { apiKey, oreIdUrl } = this.options;
     const url = `${oreIdUrl}/api/${endpointAndParams}`;
     const response = await axios.get(url, {
-      headers: { 'api-key': apiKey }
+      headers: { 'api-key': apiKey },
     });
 
     const { error } = response;
@@ -786,8 +669,8 @@ export default class OreId {
     */
   getErrorCodesFromParams(params) {
     let errorCodes;
-    const errorString = params['error_code'];
-    const errorMessage = params['error_message'];
+    const errorString = params.error_code;
+    const errorMessage = params.error_message;
     if (errorString) {
       errorCodes = errorString.split(/[/?/$&]/);
     }

@@ -22,7 +22,7 @@ class CookieStorage {
   setItem(key, value, options) {
     const params = {
       expires: 1, // 1 day
-      ...options
+      ...options,
     };
     Cookie.set(key, value, params);
   }
@@ -58,22 +58,15 @@ class StorageHandler {
           this.storage = localStorage;
         }
       } else {
-        Helpers.log(
-          'Not running in Browser. Using CookieStorage instead.',
-          options
-        );
+        Helpers.log('Not running in Browser. Using CookieStorage instead.', options);
       }
     } catch (e) {
-      Helpers.log(
-        "Can't use localStorage. Using CookieStorage instead.",
-        options
-      );
+      Helpers.log("Can't use localStorage. Using CookieStorage instead.", options);
     }
   }
 
   failover() {
     if (this.storage instanceof DummyStorage) {
-      return;
     } else if (this.storage instanceof CookieStorage) {
       this.storage = new DummyStorage();
     } else {

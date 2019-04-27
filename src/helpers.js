@@ -2,16 +2,15 @@
     helper functions
  */
 import jwtdecode from 'jwt-decode';
+
 const Base64 = require('js-base64').Base64;
+
 const TRACING = false; // enable when debugging to see detailed outputs
 
 // split a string or array at a given index position
-const splitAt = (index, dropChars) => x => [
-  x.slice(0, index),
-  x.slice(index + dropChars)
-];
+const splitAt = (index, dropChars) => (x) => [x.slice(0, index), x.slice(index + dropChars)];
 
-const replaceAll = function(inString, search, replacement) {
+const replaceAll = (inString, search, replacement) => {
   return inString.replace(new RegExp(search, 'g'), replacement);
 };
 
@@ -90,13 +89,11 @@ export default class Helpers {
       params = parts.slice(0);
     }
     // paramPairs  e.g. [ ['enabled'], [ 'abc', '123' ], [ 'dbc', '444' ] ]   -- if the parameter only has a name and no value, the value is set to true
-    const paramPairs = params.map(param =>
-      splitAt(param.search(/[=]/), 1)(param)
-    ); // split at first '='
+    const paramPairs = params.map((param) => splitAt(param.search(/[=]/), 1)(param)); // split at first '='
 
     const jsonParams = {};
     // convert array to json object e.g. { enabled: true, abc: '123', dbc: '444' }
-    paramPairs.forEach(pair => {
+    paramPairs.forEach((pair) => {
       jsonParams[pair[0]] = decodeURIComponent(pair[1]) || true;
     });
     return jsonParams;
@@ -146,6 +143,6 @@ export default class Helpers {
   }
 
   static sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
