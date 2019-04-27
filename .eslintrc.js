@@ -1,3 +1,6 @@
+// if you modify the eslint rules, make sure Prettier will format the code in a way that
+// doesn't break these rules.  See .prettierrc
+
 module.exports = {
   extends: 'airbnb',
   env: {
@@ -15,9 +18,7 @@ module.exports = {
     'prefer-destructuring': 0,
     'max-len': 0,
     'no-param-reassign': 0,
-    'no-nested-ternary': 0,
     'no-unused-vars': 0,
-    'no-empty': 0,
     'no-await-in-loop': 0,
     'consistent-return': 0,
     'object-curly-newline': 0,

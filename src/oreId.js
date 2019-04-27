@@ -420,7 +420,13 @@ export default class OreId {
       let parentPermission = p.parent; // pooky
       if (!parentPermission) {
         // HACK: assume parent permission - its missing from the discover() results
-        parentPermission = permission === 'active' ? 'owner' : permission === 'owner' ? '' : 'active';
+        parentPermission = 'active';
+
+        if (permission === 'owner') {
+          parentPermission = '';
+        } else if (permission === 'active') {
+          parentPermission = 'owner';
+        }
       }
       // filter out permission that the user already has in his record
       const skipThisPermission = this.user.permissions.some((up) => (up.chainAccount === chainAccount && up.chainNetwork === chainNetwork && up.permission === permission) || permission === 'owner');

@@ -67,6 +67,7 @@ class StorageHandler {
 
   failover() {
     if (this.storage instanceof DummyStorage) {
+      // no empty blocks eslint
     } else if (this.storage instanceof CookieStorage) {
       this.storage = new DummyStorage();
     } else {
