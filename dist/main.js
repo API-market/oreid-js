@@ -789,7 +789,7 @@ var a=i.hosts[0],s=a.chainId,c=k({appName:r||"missing appName",network:{host:a.h
 return this.chainContexts[e]=c,c}},{key:"callPasswordlessApi",value:function(){var e=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,p,d,y,v=arguments
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=v.length>1&&void 0!==v[1]&&v[1],n=t["login-type"],i=t.phone,a=t.email,s=t.code,c=this.options,u=c.apiKey,f=c.oreIdUrl,n&&(i||a)&&(!r||s)){e.next=5
 break}throw new Error("Missing a required parameter")
-case 5:return l="send",r&&(l="verify"),p="".concat(f,"/api/account/login-passwordless-").concat(l,"-code?login-type=").concat(n),a&&(p+="email=".concat(a)),i&&(p+="phone=".concat(i)),r&&(p+="code=".concat(s)),e.next=13,h.a.get(p,{headers:{"api-key":u}})
+case 5:return l="send",r&&(l="verify"),p="".concat(f,"/api/account/login-passwordless-").concat(l,"-code?login-type=").concat(n),a&&(p+="&email=".concat(a)),i&&(p+="&phone=".concat(i)),r&&(p+="&code=".concat(s)),e.next=13,h.a.get(p,{headers:{"api-key":u}})
 case 13:if(d=e.sent,!(y=d.error)){e.next=17
 break}throw new Error(y)
 case 17:return e.abrupt("return",d.data)

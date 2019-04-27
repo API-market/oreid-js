@@ -104,14 +104,14 @@ export default class OreId {
     let url = `${oreIdUrl}/api/account/login-passwordless-${action}-code?login-type=${loginType}`;
 
     if (email) {
-      url += `email=${email}`;
+      url += `&email=${email}`;
     }
     if (phone) {
-      url += `phone=${phone}`;
+      url += `&phone=${phone}`;
     }
 
     if (verify) {
-      url += `code=${code}`;
+      url += `&code=${code}`;
     }
 
     const response = await axios.get(url, {
