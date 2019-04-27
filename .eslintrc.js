@@ -19,7 +19,6 @@ module.exports = {
     'no-unused-vars': 0,
     'no-empty': 0,
     'no-await-in-loop': 0,
-    'no-return-await': 0,
     'consistent-return': 0,
     'object-curly-newline': 0,
     'operator-linebreak': 0,

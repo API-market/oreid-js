@@ -817,27 +817,18 @@ case 9:case 10:return e.abrupt("return",this.connectToTransitProvider(n,r))
 case 11:return e.abrupt("return",this.loginWithOreId(t))
 case 12:case"end":return e.stop()}},e,this)}))
 return function(t){return e.apply(this,arguments)}}()},{key:"sign",value:function(){var e=a()(o.a.mark(function e(t){var r
-return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:r=t.provider,e.t0=r,e.next="lynx"===e.t0?4:"ledger"===e.t0?7:"meetone"===e.t0?10:"metro"===e.t0?13:"scatter"===e.t0?14:"tokenpocket"===e.t0?17:20
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:r=t.provider,e.t0=r,e.next="lynx"===e.t0?4:"ledger"===e.t0?5:"meetone"===e.t0?6:"metro"===e.t0?7:"scatter"===e.t0?8:"tokenpocket"===e.t0?9:10
 break
-case 4:return e.next=6,this.signWithTransitProvider(t)
-case 6:return e.abrupt("return",e.sent)
-case 7:return e.next=9,this.signWithTransitProvider(t)
-case 9:return e.abrupt("return",e.sent)
-case 10:return e.next=12,this.signWithTransitProvider(t)
-case 12:return e.abrupt("return",e.sent)
-case 13:return e.abrupt("break",21)
-case 14:return e.next=16,this.signWithTransitProvider(t)
-case 16:return e.abrupt("return",e.sent)
-case 17:return e.next=19,this.signWithTransitProvider(t)
-case 19:return e.abrupt("return",e.sent)
-case 20:return e.abrupt("return",this.signWithOreId(t))
-case 21:case"end":return e.stop()}},e,this)}))
+case 4:case 5:case 6:return e.abrupt("return",this.signWithTransitProvider(t))
+case 7:return e.abrupt("break",11)
+case 8:case 9:return e.abrupt("return",this.signWithTransitProvider(t))
+case 10:return e.abrupt("return",this.signWithOreId(t))
+case 11:case"end":return e.stop()}},e,this)}))
 return function(t){return e.apply(this,arguments)}}()},{key:"discover",value:function(){var e=a()(o.a.mark(function e(t){var r,n,i=arguments
-return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=i.length>1&&void 0!==i[1]?i[1]:"eos_main",n=i.length>2?i[2]:void 0,this.assertValidProvider(t),!this.canDiscover(t)){e.next=7
-break}return e.next=6,this.discoverCredentialsInWallet(r,t,n)
-case 6:return e.abrupt("return",e.sent)
-case 7:throw new Error("Discover not support for provider: ".concat(t))
-case 8:case"end":return e.stop()}},e,this)}))
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=i.length>1&&void 0!==i[1]?i[1]:"eos_main",n=i.length>2?i[2]:void 0,this.assertValidProvider(t),!this.canDiscover(t)){e.next=5
+break}return e.abrupt("return",this.discoverCredentialsInWallet(r,t,n))
+case 5:throw new Error("Discover not support for provider: ".concat(t))
+case 6:case"end":return e.stop()}},e,this)}))
 return function(t){return e.apply(this,arguments)}}()},{key:"assertValidProvider",value:function(e){if(L[e])return!0
 throw new Error("Provider ".concat(e," is not a valid option"))}},{key:"canDiscover",value:function(e){return!0===L[e].supportsDiscovery}},{key:"loginWithOreId",value:function(){var e=a()(o.a.mark(function e(t,r){var n,i,a,s,c,u,f,l,h
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return n=t.code,i=t.email,a=t.phone,s=t.provider,c=this.options,u=c.authCallbackUrl,f=c.backgroundColor,l={code:n,email:i,phone:a,provider:s,backgroundColor:f,callbackUrl:u,state:r},e.next=5,this.getOreIdAuthUrl(l)
@@ -922,9 +913,8 @@ case 5:if(!this.user){e.next=7
 break}return e.abrupt("return",this.user)
 case 7:return n=this.loadUserLocally(),e.abrupt("return",n)
 case 9:case"end":return e.stop()}},e,this)}))
-return function(t){return e.apply(this,arguments)}}()},{key:"getConfig",value:function(){var e=a()(o.a.mark(function e(t){return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.next=2,this.getConfigFromApi(t)
-case 2:return e.abrupt("return",e.sent)
-case 3:case"end":return e.stop()}},e,this)}))
+return function(t){return e.apply(this,arguments)}}()},{key:"getConfig",value:function(){var e=a()(o.a.mark(function e(t){return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.abrupt("return",this.getConfigFromApi(t))
+case 1:case"end":return e.stop()}},e,this)}))
 return function(t){return e.apply(this,arguments)}}()},{key:"getAccessToken",value:function(){var e=a()(o.a.mark(function e(){return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(this.appAccessToken&&!P.tokenHasExpired(this.appAccessToken)){e.next=3
 break}return e.next=3,this.getNewAppAccessToken()
 case 3:return e.abrupt("return",this.appAccessToken)

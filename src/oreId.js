@@ -183,17 +183,17 @@ export default class OreId {
     const { provider } = signOptions;
     switch (provider) {
       case 'lynx':
-        return await this.signWithTransitProvider(signOptions);
+        return this.signWithTransitProvider(signOptions);
       case 'ledger':
-        return await this.signWithTransitProvider(signOptions);
+        return this.signWithTransitProvider(signOptions);
       case 'meetone':
-        return await this.signWithTransitProvider(signOptions);
+        return this.signWithTransitProvider(signOptions);
       case 'metro':
         break;
       case 'scatter':
-        return await this.signWithTransitProvider(signOptions);
+        return this.signWithTransitProvider(signOptions);
       case 'tokenpocket':
-        return await this.signWithTransitProvider(signOptions);
+        return this.signWithTransitProvider(signOptions);
       default:
         // assume ORE ID if not one of the others
         return this.signWithOreId(signOptions);
@@ -205,7 +205,7 @@ export default class OreId {
   async discover(provider, chainNetwork = 'eos_main', discoveryPathIndexList) {
     this.assertValidProvider(provider);
     if (this.canDiscover(provider)) {
-      return await this.discoverCredentialsInWallet(chainNetwork, provider, discoveryPathIndexList);
+      return this.discoverCredentialsInWallet(chainNetwork, provider, discoveryPathIndexList);
     }
     throw new Error(`Discover not support for provider: ${provider}`);
   }
@@ -483,7 +483,7 @@ export default class OreId {
         e.g. configType='chains' returns valid chain types and addresses
     */
   async getConfig(configType) {
-    return await this.getConfigFromApi(configType);
+    return this.getConfigFromApi(configType);
   }
 
   /*
