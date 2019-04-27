@@ -25,5 +25,6 @@ module.exports = {
     'operator-linebreak': 0,
     'arrow-body-style': 0,
     'arrow-parens': [2, 'always'],
+    'react/jsx-filename-extension': 0,
   },
 };
