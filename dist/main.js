@@ -923,7 +923,7 @@ return function(){return e.apply(this,arguments)}}()},{key:"getOreIdAuthUrl",val
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.code,n=t.email,i=t.phone,a=t.provider,s=t.callbackUrl,c=t.backgroundColor,u=t.state,f=this.options.oreIdUrl,a&&s){e.next=4
 break}throw new Error("Missing a required parameter")
 case 4:return e.next=6,this.getAccessToken()
-case 6:return l=e.sent,h=u?"&state=".concat(D.encode(JSON.stringify(u))):"",p=r?"&code=".concat(r):"",d=n?"&code=".concat(n):"",y=i?"&code=".concat(i):"",e.abrupt("return","".concat(f,"/auth#app_access_token=").concat(l,"&provider=").concat(a)+"".concat(p).concat(d).concat(y)+"&callback_url=".concat(encodeURIComponent(s),"&background_color=").concat(c).concat(h))
+case 6:return l=e.sent,h=u?"&state=".concat(D.encode(JSON.stringify(u))):"",p=r?"&code=".concat(r):"",d=n?"&email=".concat(n):"",y=i?"&phone=".concat(i):"",e.abrupt("return","".concat(f,"/auth#app_access_token=").concat(l,"&provider=").concat(a)+"".concat(p).concat(d).concat(y)+"&callback_url=".concat(encodeURIComponent(s),"&background_color=").concat(c).concat(h))
 case 12:case"end":return e.stop()}},e,this)}))
 return function(t){return e.apply(this,arguments)}}()},{key:"getOreIdSignUrl",value:function(){var e=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,h,p,d
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.account,n=t.broadcast,i=t.callbackUrl,a=t.chainNetwork,s=t.state,c=t.transaction,u=t.accountIsTransactionPermission,f=t.chainAccount,l=this.options.oreIdUrl,r&&i&&c){e.next=5

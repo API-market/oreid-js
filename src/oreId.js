@@ -521,8 +521,8 @@ export default class OreId {
     const encodedStateParam = state ? `&state=${Base64.encode(JSON.stringify(state))}` : '';
     // handle passwordless params
     const codeParam = code ? `&code=${code}` : '';
-    const emailParam = email ? `&code=${email}` : '';
-    const phoneParam = phone ? `&code=${phone}` : '';
+    const emailParam = email ? `&email=${email}` : '';
+    const phoneParam = phone ? `&phone=${phone}` : '';
 
     return (
       `${oreIdUrl}/auth#app_access_token=${appAccessToken}&provider=${provider}` +
