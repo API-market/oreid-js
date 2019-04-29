@@ -27,6 +27,35 @@ class CookieStorage {
     Cookie.set(key, value, params);
   }
 }
+class LocalStorage {
+  constructor() {
+    if (window) {
+      // some browsers throw an error when trying to access localStorage
+      // when localStorage is disabled.
+      this.storage = window.localStorage;
+    } else {
+      Helpers.log('Not running in Browser. Using CookieStorage instead.');
+    }
+  }
+
+  getItem(key) {
+    if (this.storage) {
+      return this.storage.getItem(key);
+    }
+  }
+
+  removeItem(key) {
+    if (this.storage) {
+      return this.storage.removeItem(key);
+    }
+  }
+
+  setItem(key, value, options) {
+    if (this.storage) {
+      return this.storage.setItem(key, value, options);
+    }
+  }
+}
 
 class DummyStorage {
   getItem(key) {
@@ -44,34 +73,53 @@ class DummyStorage {
 
 class StorageHandler {
   constructor(options = { tryLocalStorageFirst: true }) {
-    this.storage = new CookieStorage();
-    if (options.tryLocalStorageFirst !== true) {
-      return;
-    }
-    try {
-      // designed to work on browser or server, so window might not exist
-      if (window) {
-        // some browsers throw an error when trying to access localStorage
-        // when localStorage is disabled.
-        const localStorage = window.localStorage;
-        if (localStorage) {
+    this.triedLocalStorage = false;
+    this.triedCookieStorage = false;
+
+    if (options.tryLocalStorageFirst === true) {
+      this.triedLocalStorage = true;
+
+      try {
+        // designed to work on browser or server, so window might not exist
+        const localStorage = new LocalStorage();
+
+        if (localStorage && localStorage.storage) {
           this.storage = localStorage;
         }
-      } else {
-        Helpers.log('Not running in Browser. Using CookieStorage instead.', options);
+      } catch (e) {
+        Helpers.log("Can't use localStorage. Using CookieStorage instead.", options);
       }
-    } catch (e) {
-      Helpers.log("Can't use localStorage. Using CookieStorage instead.", options);
+    }
+
+    if (!this.storage) {
+      this.storage = new CookieStorage();
+      this.triedCookieStorage = true;
     }
   }
 
   failover() {
     if (this.storage instanceof DummyStorage) {
-      // no empty blocks eslint
+      return;
+    }
+
+    let didSet = false;
+
+    if (this.storage instanceof LocalStorage) {
+      if (!this.triedCookieStorage) {
+        this.storage = new CookieStorage();
+        this.triedCookieStorage = true;
+        didSet = true;
+      }
     } else if (this.storage instanceof CookieStorage) {
+      if (!this.triedLocalStorage) {
+        this.storage = new LocalStorage();
+        this.triedLocalStorage = true;
+        didSet = true;
+      }
+    }
+
+    if (!didSet) {
       this.storage = new DummyStorage();
-    } else {
-      this.storage = new CookieStorage();
     }
   }
 
