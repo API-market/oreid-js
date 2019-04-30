@@ -5,8 +5,6 @@ import StorageHandler from './storage';
 
 const Base64 = require('js-base64').Base64;
 
-// const APPID_CLAIM_URI = 'https://oreid.aikon.com/appId'
-
 const providerAttributes = {
   ledger: {
     providerId: 'ledger',
@@ -442,8 +440,6 @@ export default class OreId {
     await this.getUserInfoFromApi(userOreAccount);
   }
 
-  // --------------->
-
   /*
         Validates startup options
     */
@@ -599,6 +595,7 @@ export default class OreId {
     const { appAccessToken } = responseJson;
     this.appAccessToken = appAccessToken;
     // const decodedToken = Helpers.jwtDecodeSafe(appAccessToken)
+    // const APPID_CLAIM_URI = 'https://oreid.aikon.com/appId'
     // this.appId = decodedToken[APPID_CLAIM_URI]; //Get the appId from the app token
   }
 
