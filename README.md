@@ -11,14 +11,14 @@ oreid-js is a javascript helper library for interacting with the Aikon ORE ID se
 Install npm package:
 
 ```
-npm install @api-market/oreid-js
+npm install eos-auth
 ```
 
 # Usage
 
 Example code:
 
-```
+```javascript
 //Initialize the library
 let oreId = new OreId({ appId, apiKey, oreIdUrl });
 
@@ -41,7 +41,7 @@ let userInfo = await oreId.getUserInfoFromApi(account);
 
 This library includes Express middleware that you can use to simplify handling the callbacks from the ORE ID service.
 
-```
+```javascript
 // authCallbackHandler middleware handles callback response from ORE ID and extracts results
 app.use('/authcallback', authCallbackHandler(oreId) );
 ```
@@ -52,7 +52,7 @@ Check out the Express Server example for a complete example.
 
 eos-auth makes it easy for you to add many popular EOS wallets to your app. It integrates EOS Transit so that you can use any wallet that has published an [EOS Transit Wallet Provider](https://github.com/eosnewyork/eos-transit). eos-auth is the easiest way to use EOS Transit with your app.
 
-```
+```javascript
 // add the provider package for each wallet you want to support
 import scatterProvider from 'eos-transit-scatter-provider';
 // pass in the array of providers when you initialize the library
