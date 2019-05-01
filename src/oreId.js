@@ -152,8 +152,8 @@ export default class OreId {
     return result;
   }
 
-  async login(loginOptions, chainNetwork = 'eos_main') {
-    const { provider } = loginOptions;
+  async login(loginOptions) {
+    const { provider, chainNetwork = 'eos_main' } = loginOptions;
     // handle log-in based on type
     switch (provider) {
       case 'ledger':
@@ -200,7 +200,8 @@ export default class OreId {
 
   // connect to wallet and discover keys
   // any new keys discovered in wallet are added to user's ORE ID record
-  async discover(provider, chainNetwork = 'eos_main', discoveryPathIndexList) {
+  async discover(discoverOptions) {
+    const { provider, chainNetwork = 'eos_main', discoveryPathIndexList } = discoverOptions;
     this.assertValidProvider(provider);
     if (this.canDiscover(provider)) {
       return this.discoverCredentialsInWallet(chainNetwork, provider, discoveryPathIndexList);
@@ -221,8 +222,8 @@ export default class OreId {
     return providerAttributes[provider].supportsDiscovery === true;
   }
 
-  async loginWithOreId(loginOptions, state) {
-    const { code, email, phone, provider } = loginOptions;
+  async loginWithOreId(loginOptions) {
+    const { code, email, phone, provider, state } = loginOptions;
     const { authCallbackUrl, backgroundColor } = this.options;
     const args = {
       code,

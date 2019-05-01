@@ -500,7 +500,7 @@ switch(i.TERM_PROGRAM){case"iTerm.app":return e>=3?3:2
 case"Apple_Terminal":return 2}}return/-256(color)?$/i.test(i.TERM)?2:/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(i.TERM)?1:"COLORTERM"in i?1:(i.TERM,t)}(e))}o("no-color")||o("no-colors")||o("color=false")?a=!1:(o("color")||o("colors")||o("color=true")||o("color=always"))&&(a=!0),"FORCE_COLOR"in i&&(a=0===i.FORCE_COLOR.length||0!==parseInt(i.FORCE_COLOR,10)),e.exports={supportsColor:s,stdout:s(process.stdout),stderr:s(process.stderr)}},function(e,t){e.exports=require("os")},function(e,t,r){"use strict"
 e.exports=((e,t)=>{t=t||process.argv
 const r=e.startsWith("-")?"":1===e.length?"-":"--",n=t.indexOf(r+e),o=t.indexOf("--")
-return-1!==n&&(-1===o||n<o)})},function(e,t){e.exports=require("zlib")},function(e){e.exports={_from:"axios@^0.18.0",_id:"axios@0.18.0",_inBundle:!1,_integrity:"sha1-MtU+SFHv3AoRmTts0AB4nXDAUQI=",_location:"/axios",_phantomChildren:{},_requested:{type:"range",registry:!0,raw:"axios@^0.18.0",name:"axios",escapedName:"axios",rawSpec:"^0.18.0",saveSpec:null,fetchSpec:"^0.18.0"},_requiredBy:["/"],_resolved:"https://registry.npmjs.org/axios/-/axios-0.18.0.tgz",_shasum:"32d53e4851efdc0a11993b6cd000789d70c05102",_spec:"axios@^0.18.0",_where:"/home/sgehrman/Documents/GitHub/aikon/oreid-js",author:{name:"Matt Zabriskie"},browser:{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},bugs:{url:"https://github.com/axios/axios/issues"},bundleDependencies:!1,bundlesize:[{path:"./dist/axios.min.js",threshold:"5kB"}],dependencies:{"follow-redirects":"^1.3.0","is-buffer":"^1.1.5"},deprecated:!1,description:"Promise based HTTP client for the browser and node.js",devDependencies:{bundlesize:"^0.5.7",coveralls:"^2.11.9","es6-promise":"^4.0.5",grunt:"^1.0.1","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.0.0","grunt-contrib-nodeunit":"^1.0.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^19.0.0","grunt-karma":"^2.0.0","grunt-ts":"^6.0.0-beta.3","grunt-webpack":"^1.0.18","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1",karma:"^1.3.0","karma-chrome-launcher":"^2.0.0","karma-coverage":"^1.0.0","karma-firefox-launcher":"^1.0.0","karma-jasmine":"^1.0.2","karma-jasmine-ajax":"^0.1.13","karma-opera-launcher":"^1.0.0","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^1.1.0","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^1.7.0","load-grunt-tasks":"^3.5.2",minimist:"^1.2.0",sinon:"^1.17.4",typescript:"^2.0.3","url-search-params":"^0.6.1",webpack:"^1.13.1","webpack-dev-server":"^1.14.1"},homepage:"https://github.com/axios/axios",keywords:["xhr","http","ajax","promise","node"],license:"MIT",main:"index.js",name:"axios",repository:{type:"git",url:"git+https://github.com/axios/axios.git"},scripts:{build:"NODE_ENV=production grunt build",coveralls:"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",examples:"node ./examples/server.js",postversion:"git push && git push --tags",preversion:"npm test",start:"node ./sandbox/server.js",test:"grunt test && bundlesize",version:"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json"},typings:"./index.d.ts",version:"0.18.0"}},function(e,t,r){"use strict"
+return-1!==n&&(-1===o||n<o)})},function(e,t){e.exports=require("zlib")},function(e){e.exports={_from:"axios@^0.18.0",_id:"axios@0.18.0",_inBundle:!1,_integrity:"sha1-MtU+SFHv3AoRmTts0AB4nXDAUQI=",_location:"/axios",_phantomChildren:{},_requested:{type:"range",registry:!0,raw:"axios@^0.18.0",name:"axios",escapedName:"axios",rawSpec:"^0.18.0",saveSpec:null,fetchSpec:"^0.18.0"},_requiredBy:["/"],_resolved:"https://registry.npmjs.org/axios/-/axios-0.18.0.tgz",_shasum:"32d53e4851efdc0a11993b6cd000789d70c05102",_spec:"axios@^0.18.0",_where:"/Users/traylewin/dev/aikon/oreid-js",author:{name:"Matt Zabriskie"},browser:{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},bugs:{url:"https://github.com/axios/axios/issues"},bundleDependencies:!1,bundlesize:[{path:"./dist/axios.min.js",threshold:"5kB"}],dependencies:{"follow-redirects":"^1.3.0","is-buffer":"^1.1.5"},deprecated:!1,description:"Promise based HTTP client for the browser and node.js",devDependencies:{bundlesize:"^0.5.7",coveralls:"^2.11.9","es6-promise":"^4.0.5",grunt:"^1.0.1","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.0.0","grunt-contrib-nodeunit":"^1.0.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^19.0.0","grunt-karma":"^2.0.0","grunt-ts":"^6.0.0-beta.3","grunt-webpack":"^1.0.18","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1",karma:"^1.3.0","karma-chrome-launcher":"^2.0.0","karma-coverage":"^1.0.0","karma-firefox-launcher":"^1.0.0","karma-jasmine":"^1.0.2","karma-jasmine-ajax":"^0.1.13","karma-opera-launcher":"^1.0.0","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^1.1.0","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^1.7.0","load-grunt-tasks":"^3.5.2",minimist:"^1.2.0",sinon:"^1.17.4",typescript:"^2.0.3","url-search-params":"^0.6.1",webpack:"^1.13.1","webpack-dev-server":"^1.14.1"},homepage:"https://github.com/axios/axios",keywords:["xhr","http","ajax","promise","node"],license:"MIT",main:"index.js",name:"axios",repository:{type:"git",url:"git+https://github.com/axios/axios.git"},scripts:{build:"NODE_ENV=production grunt build",coveralls:"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",examples:"node ./examples/server.js",postversion:"git push && git push --tags",preversion:"npm test",start:"node ./sandbox/server.js",test:"grunt test && bundlesize",version:"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json"},typings:"./index.d.ts",version:"0.18.0"}},function(e,t,r){"use strict"
 var n=r(2)
 function o(){this.handlers=[]}o.prototype.use=function(e,t){return this.handlers.push({fulfilled:e,rejected:t}),this.handlers.length-1},o.prototype.eject=function(e){this.handlers[e]&&(this.handlers[e]=null)},o.prototype.forEach=function(e){n.forEach(this.handlers,function(t){null!==t&&e(t)})},e.exports=o},function(e,t,r){"use strict"
 var n=r(2),o=r(55),i=r(20),a=r(7),s=r(56),c=r(57)
@@ -810,14 +810,14 @@ break
 case 7:return e.prev=7,e.t0=e.catch(1),e.abrupt("return",{error:e.t0})
 case 10:return e.abrupt("return",r)
 case 11:case"end":return e.stop()}},e,this,[[1,7]])}))
-return function(t){return e.apply(this,arguments)}}()},{key:"login",value:function(){var e=a()(o.a.mark(function e(t){var r,n,i=arguments
-return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:r=i.length>1&&void 0!==i[1]?i[1]:"eos_main",n=t.provider,e.t0=n,e.next="ledger"===e.t0?5:"lynx"===e.t0?6:"meetone"===e.t0?7:"metro"===e.t0?8:"scatter"===e.t0?9:"tokenpocket"===e.t0?10:11
+return function(t){return e.apply(this,arguments)}}()},{key:"login",value:function(){var e=a()(o.a.mark(function e(t){var r,n,i
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:r=t.provider,n=t.chainNetwork,i=void 0===n?"eos_main":n,e.t0=r,e.next="ledger"===e.t0?4:"lynx"===e.t0?5:"meetone"===e.t0?6:"metro"===e.t0?7:"scatter"===e.t0?8:"tokenpocket"===e.t0?9:10
 break
-case 5:case 6:case 7:return e.abrupt("return",this.connectToTransitProvider(n,r))
-case 8:throw new Error("Not Implemented")
-case 9:case 10:return e.abrupt("return",this.connectToTransitProvider(n,r))
-case 11:return e.abrupt("return",this.loginWithOreId(t))
-case 12:case"end":return e.stop()}},e,this)}))
+case 4:case 5:case 6:return e.abrupt("return",this.connectToTransitProvider(r,i))
+case 7:throw new Error("Not Implemented")
+case 8:case 9:return e.abrupt("return",this.connectToTransitProvider(r,i))
+case 10:return e.abrupt("return",this.loginWithOreId(t))
+case 11:case"end":return e.stop()}},e,this)}))
 return function(t){return e.apply(this,arguments)}}()},{key:"sign",value:function(){var e=a()(o.a.mark(function e(t){var r
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:r=t.provider,e.t0=r,e.next="lynx"===e.t0?4:"ledger"===e.t0?5:"meetone"===e.t0?6:"metro"===e.t0?7:"scatter"===e.t0?8:"tokenpocket"===e.t0?9:10
 break
@@ -826,17 +826,17 @@ case 7:return e.abrupt("break",11)
 case 8:case 9:return e.abrupt("return",this.signWithTransitProvider(t))
 case 10:return e.abrupt("return",this.signWithOreId(t))
 case 11:case"end":return e.stop()}},e,this)}))
-return function(t){return e.apply(this,arguments)}}()},{key:"discover",value:function(){var e=a()(o.a.mark(function e(t){var r,n,i=arguments
-return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=i.length>1&&void 0!==i[1]?i[1]:"eos_main",n=i.length>2?i[2]:void 0,this.assertValidProvider(t),!this.canDiscover(t)){e.next=5
-break}return e.abrupt("return",this.discoverCredentialsInWallet(r,t,n))
-case 5:throw new Error("Discover not support for provider: ".concat(t))
-case 6:case"end":return e.stop()}},e,this)}))
+return function(t){return e.apply(this,arguments)}}()},{key:"discover",value:function(){var e=a()(o.a.mark(function e(t){var r,n,i,a
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=t.chainNetwork,i=void 0===n?"eos_main":n,a=t.discoveryPathIndexList,this.assertValidProvider(r),!this.canDiscover(r)){e.next=4
+break}return e.abrupt("return",this.discoverCredentialsInWallet(i,r,a))
+case 4:throw new Error("Discover not support for provider: ".concat(r))
+case 5:case"end":return e.stop()}},e,this)}))
 return function(t){return e.apply(this,arguments)}}()},{key:"assertValidProvider",value:function(e){if(M[e])return!0
-throw new Error("Provider ".concat(e," is not a valid option"))}},{key:"canDiscover",value:function(e){return!0===M[e].supportsDiscovery}},{key:"loginWithOreId",value:function(){var e=a()(o.a.mark(function e(t,r){var n,i,a,s,c,u,f,l,h
-return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return n=t.code,i=t.email,a=t.phone,s=t.provider,c=this.options,u=c.authCallbackUrl,f=c.backgroundColor,l={code:n,email:i,phone:a,provider:s,backgroundColor:f,callbackUrl:u,state:r},e.next=5,this.getOreIdAuthUrl(l)
+throw new Error("Provider ".concat(e," is not a valid option"))}},{key:"canDiscover",value:function(e){return!0===M[e].supportsDiscovery}},{key:"loginWithOreId",value:function(){var e=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,h
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=t.code,n=t.email,i=t.phone,a=t.provider,s=t.state,c=this.options,u=c.authCallbackUrl,f=c.backgroundColor,l={code:r,email:n,phone:i,provider:a,backgroundColor:f,callbackUrl:u,state:s},e.next=5,this.getOreIdAuthUrl(l)
 case 5:return h=e.sent,e.abrupt("return",{loginUrl:h,errors:null})
 case 7:case"end":return e.stop()}},e,this)}))
-return function(t,r){return e.apply(this,arguments)}}()},{key:"signWithOreId",value:function(){var e=a()(o.a.mark(function e(t){var r,n
+return function(t){return e.apply(this,arguments)}}()},{key:"signWithOreId",value:function(){var e=a()(o.a.mark(function e(t){var r,n
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=this.options.signCallbackUrl,t.callbackUrl=r,e.next=4,this.getOreIdSignUrl(t)
 case 4:return n=e.sent,e.abrupt("return",{signUrl:n,errors:null})
 case 6:case"end":return e.stop()}},e,this)}))
