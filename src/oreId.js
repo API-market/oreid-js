@@ -112,7 +112,7 @@ export default class OreId {
       url += `&code=${code}`;
     }
 
-    let response = null;
+    let response = {};
     try {
       response = await axios.get(url, {
         headers: { 'api-key': apiKey },
