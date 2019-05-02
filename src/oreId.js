@@ -86,11 +86,11 @@ export default class OreId {
   // Two paths
   // send code - params: loginType and email|phone)
   // verify code - params: loginType, email|phone, and code to check
-  async callPasswordlessApi(args, verify = false) {
-    const { 'login-type': loginType, phone, email, code } = args;
+  async callPasswordlessApi(options, verify = false) {
+    const { provider, phone, email, code } = options;
     const { apiKey, oreIdUrl } = this.options;
 
-    if (!loginType || !(phone || email) || (verify && !code)) {
+    if (!provider || !(phone || email) || (verify && !code)) {
       throw new Error('Missing a required parameter');
     }
 
@@ -99,7 +99,7 @@ export default class OreId {
       action = 'verify';
     }
 
-    let url = `${oreIdUrl}/api/account/login-passwordless-${action}-code?login-type=${loginType}`;
+    let url = `${oreIdUrl}/api/account/login-passwordless-${action}-code?login-type=${provider}`;
 
     if (email) {
       url += `&email=${email}`;
@@ -112,13 +112,13 @@ export default class OreId {
       url += `&code=${code}`;
     }
 
-    const response = await axios.get(url, {
-      headers: { 'api-key': apiKey },
-    });
-
-    const { error } = response;
-    if (error) {
-      throw new Error(error);
+    let response = null;
+    try {
+      response = await axios.get(url, {
+        headers: { 'api-key': apiKey },
+      });
+    } catch (error) {
+      response = error.response;
     }
 
     return response.data;
@@ -126,11 +126,11 @@ export default class OreId {
 
   // email - localhost:8080/api/account/login-passwordless-send-code?login-type=email&email=me@aikon.com
   // phone - localhost:8080/api/account/login-passwordless-send-code?login-type=phone&phone=+12125551212
-  async passwordlessSendCodeApi(args) {
+  async passwordlessSendCodeApi(options) {
     let result = {};
 
     try {
-      result = await this.callPasswordlessApi(args);
+      result = await this.callPasswordlessApi(options);
     } catch (error) {
       return { error };
     }
@@ -140,11 +140,11 @@ export default class OreId {
 
   // email - localhost:8080/api/account/login-passwordless-verify-code?login-type=email&email=me@aikon.com&code=473830
   // phone - localhost:8080/api/account/login-passwordless-verify-code?login-type=phone&phone=12125551212&code=473830
-  async passwordlessVerifyCodeApi(args) {
+  async passwordlessVerifyCodeApi(options) {
     let result = {};
 
     try {
-      result = await this.callPasswordlessApi(args, true);
+      result = await this.callPasswordlessApi(options, true);
     } catch (error) {
       return { error };
     }
