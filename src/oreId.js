@@ -3,8 +3,6 @@ import { initAccessContext } from 'eos-transit';
 import Helpers from './helpers';
 import StorageHandler from './storage';
 
-const Base64 = require('js-base64').Base64;
-
 const providerAttributes = {
   ledger: {
     providerId: 'ledger',
@@ -515,7 +513,7 @@ export default class OreId {
     const appAccessToken = await this.getAccessToken();
 
     // optional params
-    const encodedStateParam = state ? `&state=${Base64.encode(JSON.stringify(state))}` : '';
+    const encodedStateParam = state ? `&state=${state}` : '';
     // handle passwordless params
     const codeParam = code ? `&code=${code}` : '';
     const emailParam = email ? `&email=${email}` : '';
@@ -523,15 +521,15 @@ export default class OreId {
 
     return (
       `${oreIdUrl}/auth#app_access_token=${appAccessToken}&provider=${provider}` +
-      `${codeParam}${emailParam}${phoneParam}` +
-      `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${backgroundColor}${encodedStateParam}`
+    `${codeParam}${emailParam}${phoneParam}` +
+    `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${backgroundColor}${encodedStateParam}`
     );
   }
 
   /*
-        Returns a fully formed url to call the sign endpoint
-        chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin', 'ore_main', 'eos_test', etc.
-    */
+      Returns a fully formed url to call the sign endpoint
+      chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin', 'ore_main', 'eos_test', etc.
+  */
   async getOreIdSignUrl(signOptions) {
     const { account, broadcast, callbackUrl, chainNetwork, state, transaction, accountIsTransactionPermission } = signOptions;
 
@@ -549,8 +547,8 @@ export default class OreId {
     }
 
     const appAccessToken = await this.getAccessToken();
-    const encodedTransaction = Base64.encode(JSON.stringify(transaction));
-    let optionalParams = state ? `&state=${Base64.encode(JSON.stringify(state))}` : '';
+    const encodedTransaction = Helpers.base64Encode(transaction);
+    let optionalParams = state ? `&state=${state}` : '';
     optionalParams += accountIsTransactionPermission ? `&account_is_transaction_permission=${accountIsTransactionPermission}` : '';
 
     return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(
@@ -559,11 +557,11 @@ export default class OreId {
   }
 
   /*
-        Extracts the response parameters on the /auth callback URL string
-    */
+      Extracts the response parameters on the /auth callback URL string
+  */
   handleAuthResponse(callbackUrlString) {
-    // Parses error codes and returns an errors array
-    // (if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
+  // Parses error codes and returns an errors array
+  // (if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
     const params = Helpers.urlParamsToArray(callbackUrlString);
     const { account, state } = params;
     const errors = this.getErrorCodesFromParams(params);
@@ -572,8 +570,8 @@ export default class OreId {
   }
 
   /*
-        Extracts the response parameters on the /sign callback URL string
-    */
+      Extracts the response parameters on the /sign callback URL string
+  */
   handleSignResponse(callbackUrlString) {
     let signedTransaction;
     const params = Helpers.urlParamsToArray(callbackUrlString);
@@ -581,28 +579,28 @@ export default class OreId {
     const errors = this.getErrorCodesFromParams(params);
 
     if (!errors) {
-      // Decode base64 parameters
-      signedTransaction = Helpers.tryParseJSON(Helpers.base64DecodeSafe(encodedTransaction));
+    // Decode base64 parameters
+      signedTransaction = Helpers.base64DecodeSafe(encodedTransaction);
     }
     this.setIsBusy(false);
     return { signedTransaction, state, errors };
   }
 
   /*
-        Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
-    */
+      Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
+  */
   async getNewAppAccessToken() {
     const responseJson = await this.callOreIdApi('app-token');
     const { appAccessToken } = responseJson;
     this.appAccessToken = appAccessToken;
-    // const decodedToken = Helpers.jwtDecodeSafe(appAccessToken)
-    // const APPID_CLAIM_URI = 'https://oreid.aikon.com/appId'
-    // this.appId = decodedToken[APPID_CLAIM_URI]; //Get the appId from the app token
+  // const decodedToken = Helpers.jwtDecodeSafe(appAccessToken)
+  // const APPID_CLAIM_URI = 'https://oreid.aikon.com/appId'
+  // this.appId = decodedToken[APPID_CLAIM_URI]; //Get the appId from the app token
   }
 
   /*
-        Get the user info from ORE ID for the given user account
-    */
+      Get the user info from ORE ID for the given user account
+  */
   async getUserInfoFromApi(account) {
     const responseJson = await this.callOreIdApi(`account/user?account=${account}`);
     const userInfo = responseJson;
@@ -612,8 +610,8 @@ export default class OreId {
   }
 
   /*
-        Get the config (setting) values of a specific type
-    */
+      Get the config (setting) values of a specific type
+  */
   async getConfigFromApi(configType) {
     if (!configType) {
       throw new Error('Missing a required parameter: configType');
@@ -628,32 +626,32 @@ export default class OreId {
   }
 
   /*
-        Adds a public key to an account with a specific permission name
-        The permission name must be one defined in the App Registration record (Which defines its parent permission as well as preventing adding rougue permissions)
-        This feature allows your app to hold private keys locally (for certain actions enabled by the permission) while having the associated public key in the user's account
-        chainAccount = name of the account on the chain - 12/13-digit string on EOS and Ethereum Address on ETH - it may be the same as the account
-        chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin", 'ore_main', 'eos_test', etc.
-    */
+      Adds a public key to an account with a specific permission name
+      The permission name must be one defined in the App Registration record (Which defines its parent permission as well as preventing adding rougue permissions)
+      This feature allows your app to hold private keys locally (for certain actions enabled by the permission) while having the associated public key in the user's account
+      chainAccount = name of the account on the chain - 12/13-digit string on EOS and Ethereum Address on ETH - it may be the same as the account
+      chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin", 'ore_main', 'eos_test', etc.
+  */
   async addPermission(account, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider) {
     let optionalParams = provider ? `&wallet-type=${provider}` : '';
     optionalParams += parentPermission ? `&parent-permission=${parentPermission}` : '';
     await this.callOreIdApi(`account/add-permission?account=${account}&chain-account=${chainAccount}&chain-network=${chainNetwork}&permission=${permission}&public-key=${publicKey}${optionalParams}`);
-    // if failed, error will be thrown
+  // if failed, error will be thrown
   }
 
   /*
-        Get the user info from ORE ID for the given user account
-    */
+      Get the user info from ORE ID for the given user account
+  */
   async getUserWalletInfo(account) {
     throw Error('Not Implemented');
-    // let responseJson = await this.callOreIdApi(`wallet?account=${account}`)
-    // let userWalletInfo = responseJson;
-    // return {userWalletInfo, errors};
+  // let responseJson = await this.callOreIdApi(`wallet?account=${account}`)
+  // let userWalletInfo = responseJson;
+  // return {userWalletInfo, errors};
   }
 
   /*
-        Helper function to call api endpoint and inject api-key
-    */
+      Helper function to call api endpoint and inject api-key
+  */
   async callOreIdApi(endpointAndParams) {
     const { apiKey, oreIdUrl } = this.options;
     const url = `${oreIdUrl}/api/${endpointAndParams}`;
@@ -669,8 +667,8 @@ export default class OreId {
   }
 
   /*
-        Params is a javascript object representing the parameters parsed from an URL string
-    */
+      Params is a javascript object representing the parameters parsed from an URL string
+  */
   getErrorCodesFromParams(params) {
     let errorCodes;
     const errorString = params.error_code;
@@ -686,17 +684,17 @@ export default class OreId {
   }
 
   /*
-        We don't really maintain a logged-in state
-        However, we do have local cached user data, so clear that
-    */
+      We don't really maintain a logged-in state
+      However, we do have local cached user data, so clear that
+  */
   logout() {
-    // clear local state
+  // clear local state
     this.clearLocalState();
   }
 
   /*
-        Local state
-    */
+      Local state
+  */
 
   userKey() {
     return `oreid.${this.options.appId}.user`;

@@ -128,6 +128,10 @@ export default class Helpers {
     return null;
   }
 
+  static isAnObject(obj) {
+    return obj !== null && typeof obj === 'object';
+  }
+
   static base64DecodeSafe(encodedString) {
     let decoded = {};
     if (this.isNullOrEmpty(encodedString)) {
@@ -135,11 +139,23 @@ export default class Helpers {
     }
     try {
       decoded = Base64.decode(encodedString);
+      // if decoded value is a stringified JSON object, return the object
+      if (Helpers.tryParseJSON(decoded)) {
+        decoded = JSON.parse(decoded);
+      }
     } catch (error) {
       // logError('Problem decoding base64DecodeSafe:',error);
       return null;
     }
     return decoded;
+  }
+
+  // if an Object or JSON is passed-in, it will be stringified first
+  static base64Encode(value) {
+    if (Helpers.isAnObject(value)) {
+      value = JSON.stringify(value);
+    }
+    return Base64.encode(value);
   }
 
   static sleep(ms) {
