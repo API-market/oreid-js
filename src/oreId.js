@@ -97,7 +97,7 @@ export default class OreId {
       action = 'verify';
     }
 
-    let url = `${oreIdUrl}/api/account/login-passwordless-${action}-code?login-type=${provider}`;
+    let url = `${oreIdUrl}/api/account/login-passwordless-${action}-code?provider=${provider}`;
 
     if (email) {
       url += `&email=${email}`;
@@ -122,8 +122,8 @@ export default class OreId {
     return response.data;
   }
 
-  // email - localhost:8080/api/account/login-passwordless-send-code?login-type=email&email=me@aikon.com
-  // phone - localhost:8080/api/account/login-passwordless-send-code?login-type=phone&phone=+12125551212
+  // email - localhost:8080/api/account/login-passwordless-send-code?provider=email&email=me@aikon.com
+  // phone - localhost:8080/api/account/login-passwordless-send-code?provider=phone&phone=+12125551212
   async passwordlessSendCodeApi(options) {
     let result = {};
 
@@ -136,8 +136,8 @@ export default class OreId {
     return result;
   }
 
-  // email - localhost:8080/api/account/login-passwordless-verify-code?login-type=email&email=me@aikon.com&code=473830
-  // phone - localhost:8080/api/account/login-passwordless-verify-code?login-type=phone&phone=12125551212&code=473830
+  // email - localhost:8080/api/account/login-passwordless-verify-code?provider=email&email=me@aikon.com&code=473830
+  // phone - localhost:8080/api/account/login-passwordless-verify-code?provider=phone&phone=12125551212&code=473830
   async passwordlessVerifyCodeApi(options) {
     let result = {};
 
@@ -521,8 +521,8 @@ export default class OreId {
 
     return (
       `${oreIdUrl}/auth#app_access_token=${appAccessToken}&provider=${provider}` +
-    `${codeParam}${emailParam}${phoneParam}` +
-    `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${backgroundColor}${encodedStateParam}`
+      `${codeParam}${emailParam}${phoneParam}` +
+      `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${backgroundColor}${encodedStateParam}`
     );
   }
 
@@ -560,8 +560,8 @@ export default class OreId {
       Extracts the response parameters on the /auth callback URL string
   */
   handleAuthResponse(callbackUrlString) {
-  // Parses error codes and returns an errors array
-  // (if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
+    // Parses error codes and returns an errors array
+    // (if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
     const params = Helpers.urlParamsToArray(callbackUrlString);
     const { account, state } = params;
     const errors = this.getErrorCodesFromParams(params);
@@ -579,7 +579,7 @@ export default class OreId {
     const errors = this.getErrorCodesFromParams(params);
 
     if (!errors) {
-    // Decode base64 parameters
+      // Decode base64 parameters
       signedTransaction = Helpers.base64DecodeSafe(encodedTransaction);
     }
     this.setIsBusy(false);
@@ -593,9 +593,9 @@ export default class OreId {
     const responseJson = await this.callOreIdApi('app-token');
     const { appAccessToken } = responseJson;
     this.appAccessToken = appAccessToken;
-  // const decodedToken = Helpers.jwtDecodeSafe(appAccessToken)
-  // const APPID_CLAIM_URI = 'https://oreid.aikon.com/appId'
-  // this.appId = decodedToken[APPID_CLAIM_URI]; //Get the appId from the app token
+    // const decodedToken = Helpers.jwtDecodeSafe(appAccessToken)
+    // const APPID_CLAIM_URI = 'https://oreid.aikon.com/appId'
+    // this.appId = decodedToken[APPID_CLAIM_URI]; //Get the appId from the app token
   }
 
   /*
@@ -636,7 +636,7 @@ export default class OreId {
     let optionalParams = provider ? `&wallet-type=${provider}` : '';
     optionalParams += parentPermission ? `&parent-permission=${parentPermission}` : '';
     await this.callOreIdApi(`account/add-permission?account=${account}&chain-account=${chainAccount}&chain-network=${chainNetwork}&permission=${permission}&public-key=${publicKey}${optionalParams}`);
-  // if failed, error will be thrown
+    // if failed, error will be thrown
   }
 
   /*
@@ -644,9 +644,9 @@ export default class OreId {
   */
   async getUserWalletInfo(account) {
     throw Error('Not Implemented');
-  // let responseJson = await this.callOreIdApi(`wallet?account=${account}`)
-  // let userWalletInfo = responseJson;
-  // return {userWalletInfo, errors};
+    // let responseJson = await this.callOreIdApi(`wallet?account=${account}`)
+    // let userWalletInfo = responseJson;
+    // return {userWalletInfo, errors};
   }
 
   /*
@@ -688,7 +688,7 @@ export default class OreId {
       However, we do have local cached user data, so clear that
   */
   logout() {
-  // clear local state
+    // clear local state
     this.clearLocalState();
   }
 
