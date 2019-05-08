@@ -103,7 +103,10 @@ export default class OreId {
       url += `&email=${email}`;
     }
     if (phone) {
-      url += `&phone=${phone}`;
+      // if user passes in +12103334444, the plus sign needs to be URL encoded
+      const encodedPhone = encodeURIComponent(phone);
+
+      url += `&phone=${encodedPhone}`;
     }
 
     if (verify) {
