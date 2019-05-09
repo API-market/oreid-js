@@ -520,7 +520,14 @@ export default class OreId {
     // handle passwordless params
     const codeParam = code ? `&code=${code}` : '';
     const emailParam = email ? `&email=${email}` : '';
-    const phoneParam = phone ? `&phone=${phone}` : '';
+    let phoneParam = '';
+
+    if (phone) {
+      // if user passes in +12103334444, the plus sign needs to be URL encoded
+      const encodedPhone = encodeURIComponent(phone);
+
+      phoneParam = `&phone=${encodedPhone}`;
+    }
 
     return (
       `${oreIdUrl}/auth#app_access_token=${appAccessToken}&provider=${provider}` +
