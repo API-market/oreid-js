@@ -560,13 +560,17 @@ export default class OreId {
       Extracts the response parameters on the /auth callback URL string
   */
   handleAuthResponse(callbackUrlString) {
-    // Parses error codes and returns an errors array
-    // (if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
+  // Parses error codes and returns an errors array
+  // (if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
     const params = Helpers.urlParamsToArray(callbackUrlString);
-    const { account, state } = params;
+    const { account, idToken, state } = params;
     const errors = this.getErrorCodesFromParams(params);
+    const response = { account };
+    if (idToken) response.idToken = idToken;
+    if (errors) response.errors = errors;
+    if (state) response.state = state;
     this.setIsBusy(false);
-    return { account, state, errors };
+    return response;
   }
 
   /*

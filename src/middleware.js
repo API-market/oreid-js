@@ -25,7 +25,7 @@ export function authCallbackHandler(oreId) {
     oreId.errors = null;
 
     const response = oreId.handleAuthResponse(req.originalUrl);
-    const { account, errors } = response;
+    const { account, errors, idToken, state } = response;
 
     if (errors) {
       oreId.errors = errors;
@@ -33,11 +33,15 @@ export function authCallbackHandler(oreId) {
       return next(error);
     }
 
+    // Add data to request object
+    req.appId = oreId.appId;
+    if (idToken) req.idToken = idToken;
+    if (state) req.state = state;
+
     // attach user data to request object
     if (account) {
       const user = await oreId.getUserInfoFromApi(account); // get user from server and also save in local cookie (or state)
       req.user = user;
-      req.appId = oreId.appId;
     }
 
     return next();
