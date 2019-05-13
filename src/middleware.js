@@ -25,7 +25,7 @@ export function authCallbackHandler(oreId) {
     oreId.errors = null;
 
     const response = oreId.handleAuthResponse(req.originalUrl);
-    const { account, errors, idToken, state } = response;
+    const { accessToken, account, errors, idToken, state } = response;
 
     if (errors) {
       oreId.errors = errors;
@@ -35,6 +35,7 @@ export function authCallbackHandler(oreId) {
 
     // Add data to request object
     req.appId = oreId.appId;
+    if (accessToken) req.accessToken = accessToken;
     if (idToken) req.idToken = idToken;
     if (state) req.state = state;
 
