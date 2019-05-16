@@ -75,7 +75,9 @@ export function signCallbackHandler(oreId) {
     }
 
     // Add state to request object
-    if (state) req.state = state;
+    if (state) {
+      req.state = state;
+    }
 
     return next();
   });
