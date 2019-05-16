@@ -61,8 +61,8 @@ export function signCallbackHandler(oreId) {
     }
 
     oreId.errors = null;
-    const { signedTransaction, errors } = oreId.handleSignResponse(body);
-
+    const { signedTransaction, state, errors } = oreId.handleSignResponse(body);
+    
     if (errors) {
       oreId.errors = errors;
       const error = new Error(`Errors Processing sign callback: ${errors.join(', ')}`);
@@ -73,6 +73,9 @@ export function signCallbackHandler(oreId) {
       req.signedTransaction = signedTransaction;
       req.appId = oreId.appId;
     }
+
+    // Add state to request object
+    if (state) req.state = state;
 
     return next();
   });
