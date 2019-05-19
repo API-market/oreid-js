@@ -62,7 +62,7 @@ export function signCallbackHandler(oreId) {
 
     oreId.errors = null;
     const { signedTransaction, state, errors } = oreId.handleSignResponse(body);
-    
+
     if (errors) {
       oreId.errors = errors;
       const error = new Error(`Errors Processing sign callback: ${errors.join(', ')}`);

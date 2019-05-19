@@ -490,15 +490,9 @@ export default class OreId {
     return this.getConfigFromApi(configType);
   }
 
-  /*
-        Checks for the expiration of the locally cached app-access-token
-        Refreshes token if needed using getNewAppAccessTokenFromApi()
-    */
+  // Gets a single-use token to access the service
   async getAccessToken() {
-    // check for expiration and renew token if expired
-    if (!this.appAccessToken || Helpers.tokenHasExpired(this.appAccessToken)) {
-      await this.getNewAppAccessToken(); // call api
-    }
+    await this.getNewAppAccessToken(); // call api
     return this.appAccessToken;
   }
 
@@ -609,9 +603,6 @@ export default class OreId {
     const responseJson = await this.callOreIdApi('app-token');
     const { appAccessToken } = responseJson;
     this.appAccessToken = appAccessToken;
-    // const decodedToken = Helpers.jwtDecodeSafe(appAccessToken)
-    // const APPID_CLAIM_URI = 'https://oreid.aikon.com/appId'
-    // this.appId = decodedToken[APPID_CLAIM_URI]; //Get the appId from the app token
   }
 
   /*
