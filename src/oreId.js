@@ -526,7 +526,7 @@ export default class OreId {
     return (
       `${oreIdUrl}/auth#app_access_token=${appAccessToken}&provider=${provider}` +
       `${codeParam}${emailParam}${phoneParam}` +
-      `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${backgroundColor}${encodedStateParam}`
+      `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(backgroundColor)}${encodedStateParam}`
     );
   }
 
@@ -557,7 +557,7 @@ export default class OreId {
 
     return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(
       callbackUrl,
-    )}&chain_account=${chainAccount}&chain_network=${chainNetwork}&transaction=${encodedTransaction}${optionalParams}`;
+    )}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}&transaction=${encodedTransaction}${optionalParams}`;
   }
 
   /*
