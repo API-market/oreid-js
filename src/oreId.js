@@ -584,7 +584,7 @@ export default class OreId {
   handleSignResponse(callbackUrlString) {
     let signedTransaction;
     const params = Helpers.urlParamsToArray(callbackUrlString);
-    const { signed_transaction: encodedTransaction, state } = params;
+    const { signed_transaction: encodedTransaction, state, transaction_id: transactionId } = params;
     const errors = this.getErrorCodesFromParams(params);
 
     if (!errors) {
@@ -592,7 +592,7 @@ export default class OreId {
       signedTransaction = Helpers.base64DecodeSafe(encodedTransaction);
     }
     this.setIsBusy(false);
-    return { signedTransaction, state, errors };
+    return { signedTransaction, state, transactionId, errors };
   }
 
   /*

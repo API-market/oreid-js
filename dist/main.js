@@ -934,8 +934,12 @@ case 5:return l||(l=r),e.next=8,this.getAccessToken()
 case 8:return p=e.sent,d=U.base64Encode(c),y=s?"&state=".concat(s):"",y+=u?"&account_is_transaction_permission=".concat(u):"",y+=U.isNullOrEmpty(f)?"":"&return_signed_transaction=".concat(f),e.abrupt("return","".concat(h,"/sign#app_access_token=").concat(p,"&account=").concat(r,"&broadcast=").concat(n,"&callback_url=").concat(encodeURIComponent(i),"&chain_account=").concat(l,"&chain_network=").concat(encodeURIComponent(a),"&transaction=").concat(d).concat(y))
 case 14:case"end":return e.stop()}},e,this)}))
 return function(t){return e.apply(this,arguments)}}()},{key:"handleAuthResponse",value:function(e){var t=U.urlParamsToArray(e),r=t.accessToken,n=t.account,o=t.idToken,i=t.state,a=this.getErrorCodesFromParams(t),s={account:n}
-return r&&(s.accessToken=r),o&&(s.idToken=o),a&&(s.errors=a),i&&(s.state=i),this.setIsBusy(!1),s}},{key:"handleSignResponse",value:function(e){var t,r=U.urlParamsToArray(e),n=r.signed_transaction,o=r.state,i=this.getErrorCodesFromParams(r)
-return i||(t=U.base64DecodeSafe(n)),this.setIsBusy(!1),{signedTransaction:t,state:o,errors:i}}},{key:"getNewAppAccessToken",value:function(){var e=a()(o.a.mark(function e(){var t,r
+return r&&(s.accessToken=r),o&&(s.idToken=o),a&&(s.errors=a),i&&(s.state=i),this.setIsBusy(!1),s}},{key:"handleSignResponse",value:function(e){var t,r=U.urlParamsToArray(e)
+console.log("params:",r)
+var n=r.signed_transaction,o=r.state,i=r.transaction_id
+console.log("  transactionId:".concat(i))
+var a=this.getErrorCodesFromParams(r)
+return a||(t=U.base64DecodeSafe(n)),this.setIsBusy(!1),{signedTransaction:t,state:o,transactionId:i,errors:a}}},{key:"getNewAppAccessToken",value:function(){var e=a()(o.a.mark(function e(){var t,r
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.next=2,this.callOreIdApi("app-token")
 case 2:t=e.sent,r=t.appAccessToken,this.appAccessToken=r
 case 5:case"end":return e.stop()}},e,this)}))
@@ -980,11 +984,11 @@ break}return t.next=17,e.getUserInfoFromApi(c)
 case 17:p=t.sent,r.user=p
 case 19:return t.abrupt("return",i())
 case 20:case"end":return t.stop()}},t)}))
-return function(e,r,n){return t.apply(this,arguments)}}())}function W(e){return q(function(){var t=a()(o.a.mark(function t(r,n,i){var a,s,c,u,f,l
+return function(e,r,n){return t.apply(this,arguments)}}())}function W(e){return q(function(){var t=a()(o.a.mark(function t(r,n,i){var a,s,c,u,f,l,h
 return o.a.wrap(function(t){for(;;)switch(t.prev=t.next){case 0:if(a=r.body){t.next=3
 break}return t.abrupt("return",{})
-case 3:if(e.errors=null,s=e.handleSignResponse(a),c=s.signedTransaction,u=s.state,!(f=s.errors)){t.next=9
-break}return e.errors=f,l=new Error("Errors Processing sign callback: ".concat(f.join(", "))),t.abrupt("return",i(l))
-case 9:return c&&(r.signedTransaction=c,r.appId=e.appId),u&&(r.state=u),t.abrupt("return",i())
-case 12:case"end":return t.stop()}},t)}))
+case 3:if(e.errors=null,s=e.handleSignResponse(a),c=s.signedTransaction,u=s.state,f=s.transactionId,!(l=s.errors)){t.next=9
+break}return e.errors=l,h=new Error("Errors Processing sign callback: ".concat(l.join(", "))),t.abrupt("return",i(h))
+case 9:return c&&(r.signedTransaction=c,r.appId=e.appId),f&&(r.transactionId=f),u&&(r.state=u),t.abrupt("return",i())
+case 13:case"end":return t.stop()}},t)}))
 return function(e,r,n){return t.apply(this,arguments)}}())}r.d(t,"asyncHandler",function(){return q}),r.d(t,"authCallbackHandler",function(){return K}),r.d(t,"OreId",function(){return M}),r.d(t,"signCallbackHandler",function(){return W})}])})
