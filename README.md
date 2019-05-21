@@ -28,7 +28,7 @@ let authUrl = await oreId.getOreIdAuthUrl({ provider, callbackUrl, backgroundCol
 let authResults = oreId.handleAuthResponse(authCallbackResults);
 
 //Request that the user sign a transaction by setting the user's browser to this URL
-let signUrl = await oreId.getOreIdSignUrl({ account, transaction, signCallbackUrl, chain, state, broadcast });
+let signUrl = await oreId.getOreIdSignUrl({ account, transaction, signCallbackUrl, chain, state, broadcast, returnSignedTransaction });
 //...then handle the callback results of the Sign flow
 let signResults = oreId.handleSignResponse(signedCallbackResults);
 

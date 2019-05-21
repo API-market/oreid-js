@@ -756,7 +756,7 @@ return e&&e.wallets||[]},getActiveWallets:function(){return v.getWallets().filte
 var t=e._instanceId
 if(l.has(t)){var r=l.get(t)
 "function"==typeof r&&r()}},logoutAll:function(){return Promise.all(v.getWallets().map(function(e){return e.logout()})).then(function(){return!0})},disconnectAll:function(){return Promise.all(v.getWallets().map(function(e){return e.disconnect()})).then(function(){return!0})},terminateAll:function(){return Promise.all(v.getWallets().map(function(e){return e.terminate()})).then(function(){return!0})},destroy:function(){return v.terminateAll().then(function(){h(),l.forEach(function(e){"function"==typeof e&&e()}),i=[]})},subscribe:function(e){return i=i.concat([e]),function(){i=i.filter(function(t){return t!==e})}}}
-return v}var A=r(11),E=r.n(A),S=r(26),O=r.n(S),T=r(71).Base64,I=function(e,t,r){return e.replace(new RegExp(t,"g"),r)},U=function(){function e(){c()(this,e)}return f()(e,null,[{key:"isNullOrEmpty",value:function(e){return!e||(null===e||(!(!Array.isArray(e)||0!==e.length)||0===Object.keys(e).length&&e.constructor===Object))}},{key:"log",value:function(e,t){0}},{key:"jwtDecodeSafe",value:function(e){var t={}
+return v}var A=r(11),E=r.n(A),S=r(26),O=r.n(S),T=r(71).Base64,I=function(e,t,r){return e.replace(new RegExp(t,"g"),r)},U=function(){function e(){c()(this,e)}return f()(e,null,[{key:"isNullOrEmpty",value:function(e){return void 0===e||(null===e||(!(!Array.isArray(e)||0!==e.length)||0===Object.keys(e).length&&e.constructor===Object))}},{key:"log",value:function(e,t){0}},{key:"jwtDecodeSafe",value:function(e){var t={}
 if(this.isNullOrEmpty(e))return{}
 try{t=O()(e)}catch(e){}return t}},{key:"tokenHasExpired",value:function(e){var t=null
 try{t=this.jwtDecodeSafe(e)}catch(e){return!0}var r=Date.now().valueOf()/1e3
@@ -927,12 +927,12 @@ break}throw new Error("Missing a required parameter")
 case 4:return e.next=6,this.getAccessToken()
 case 6:return l=e.sent,h=u?"&state=".concat(u):"",p=r?"&code=".concat(r):"",d=n?"&email=".concat(n):"",y="",i&&(v=encodeURIComponent(i),y="&phone=".concat(v)),e.abrupt("return","".concat(f,"/auth#app_access_token=").concat(l,"&provider=").concat(a)+"".concat(p).concat(d).concat(y)+"&callback_url=".concat(encodeURIComponent(s),"&background_color=").concat(encodeURIComponent(c)).concat(h))
 case 13:case"end":return e.stop()}},e,this)}))
-return function(t){return e.apply(this,arguments)}}()},{key:"getOreIdSignUrl",value:function(){var e=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,h,p,d
-return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.account,n=t.broadcast,i=t.callbackUrl,a=t.chainNetwork,s=t.state,c=t.transaction,u=t.accountIsTransactionPermission,f=t.chainAccount,l=this.options.oreIdUrl,r&&i&&c){e.next=5
+return function(t){return e.apply(this,arguments)}}()},{key:"getOreIdSignUrl",value:function(){var e=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,h,p,d,y
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.account,n=t.broadcast,i=t.callbackUrl,a=t.chainNetwork,s=t.state,c=t.transaction,u=t.accountIsTransactionPermission,f=t.returnSignedTransaction,l=t.chainAccount,h=this.options.oreIdUrl,r&&i&&c){e.next=5
 break}throw new Error("Missing a required parameter")
-case 5:return f||(f=r),e.next=8,this.getAccessToken()
-case 8:return h=e.sent,p=U.base64Encode(c),d=s?"&state=".concat(s):"",d+=u?"&account_is_transaction_permission=".concat(u):"",e.abrupt("return","".concat(l,"/sign#app_access_token=").concat(h,"&account=").concat(r,"&broadcast=").concat(n,"&callback_url=").concat(encodeURIComponent(i),"&chain_account=").concat(f,"&chain_network=").concat(encodeURIComponent(a),"&transaction=").concat(p).concat(d))
-case 13:case"end":return e.stop()}},e,this)}))
+case 5:return l||(l=r),e.next=8,this.getAccessToken()
+case 8:return p=e.sent,d=U.base64Encode(c),y=s?"&state=".concat(s):"",y+=u?"&account_is_transaction_permission=".concat(u):"",y+=U.isNullOrEmpty(f)?"":"&return_signed_transaction=".concat(f),e.abrupt("return","".concat(h,"/sign#app_access_token=").concat(p,"&account=").concat(r,"&broadcast=").concat(n,"&callback_url=").concat(encodeURIComponent(i),"&chain_account=").concat(l,"&chain_network=").concat(encodeURIComponent(a),"&transaction=").concat(d).concat(y))
+case 14:case"end":return e.stop()}},e,this)}))
 return function(t){return e.apply(this,arguments)}}()},{key:"handleAuthResponse",value:function(e){var t=U.urlParamsToArray(e),r=t.accessToken,n=t.account,o=t.idToken,i=t.state,a=this.getErrorCodesFromParams(t),s={account:n}
 return r&&(s.accessToken=r),o&&(s.idToken=o),a&&(s.errors=a),i&&(s.state=i),this.setIsBusy(!1),s}},{key:"handleSignResponse",value:function(e){var t,r=U.urlParamsToArray(e),n=r.signed_transaction,o=r.state,i=this.getErrorCodesFromParams(r)
 return i||(t=U.base64DecodeSafe(n)),this.setIsBusy(!1),{signedTransaction:t,state:o,errors:i}}},{key:"getNewAppAccessToken",value:function(){var e=a()(o.a.mark(function e(){var t,r

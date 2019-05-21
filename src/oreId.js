@@ -535,7 +535,7 @@ export default class OreId {
       chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin', 'ore_main', 'eos_test', etc.
   */
   async getOreIdSignUrl(signOptions) {
-    const { account, broadcast, callbackUrl, chainNetwork, state, transaction, accountIsTransactionPermission } = signOptions;
+    const { account, broadcast, callbackUrl, chainNetwork, state, transaction, accountIsTransactionPermission, returnSignedTransaction } = signOptions;
 
     let { chainAccount } = signOptions;
 
@@ -554,10 +554,9 @@ export default class OreId {
     const encodedTransaction = Helpers.base64Encode(transaction);
     let optionalParams = state ? `&state=${state}` : '';
     optionalParams += accountIsTransactionPermission ? `&account_is_transaction_permission=${accountIsTransactionPermission}` : '';
+    optionalParams += !(Helpers.isNullOrEmpty(returnSignedTransaction)) ? `&return_signed_transaction=${returnSignedTransaction}` : '';
 
-    return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(
-      callbackUrl,
-    )}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}&transaction=${encodedTransaction}${optionalParams}`;
+    return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}&transaction=${encodedTransaction}${optionalParams}`;
   }
 
   /*
