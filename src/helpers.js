@@ -16,7 +16,7 @@ const replaceAll = (inString, search, replacement) => {
 
 export default class Helpers {
   static isNullOrEmpty(obj) {
-    if (!obj) {
+    if (obj === undefined) {
       return true;
     }
     if (obj === null) {
@@ -28,7 +28,7 @@ export default class Helpers {
         return true;
       }
     }
-    return Object.keys(obj).length === 0 && obj.constructor === Object;
+    return (Object.keys(obj).length === 0 && obj.constructor === Object);
   }
 
   // log data
