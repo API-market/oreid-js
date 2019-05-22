@@ -934,11 +934,7 @@ case 5:return l||(l=r),e.next=8,this.getAccessToken()
 case 8:return p=e.sent,d=U.base64Encode(c),y=s?"&state=".concat(s):"",y+=u?"&account_is_transaction_permission=".concat(u):"",y+=U.isNullOrEmpty(f)?"":"&return_signed_transaction=".concat(f),e.abrupt("return","".concat(h,"/sign#app_access_token=").concat(p,"&account=").concat(r,"&broadcast=").concat(n,"&callback_url=").concat(encodeURIComponent(i),"&chain_account=").concat(l,"&chain_network=").concat(encodeURIComponent(a),"&transaction=").concat(d).concat(y))
 case 14:case"end":return e.stop()}},e,this)}))
 return function(t){return e.apply(this,arguments)}}()},{key:"handleAuthResponse",value:function(e){var t=U.urlParamsToArray(e),r=t.accessToken,n=t.account,o=t.idToken,i=t.state,a=this.getErrorCodesFromParams(t),s={account:n}
-return r&&(s.accessToken=r),o&&(s.idToken=o),a&&(s.errors=a),i&&(s.state=i),this.setIsBusy(!1),s}},{key:"handleSignResponse",value:function(e){var t,r=U.urlParamsToArray(e)
-console.log("params:",r)
-var n=r.signed_transaction,o=r.state,i=r.transaction_id
-console.log("  transactionId:".concat(i))
-var a=this.getErrorCodesFromParams(r)
+return r&&(s.accessToken=r),o&&(s.idToken=o),a&&(s.errors=a),i&&(s.state=i),this.setIsBusy(!1),s}},{key:"handleSignResponse",value:function(e){var t,r=U.urlParamsToArray(e),n=r.signed_transaction,o=r.state,i=r.transaction_id,a=this.getErrorCodesFromParams(r)
 return a||(t=U.base64DecodeSafe(n)),this.setIsBusy(!1),{signedTransaction:t,state:o,transactionId:i,errors:a}}},{key:"getNewAppAccessToken",value:function(){var e=a()(o.a.mark(function e(){var t,r
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.next=2,this.callOreIdApi("app-token")
 case 2:t=e.sent,r=t.appAccessToken,this.appAccessToken=r
