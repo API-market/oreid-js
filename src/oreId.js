@@ -7,33 +7,33 @@ const providerAttributes = {
   ledger: {
     providerId: 'ledger',
     requiresLogin: false,
-    supportsDiscovery: true,
+    supportsDiscovery: true
   },
   lynx: {
     providerId: 'EOS Lynx',
     requiresLogin: false,
-    supportsDiscovery: false,
+    supportsDiscovery: false
   },
   meetone: {
     providerId: 'meetone_provider',
     requiresLogin: false,
-    supportsDiscovery: false,
+    supportsDiscovery: false
   },
   metro: {
     providerId: 'metro',
     requiresLogin: false,
-    supportsDiscovery: false,
+    supportsDiscovery: false
   },
   scatter: {
     providerId: 'scatter',
     requiresLogin: true,
-    supportsDiscovery: false,
+    supportsDiscovery: false
   },
   tokenpocket: {
     providerId: 'TokenPocket',
     requiresLogin: false,
-    supportsDiscovery: false,
-  },
+    supportsDiscovery: false
+  }
 };
 
 export default class OreId {
@@ -74,7 +74,7 @@ export default class OreId {
     const chainContext = initAccessContext({
       appName: appName || 'missing appName',
       network: NETWORK_CONFIG,
-      walletProviders: eosTransitWalletProviders,
+      walletProviders: eosTransitWalletProviders
     });
     // cache for future use
     this.chainContexts[chainNetwork] = chainContext;
@@ -116,7 +116,7 @@ export default class OreId {
     let response = {};
     try {
       response = await axios.get(url, {
-        headers: { 'api-key': apiKey },
+        headers: { 'api-key': apiKey }
       });
     } catch (error) {
       response = error.response;
@@ -233,7 +233,7 @@ export default class OreId {
       provider,
       backgroundColor,
       callbackUrl: authCallbackUrl,
-      state,
+      state
     };
     const loginUrl = await this.getOreIdAuthUrl(args);
     return { loginUrl, errors: null };
@@ -257,13 +257,13 @@ export default class OreId {
       this.setIsBusy(true);
       response = await transitWallet.eosApi.transact(
         {
-          actions: [transaction],
+          actions: [transaction]
         },
         {
           broadcast,
           blocksBehind: 3,
-          expireSeconds: 60,
-        },
+          expireSeconds: 60
+        }
       );
     } catch (error) {
       throw error;
@@ -310,7 +310,7 @@ export default class OreId {
             account: accountName,
             permissions: [{ name: permission, publicKey }], // todo: add parent permission when available
             provider,
-            transitWallet,
+            transitWallet
           };
         }
       } else {
@@ -369,7 +369,7 @@ export default class OreId {
       }
       this.setIsBusy(true);
       const discoveryData = await transitWallet.discover({
-        pathIndexList: discoveryPathIndexList,
+        pathIndexList: discoveryPathIndexList
       });
       // add accounts to ORE ID - if ORE ID user account is known
       const userOreAccount = (this.user || {}).accountName;
@@ -384,8 +384,8 @@ export default class OreId {
               account,
               publicKey: credential.key,
               name: authorization,
-              parent: null,
-            },
+              parent: null
+            }
           ];
           const chainNetworkToUpdate = this.getChainNetworkFromTransitWallet(transitWallet);
           await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, userOreAccount, provider);
@@ -554,8 +554,9 @@ export default class OreId {
     const encodedTransaction = Helpers.base64Encode(transaction);
     let optionalParams = state ? `&state=${state}` : '';
     optionalParams += accountIsTransactionPermission ? `&account_is_transaction_permission=${accountIsTransactionPermission}` : '';
-    optionalParams += !(Helpers.isNullOrEmpty(returnSignedTransaction)) ? `&return_signed_transaction=${returnSignedTransaction}` : '';
+    optionalParams += !Helpers.isNullOrEmpty(returnSignedTransaction) ? `&return_signed_transaction=${returnSignedTransaction}` : '';
 
+    // prettier-ignore
     return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}&transaction=${encodedTransaction}${optionalParams}`;
   }
 
@@ -563,9 +564,9 @@ export default class OreId {
       Extracts the response parameters on the /auth callback URL string
   */
   handleAuthResponse(callbackUrlString) {
-  // Parses error codes and returns an errors array
-  // (if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
-  // NOTE: accessToken and idToken are not usually returned from the ORE ID service - they are included here for future support
+    // Parses error codes and returns an errors array
+    // (if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
+    // NOTE: accessToken and idToken are not usually returned from the ORE ID service - they are included here for future support
     const params = Helpers.urlParamsToArray(callbackUrlString);
     const { accessToken, account, idToken, state } = params;
     const errors = this.getErrorCodesFromParams(params);
@@ -662,7 +663,7 @@ export default class OreId {
     const { apiKey, oreIdUrl } = this.options;
     const url = `${oreIdUrl}/api/${endpointAndParams}`;
     const response = await axios.get(url, {
-      headers: { 'api-key': apiKey },
+      headers: { 'api-key': apiKey }
     });
 
     const { error } = response;

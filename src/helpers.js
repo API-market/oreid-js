@@ -28,7 +28,7 @@ export default class Helpers {
         return true;
       }
     }
-    return (Object.keys(obj).length === 0 && obj.constructor === Object);
+    return Object.keys(obj).length === 0 && obj.constructor === Object;
   }
 
   // log data

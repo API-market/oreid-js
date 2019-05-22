@@ -22,7 +22,7 @@ class CookieStorage {
   setItem(key, value, options) {
     const params = {
       expires: 1, // 1 day
-      ...options,
+      ...options
     };
     Cookie.set(key, value, params);
   }
