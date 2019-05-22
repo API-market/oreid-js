@@ -27,33 +27,41 @@ module.exports = (env, argv) => {
     };
   }
 
-  return {
-    output: {
-      library: 'eos-auth',
-      libraryTarget: 'umd',
-    },
-    target: 'node',
-    devtool: sourceMap,
-    ...opt,
-    module: {
-      rules: [
-        {
-          enforce: 'pre',
-          test: /.(js)$/,
-          loader: 'eslint-loader',
-          exclude: /node_modules/,
-          options: {
-            fix: true,
+  const createConfig = (inTarget, inFilename) => {
+    return {
+      output: {
+        library: 'eos-auth',
+        libraryTarget: 'umd',
+        filename: inFilename,
+      },
+      target: inTarget,
+      devtool: sourceMap,
+      ...opt,
+      module: {
+        rules: [
+          {
+            enforce: 'pre',
+            test: /.(js)$/,
+            loader: 'eslint-loader',
+            exclude: /node_modules/,
+            options: {
+              fix: true,
+            },
           },
-        },
-        {
-          test: /\.js$/,
-          exclude: /node_modules/,
-          use: {
-            loader: 'babel-loader',
+          {
+            test: /\.js$/,
+            exclude: /node_modules/,
+            use: {
+              loader: 'babel-loader',
+            },
           },
-        },
-      ],
-    },
+        ],
+      },
+    };
   };
+
+  const web = createConfig('web', 'browser.js');
+  const node = createConfig('node', 'server.js');
+
+  return [web, node];
 };

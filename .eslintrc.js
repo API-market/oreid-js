@@ -6,11 +6,11 @@ module.exports = {
   env: {
     es6: true,
     browser: true,
-    node: true,
+    node: true
   },
   parserOptions: {
     ecmaVersion: 9,
-    sourceType: 'module',
+    sourceType: 'module'
   },
   rules: {
     'no-console': 0,
@@ -27,5 +27,6 @@ module.exports = {
     'arrow-parens': [2, 'always'],
     'react/jsx-filename-extension': 0,
     'react/prop-types': 0,
-  },
+    'comma-dangle': 0
+  }
 };
