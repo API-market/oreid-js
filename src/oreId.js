@@ -181,6 +181,8 @@ export default class OreId {
     // handle sign transaction based on provider type
     const { provider } = signOptions;
     switch (provider) {
+      case 'custodial':
+        return this.custodialSignWithOreId(signOptions);
       case 'lynx':
         return this.signWithTransitProvider(signOptions);
       case 'ledger':
@@ -245,6 +247,24 @@ export default class OreId {
     const signUrl = await this.getOreIdSignUrl(signOptions);
     return { signUrl, errors: null };
   }
+
+  async custodialSignWithOreId(signOptions) {
+    const { signCallbackUrl, apiKey, apiSignKey } = this.options;
+    if(!apiSignKey) {
+      throw new Error( 'Missing required parameter for custodial sign - apiSignKey. You can get an apiSignKey when you register your app with ORE ID.');
+    }
+    signOptions.callbackUrl = signCallbackUrl;
+    const signUrl = await this.getOreIdSignUrl(signOptions);
+    const response = await axios.get(signUrl, {
+      headers: { 'api-key': apiKey, 'api-sign-key': apiSignKey }
+    });
+    const { error } = response;
+    if (error) {
+      throw new Error(error);
+    }
+    return response.data;
+  }
+
 
   async signWithTransitProvider(signOptions) {
     const { broadcast, chainNetwork, transaction, provider } = signOptions;
@@ -551,6 +571,7 @@ export default class OreId {
     }
 
     const appAccessToken = await this.getAccessToken();
+    const app
     const encodedTransaction = Helpers.base64Encode(transaction);
     let optionalParams = state ? `&state=${state}` : '';
     optionalParams += accountIsTransactionPermission ? `&account_is_transaction_permission=${accountIsTransactionPermission}` : '';
@@ -660,12 +681,11 @@ export default class OreId {
       Helper function to call api endpoint and inject api-key
   */
   async callOreIdApi(endpointAndParams) {
-    const { apiKey, oreIdUrl } = this.options;
+    const { apiKey, apiSignKey, oreIdUrl } = this.options;
     const url = `${oreIdUrl}/api/${endpointAndParams}`;
     const response = await axios.get(url, {
-      headers: { 'api-key': apiKey }
+        headers: { 'api-key': apiKey }
     });
-
     const { error } = response;
     if (error) {
       throw new Error(error);
