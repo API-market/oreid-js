@@ -250,11 +250,12 @@ export default class OreId {
 
   async custodialSignWithOreId(signOptions) {
     const { signCallbackUrl, apiKey, apiSignKey } = this.options;
-    if(!apiSignKey) {
-      throw new Error( 'Missing required parameter for custodial sign - apiSignKey. You can get an apiSignKey when you register your app with ORE ID.');
+    if (!apiSignKey) {
+      throw new Error('Missing required parameter for custodial sign - apiSignKey. You can get an apiSignKey when you register your app with ORE ID.');
     }
     signOptions.callbackUrl = signCallbackUrl;
     const signUrl = await this.getOreIdSignUrl(signOptions);
+    // callOreIdApi can be used instead of sending get request manually here. But needs to be updated to use apiSignKey headers.
     const response = await axios.get(signUrl, {
       headers: { 'api-key': apiKey, 'api-sign-key': apiSignKey }
     });
@@ -262,6 +263,7 @@ export default class OreId {
     if (error) {
       throw new Error(error);
     }
+    console.log('responsedata: ', response.data);
     return response.data;
   }
 
@@ -555,7 +557,7 @@ export default class OreId {
       chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin', 'ore_main', 'eos_test', etc.
   */
   async getOreIdSignUrl(signOptions) {
-    const { account, broadcast, callbackUrl, chainNetwork, state, transaction, accountIsTransactionPermission, returnSignedTransaction } = signOptions;
+    const { account, broadcast, callbackUrl, chainNetwork, state, transaction, accountIsTransactionPermission, returnSignedTransaction, provider } = signOptions;
 
     let { chainAccount } = signOptions;
 
@@ -569,16 +571,21 @@ export default class OreId {
     if (!chainAccount) {
       chainAccount = account;
     }
+    let apiEndpoint;
+    if (provider === 'custodial') {
+      apiEndpoint = 'api/custodial/sign';
+    } else {
+      apiEndpoint = 'sign';
+    }
 
     const appAccessToken = await this.getAccessToken();
-    const app
     const encodedTransaction = Helpers.base64Encode(transaction);
     let optionalParams = state ? `&state=${state}` : '';
     optionalParams += accountIsTransactionPermission ? `&account_is_transaction_permission=${accountIsTransactionPermission}` : '';
     optionalParams += !Helpers.isNullOrEmpty(returnSignedTransaction) ? `&return_signed_transaction=${returnSignedTransaction}` : '';
 
     // prettier-ignore
-    return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}&transaction=${encodedTransaction}${optionalParams}`;
+    return `${oreIdUrl}/${apiEndpoint}#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}&transaction=${encodedTransaction}${optionalParams}`;
   }
 
   /*
@@ -681,10 +688,10 @@ export default class OreId {
       Helper function to call api endpoint and inject api-key
   */
   async callOreIdApi(endpointAndParams) {
-    const { apiKey, apiSignKey, oreIdUrl } = this.options;
+    const { apiKey, oreIdUrl } = this.options;
     const url = `${oreIdUrl}/api/${endpointAndParams}`;
     const response = await axios.get(url, {
-        headers: { 'api-key': apiKey }
+      headers: { 'api-key': apiKey }
     });
     const { error } = response;
     if (error) {
