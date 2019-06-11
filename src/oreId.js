@@ -280,7 +280,6 @@ export default class OreId {
     const chainContext = this.getOrCreateChainContext(chainNetwork);
     const transitProvider = chainContext.getWalletProviders().find((wp) => wp.id === providerId);
     const transitWallet = chainContext.initWallet(transitProvider);
-
     try {
       await transitWallet.connect();
       // try to connect to wallet
@@ -290,7 +289,16 @@ export default class OreId {
       if (providerAttributes[provider].requiresLogin === true) {
         // if connected, but not authenticated, then login
         if (transitWallet && transitWallet.authenticated !== true) {
-          await transitWallet.login(); // todo: pass along account and permission param to login()
+          try {
+            await transitWallet.login(); // todo: pass along account and permission param to login()
+          } catch (error) {
+            const { message = '' } = error;
+            if (message.includes('unknown key (boost::tuples::tuple')) {
+              throw new Error(`The account selected by the wallet for login isn't on the ${chainNetwork} chain`);
+            } else {
+              throw error;
+            }
+          }
           await this.waitWhileWalletIsBusy(transitWallet, provider);
         }
         if (!transitWallet || transitWallet.authenticated !== true) {

@@ -257,14 +257,14 @@ var o=this.fields[n]
 return[o.name,o.type.deserialize(e,t,r)]}function S(e,t,r,n){var o,i
 e.pushVaruint32(t.length)
 try{for(var s=a(t),c=s.next();!c.done;c=s.next()){var u=c.value
-this.arrayOf.serialize(e,u,r,!1)}}catch(e){o={error:e}}finally{try{c&&!c.done&&(i=s.return)&&i.call(s)}finally{if(o)throw o.error}}}function O(e,t,r){for(var n=e.getVaruint32(),o=[],i=0;i<n;++i)o.push(this.arrayOf.deserialize(e,t,!1))
-return o}function T(e,t,r,n){null==t?e.push(0):(e.push(1),this.optionalOf.serialize(e,t,r,n))}function I(e,t,r){return e.get()?this.optionalOf.deserialize(e,t,r):null}function U(e,t,r,n){this.extensionOf.serialize(e,t,r,n)}function P(e,t,r){return this.extensionOf.deserialize(e,t,r)}function R(e){return n({name:"<missing name>",aliasOfName:"",arrayOf:null,optionalOf:null,extensionOf:null,baseName:"",base:null,fields:[],serialize:_,deserialize:x},e)}function z(e,t){if(Number.isNaN(+e)||Number.isNaN(+t)||"number"!=typeof e&&"string"!=typeof e)throw new Error("Expected number")
+this.arrayOf.serialize(e,u,r,!1)}}catch(e){o={error:e}}finally{try{c&&!c.done&&(i=s.return)&&i.call(s)}finally{if(o)throw o.error}}}function T(e,t,r){for(var n=e.getVaruint32(),o=[],i=0;i<n;++i)o.push(this.arrayOf.deserialize(e,t,!1))
+return o}function O(e,t,r,n){null==t?e.push(0):(e.push(1),this.optionalOf.serialize(e,t,r,n))}function I(e,t,r){return e.get()?this.optionalOf.deserialize(e,t,r):null}function U(e,t,r,n){this.extensionOf.serialize(e,t,r,n)}function P(e,t,r){return this.extensionOf.deserialize(e,t,r)}function R(e){return n({name:"<missing name>",aliasOfName:"",arrayOf:null,optionalOf:null,extensionOf:null,baseName:"",base:null,fields:[],serialize:_,deserialize:x},e)}function z(e,t){if(Number.isNaN(+e)||Number.isNaN(+t)||"number"!=typeof e&&"string"!=typeof e)throw new Error("Expected number")
 if(+e!=+t)throw new Error("Number is out of range")
 return+e}function B(e,t){var r=e.get(t)
 if(r&&r.aliasOfName)return B(e,r.aliasOfName)
 if(r)return r
-if(t.endsWith("[]"))return R({name:t,arrayOf:B(e,t.substr(0,t.length-2)),serialize:S,deserialize:O})
-if(t.endsWith("?"))return R({name:t,optionalOf:B(e,t.substr(0,t.length-1)),serialize:T,deserialize:I})
+if(t.endsWith("[]"))return R({name:t,arrayOf:B(e,t.substr(0,t.length-2)),serialize:S,deserialize:T})
+if(t.endsWith("?"))return R({name:t,optionalOf:B(e,t.substr(0,t.length-1)),serialize:O,deserialize:I})
 if(t.endsWith("$"))return R({name:t,extensionOf:B(e,t.substr(0,t.length-1)),serialize:U,deserialize:P})
 throw new Error("Unknown type: "+t)}function F(e,t,r,n,o,i){var a=e.actions.get(r)
 if(!a)throw new Error("Unknown action "+r+" in contract "+t)
@@ -276,8 +276,8 @@ return s.pushArray(n),a.deserialize(s)}t.SerialBuffer=u,t.supportedAbiVersion=fu
 e.push(t?1:0)},deserialize:function(e){return!!e.get()}}),uint8:R({name:"uint8",serialize:function(e,t){e.push(z(t,255&t))},deserialize:function(e){return e.get()}}),int8:R({name:"int8",serialize:function(e,t){e.push(z(t,t<<24>>24))},deserialize:function(e){return e.get()<<24>>24}}),uint16:R({name:"uint16",serialize:function(e,t){e.pushUint16(z(t,65535&t))},deserialize:function(e){return e.getUint16()}}),int16:R({name:"int16",serialize:function(e,t){e.pushUint16(z(t,t<<16>>16))},deserialize:function(e){return e.getUint16()<<16>>16}}),uint32:R({name:"uint32",serialize:function(e,t){e.pushUint32(z(t,t>>>0))},deserialize:function(e){return e.getUint32()}}),uint64:R({name:"uint64",serialize:function(e,t){e.pushArray(s.decimalToBinary(8,""+t))},deserialize:function(e){return s.binaryToDecimal(e.getUint8Array(8))}}),int64:R({name:"int64",serialize:function(e,t){e.pushArray(s.signedDecimalToBinary(8,""+t))},deserialize:function(e){return s.signedBinaryToDecimal(e.getUint8Array(8))}}),int32:R({name:"int32",serialize:function(e,t){e.pushUint32(z(t,0|t))},deserialize:function(e){return 0|e.getUint32()}}),varuint32:R({name:"varuint32",serialize:function(e,t){e.pushVaruint32(z(t,t>>>0))},deserialize:function(e){return e.getVaruint32()}}),varint32:R({name:"varint32",serialize:function(e,t){e.pushVarint32(z(t,0|t))},deserialize:function(e){return e.getVarint32()}}),uint128:R({name:"uint128",serialize:function(e,t){e.pushArray(s.decimalToBinary(16,""+t))},deserialize:function(e){return s.binaryToDecimal(e.getUint8Array(16))}}),int128:R({name:"int128",serialize:function(e,t){e.pushArray(s.signedDecimalToBinary(16,""+t))},deserialize:function(e){return s.signedBinaryToDecimal(e.getUint8Array(16))}}),float32:R({name:"float32",serialize:function(e,t){e.pushFloat32(t)},deserialize:function(e){return e.getFloat32()}}),float64:R({name:"float64",serialize:function(e,t){e.pushFloat64(t)},deserialize:function(e){return e.getFloat64()}}),float128:R({name:"float128",serialize:function(e,t){e.pushUint8ArrayChecked(w(t),16)},deserialize:function(e){return b(e.getUint8Array(16))}}),bytes:R({name:"bytes",serialize:function(e,t){t instanceof Uint8Array||Array.isArray(t)?e.pushBytes(t):e.pushBytes(w(t))},deserialize:function(e,t){return t&&t.options.bytesAsUint8Array?e.getBytes():b(e.getBytes())}}),string:R({name:"string",serialize:function(e,t){e.pushString(t)},deserialize:function(e){return e.getString()}}),name:R({name:"name",serialize:function(e,t){e.pushName(t)},deserialize:function(e){return e.getName()}}),time_point:R({name:"time_point",serialize:function(e,t){e.pushNumberAsUint64(l(t))},deserialize:function(e){return h(e.getUint64AsNumber())}}),time_point_sec:R({name:"time_point_sec",serialize:function(e,t){e.pushUint32(p(t))},deserialize:function(e){return d(e.getUint32())}}),block_timestamp_type:R({name:"block_timestamp_type",serialize:function(e,t){e.pushUint32(y(t))},deserialize:function(e){return v(e.getUint32())}}),symbol_code:R({name:"symbol_code",serialize:function(e,t){e.pushSymbolCode(t)},deserialize:function(e){return e.getSymbolCode()}}),symbol:R({name:"symbol",serialize:function(e,t){e.pushSymbol(g(t))},deserialize:function(e){return m(e.getSymbol())}}),asset:R({name:"asset",serialize:function(e,t){e.pushAsset(t)},deserialize:function(e){return e.getAsset()}}),checksum160:R({name:"checksum160",serialize:function(e,t){e.pushUint8ArrayChecked(w(t),20)},deserialize:function(e){return b(e.getUint8Array(20))}}),checksum256:R({name:"checksum256",serialize:function(e,t){e.pushUint8ArrayChecked(w(t),32)},deserialize:function(e){return b(e.getUint8Array(32))}}),checksum512:R({name:"checksum512",serialize:function(e,t){e.pushUint8ArrayChecked(w(t),64)},deserialize:function(e){return b(e.getUint8Array(64))}}),public_key:R({name:"public_key",serialize:function(e,t){e.pushPublicKey(t)},deserialize:function(e){return e.getPublicKey()}}),private_key:R({name:"private_key",serialize:function(e,t){e.pushPrivateKey(t)},deserialize:function(e){return e.getPrivateKey()}}),signature:R({name:"signature",serialize:function(e,t){e.pushSignature(t)},deserialize:function(e){return e.getSignature()}})}))
 return e.set("extended_asset",R({name:"extended_asset",baseName:"",fields:[{name:"quantity",typeName:"asset",type:e.get("asset")},{name:"contract",typeName:"name",type:e.get("name")}],serialize:k,deserialize:C})),e},t.getType=B,t.getTypesFromAbi=function(e,t){var r,n,i,s,c,u,f,l,h,p,d=new Map(e)
 if(t.types)try{for(var y=a(t.types),v=y.next();!v.done;v=y.next()){var g=v.value,m=g.new_type_name,b=g.type
-d.set(m,R({name:m,aliasOfName:b}))}}catch(e){r={error:e}}finally{try{v&&!v.done&&(n=y.return)&&n.call(y)}finally{if(r)throw r.error}}if(t.structs)try{for(var w=a(t.structs),_=w.next();!_.done;_=w.next()){var x=_.value,S=x.name,O=x.base,T=x.fields
-d.set(S,R({name:S,baseName:O,fields:T.map(function(e){return{name:e.name,typeName:e.type,type:null}}),serialize:k,deserialize:C}))}}catch(e){i={error:e}}finally{try{_&&!_.done&&(s=w.return)&&s.call(w)}finally{if(i)throw i.error}}if(t.variants)try{for(var I=a(t.variants),U=I.next();!U.done;U=I.next()){var P=U.value,z=P.name,F=P.types
+d.set(m,R({name:m,aliasOfName:b}))}}catch(e){r={error:e}}finally{try{v&&!v.done&&(n=y.return)&&n.call(y)}finally{if(r)throw r.error}}if(t.structs)try{for(var w=a(t.structs),_=w.next();!_.done;_=w.next()){var x=_.value,S=x.name,T=x.base,O=x.fields
+d.set(S,R({name:S,baseName:T,fields:O.map(function(e){return{name:e.name,typeName:e.type,type:null}}),serialize:k,deserialize:C}))}}catch(e){i={error:e}}finally{try{_&&!_.done&&(s=w.return)&&s.call(w)}finally{if(i)throw i.error}}if(t.variants)try{for(var I=a(t.variants),U=I.next();!U.done;U=I.next()){var P=U.value,z=P.name,F=P.types
 d.set(z,R({name:z,fields:F.map(function(e){return{name:e,typeName:e,type:null}}),serialize:A,deserialize:E}))}}catch(e){c={error:e}}finally{try{U&&!U.done&&(u=I.return)&&u.call(I)}finally{if(c)throw c.error}}try{for(var N=a(d),j=N.next();!j.done;j=N.next()){var D=o(j.value,2)
 D[0],(b=D[1]).baseName&&(b.base=B(d,b.baseName))
 try{for(var L=a(b.fields),M=L.next();!M.done;M=L.next()){var q=M.value
@@ -303,7 +303,7 @@ function c(e,t,r,n){var o=t&&t.prototype instanceof y?t:y,i=Object.create(o.prot
 return i._invoke=function(e,t,r){var n=f
 return function(o,i){if(n===h)throw new Error("Generator is already running")
 if(n===p){if("throw"===o)throw i
-return T()}for(r.method=o,r.arg=i;;){var a=r.delegate
+return O()}for(r.method=o,r.arg=i;;){var a=r.delegate
 if(a){var s=C(a,r)
 if(s){if(s===d)continue
 return s}}if("next"===r.method)r.sent=r._sent=r.arg
@@ -316,7 +316,7 @@ return{value:c.arg,done:r.done}}"throw"===c.type&&(n=p,r.method="throw",r.arg=c.
 var f="suspendedStart",l="suspendedYield",h="executing",p="completed",d={}
 function y(){}function v(){}function g(){}var m={}
 m[i]=function(){return this}
-var b=Object.getPrototypeOf,w=b&&b(b(O([])))
+var b=Object.getPrototypeOf,w=b&&b(b(T([])))
 w&&w!==r&&n.call(w,i)&&(m=w)
 var _=g.prototype=y.prototype=Object.create(m)
 function x(e){["next","throw","return"].forEach(function(t){e[t]=function(e){return this._invoke(t,e)}})}function k(e){var t
@@ -329,17 +329,17 @@ if("throw"===o.type)return r.method="throw",r.arg=o.arg,r.delegate=null,d
 var i=o.arg
 return i?i.done?(r[e.resultName]=i.value,r.next=e.nextLoc,"return"!==r.method&&(r.method="next",r.arg=t),r.delegate=null,d):i:(r.method="throw",r.arg=new TypeError("iterator result is not an object"),r.delegate=null,d)}function A(e){var t={tryLoc:e[0]}
 1 in e&&(t.catchLoc=e[1]),2 in e&&(t.finallyLoc=e[2],t.afterLoc=e[3]),this.tryEntries.push(t)}function E(e){var t=e.completion||{}
-t.type="normal",delete t.arg,e.completion=t}function S(e){this.tryEntries=[{tryLoc:"root"}],e.forEach(A,this),this.reset(!0)}function O(e){if(e){var r=e[i]
+t.type="normal",delete t.arg,e.completion=t}function S(e){this.tryEntries=[{tryLoc:"root"}],e.forEach(A,this),this.reset(!0)}function T(e){if(e){var r=e[i]
 if(r)return r.call(e)
 if("function"==typeof e.next)return e
 if(!isNaN(e.length)){var o=-1,a=function r(){for(;++o<e.length;)if(n.call(e,o))return r.value=e[o],r.done=!1,r
 return r.value=t,r.done=!0,r}
-return a.next=a}}return{next:T}}function T(){return{value:t,done:!0}}return v.prototype=_.constructor=g,g.constructor=v,g[s]=v.displayName="GeneratorFunction",e.isGeneratorFunction=function(e){var t="function"==typeof e&&e.constructor
+return a.next=a}}return{next:O}}function O(){return{value:t,done:!0}}return v.prototype=_.constructor=g,g.constructor=v,g[s]=v.displayName="GeneratorFunction",e.isGeneratorFunction=function(e){var t="function"==typeof e&&e.constructor
 return!!t&&(t===v||"GeneratorFunction"===(t.displayName||t.name))},e.mark=function(e){return Object.setPrototypeOf?Object.setPrototypeOf(e,g):(e.__proto__=g,s in e||(e[s]="GeneratorFunction")),e.prototype=Object.create(_),e},e.awrap=function(e){return{__await:e}},x(k.prototype),k.prototype[a]=function(){return this},e.AsyncIterator=k,e.async=function(t,r,n,o){var i=new k(c(t,r,n,o))
 return e.isGeneratorFunction(r)?i:i.next().then(function(e){return e.done?e.value:i.next()})},x(_),_[s]="Generator",_[i]=function(){return this},_.toString=function(){return"[object Generator]"},e.keys=function(e){var t=[]
 for(var r in e)t.push(r)
 return t.reverse(),function r(){for(;t.length;){var n=t.pop()
-if(n in e)return r.value=n,r.done=!1,r}return r.done=!0,r}},e.values=O,S.prototype={constructor:S,reset:function(e){if(this.prev=0,this.next=0,this.sent=this._sent=t,this.done=!1,this.delegate=null,this.method="next",this.arg=t,this.tryEntries.forEach(E),!e)for(var r in this)"t"===r.charAt(0)&&n.call(this,r)&&!isNaN(+r.slice(1))&&(this[r]=t)},stop:function(){this.done=!0
+if(n in e)return r.value=n,r.done=!1,r}return r.done=!0,r}},e.values=T,S.prototype={constructor:S,reset:function(e){if(this.prev=0,this.next=0,this.sent=this._sent=t,this.done=!1,this.delegate=null,this.method="next",this.arg=t,this.tryEntries.forEach(E),!e)for(var r in this)"t"===r.charAt(0)&&n.call(this,r)&&!isNaN(+r.slice(1))&&(this[r]=t)},stop:function(){this.done=!0
 var e=this.tryEntries[0].completion
 if("throw"===e.type)throw e.arg
 return this.rval},dispatchException:function(e){if(this.done)throw e
@@ -358,7 +358,7 @@ return"break"===e.type||"continue"===e.type?this.next=e.arg:"return"===e.type?(t
 if(r.finallyLoc===e)return this.complete(r.completion,r.afterLoc),E(r),d}},catch:function(e){for(var t=this.tryEntries.length-1;t>=0;--t){var r=this.tryEntries[t]
 if(r.tryLoc===e){var n=r.completion
 if("throw"===n.type){var o=n.arg
-E(r)}return o}}throw new Error("illegal catch attempt")},delegateYield:function(e,r,n){return this.delegate={iterator:O(e),resultName:r,nextLoc:n},"next"===this.method&&(this.arg=t),d}},e}(e.exports)
+E(r)}return o}}throw new Error("illegal catch attempt")},delegateYield:function(e,r,n){return this.delegate={iterator:T(e),resultName:r,nextLoc:n},"next"===this.method&&(this.arg=t),d}},e}(e.exports)
 try{regeneratorRuntime=n}catch(e){Function("r","regeneratorRuntime = r")(n)}},function(e,t,r){"use strict"
 var n=r(2),o=r(12),i=r(31),a=r(7)
 function s(e){var t=new i(e),r=o(i.prototype.request,t)
@@ -407,9 +407,9 @@ m=(_[0]||"")+":"+(_[1]||"")}m&&delete g.Authorization
 var x="https:"===w,k=x?e.httpsAgent:e.httpAgent,C={path:i(b.path,e.params,e.paramsSerializer).replace(/^\?/,""),method:e.method,headers:g,agent:k,auth:m}
 e.socketPath?C.socketPath=e.socketPath:(C.hostname=b.hostname,C.port=b.port)
 var A,E=e.proxy
-if(!E&&!1!==E){var S=w.slice(0,-1)+"_proxy",O=process.env[S]||process.env[S.toUpperCase()]
-if(O){var T=f.parse(O)
-if(E={host:T.hostname,port:T.port},T.auth){var I=T.auth.split(":")
+if(!E&&!1!==E){var S=w.slice(0,-1)+"_proxy",T=process.env[S]||process.env[S.toUpperCase()]
+if(T){var O=f.parse(T)
+if(E={host:O.hostname,port:O.port},O.auth){var I=O.auth.split(":")
 E.auth={username:I[0],password:I[1]}}}}if(E&&(C.hostname=E.host,C.host=E.host,C.headers.host=b.hostname+(b.port?":"+b.port:""),C.port=E.port,C.path=w+"//"+b.hostname+(b.port?":"+b.port:"")+C.path,E.auth)){var U=new Buffer(E.auth.username+":"+E.auth.password,"utf8").toString("base64")
 C.headers["Proxy-Authorization"]="Basic "+U}e.transport?A=e.transport:0===e.maxRedirects?A=x?s:a:(e.maxRedirects&&(C.maxRedirects=e.maxRedirects),A=x?u:c),e.maxContentLength&&e.maxContentLength>-1&&(C.maxBodyLength=e.maxContentLength)
 var P=A.request(C,function(n){if(!P.aborted){clearTimeout(y),y=null
@@ -485,7 +485,7 @@ switch(i.TERM_PROGRAM){case"iTerm.app":return e>=3?3:2
 case"Apple_Terminal":return 2}}return/-256(color)?$/i.test(i.TERM)?2:/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(i.TERM)?1:"COLORTERM"in i?1:(i.TERM,t)}(e))}o("no-color")||o("no-colors")||o("color=false")?a=!1:(o("color")||o("colors")||o("color=true")||o("color=always"))&&(a=!0),"FORCE_COLOR"in i&&(a=0===i.FORCE_COLOR.length||0!==parseInt(i.FORCE_COLOR,10)),e.exports={supportsColor:s,stdout:s(process.stdout),stderr:s(process.stderr)}},function(e,t){e.exports=require("os")},function(e,t,r){"use strict"
 e.exports=((e,t)=>{t=t||process.argv
 const r=e.startsWith("-")?"":1===e.length?"-":"--",n=t.indexOf(r+e),o=t.indexOf("--")
-return-1!==n&&(-1===o||n<o)})},function(e,t){e.exports=require("zlib")},function(e){e.exports={_from:"axios@^0.18.0",_id:"axios@0.18.0",_inBundle:!1,_integrity:"sha1-MtU+SFHv3AoRmTts0AB4nXDAUQI=",_location:"/axios",_phantomChildren:{},_requested:{type:"range",registry:!0,raw:"axios@^0.18.0",name:"axios",escapedName:"axios",rawSpec:"^0.18.0",saveSpec:null,fetchSpec:"^0.18.0"},_requiredBy:["/"],_resolved:"https://registry.npmjs.org/axios/-/axios-0.18.0.tgz",_shasum:"32d53e4851efdc0a11993b6cd000789d70c05102",_spec:"axios@^0.18.0",_where:"/home/sgehrman/Documents/GitHub/aikon/oreid-js",author:{name:"Matt Zabriskie"},browser:{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},bugs:{url:"https://github.com/axios/axios/issues"},bundleDependencies:!1,bundlesize:[{path:"./dist/axios.min.js",threshold:"5kB"}],dependencies:{"follow-redirects":"^1.3.0","is-buffer":"^1.1.5"},deprecated:!1,description:"Promise based HTTP client for the browser and node.js",devDependencies:{bundlesize:"^0.5.7",coveralls:"^2.11.9","es6-promise":"^4.0.5",grunt:"^1.0.1","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.0.0","grunt-contrib-nodeunit":"^1.0.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^19.0.0","grunt-karma":"^2.0.0","grunt-ts":"^6.0.0-beta.3","grunt-webpack":"^1.0.18","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1",karma:"^1.3.0","karma-chrome-launcher":"^2.0.0","karma-coverage":"^1.0.0","karma-firefox-launcher":"^1.0.0","karma-jasmine":"^1.0.2","karma-jasmine-ajax":"^0.1.13","karma-opera-launcher":"^1.0.0","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^1.1.0","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^1.7.0","load-grunt-tasks":"^3.5.2",minimist:"^1.2.0",sinon:"^1.17.4",typescript:"^2.0.3","url-search-params":"^0.6.1",webpack:"^1.13.1","webpack-dev-server":"^1.14.1"},homepage:"https://github.com/axios/axios",keywords:["xhr","http","ajax","promise","node"],license:"MIT",main:"index.js",name:"axios",repository:{type:"git",url:"git+https://github.com/axios/axios.git"},scripts:{build:"NODE_ENV=production grunt build",coveralls:"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",examples:"node ./examples/server.js",postversion:"git push && git push --tags",preversion:"npm test",start:"node ./sandbox/server.js",test:"grunt test && bundlesize",version:"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json"},typings:"./index.d.ts",version:"0.18.0"}},function(e,t,r){"use strict"
+return-1!==n&&(-1===o||n<o)})},function(e,t){e.exports=require("zlib")},function(e){e.exports={_from:"axios@^0.18.0",_id:"axios@0.18.0",_inBundle:!1,_integrity:"sha1-MtU+SFHv3AoRmTts0AB4nXDAUQI=",_location:"/axios",_phantomChildren:{},_requested:{type:"range",registry:!0,raw:"axios@^0.18.0",name:"axios",escapedName:"axios",rawSpec:"^0.18.0",saveSpec:null,fetchSpec:"^0.18.0"},_requiredBy:["/"],_resolved:"https://registry.npmjs.org/axios/-/axios-0.18.0.tgz",_shasum:"32d53e4851efdc0a11993b6cd000789d70c05102",_spec:"axios@^0.18.0",_where:"/Users/traylewin/dev/aikon/oreid-js",author:{name:"Matt Zabriskie"},browser:{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},bugs:{url:"https://github.com/axios/axios/issues"},bundleDependencies:!1,bundlesize:[{path:"./dist/axios.min.js",threshold:"5kB"}],dependencies:{"follow-redirects":"^1.3.0","is-buffer":"^1.1.5"},deprecated:!1,description:"Promise based HTTP client for the browser and node.js",devDependencies:{bundlesize:"^0.5.7",coveralls:"^2.11.9","es6-promise":"^4.0.5",grunt:"^1.0.1","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.0.0","grunt-contrib-nodeunit":"^1.0.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^19.0.0","grunt-karma":"^2.0.0","grunt-ts":"^6.0.0-beta.3","grunt-webpack":"^1.0.18","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1",karma:"^1.3.0","karma-chrome-launcher":"^2.0.0","karma-coverage":"^1.0.0","karma-firefox-launcher":"^1.0.0","karma-jasmine":"^1.0.2","karma-jasmine-ajax":"^0.1.13","karma-opera-launcher":"^1.0.0","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^1.1.0","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^1.7.0","load-grunt-tasks":"^3.5.2",minimist:"^1.2.0",sinon:"^1.17.4",typescript:"^2.0.3","url-search-params":"^0.6.1",webpack:"^1.13.1","webpack-dev-server":"^1.14.1"},homepage:"https://github.com/axios/axios",keywords:["xhr","http","ajax","promise","node"],license:"MIT",main:"index.js",name:"axios",repository:{type:"git",url:"git+https://github.com/axios/axios.git"},scripts:{build:"NODE_ENV=production grunt build",coveralls:"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",examples:"node ./examples/server.js",postversion:"git push && git push --tags",preversion:"npm test",start:"node ./sandbox/server.js",test:"grunt test && bundlesize",version:"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json"},typings:"./index.d.ts",version:"0.18.0"}},function(e,t,r){"use strict"
 var n=r(2)
 function o(){this.handlers=[]}o.prototype.use=function(e,t){return this.handlers.push({fulfilled:e,rejected:t}),this.handlers.length-1},o.prototype.eject=function(e){this.handlers[e]&&(this.handlers[e]=null)},o.prototype.forEach=function(e){n.forEach(this.handlers,function(t){null!==t&&e(t)})},e.exports=o},function(e,t,r){"use strict"
 var n=r(2),o=r(54),i=r(21),a=r(7),s=r(55),c=r(56)
@@ -756,9 +756,9 @@ return e&&e.wallets||[]},getActiveWallets:function(){return v.getWallets().filte
 var t=e._instanceId
 if(l.has(t)){var r=l.get(t)
 "function"==typeof r&&r()}},logoutAll:function(){return Promise.all(v.getWallets().map(function(e){return e.logout()})).then(function(){return!0})},disconnectAll:function(){return Promise.all(v.getWallets().map(function(e){return e.disconnect()})).then(function(){return!0})},terminateAll:function(){return Promise.all(v.getWallets().map(function(e){return e.terminate()})).then(function(){return!0})},destroy:function(){return v.terminateAll().then(function(){h(),l.forEach(function(e){"function"==typeof e&&e()}),i=[]})},subscribe:function(e){return i=i.concat([e]),function(){i=i.filter(function(t){return t!==e})}}}
-return v}var A=r(11),E=r.n(A),S=r(26),O=r.n(S),T=r(71).Base64,I=function(e,t,r){return e.replace(new RegExp(t,"g"),r)},U=function(){function e(){c()(this,e)}return f()(e,null,[{key:"isNullOrEmpty",value:function(e){return void 0===e||(null===e||(!(!Array.isArray(e)||0!==e.length)||0===Object.keys(e).length&&e.constructor===Object))}},{key:"log",value:function(e,t){0}},{key:"jwtDecodeSafe",value:function(e){var t={}
+return v}var A=r(11),E=r.n(A),S=r(26),T=r.n(S),O=r(71).Base64,I=function(e,t,r){return e.replace(new RegExp(t,"g"),r)},U=function(){function e(){c()(this,e)}return f()(e,null,[{key:"isNullOrEmpty",value:function(e){return void 0===e||(null===e||(!(!Array.isArray(e)||0!==e.length)||0===Object.keys(e).length&&e.constructor===Object))}},{key:"log",value:function(e,t){0}},{key:"jwtDecodeSafe",value:function(e){var t={}
 if(this.isNullOrEmpty(e))return{}
-try{t=O()(e)}catch(e){}return t}},{key:"tokenHasExpired",value:function(e){var t=null
+try{t=T()(e)}catch(e){}return t}},{key:"tokenHasExpired",value:function(e){var t=null
 try{t=this.jwtDecodeSafe(e)}catch(e){return!0}var r=Date.now().valueOf()/1e3
 return void 0!==t.exp&&t.exp<r||void 0!==t.nbf&&t.nbf>r}},{key:"urlParamsToArray",value:function(e){var t=e
 if(this.isNullOrEmpty(t))return[]
@@ -774,7 +774,7 @@ try{t&&(r=decodeURI(r)),n=I(r,"'",'"'),n=I(n,"`",'"')
 var o=JSON.parse(n)
 if(o&&"object"===E()(o))return o}catch(e){console.log(e)}return null}},{key:"isAnObject",value:function(e){return null!==e&&"object"===E()(e)}},{key:"base64DecodeSafe",value:function(t){var r={}
 if(this.isNullOrEmpty(t))return null
-try{r=T.decode(t),e.tryParseJSON(r)&&(r=JSON.parse(r))}catch(e){return null}return r}},{key:"base64Encode",value:function(t){return e.isAnObject(t)&&(t=JSON.stringify(t)),T.encode(t)}},{key:"sleep",value:function(e){return new Promise(function(t){return setTimeout(t,e)})}}]),e}(),P=r(27),R=r.n(P),z=r(6),B=r.n(z),F=function(){function e(){c()(this,e)}return f()(e,[{key:"getItem",value:function(e){return B.a.get(e)}},{key:"removeItem",value:function(e){B.a.remove(e)}},{key:"setItem",value:function(e,t,r){var n=R()({expires:1},r)
+try{r=O.decode(t),e.tryParseJSON(r)&&(r=JSON.parse(r))}catch(e){return null}return r}},{key:"base64Encode",value:function(t){return e.isAnObject(t)&&(t=JSON.stringify(t)),O.encode(t)}},{key:"sleep",value:function(e){return new Promise(function(t){return setTimeout(t,e)})}}]),e}(),P=r(27),R=r.n(P),z=r(6),B=r.n(z),F=function(){function e(){c()(this,e)}return f()(e,[{key:"getItem",value:function(e){return B.a.get(e)}},{key:"removeItem",value:function(e){B.a.remove(e)}},{key:"setItem",value:function(e,t,r){var n=R()({expires:1},r)
 B.a.set(e,t,n)}}]),e}(),N=function(){function e(){c()(this,e),window?this.storage=window.localStorage:U.log("Not running in Browser. Using CookieStorage instead.")}return f()(e,[{key:"getItem",value:function(e){if(this.storage)return this.storage.getItem(e)}},{key:"removeItem",value:function(e){if(this.storage)return this.storage.removeItem(e)}},{key:"setItem",value:function(e,t,r){if(this.storage)return this.storage.setItem(e,t,r)}}]),e}(),j=function(){function e(){c()(this,e)}return f()(e,[{key:"getItem",value:function(e){return null}},{key:"removeItem",value:function(e){}},{key:"setItem",value:function(e,t,r){}}]),e}(),D=function(){function e(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{tryLocalStorageFirst:!0}
 if(c()(this,e),this.triedLocalStorage=!1,this.triedCookieStorage=!1,!0===t.tryLocalStorageFirst){this.triedLocalStorage=!0
 try{var r=new N
@@ -850,27 +850,32 @@ case 12:throw e.prev=12,e.t0=e.catch(5),e.t0
 case 15:return e.prev=15,this.setIsBusy(!1),e.finish(15)
 case 18:return e.abrupt("return",{signedTransaction:s})
 case 19:case"end":return e.stop()}},e,this,[[5,12,15,18]])}))
-return function(t){return e.apply(this,arguments)}}()},{key:"connectToTransitProvider",value:function(){var e=a()(o.a.mark(function e(t,r){var n,i,a,s,c,u,f,l,h,p,d,y,v,g,m,b
+return function(t){return e.apply(this,arguments)}}()},{key:"connectToTransitProvider",value:function(){var e=a()(o.a.mark(function e(t,r){var n,i,a,s,c,u,f,l,h,p,d,y,v,g,m,b,w
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return n={},i=L[t].providerId,a=this.getOrCreateChainContext(r),s=a.getWalletProviders().find(function(e){return e.id===i}),c=a.initWallet(s),e.prev=5,e.next=8,c.connect()
 case 8:return e.next=10,this.waitWhileWalletIsBusy(c,t)
-case 10:if(!0!==L[t].requiresLogin){e.next=18
-break}if(!c||!0===c.authenticated){e.next=16
-break}return e.next=14,c.login()
-case 14:return e.next=16,this.waitWhileWalletIsBusy(c,t)
-case 16:if(c&&!0===c.authenticated){e.next=18
+case 10:if(!0!==L[t].requiresLogin){e.next=29
+break}if(!c||!0===c.authenticated){e.next=27
+break}return e.prev=12,e.next=15,c.login()
+case 15:e.next=25
+break
+case 17:if(e.prev=17,e.t0=e.catch(12),u=e.t0.message,!(void 0===u?"":u).includes("unknown key (boost::tuples::tuple")){e.next=24
+break}throw new Error("The account selected by the wallet for login isn't on the ".concat(r," chain"))
+case 24:throw e.t0
+case 25:return e.next=27,this.waitWhileWalletIsBusy(c,t)
+case 27:if(c&&!0===c.authenticated){e.next=29
 break}throw new Error("Couldn't connect to ".concat(t))
-case 18:if(n.transitWallet=c,!c.connected){e.next=23
-break}c.authenticated&&(u=c.auth,f=u.accountName,l=u.permission,h=u.publicKey,n={isLoggedIn:c.authenticated,account:f,permissions:[{name:l,publicKey:h}],provider:t,transitWallet:c}),e.next=25
+case 29:if(n.transitWallet=c,!c.connected){e.next=34
+break}c.authenticated&&(f=c.auth,l=f.accountName,h=f.permission,p=f.publicKey,n={isLoggedIn:c.authenticated,account:l,permissions:[{name:h,publicKey:p}],provider:t,transitWallet:c}),e.next=36
 break
-case 23:throw p=c.hasError,d=c.errorMessage,new Error("".concat(t," not connected!").concat(p)?" Error: ".concat(d):"")
-case 25:if(!(y=(this.user||{}).accountName)){e.next=31
-break}return g=(v=n).account,m=v.permissions,b=this.getChainNetworkFromTransitWallet(c),e.next=31,this.addWalletPermissionstoOreIdAccount(g,b,m,y,t)
-case 31:e.next=37
+case 34:throw d=c.hasError,y=c.errorMessage,new Error("".concat(t," not connected!").concat(d)?" Error: ".concat(y):"")
+case 36:if(!(v=(this.user||{}).accountName)){e.next=42
+break}return m=(g=n).account,b=g.permissions,w=this.getChainNetworkFromTransitWallet(c),e.next=42,this.addWalletPermissionstoOreIdAccount(m,w,b,v,t)
+case 42:e.next=48
 break
-case 33:throw e.prev=33,e.t0=e.catch(5),console.log("Failed to connect to ".concat(t," wallet:"),e.t0),e.t0
-case 37:return e.prev=37,this.setIsBusy(!1),e.finish(37)
-case 40:return e.abrupt("return",n)
-case 41:case"end":return e.stop()}},e,this,[[5,33,37,40]])}))
+case 44:throw e.prev=44,e.t1=e.catch(5),console.log("Failed to connect to ".concat(t," wallet:"),e.t1),e.t1
+case 48:return e.prev=48,this.setIsBusy(!1),e.finish(48)
+case 51:return e.abrupt("return",n)
+case 52:case"end":return e.stop()}},e,this,[[5,44,48,51],[12,17]])}))
 return function(t,r){return e.apply(this,arguments)}}()},{key:"waitWhileWalletIsBusy",value:function(){var e=a()(o.a.mark(function e(t,r){return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(!t.inProgress){e.next=7
 break}return this.setIsBusy(!0),e.next=4,U.sleep(250)
 case 4:console.log("connecting to ".concat(r," via eos-transit wallet in progress:"),t.inProgress),e.next=0
