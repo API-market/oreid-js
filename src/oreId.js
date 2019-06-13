@@ -249,24 +249,22 @@ export default class OreId {
   }
 
   async custodialSignWithOreId(signOptions) {
-    const { signCallbackUrl, apiKey, apiSignKey } = this.options;
-    if (!apiSignKey) {
-      throw new Error('Missing required parameter for custodial sign - apiSignKey. You can get an apiSignKey when you register your app with ORE ID.');
+    const { signCallbackUrl, apiKey, proxySignApiKey } = this.options;
+    if (!proxySignApiKey) {
+      throw new Error('Missing required parameter to sign a transaction with a custodial account - proxySignApiKey.');
     }
     signOptions.callbackUrl = signCallbackUrl;
+    signOptions.isCustodialAccount = true;
     const signUrl = await this.getOreIdSignUrl(signOptions);
-    // callOreIdApi can be used instead of sending get request manually here. But needs to be updated to use apiSignKey headers.
     const response = await axios.get(signUrl, {
-      headers: { 'api-key': apiKey, 'api-sign-key': apiSignKey }
+      headers: { 'api-key': apiKey, 'service-api-key': proxySignApiKey }
     });
     const { error } = response;
     if (error) {
       throw new Error(error);
     }
-    console.log('responsedata: ', response.data);
     return response.data;
   }
-
 
   async signWithTransitProvider(signOptions) {
     const { broadcast, chainNetwork, transaction, provider } = signOptions;
@@ -557,10 +555,8 @@ export default class OreId {
       chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin', 'ore_main', 'eos_test', etc.
   */
   async getOreIdSignUrl(signOptions) {
-    const { account, broadcast, callbackUrl, chainNetwork, state, transaction, accountIsTransactionPermission, returnSignedTransaction, provider } = signOptions;
-
+    const { account, accountIsTransactionPermission, broadcast, callbackUrl, chainNetwork, isCustodialAccount = false, provider, returnSignedTransaction, state, transaction, userPassword } = signOptions;
     let { chainAccount } = signOptions;
-
     const { oreIdUrl } = this.options;
 
     if (!account || !callbackUrl || !transaction) {
@@ -571,8 +567,9 @@ export default class OreId {
     if (!chainAccount) {
       chainAccount = account;
     }
+
     let apiEndpoint;
-    if (provider === 'custodial') {
+    if (isCustodialAccount) {
       apiEndpoint = 'api/custodial/sign';
     } else {
       apiEndpoint = 'sign';
@@ -583,6 +580,7 @@ export default class OreId {
     let optionalParams = state ? `&state=${state}` : '';
     optionalParams += accountIsTransactionPermission ? `&account_is_transaction_permission=${accountIsTransactionPermission}` : '';
     optionalParams += !Helpers.isNullOrEmpty(returnSignedTransaction) ? `&return_signed_transaction=${returnSignedTransaction}` : '';
+    optionalParams += !Helpers.isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : '';
 
     // prettier-ignore
     return `${oreIdUrl}/${apiEndpoint}#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}&transaction=${encodedTransaction}${optionalParams}`;
