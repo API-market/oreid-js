@@ -249,15 +249,15 @@ export default class OreId {
   }
 
   async custodialSignWithOreId(signOptions) {
-    const { signCallbackUrl, apiKey, proxySignApiKey } = this.options;
-    if (!proxySignApiKey) {
-      throw new Error('Missing required parameter to sign a transaction with a custodial account - proxySignApiKey.');
+    const { signCallbackUrl, apiKey, serviceKey } = this.options;
+    if (!serviceKey) {
+      throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/new-user.');
     }
     signOptions.callbackUrl = signCallbackUrl;
     signOptions.isCustodialAccount = true;
     const signUrl = await this.getOreIdSignUrl(signOptions);
     const response = await axios.get(signUrl, {
-      headers: { 'api-key': apiKey, 'service-api-key': proxySignApiKey }
+      headers: { 'api-key': apiKey, 'service-key': serviceKey }
     });
     const { error } = response;
     if (error) {
@@ -292,6 +292,29 @@ export default class OreId {
     }
 
     return { signedTransaction: response };
+  }
+
+  // create a new user account that is managed by your app
+  // this requires you to provide a wallet password (aka userPassword) on behalf of the user
+  async custodialNewAccount(accountOptions) {
+    const { apiKey, oreIdUrl, serviceKey } = this.options;
+    const { accountType, email, name, picture, phone, userName, userPassword } = accountOptions;
+    const body = { account_type: accountType, email, name, picture, phone, user_name: userName, user_password: userPassword };
+    if (!serviceKey) {
+      throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/new-user.');
+    }
+
+    const url = `${oreIdUrl}/api/custodial/new-user`;
+    const response = await axios.post(url,
+      JSON.stringify(body),
+      { headers: { 'Content-Type': 'application/json', 'api-key': apiKey, 'service-key': serviceKey },
+        body
+      });
+    const { error } = response;
+    if (error) {
+      throw new Error(error);
+    }
+    return response.data;
   }
 
   async connectToTransitProvider(provider, chainNetwork) {
