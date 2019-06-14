@@ -745,24 +745,29 @@ case 13:case"end":return e.stop()}},e,this)}))
 return function(t){return e.apply(this,arguments)}}()},{key:"connectToTransitProvider",value:function(){var e=a()(o.a.mark(function e(t,r){var n,i,a,s,c,u,f,l,h,p,d,y,v,g,m,b
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return n={},i=F[t].providerId,a=this.getOrCreateChainContext(r),s=a.getWalletProviders().find(function(e){return e.id===i}),c=a.initWallet(s),e.prev=5,e.next=8,c.connect()
 case 8:return e.next=10,this.waitWhileWalletIsBusy(c,t)
-case 10:if(!0!==F[t].requiresLogin){e.next=18
-break}if(!c||!0===c.authenticated){e.next=16
-break}return e.next=14,c.login()
-case 14:return e.next=16,this.waitWhileWalletIsBusy(c,t)
-case 16:if(c&&!0===c.authenticated){e.next=18
+case 10:if(!0!==F[t].requiresLogin){e.next=29
+break}if(!c||!0===c.authenticated){e.next=27
+break}return e.prev=12,e.next=15,c.login()
+case 15:e.next=25
+break
+case 17:if(e.prev=17,e.t0=e.catch(12),u=e.t0.message,!(void 0===u?"":u).includes("unknown key (boost::tuples::tuple")){e.next=24
+break}throw new Error("The account selected by the wallet for login isn't on the ".concat(r," chain"))
+case 24:throw e.t0
+case 25:return e.next=27,this.waitWhileWalletIsBusy(c,t)
+case 27:if(c&&!0===c.authenticated){e.next=29
 break}throw new Error("Couldn't connect to ".concat(t))
-case 18:if(n.transitWallet=c,!c.connected){e.next=23
-break}c.authenticated&&(u=c.auth,f=u.accountName,l=u.permission,h=u.publicKey,n={isLoggedIn:c.authenticated,account:f,permissions:[{name:l,publicKey:h}],provider:t,transitWallet:c}),e.next=25
+case 29:if(n.transitWallet=c,!c.connected){e.next=34
+break}c.authenticated&&(f=c.auth,l=f.accountName,h=f.permission,p=f.publicKey,n={isLoggedIn:c.authenticated,account:l,permissions:[{name:h,publicKey:p}],provider:t,transitWallet:c}),e.next=36
 break
-case 23:throw p=c.hasError,d=c.errorMessage,new Error("".concat(t," not connected!").concat(p)?" Error: ".concat(d):"")
-case 25:if(!(y=(this.user||{}).accountName)){e.next=31
-break}return g=(v=n).account,m=v.permissions,b=this.getChainNetworkFromTransitWallet(c),e.next=31,this.addWalletPermissionstoOreIdAccount(g,b,m,y,t)
-case 31:e.next=37
+case 34:throw d=c.hasError,y=c.errorMessage,new Error("".concat(t," not connected!").concat(d)?" Error: ".concat(y):"")
+case 36:if(!(v=(this.user||{}).accountName)){e.next=42
+break}return m=(g=n).account,b=g.permissions,w=this.getChainNetworkFromTransitWallet(c),e.next=42,this.addWalletPermissionstoOreIdAccount(m,w,b,v,t)
+case 42:e.next=48
 break
-case 33:throw e.prev=33,e.t0=e.catch(5),console.log("Failed to connect to ".concat(t," wallet:"),e.t0),e.t0
-case 37:return e.prev=37,this.setIsBusy(!1),e.finish(37)
-case 40:return e.abrupt("return",n)
-case 41:case"end":return e.stop()}},e,this,[[5,33,37,40]])}))
+case 44:throw e.prev=44,e.t1=e.catch(5),console.log("Failed to connect to ".concat(t," wallet:"),e.t1),e.t1
+case 48:return e.prev=48,this.setIsBusy(!1),e.finish(48)
+case 51:return e.abrupt("return",n)
+case 52:case"end":return e.stop()}},e,this,[[5,44,48,51],[12,17]])}))
 return function(t,r){return e.apply(this,arguments)}}()},{key:"waitWhileWalletIsBusy",value:function(){var e=a()(o.a.mark(function e(t,r){return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(!t.inProgress){e.next=7
 break}return this.setIsBusy(!0),e.next=4,O.sleep(250)
 case 4:console.log("connecting to ".concat(r," via eos-transit wallet in progress:"),t.inProgress),e.next=0
