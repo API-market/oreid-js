@@ -56,54 +56,54 @@ Object.defineProperty(t,"__esModule",{value:!0})
 var a=r(43).RIPEMD160.hash,s="123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz",c="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 var u=function(){for(var e=Array(256).fill(-1),t=0;t<s.length;++t)e[s.charCodeAt(t)]=t
 return e}()
-var f,l=function(){for(var e=Array(256).fill(-1),t=0;t<c.length;++t)e[c.charCodeAt(t)]=t
+var f=function(){for(var e=Array(256).fill(-1),t=0;t<c.length;++t)e[c.charCodeAt(t)]=t
 return e["=".charCodeAt(0)]=0,e}()
-function h(e){return 0!=(128&e[e.length-1])}function p(e){for(var t=1,r=0;r<e.length;++r){var n=(255&~e[r])+t
-e[r]=n,t=n>>8}}function d(e,t){for(var r=new Uint8Array(e),n=0;n<t.length;++n){var o=t.charCodeAt(n)
+function l(e){return 0!=(128&e[e.length-1])}function h(e){for(var t=1,r=0;r<e.length;++r){var n=(255&~e[r])+t
+e[r]=n,t=n>>8}}function p(e,t){for(var r=new Uint8Array(e),n=0;n<t.length;++n){var o=t.charCodeAt(n)
 if(o<"0".charCodeAt(0)||o>"9".charCodeAt(0))throw new Error("invalid number")
 for(var i=o-"0".charCodeAt(0),a=0;a<e;++a){var s=10*r[a]+i
-r[a]=s,i=s>>8}if(i)throw new Error("number is out of range")}return r}function y(e,t){void 0===t&&(t=1)
+r[a]=s,i=s>>8}if(i)throw new Error("number is out of range")}return r}function d(e,t){void 0===t&&(t=1)
 for(var r=Array(t).fill("0".charCodeAt(0)),n=e.length-1;n>=0;--n){for(var i=e[n],a=0;a<r.length;++a){var s=(r[a]-"0".charCodeAt(0)<<8)+i
-r[a]="0".charCodeAt(0)+s%10,i=s/10|0}for(;i;)r.push("0".charCodeAt(0)+i%10),i=i/10|0}return r.reverse(),String.fromCharCode.apply(String,o(r))}function v(e,t){for(var r=new Uint8Array(e),n=0;n<t.length;++n){var o=u[t.charCodeAt(n)]
+r[a]="0".charCodeAt(0)+s%10,i=s/10|0}for(;i;)r.push("0".charCodeAt(0)+i%10),i=i/10|0}return r.reverse(),String.fromCharCode.apply(String,o(r))}function y(e,t){for(var r=new Uint8Array(e),n=0;n<t.length;++n){var o=u[t.charCodeAt(n)]
 if(o<0)throw new Error("invalid base-58 value")
 for(var i=0;i<e;++i){var a=58*r[i]+o
-r[i]=a,o=a>>8}if(o)throw new Error("base-58 value is out of range")}return r.reverse(),r}function g(e,t){var r,n,a,c
+r[i]=a,o=a>>8}if(o)throw new Error("base-58 value is out of range")}return r.reverse(),r}function v(e,t){var r,n,a,c
 void 0===t&&(t=1)
 var f=[]
 try{for(var l=i(e),h=l.next();!h.done;h=l.next()){for(var p=h.value,d=0;d<f.length;++d){var y=(u[f[d]]<<8)+p
 f[d]=s.charCodeAt(y%58),p=y/58|0}for(;p;)f.push(s.charCodeAt(p%58)),p=p/58|0}}catch(e){r={error:e}}finally{try{h&&!h.done&&(n=l.return)&&n.call(l)}finally{if(r)throw r.error}}try{for(var v=i(e),g=v.next();!g.done;g=v.next()){if(g.value)break
-f.push("1".charCodeAt(0))}}catch(e){a={error:e}}finally{try{g&&!g.done&&(c=v.return)&&c.call(v)}finally{if(a)throw a.error}}return f.reverse(),String.fromCharCode.apply(String,o(f))}function m(e,t){for(var r=new Uint8Array(e.length+t.length),n=0;n<e.length;++n)r[n]=e[n]
+f.push("1".charCodeAt(0))}}catch(e){a={error:e}}finally{try{g&&!g.done&&(c=v.return)&&c.call(v)}finally{if(a)throw a.error}}return f.reverse(),String.fromCharCode.apply(String,o(f))}function g(e,t){for(var r=new Uint8Array(e.length+t.length),n=0;n<e.length;++n)r[n]=e[n]
 for(n=0;n<t.length;++n)r[e.length+n]=t.charCodeAt(n)
-return a(r)}function b(e,t,r,n){var o=v(r+4,e),i={type:t,data:new Uint8Array(o.buffer,0,r)},a=new Uint8Array(m(i.data,n))
+return a(r)}function m(e,t,r,n){var o=y(r+4,e),i={type:t,data:new Uint8Array(o.buffer,0,r)},a=new Uint8Array(g(i.data,n))
 if(a[0]!==o[r+0]||a[1]!==o[r+1]||a[2]!==o[r+2]||a[3]!==o[r+3])throw new Error("checksum doesn't match")
-return i}function w(e,t,r){for(var n=new Uint8Array(m(e.data,t)),o=new Uint8Array(e.data.length+4),i=0;i<e.data.length;++i)o[i]=e.data[i]
+return i}function b(e,t,r){for(var n=new Uint8Array(g(e.data,t)),o=new Uint8Array(e.data.length+4),i=0;i<e.data.length;++i)o[i]=e.data[i]
 for(i=0;i<4;++i)o[i+e.data.length]=n[i]
-return r+g(o)}function _(e){if("string"!=typeof e)throw new Error("expected string containing public key")
-if("EOS"===e.substr(0,3)){for(var r=v(t.publicKeyDataSize+4,e.substr(3)),n={type:f.k1,data:new Uint8Array(t.publicKeyDataSize)},o=0;o<t.publicKeyDataSize;++o)n.data[o]=r[o]
+return r+v(o)}function w(e){if("string"!=typeof e)throw new Error("expected string containing public key")
+if("EOS"===e.substr(0,3)){for(var r=y(t.publicKeyDataSize+4,e.substr(3)),n={type:0,data:new Uint8Array(t.publicKeyDataSize)},o=0;o<t.publicKeyDataSize;++o)n.data[o]=r[o]
 var i=new Uint8Array(a(n.data))
 if(i[0]!==r[t.publicKeyDataSize]||i[1]!==r[34]||i[2]!==r[35]||i[3]!==r[36])throw new Error("checksum doesn't match")
-return n}if("PUB_K1_"===e.substr(0,7))return b(e.substr(7),f.k1,t.publicKeyDataSize,"K1")
-if("PUB_R1_"===e.substr(0,7))return b(e.substr(7),f.r1,t.publicKeyDataSize,"R1")
-throw new Error("unrecognized public key format")}function x(e){if(e.type===f.k1&&e.data.length===t.publicKeyDataSize)return w(e,"K1","PUB_K1_")
-if(e.type===f.r1&&e.data.length===t.publicKeyDataSize)return w(e,"R1","PUB_R1_")
-throw new Error("unrecognized public key format")}function k(e){return"EOS"===e.substr(0,3)?x(_(e)):e}t.isNegative=h,t.negate=p,t.decimalToBinary=d,t.signedDecimalToBinary=function(e,t){var r="-"===t[0]
+return n}if("PUB_K1_"===e.substr(0,7))return m(e.substr(7),0,t.publicKeyDataSize,"K1")
+if("PUB_R1_"===e.substr(0,7))return m(e.substr(7),1,t.publicKeyDataSize,"R1")
+throw new Error("unrecognized public key format")}function _(e){if(0===e.type&&e.data.length===t.publicKeyDataSize)return b(e,"K1","PUB_K1_")
+if(1===e.type&&e.data.length===t.publicKeyDataSize)return b(e,"R1","PUB_R1_")
+throw new Error("unrecognized public key format")}function x(e){return"EOS"===e.substr(0,3)?_(w(e)):e}t.isNegative=l,t.negate=h,t.decimalToBinary=p,t.signedDecimalToBinary=function(e,t){var r="-"===t[0]
 r&&(t=t.substr(1))
-var n=d(e,t)
-if(r){if(p(n),!h(n))throw new Error("number is out of range")}else if(h(n))throw new Error("number is out of range")
-return n},t.binaryToDecimal=y,t.signedBinaryToDecimal=function(e,t){if(void 0===t&&(t=1),h(e)){var r=e.slice()
-return p(r),"-"+y(r,t)}return y(e,t)},t.base58ToBinary=v,t.binaryToBase58=g,t.base64ToBinary=function(e){var t=e.length
+var n=p(e,t)
+if(r){if(h(n),!l(n))throw new Error("number is out of range")}else if(l(n))throw new Error("number is out of range")
+return n},t.binaryToDecimal=d,t.signedBinaryToDecimal=function(e,t){if(void 0===t&&(t=1),l(e)){var r=e.slice()
+return h(r),"-"+d(r,t)}return d(e,t)},t.base58ToBinary=y,t.binaryToBase58=v,t.base64ToBinary=function(e){var t=e.length
 if(1==(3&t)&&"="===e[t-1]&&(t-=1),0!=(3&t))throw new Error("base-64 value is not padded correctly")
 var r=t>>2,n=3*r
 t>0&&"="===e[t-1]&&("="===e[t-2]?n-=2:n-=1)
-for(var o=new Uint8Array(n),i=0;i<r;++i){var a=l[e.charCodeAt(4*i+0)],s=l[e.charCodeAt(4*i+1)],c=l[e.charCodeAt(4*i+2)],u=l[e.charCodeAt(4*i+3)]
-o[3*i+0]=a<<2|s>>4,3*i+1<n&&(o[3*i+1]=(15&s)<<4|c>>2),3*i+2<n&&(o[3*i+2]=(3&c)<<6|u)}return o},function(e){e[e.k1=0]="k1",e[e.r1=1]="r1"}(f=t.KeyType||(t.KeyType={})),t.publicKeyDataSize=33,t.privateKeyDataSize=32,t.signatureDataSize=65,t.stringToPublicKey=_,t.publicKeyToString=x,t.convertLegacyPublicKey=k,t.convertLegacyPublicKeys=function(e){return e.map(k)},t.stringToPrivateKey=function(e){if("string"!=typeof e)throw new Error("expected string containing private key")
-if("PVT_R1_"===e.substr(0,7))return b(e.substr(7),f.r1,t.privateKeyDataSize,"R1")
-throw new Error("unrecognized private key format")},t.privateKeyToString=function(e){if(e.type===f.r1)return w(e,"R1","PVT_R1_")
+for(var o=new Uint8Array(n),i=0;i<r;++i){var a=f[e.charCodeAt(4*i+0)],s=f[e.charCodeAt(4*i+1)],c=f[e.charCodeAt(4*i+2)],u=f[e.charCodeAt(4*i+3)]
+o[3*i+0]=a<<2|s>>4,3*i+1<n&&(o[3*i+1]=(15&s)<<4|c>>2),3*i+2<n&&(o[3*i+2]=(3&c)<<6|u)}return o},t.publicKeyDataSize=33,t.privateKeyDataSize=32,t.signatureDataSize=65,t.stringToPublicKey=w,t.publicKeyToString=_,t.convertLegacyPublicKey=x,t.convertLegacyPublicKeys=function(e){return e.map(x)},t.stringToPrivateKey=function(e){if("string"!=typeof e)throw new Error("expected string containing private key")
+if("PVT_R1_"===e.substr(0,7))return m(e.substr(7),1,t.privateKeyDataSize,"R1")
+throw new Error("unrecognized private key format")},t.privateKeyToString=function(e){if(1===e.type)return b(e,"R1","PVT_R1_")
 throw new Error("unrecognized private key format")},t.stringToSignature=function(e){if("string"!=typeof e)throw new Error("expected string containing signature")
-if("SIG_K1_"===e.substr(0,7))return b(e.substr(7),f.k1,t.signatureDataSize,"K1")
-if("SIG_R1_"===e.substr(0,7))return b(e.substr(7),f.r1,t.signatureDataSize,"R1")
-throw new Error("unrecognized signature format")},t.signatureToString=function(e){if(e.type===f.k1)return w(e,"K1","SIG_K1_")
-if(e.type===f.r1)return w(e,"R1","SIG_R1_")
+if("SIG_K1_"===e.substr(0,7))return m(e.substr(7),0,t.signatureDataSize,"K1")
+if("SIG_R1_"===e.substr(0,7))return m(e.substr(7),1,t.signatureDataSize,"R1")
+throw new Error("unrecognized signature format")},t.signatureToString=function(e){if(0===e.type)return b(e,"K1","SIG_K1_")
+if(1===e.type)return b(e,"R1","SIG_R1_")
 throw new Error("unrecognized signature format")}},function(e,t){function r(e){return(r="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}function n(t){return"function"==typeof Symbol&&"symbol"===r(Symbol.iterator)?e.exports=n=function(e){return r(e)}:e.exports=n=function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":r(e)},n(t)}e.exports=n},function(e,t,r){"use strict"
 e.exports=function(e,t){return function(){for(var r=new Array(arguments.length),n=0;n<r.length;n++)r[n]=arguments[n]
 return e.apply(t,r)}}},function(e,t,r){"use strict"
@@ -226,8 +226,8 @@ d.set(m,z({name:m,aliasOfName:b}))}}catch(e){r={error:e}}finally{try{v&&!v.done&
 d.set(C,z({name:C,baseName:T,fields:I.map(function(e){return{name:e.name,typeName:e.type,type:null}}),serialize:k,deserialize:A}))}}catch(e){i={error:e}}finally{try{_&&!_.done&&(s=w.return)&&s.call(w)}finally{if(i)throw i.error}}if(t.variants)try{for(var U=a(t.variants),O=U.next();!O.done;O=U.next()){var P=O.value,N=P.name,R=P.types
 d.set(N,z({name:N,fields:R.map(function(e){return{name:e,typeName:e,type:null}}),serialize:E,deserialize:S}))}}catch(e){c={error:e}}finally{try{O&&!O.done&&(u=U.return)&&u.call(U)}finally{if(c)throw c.error}}try{for(var B=a(d),j=B.next();!j.done;j=B.next()){var L=o(j.value,2)
 L[0],(b=L[1]).baseName&&(b.base=D(d,b.baseName))
-try{for(var F=a(b.fields),K=F.next();!K.done;K=F.next()){var M=K.value
-M.type=D(d,M.typeName)}}catch(e){h={error:e}}finally{try{K&&!K.done&&(p=F.return)&&p.call(F)}finally{if(h)throw h.error}}}}catch(e){f={error:e}}finally{try{j&&!j.done&&(l=B.return)&&l.call(B)}finally{if(f)throw f.error}}return d},t.transactionHeader=function(e,t){return{expiration:d(p(e.timestamp)+t),ref_block_num:65535&e.block_num,ref_block_prefix:e.ref_block_prefix}},t.serializeActionData=R,t.serializeAction=function(e,t,r,n,o,i,a){return{account:t,name:r,authorization:n,data:R(e,t,r,o,i,a)}},t.deserializeActionData=B,t.deserializeAction=function(e,t,r,n,o,i,a){return{account:t,name:r,authorization:n,data:B(e,t,r,o,i,a)}}},function(e,t){var r
+try{for(var F=a(b.fields),M=F.next();!M.done;M=F.next()){var K=M.value
+K.type=D(d,K.typeName)}}catch(e){h={error:e}}finally{try{M&&!M.done&&(p=F.return)&&p.call(F)}finally{if(h)throw h.error}}}}catch(e){f={error:e}}finally{try{j&&!j.done&&(l=B.return)&&l.call(B)}finally{if(f)throw f.error}}return d},t.transactionHeader=function(e,t){return{expiration:d(p(e.timestamp)+t),ref_block_num:65535&e.block_num,ref_block_prefix:e.ref_block_prefix}},t.serializeActionData=R,t.serializeAction=function(e,t,r,n,o,i,a){return{account:t,name:r,authorization:n,data:R(e,t,r,o,i,a)}},t.deserializeActionData=B,t.deserializeAction=function(e,t,r,n,o,i,a){return{account:t,name:r,authorization:n,data:B(e,t,r,o,i,a)}}},function(e,t){var r
 r=function(){return this}()
 try{r=r||new Function("return this")()}catch(e){"object"==typeof window&&(r=window)}e.exports=r},function(e,t,r){"use strict"
 var n,o=this&&this.__extends||(n=function(e,t){return(n=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)t.hasOwnProperty(r)&&(e[r]=t[r])})(e,t)},function(e,t){function r(){this.constructor=e}n(e,t),e.prototype=null===t?Object.create(t):(r.prototype=t.prototype,new r)})
@@ -509,8 +509,8 @@ case 1:return[2,e.sent()]}})})},t.prototype.get_producers=function(e,t,r){return
 case 1:return[2,n.sent()]}})})},t.prototype.get_raw_code_and_abi=function(e){return n(this,void 0,void 0,function(){return o(this,function(t){switch(t.label){case 0:return[4,this.fetch("/v1/chain/get_raw_code_and_abi",{account_name:e})]
 case 1:return[2,t.sent()]}})})},t.prototype.getRawAbi=function(e){return n(this,void 0,void 0,function(){var t,r
 return o(this,function(n){switch(n.label){case 0:return[4,this.get_raw_code_and_abi(e)]
-case 1:return t=n.sent(),r=a.base64ToBinary(t.abi),[2,{accountName:t.account_name,abi:r}]}})})},t.prototype.get_table_rows=function(e){var t=e.json,r=void 0===t||t,i=e.code,a=e.scope,s=e.table,c=e.table_key,u=void 0===c?"":c,f=e.lower_bound,l=void 0===f?"":f,h=e.upper_bound,p=void 0===h?"":h,d=e.index_position,y=void 0===d?1:d,v=e.key_type,g=void 0===v?"":v,m=e.limit,b=void 0===m?10:m,w=e.reverse,_=void 0!==w&&w,x=e.show_payer,k=void 0!==x&&x
-return n(this,void 0,void 0,function(){return o(this,function(e){switch(e.label){case 0:return[4,this.fetch("/v1/chain/get_table_rows",{json:r,code:i,scope:a,table:s,table_key:u,lower_bound:l,upper_bound:p,index_position:y,key_type:g,limit:b,reverse:_,show_payer:k})]
+case 1:return t=n.sent(),r=a.base64ToBinary(t.abi),[2,{accountName:t.account_name,abi:r}]}})})},t.prototype.get_table_rows=function(e){var t=e.json,r=void 0===t||t,i=e.code,a=e.scope,s=e.table,c=e.table_key,u=void 0===c?"":c,f=e.lower_bound,l=void 0===f?"":f,h=e.upper_bound,p=void 0===h?"":h,d=e.index_position,y=void 0===d?1:d,v=e.key_type,g=void 0===v?"":v,m=e.limit,b=void 0===m?10:m
+return n(this,void 0,void 0,function(){return o(this,function(e){switch(e.label){case 0:return[4,this.fetch("/v1/chain/get_table_rows",{json:r,code:i,scope:a,table:s,table_key:u,lower_bound:l,upper_bound:p,index_position:y,key_type:g,limit:b})]
 case 1:return[2,e.sent()]}})})},t.prototype.get_table_by_scope=function(e){var t=e.code,r=e.table,i=e.lower_bound,a=void 0===i?"":i,s=e.upper_bound,c=void 0===s?"":s,u=e.limit,f=void 0===u?10:u
 return n(this,void 0,void 0,function(){return o(this,function(e){switch(e.label){case 0:return[4,this.fetch("/v1/chain/get_table_by_scope",{code:t,table:r,lower_bound:a,upper_bound:c,limit:f})]
 case 1:return[2,e.sent()]}})})},t.prototype.getRequiredKeys=function(e){return n(this,void 0,void 0,function(){var t
@@ -653,7 +653,7 @@ D.a.set(e,t,n)}}]),e}(),B=function(){function e(){c()(this,e),window?this.storag
 if(c()(this,e),this.triedLocalStorage=!1,this.triedCookieStorage=!1,!0===t.tryLocalStorageFirst){this.triedLocalStorage=!0
 try{var r=new B
 r&&r.storage&&(this.storage=r)}catch(e){O.log("Can't use localStorage. Using CookieStorage instead.",t)}}this.storage||(this.storage=new R,this.triedCookieStorage=!0)}return f()(e,[{key:"failover",value:function(){if(!(this.storage instanceof j)){var e=!1
-this.storage instanceof B?this.triedCookieStorage||(this.storage=new R,this.triedCookieStorage=!0,e=!0):this.storage instanceof R&&(this.triedLocalStorage||(this.storage=new B,this.triedLocalStorage=!0,e=!0)),e||(this.storage=new j)}}},{key:"getItem",value:function(e){try{return this.storage.getItem(e)}catch(t){return O.log("Can't getItem in storage.",t),this.failover(),this.storage.getItem(e)}}},{key:"removeItem",value:function(e){try{return this.storage.removeItem(e)}catch(t){return O.log("Can't removeItem in storage.",t),this.failover(),this.storage.removeItem(e)}}},{key:"setItem",value:function(e,t,r){try{return this.storage.setItem(e,t,r)}catch(n){return O.log("Can't setItem in storage.",n),this.failover(),this.storage.setItem(e,t,r)}}}]),e}(),F={ledger:{providerId:"ledger",requiresLogin:!1,supportsDiscovery:!0},lynx:{providerId:"EOS Lynx",requiresLogin:!1,supportsDiscovery:!1},meetone:{providerId:"meetone_provider",requiresLogin:!1,supportsDiscovery:!1},metro:{providerId:"metro",requiresLogin:!1,supportsDiscovery:!1},scatter:{providerId:"scatter",requiresLogin:!0,supportsDiscovery:!1},tokenpocket:{providerId:"TokenPocket",requiresLogin:!1,supportsDiscovery:!1}},K=function(){function e(t){c()(this,e),this.options=null,this.appAccessToken=null,this.user=null,this.storage=new L,this.validateOptions(t),this.chainContexts={},this.chainNetworks=[],this.init()}return f()(e,[{key:"init",value:function(){var e=a()(o.a.mark(function e(){var t
+this.storage instanceof B?this.triedCookieStorage||(this.storage=new R,this.triedCookieStorage=!0,e=!0):this.storage instanceof R&&(this.triedLocalStorage||(this.storage=new B,this.triedLocalStorage=!0,e=!0)),e||(this.storage=new j)}}},{key:"getItem",value:function(e){try{return this.storage.getItem(e)}catch(t){return O.log("Can't getItem in storage.",t),this.failover(),this.storage.getItem(e)}}},{key:"removeItem",value:function(e){try{return this.storage.removeItem(e)}catch(t){return O.log("Can't removeItem in storage.",t),this.failover(),this.storage.removeItem(e)}}},{key:"setItem",value:function(e,t,r){try{return this.storage.setItem(e,t,r)}catch(n){return O.log("Can't setItem in storage.",n),this.failover(),this.storage.setItem(e,t,r)}}}]),e}(),F={ledger:{providerId:"ledger",requiresLogin:!1,supportsDiscovery:!0},lynx:{providerId:"EOS Lynx",requiresLogin:!1,supportsDiscovery:!1},meetone:{providerId:"meetone_provider",requiresLogin:!1,supportsDiscovery:!1},metro:{providerId:"metro",requiresLogin:!1,supportsDiscovery:!1},scatter:{providerId:"scatter",requiresLogin:!0,supportsDiscovery:!1},tokenpocket:{providerId:"TokenPocket",requiresLogin:!1,supportsDiscovery:!1}},M=function(){function e(t){c()(this,e),this.options=null,this.appAccessToken=null,this.user=null,this.storage=new L,this.validateOptions(t),this.chainContexts={},this.chainNetworks=[],this.init()}return f()(e,[{key:"init",value:function(){var e=a()(o.a.mark(function e(){var t
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.next=2,this.getConfigFromApi("chains")
 case 2:t=e.sent,this.chainNetworks=t.chains
 case 4:case"end":return e.stop()}},e,this)}))
@@ -716,15 +716,15 @@ return function(t){return e.apply(this,arguments)}}()},{key:"signWithOreId",valu
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=this.options.signCallbackUrl,t.callbackUrl=r,e.next=4,this.getOreIdSignUrl(t)
 case 4:return n=e.sent,e.abrupt("return",{signUrl:n,errors:null})
 case 6:case"end":return e.stop()}},e,this)}))
-return function(t){return e.apply(this,arguments)}}()},{key:"custodialSignWithOreId",value:function(){var e=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u
+return function(t){return e.apply(this,arguments)}}()},{key:"custodialSignWithOreId",value:function(){var e=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,p
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.options,n=r.signCallbackUrl,i=r.apiKey,a=r.serviceKey){e.next=3
 break}throw new Error("Missing serviceKey in oreId config options - required to call api/custodial/new-user.")
 case 3:return t.callbackUrl=n,t.isCustodialAccount=!0,e.next=7,this.getOreIdSignUrl(t)
 case 7:return s=e.sent,e.next=10,h.a.get(s,{headers:{"api-key":i,"service-key":a}})
-case 10:if(c=e.sent,!(u=c.error)){e.next=14
-break}throw new Error(u)
-case 14:return e.abrupt("return",c.data)
-case 15:case"end":return e.stop()}},e,this)}))
+case 10:if(c=e.sent,u=c.data,!(f=c.error)){e.next=14
+break}throw new Error(f)
+case 14:return l=u.signed_transaction,p=u.transaction_id,e.abrupt("return",{signedTransaction:l,transactionId:p})
+case 16:case"end":return e.stop()}},e,this)}))
 return function(t){return e.apply(this,arguments)}}()},{key:"signWithTransitProvider",value:function(){var e=a()(o.a.mark(function e(t){var r,n,i,a,s,c
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=t.broadcast,n=t.chainNetwork,i=t.transaction,a=t.provider,e.next=3,this.connectToTransitProvider(a,n)
 case 3:return s=e.sent,c=s.transitWallet,e.prev=5,this.setIsBusy(!0),e.next=9,c.eosApi.transact({actions:[i]},{broadcast:r,blocksBehind:3,expireSeconds:60})
@@ -866,8 +866,8 @@ var t=JSON.stringify(this.user)
 this.storage.setItem(this.userKey(),t)}}},{key:"loadUserLocally",value:function(){var e=this.storage.getItem(this.userKey())
 return O.isNullOrEmpty(e)?(this.user=null,null):(this.user=JSON.parse(e),this.user)}},{key:"clearLocalState",value:function(){var e=a()(o.a.mark(function e(){return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:this.storage.removeItem(this.userKey())
 case 1:case"end":return e.stop()}},e,this)}))
-return function(){return e.apply(this,arguments)}}()}]),e}(),M=function(e){return function(t,r,n){Promise.resolve(e(t,r,n)).catch(n)}}
-function W(e){return M(function(){var t=a()(o.a.mark(function t(r,n,i){var a,s,c,u,f,l,h,p
+return function(){return e.apply(this,arguments)}}()}]),e}(),K=function(e){return function(t,r,n){Promise.resolve(e(t,r,n)).catch(n)}}
+function W(e){return K(function(){var t=a()(o.a.mark(function t(r,n,i){var a,s,c,u,f,l,h,p
 return o.a.wrap(function(t){for(;;)switch(t.prev=t.next){case 0:if(r.query){t.next=3
 break}return t.abrupt("return",{})
 case 3:if(e.errors=null,a=e.handleAuthResponse(r.originalUrl),s=a.accessToken,c=a.account,u=a.errors,f=a.idToken,l=a.state,!u){t.next=10
@@ -877,11 +877,11 @@ break}return t.next=17,e.getUserInfoFromApi(c)
 case 17:p=t.sent,r.user=p
 case 19:return t.abrupt("return",i())
 case 20:case"end":return t.stop()}},t)}))
-return function(e,r,n){return t.apply(this,arguments)}}())}function q(e){return M(function(){var t=a()(o.a.mark(function t(r,n,i){var a,s,c,u,f,l,h
+return function(e,r,n){return t.apply(this,arguments)}}())}function q(e){return K(function(){var t=a()(o.a.mark(function t(r,n,i){var a,s,c,u,f,l,h
 return o.a.wrap(function(t){for(;;)switch(t.prev=t.next){case 0:if(a=r.body){t.next=3
 break}return t.abrupt("return",{})
 case 3:if(e.errors=null,s=e.handleSignResponse(a),c=s.signedTransaction,u=s.state,f=s.transactionId,!(l=s.errors)){t.next=9
 break}return e.errors=l,h=new Error("Errors Processing sign callback: ".concat(l.join(", "))),t.abrupt("return",i(h))
 case 9:return c&&(r.signedTransaction=c,r.appId=e.appId),f&&(r.transactionId=f),u&&(r.state=u),t.abrupt("return",i())
 case 13:case"end":return t.stop()}},t)}))
-return function(e,r,n){return t.apply(this,arguments)}}())}r.d(t,"asyncHandler",function(){return M}),r.d(t,"authCallbackHandler",function(){return W}),r.d(t,"OreId",function(){return K}),r.d(t,"signCallbackHandler",function(){return q})}])})
+return function(e,r,n){return t.apply(this,arguments)}}())}r.d(t,"asyncHandler",function(){return K}),r.d(t,"authCallbackHandler",function(){return W}),r.d(t,"OreId",function(){return M}),r.d(t,"signCallbackHandler",function(){return q})}])})
