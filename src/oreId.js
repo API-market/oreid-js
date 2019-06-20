@@ -259,11 +259,13 @@ export default class OreId {
     const response = await axios.get(signUrl, {
       headers: { 'api-key': apiKey, 'service-key': serviceKey }
     });
-    const { error } = response;
+    const { data, error } = response;
     if (error) {
       throw new Error(error);
     }
-    return response.data;
+
+    const { signed_transaction: signedTransaction, transaction_id: transactionId } = data;
+    return { signedTransaction, transactionId };
   }
 
   async signWithTransitProvider(signOptions) {
