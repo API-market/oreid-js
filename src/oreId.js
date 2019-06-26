@@ -249,21 +249,26 @@ export default class OreId {
   }
 
   async custodialSignWithOreId(signOptions) {
-    const { signCallbackUrl, apiKey, serviceKey } = this.options;
+    const { apiKey, oreIdUrl, serviceKey } = this.options;
     if (!serviceKey) {
       throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/new-user.');
     }
-    signOptions.callbackUrl = signCallbackUrl;
-    signOptions.isCustodialAccount = true;
-    const signUrl = await this.getOreIdSignUrl(signOptions);
-    const response = await axios.get(signUrl, {
-      headers: { 'api-key': apiKey, 'service-key': serviceKey }
-    });
-    const { data, error } = response;
+
+    const { account, broadcast, chainAccount, chainNetwork, returnSignedTransaction, transaction, userPassword } = signOptions;
+    const encodedTransaction = Helpers.base64Encode(transaction);
+    const body = { account, broadcast, chain_account: chainAccount, chain_network: chainNetwork, return_signed_transaction: returnSignedTransaction, transaction: encodedTransaction, user_password: userPassword };
+
+    const url = `${oreIdUrl}/api/custodial/sign`;
+    const response = await axios.post(url,
+      JSON.stringify(body),
+      { headers: { 'Content-Type': 'application/json', 'api-key': apiKey, 'service-key': serviceKey },
+        body
+      });
+    const { error } = response;
     if (error) {
       throw new Error(error);
     }
-
+    const { data } = response;
     const { signed_transaction: signedTransaction, transaction_id: transactionId } = data;
     return { signedTransaction, transactionId };
   }
@@ -588,7 +593,7 @@ export default class OreId {
       chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin', 'ore_main', 'eos_test', etc.
   */
   async getOreIdSignUrl(signOptions) {
-    const { account, accountIsTransactionPermission, broadcast, callbackUrl, chainNetwork, isCustodialAccount = false, provider, returnSignedTransaction, state, transaction, userPassword } = signOptions;
+    const { account, accountIsTransactionPermission, broadcast, callbackUrl, chainNetwork, provider, returnSignedTransaction, state, transaction, userPassword } = signOptions;
     let { chainAccount } = signOptions;
     const { oreIdUrl } = this.options;
 
@@ -601,13 +606,6 @@ export default class OreId {
       chainAccount = account;
     }
 
-    let apiEndpoint;
-    if (isCustodialAccount) {
-      apiEndpoint = 'api/custodial/sign';
-    } else {
-      apiEndpoint = 'sign';
-    }
-
     const appAccessToken = await this.getAccessToken();
     const encodedTransaction = Helpers.base64Encode(transaction);
     let optionalParams = state ? `&state=${state}` : '';
@@ -616,7 +614,7 @@ export default class OreId {
     optionalParams += !Helpers.isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : '';
 
     // prettier-ignore
-    return `${oreIdUrl}/${apiEndpoint}#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}&transaction=${encodedTransaction}${optionalParams}`;
+    return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}&transaction=${encodedTransaction}${optionalParams}`;
   }
 
   /*
