@@ -33,8 +33,32 @@ const providerAttributes = {
     providerId: 'TokenPocket',
     requiresLogin: false,
     supportsDiscovery: false
+  },
+  portis: {
+    providerId: 'PortisProvider',
+    requiresLogin: true,
+    supportsDiscovery: false,
+  },
+  whalevault: {
+    providerId: 'whalevault',
+    requiresLogin: true,
+    supportsDiscovery: false,
+  },
+  simpleos: {
+    providerId: 'simpleos',
+    requiresLogin: true,
+    supportsDiscovery: false,
+  },
+  keycat: {
+    providerId: 'keycat',
+    requiresLogin: true,
+    supportsDiscovery: false,
   }
 };
+
+const providersNotImplemented = [
+  'metro',
+];
 
 export default class OreId {
   constructor(options) {
@@ -155,50 +179,38 @@ export default class OreId {
 
   async login(loginOptions) {
     const { provider, chainNetwork = 'eos_main' } = loginOptions;
-    // handle log-in based on type
-    switch (provider) {
-      case 'ledger':
-        return this.connectToTransitProvider(provider, chainNetwork);
-      case 'lynx':
-        return this.connectToTransitProvider(provider, chainNetwork);
-      case 'meetone':
-        return this.connectToTransitProvider(provider, chainNetwork);
-      case 'metro':
-        throw new Error('Not Implemented');
-      // return this.connectToTransitProvider(provider, chainNetwork);
-      case 'scatter':
-        return this.connectToTransitProvider(provider, chainNetwork);
-      case 'tokenpocket':
-        return this.connectToTransitProvider(provider, chainNetwork);
-      default:
-        // assume ORE ID if not one of the others
-        return this.loginWithOreId(loginOptions);
+    const supportedTransitProviders = Object.keys(providerAttributes);
+
+    if (providersNotImplemented.includes(provider)) {
+      throw new Error('Not Implemented');
     }
+
+    if (supportedTransitProviders.includes(provider)) {
+      return this.connectToTransitProvider(provider, chainNetwork);
+    }
+
+    return this.loginWithOreId(loginOptions);
   }
 
   // sign transaction with keys in wallet - connect to wallet first
   async sign(signOptions) {
     // handle sign transaction based on provider type
     const { provider } = signOptions;
-    switch (provider) {
-      case 'custodial':
-        return this.custodialSignWithOreId(signOptions);
-      case 'lynx':
-        return this.signWithTransitProvider(signOptions);
-      case 'ledger':
-        return this.signWithTransitProvider(signOptions);
-      case 'meetone':
-        return this.signWithTransitProvider(signOptions);
-      case 'metro':
-        break;
-      case 'scatter':
-        return this.signWithTransitProvider(signOptions);
-      case 'tokenpocket':
-        return this.signWithTransitProvider(signOptions);
-      default:
-        // assume ORE ID if not one of the others
-        return this.signWithOreId(signOptions);
+    const supportedTransitProviders = Object.keys(providerAttributes);
+
+    if (providersNotImplemented.includes(provider)) {
+      return;
     }
+
+    if (this.isCustodial(provider)) {
+      return this.custodialSignWithOreId(signOptions);
+    }
+
+    if (supportedTransitProviders.includes(provider)) {
+      return this.signWithTransitProvider(signOptions);
+    }
+
+    return this.signWithOreId(signOptions);
   }
 
   // connect to wallet and discover keys
@@ -324,53 +336,53 @@ export default class OreId {
     return response.data;
   }
 
+  async loginToTransitProvider(transitWallet, provider, chainNetwork) {
+    try {
+      await transitWallet.login();
+    } catch (error) {
+      const { message = '' } = error;
+      if (message.includes('unknown key (boost::tuples::tuple')) {
+        throw new Error(`The account selected by the wallet for login isn't on the ${chainNetwork} chain`);
+      } else {
+        throw error;
+      }
+    } finally {
+      await this.waitWhileWalletIsBusy(transitWallet, provider);
+    }
+  }
+
   async connectToTransitProvider(provider, chainNetwork) {
-    let response = {};
     const providerId = providerAttributes[provider].providerId;
     const chainContext = this.getOrCreateChainContext(chainNetwork);
     const transitProvider = chainContext.getWalletProviders().find((wp) => wp.id === providerId);
     const transitWallet = chainContext.initWallet(transitProvider);
+    let response = {
+      transitWallet
+    };
+
     try {
       await transitWallet.connect();
-      // try to connect to wallet
       await this.waitWhileWalletIsBusy(transitWallet, provider);
 
-      // some providers require login flow to connect (usually this means connect() does nothing but login selects an account)
-      if (providerAttributes[provider].requiresLogin === true) {
+      if (providerAttributes[provider].requiresLogin) {
         // if connected, but not authenticated, then login
-        if (transitWallet && transitWallet.authenticated !== true) {
-          try {
-            await transitWallet.login(); // todo: pass along account and permission param to login()
-          } catch (error) {
-            const { message = '' } = error;
-            if (message.includes('unknown key (boost::tuples::tuple')) {
-              throw new Error(`The account selected by the wallet for login isn't on the ${chainNetwork} chain`);
-            } else {
-              throw error;
-            }
-          }
-          await this.waitWhileWalletIsBusy(transitWallet, provider);
-        }
-        if (!transitWallet || transitWallet.authenticated !== true) {
+        if (transitWallet && !transitWallet.authenticated) {
+          await this.loginToTransitProvider(transitWallet, provider, chainNetwork);
+        } else if (!transitWallet || !transitWallet.authenticated) {
           throw new Error(`Couldn't connect to ${provider}`);
         }
       }
 
-      // at least, return the wallet
-      response.transitWallet = transitWallet;
-      // For some wallets, connecting also performs login
+      // If connecting also performs login
       // return login results or throw error
-      if (transitWallet.connected) {
-        if (transitWallet.authenticated) {
-          const { accountName, permission, publicKey } = transitWallet.auth;
-          response = {
-            isLoggedIn: transitWallet.authenticated,
-            account: accountName,
-            permissions: [{ name: permission, publicKey }], // todo: add parent permission when available
-            provider,
-            transitWallet
-          };
-        }
+      if (transitWallet.connected && transitWallet.authenticated) {
+        const { accountName, permission, publicKey } = transitWallet.auth;
+        response = {
+          isLoggedIn: transitWallet.authenticated, // Won't this always be true? Shouldn't we just explicitly set it to true?
+          account: accountName,
+          permissions: [{ name: permission, publicKey }], // todo: add parent permission when available
+          provider,
+        };
       } else {
         const { hasError, errorMessage } = transitWallet;
         throw new Error(`${provider} not connected!${hasError}` ? ` Error: ${errorMessage}` : '');
@@ -379,9 +391,9 @@ export default class OreId {
       // if an account is selected, add it to the ORE ID account (if not already there)
       const userOreAccount = (this.user || {}).accountName;
       if (userOreAccount) {
-        const { account: chainAccount, permissions } = response;
+        const { account, permissions } = response;
         const chainNetworkToUpdate = this.getChainNetworkFromTransitWallet(transitWallet);
-        await this.addWalletPermissionstoOreIdAccount(chainAccount, chainNetworkToUpdate, permissions, userOreAccount, provider);
+        await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, userOreAccount, provider);
       }
     } catch (error) {
       console.log(`Failed to connect to ${provider} wallet:`, error);
@@ -785,5 +797,9 @@ export default class OreId {
 
   async clearLocalState() {
     this.storage.removeItem(this.userKey());
+  }
+
+  isCustodial(provider) {
+    return provider === 'custodial';
   }
 }
