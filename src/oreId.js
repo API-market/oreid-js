@@ -364,6 +364,7 @@ export default class OreId {
       await transitWallet.connect();
       await this.waitWhileWalletIsBusy(transitWallet, provider);
 
+      // some providers require login flow to connect (usually this means connect() does nothing but login selects an account)
       if (providerAttributes[provider].requiresLogin) {
         // if connected, but not authenticated, then login
         if (transitWallet && !transitWallet.authenticated) {
@@ -378,7 +379,7 @@ export default class OreId {
       if (transitWallet.connected && transitWallet.authenticated) {
         const { accountName, permission, publicKey } = transitWallet.auth;
         response = {
-          isLoggedIn: transitWallet.authenticated, // Won't this always be true? Shouldn't we just explicitly set it to true?
+          isLoggedIn: true,
           account: accountName,
           permissions: [{ name: permission, publicKey }], // todo: add parent permission when available
           provider,
