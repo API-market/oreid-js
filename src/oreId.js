@@ -37,27 +37,27 @@ const providerAttributes = {
   portis: {
     providerId: 'PortisProvider',
     requiresLogin: true,
-    supportsDiscovery: false,
+    supportsDiscovery: false
   },
   whalevault: {
     providerId: 'whalevault',
     requiresLogin: true,
-    supportsDiscovery: false,
+    supportsDiscovery: false
   },
   simpleos: {
     providerId: 'simpleos',
     requiresLogin: true,
-    supportsDiscovery: false,
+    supportsDiscovery: false
   },
   keycat: {
     providerId: 'keycat',
     requiresLogin: true,
-    supportsDiscovery: false,
+    supportsDiscovery: false
   }
 };
 
 const providersNotImplemented = [
-  'metro',
+  'metro'
 ];
 
 export default class OreId {
@@ -382,7 +382,7 @@ export default class OreId {
           isLoggedIn: true,
           account: accountName,
           permissions: [{ name: permission, publicKey }], // todo: add parent permission when available
-          provider,
+          provider
         };
       } else {
         const { hasError, errorMessage } = transitWallet;
