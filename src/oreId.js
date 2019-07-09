@@ -382,7 +382,8 @@ export default class OreId {
           isLoggedIn: true,
           account: accountName,
           permissions: [{ name: permission, publicKey }], // todo: add parent permission when available
-          provider
+          provider,
+          transitWallet
         };
       } else {
         const { hasError, errorMessage } = transitWallet;
