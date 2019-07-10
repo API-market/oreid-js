@@ -336,6 +336,34 @@ export default class OreId {
     return response.data;
   }
 
+  // Call the migrate-account api
+  // This api migrates a virtual account to a native account (on-chain)
+  // This endpoint expects the account to be a managed (custodial) account
+  // ... it requires you to provide a wallet password (aka userPassword) on behalf of the user
+  async custodialMigrateAccount(migrateOptions) {
+    const { apiKey, oreIdUrl, serviceKey } = this.options;
+    if (!serviceKey) {
+      throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/migrate-account.');
+    }
+
+    const { account, chainAccount, chainNetwork, toType, userPassword } = migrateOptions;
+    const body = { account, chain_account: chainAccount, chain_network: chainNetwork, to_type: toType, user_password: userPassword };
+
+    const url = `${oreIdUrl}/api/custodial/migrate-account`;
+    const response = await axios.post(url,
+      JSON.stringify(body),
+      { headers: { 'Content-Type': 'application/json', 'api-key': apiKey, 'service-key': serviceKey },
+        body
+      });
+    const { error } = response;
+    if (error) {
+      throw new Error(error);
+    }
+    const { data } = response;
+    const { account: newAccount } = data;
+    return { account: newAccount };
+  }
+
   async loginToTransitProvider(transitWallet, provider, chainNetwork) {
     try {
       await transitWallet.login();
