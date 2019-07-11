@@ -6,29 +6,31 @@ if(4&t&&"object"==typeof e&&e&&e.__esModule)return e
 var n=Object.create(null)
 if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)r.d(n,o,function(t){return e[t]}.bind(null,o))
 return n},r.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e}
-return r.d(t,"a",t),t},r.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},r.p="",r(r.s=53)}([function(e,t,r){e.exports=r(22)},function(e,t){function r(e,t,r,n,o,i,a){try{var s=e[i](a),c=s.value}catch(e){return void r(e)}s.done?t(c):Promise.resolve(c).then(n,o)}e.exports=function(e){return function(){var t=this,n=arguments
+return r.d(t,"a",t),t},r.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},r.p="",r(r.s=54)}([function(e,t,r){e.exports=r(24)},function(e,t){function r(e,t,r,n,o,i,a){try{var s=e[i](a),c=s.value}catch(e){return void r(e)}s.done?t(c):Promise.resolve(c).then(n,o)}e.exports=function(e){return function(){var t=this,n=arguments
 return new Promise(function(o,i){var a=e.apply(t,n)
 function s(e){r(a,o,i,s,c,"next",e)}function c(e){r(a,o,i,s,c,"throw",e)}s(void 0)})}}},function(e,t,r){"use strict"
-var n=r(11),o=r(24),i=Object.prototype.toString
+var n=r(10),o=r(26),i=Object.prototype.toString
 function a(e){return"[object Array]"===i.call(e)}function s(e){return null!==e&&"object"==typeof e}function c(e){return"[object Function]"===i.call(e)}function u(e,t){if(null!=e)if("object"!=typeof e&&(e=[e]),a(e))for(var r=0,n=e.length;r<n;r++)t.call(null,e[r],r,e)
-else for(var o in e)Object.prototype.hasOwnProperty.call(e,o)&&t.call(null,e[o],o,e)}e.exports={isArray:a,isArrayBuffer:function(e){return"[object ArrayBuffer]"===i.call(e)},isBuffer:o,isFormData:function(e){return"undefined"!=typeof FormData&&e instanceof FormData},isArrayBufferView:function(e){return"undefined"!=typeof ArrayBuffer&&ArrayBuffer.isView?ArrayBuffer.isView(e):e&&e.buffer&&e.buffer instanceof ArrayBuffer},isString:function(e){return"string"==typeof e},isNumber:function(e){return"number"==typeof e},isObject:s,isUndefined:function(e){return void 0===e},isDate:function(e){return"[object Date]"===i.call(e)},isFile:function(e){return"[object File]"===i.call(e)},isBlob:function(e){return"[object Blob]"===i.call(e)},isFunction:c,isStream:function(e){return s(e)&&c(e.pipe)},isURLSearchParams:function(e){return"undefined"!=typeof URLSearchParams&&e instanceof URLSearchParams},isStandardBrowserEnv:function(){return("undefined"==typeof navigator||"ReactNative"!==navigator.product)&&"undefined"!=typeof window&&"undefined"!=typeof document},forEach:u,merge:function e(){var t={}
+else for(var o in e)Object.prototype.hasOwnProperty.call(e,o)&&t.call(null,e[o],o,e)}e.exports={isArray:a,isArrayBuffer:function(e){return"[object ArrayBuffer]"===i.call(e)},isBuffer:o,isFormData:function(e){return"undefined"!=typeof FormData&&e instanceof FormData},isArrayBufferView:function(e){return"undefined"!=typeof ArrayBuffer&&ArrayBuffer.isView?ArrayBuffer.isView(e):e&&e.buffer&&e.buffer instanceof ArrayBuffer},isString:function(e){return"string"==typeof e},isNumber:function(e){return"number"==typeof e},isObject:s,isUndefined:function(e){return void 0===e},isDate:function(e){return"[object Date]"===i.call(e)},isFile:function(e){return"[object File]"===i.call(e)},isBlob:function(e){return"[object Blob]"===i.call(e)},isFunction:c,isStream:function(e){return s(e)&&c(e.pipe)},isURLSearchParams:function(e){return"undefined"!=typeof URLSearchParams&&e instanceof URLSearchParams},isStandardBrowserEnv:function(){return("undefined"==typeof navigator||"ReactNative"!==navigator.product&&"NativeScript"!==navigator.product&&"NS"!==navigator.product)&&"undefined"!=typeof window&&"undefined"!=typeof document},forEach:u,merge:function e(){var t={}
 function r(r,n){"object"==typeof t[n]&&"object"==typeof r?t[n]=e(t[n],r):t[n]=r}for(var n=0,o=arguments.length;n<o;n++)u(arguments[n],r)
+return t},deepMerge:function e(){var t={}
+function r(r,n){"object"==typeof t[n]&&"object"==typeof r?t[n]=e(t[n],r):t[n]="object"==typeof r?e({},r):r}for(var n=0,o=arguments.length;n<o;n++)u(arguments[n],r)
 return t},extend:function(e,t,r){return u(t,function(t,o){e[o]=r&&"function"==typeof t?n(t,r):t}),e},trim:function(e){return e.replace(/^\s*/,"").replace(/\s*$/,"")}}},function(e,t){e.exports=function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}},function(e,t){function r(e,t){for(var r=0;r<t.length;r++){var n=t[r]
-n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}e.exports=function(e,t,n){return t&&r(e.prototype,t),n&&r(e,n),e}},function(e,t,r){e.exports=r(23)},function(e,t,r){"use strict"
+n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}e.exports=function(e,t,n){return t&&r(e.prototype,t),n&&r(e,n),e}},function(e,t,r){e.exports=r(25)},function(e,t,r){"use strict"
 Object.defineProperty(t,"__esModule",{value:!0})
-var n=r(41)
+var n=r(42)
 t.Api=n.Api
-var o=r(45)
+var o=r(46)
 t.ApiInterfaces=o
-var i=r(46)
+var i=r(47)
 t.JsonRpc=i.JsonRpc
-var a=r(9)
+var a=r(8)
 t.Numeric=a
-var s=r(47)
+var s=r(48)
 t.RpcInterfaces=s
-var c=r(18)
+var c=r(20)
 t.RpcError=c.RpcError
-var u=r(16)
+var u=r(18)
 t.Serialize=u},function(e,t,r){var n,o
 !function(i){if(void 0===(o="function"==typeof(n=i)?n.call(t,r,t,e):n)||(e.exports=o),!0,e.exports=i(),!!0){var a=window.Cookies,s=window.Cookies=i()
 s.noConflict=function(){return window.Cookies=a,s}}}(function(){function e(){for(var e=0,t={};e<arguments.length;e++){var r=arguments[e]
@@ -43,9 +45,7 @@ for(var f=document.cookie?document.cookie.split("; "):[],l=/(%[0-9A-Z]{2})+/g,h=
 this.json||'"'!==d.charAt(0)||(d=d.slice(1,-1))
 try{var y=p[0].replace(l,decodeURIComponent)
 if(d=r.read?r.read(d,y):r(d,y)||d.replace(l,decodeURIComponent),this.json)try{d=JSON.parse(d)}catch(e){}if(t===y){a=d
-break}t||(a[y]=d)}catch(e){}}return a}}return n.set=n,n.get=function(e){return n.call(n,e)},n.getJSON=function(){return n.apply({json:!0},[].slice.call(arguments))},n.defaults={},n.remove=function(t,r){n(t,"",e(r,{expires:-1}))},n.withConverter=t,n}(function(){})})},function(e,t,r){"use strict";(function(t){var n=r(2),o=r(27),i={"Content-Type":"application/x-www-form-urlencoded"}
-function a(e,t){!n.isUndefined(e)&&n.isUndefined(e["Content-Type"])&&(e["Content-Type"]=t)}var s,c={adapter:("undefined"!=typeof XMLHttpRequest?s=r(12):void 0!==t&&(s=r(12)),s),transformRequest:[function(e,t){return o(t,"Content-Type"),n.isFormData(e)||n.isArrayBuffer(e)||n.isBuffer(e)||n.isStream(e)||n.isFile(e)||n.isBlob(e)?e:n.isArrayBufferView(e)?e.buffer:n.isURLSearchParams(e)?(a(t,"application/x-www-form-urlencoded;charset=utf-8"),e.toString()):n.isObject(e)?(a(t,"application/json;charset=utf-8"),JSON.stringify(e)):e}],transformResponse:[function(e){if("string"==typeof e)try{e=JSON.parse(e)}catch(e){}return e}],timeout:0,xsrfCookieName:"XSRF-TOKEN",xsrfHeaderName:"X-XSRF-TOKEN",maxContentLength:-1,validateStatus:function(e){return e>=200&&e<300}}
-c.headers={common:{Accept:"application/json, text/plain, */*"}},n.forEach(["delete","get","head"],function(e){c.headers[e]={}}),n.forEach(["post","put","patch"],function(e){c.headers[e]=n.merge(i)}),e.exports=c}).call(this,r(26))},function(e,t,r){"use strict"
+break}t||(a[y]=d)}catch(e){}}return a}}return n.set=n,n.get=function(e){return n.call(n,e)},n.getJSON=function(){return n.apply({json:!0},[].slice.call(arguments))},n.defaults={},n.remove=function(t,r){n(t,"",e(r,{expires:-1}))},n.withConverter=t,n}(function(){})})},function(e,t,r){"use strict"
 var n=this&&this.__read||function(e,t){var r="function"==typeof Symbol&&e[Symbol.iterator]
 if(!r)return e
 var n,o,i=r.call(e),a=[]
@@ -53,7 +53,7 @@ try{for(;(void 0===t||t-- >0)&&!(n=i.next()).done;)a.push(n.value)}catch(e){o={e
 return e},i=this&&this.__values||function(e){var t="function"==typeof Symbol&&e[Symbol.iterator],r=0
 return t?t.call(e):{next:function(){return e&&r>=e.length&&(e=void 0),{value:e&&e[r++],done:!e}}}}
 Object.defineProperty(t,"__esModule",{value:!0})
-var a=r(42).RIPEMD160.hash,s="123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz",c="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+var a=r(43).RIPEMD160.hash,s="123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz",c="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 var u=function(){for(var e=Array(256).fill(-1),t=0;t<s.length;++t)e[s.charCodeAt(t)]=t
 return e}()
 var f,l=function(){for(var e=Array(256).fill(-1),t=0;t<c.length;++t)e[c.charCodeAt(t)]=t
@@ -107,18 +107,31 @@ if(e.type===f.r1)return w(e,"R1","SIG_R1_")
 throw new Error("unrecognized signature format")}},function(e,t){function r(e){return(r="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}function n(t){return"function"==typeof Symbol&&"symbol"===r(Symbol.iterator)?e.exports=n=function(e){return r(e)}:e.exports=n=function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":r(e)},n(t)}e.exports=n},function(e,t,r){"use strict"
 e.exports=function(e,t){return function(){for(var r=new Array(arguments.length),n=0;n<r.length;n++)r[n]=arguments[n]
 return e.apply(t,r)}}},function(e,t,r){"use strict"
-var n=r(2),o=r(28),i=r(30),a=r(31),s=r(32),c=r(13)
+var n=r(2)
+function o(e){return encodeURIComponent(e).replace(/%40/gi,"@").replace(/%3A/gi,":").replace(/%24/g,"$").replace(/%2C/gi,",").replace(/%20/g,"+").replace(/%5B/gi,"[").replace(/%5D/gi,"]")}e.exports=function(e,t,r){if(!t)return e
+var i
+if(r)i=r(t)
+else if(n.isURLSearchParams(t))i=t.toString()
+else{var a=[]
+n.forEach(t,function(e,t){null!=e&&(n.isArray(e)?t+="[]":e=[e],n.forEach(e,function(e){n.isDate(e)?e=e.toISOString():n.isObject(e)&&(e=JSON.stringify(e)),a.push(o(t)+"="+o(e))}))}),i=a.join("&")}if(i){var s=e.indexOf("#");-1!==s&&(e=e.slice(0,s)),e+=(-1===e.indexOf("?")?"?":"&")+i}return e}},function(e,t,r){"use strict"
+e.exports=function(e){return!(!e||!e.__CANCEL__)}},function(e,t,r){"use strict";(function(t){var n=r(2),o=r(32),i={"Content-Type":"application/x-www-form-urlencoded"}
+function a(e,t){!n.isUndefined(e)&&n.isUndefined(e["Content-Type"])&&(e["Content-Type"]=t)}var s,c={adapter:(void 0!==t&&"[object process]"===Object.prototype.toString.call(t)?s=r(14):"undefined"!=typeof XMLHttpRequest&&(s=r(14)),s),transformRequest:[function(e,t){return o(t,"Accept"),o(t,"Content-Type"),n.isFormData(e)||n.isArrayBuffer(e)||n.isBuffer(e)||n.isStream(e)||n.isFile(e)||n.isBlob(e)?e:n.isArrayBufferView(e)?e.buffer:n.isURLSearchParams(e)?(a(t,"application/x-www-form-urlencoded;charset=utf-8"),e.toString()):n.isObject(e)?(a(t,"application/json;charset=utf-8"),JSON.stringify(e)):e}],transformResponse:[function(e){if("string"==typeof e)try{e=JSON.parse(e)}catch(e){}return e}],timeout:0,xsrfCookieName:"XSRF-TOKEN",xsrfHeaderName:"X-XSRF-TOKEN",maxContentLength:-1,validateStatus:function(e){return e>=200&&e<300}}
+c.headers={common:{Accept:"application/json, text/plain, */*"}},n.forEach(["delete","get","head"],function(e){c.headers[e]={}}),n.forEach(["post","put","patch"],function(e){c.headers[e]=n.merge(i)}),e.exports=c}).call(this,r(31))},function(e,t,r){"use strict"
+var n=r(2),o=r(33),i=r(11),a=r(35),s=r(36),c=r(15)
 e.exports=function(e){return new Promise(function(t,u){var f=e.data,l=e.headers
 n.isFormData(f)&&delete l["Content-Type"]
 var h=new XMLHttpRequest
 if(e.auth){var p=e.auth.username||"",d=e.auth.password||""
 l.Authorization="Basic "+btoa(p+":"+d)}if(h.open(e.method.toUpperCase(),i(e.url,e.params,e.paramsSerializer),!0),h.timeout=e.timeout,h.onreadystatechange=function(){if(h&&4===h.readyState&&(0!==h.status||h.responseURL&&0===h.responseURL.indexOf("file:"))){var r="getAllResponseHeaders"in h?a(h.getAllResponseHeaders()):null,n={data:e.responseType&&"text"!==e.responseType?h.response:h.responseText,status:h.status,statusText:h.statusText,headers:r,config:e,request:h}
-o(t,u,n),h=null}},h.onerror=function(){u(c("Network Error",e,null,h)),h=null},h.ontimeout=function(){u(c("timeout of "+e.timeout+"ms exceeded",e,"ECONNABORTED",h)),h=null},n.isStandardBrowserEnv()){var y=r(33),v=(e.withCredentials||s(e.url))&&e.xsrfCookieName?y.read(e.xsrfCookieName):void 0
+o(t,u,n),h=null}},h.onabort=function(){h&&(u(c("Request aborted",e,"ECONNABORTED",h)),h=null)},h.onerror=function(){u(c("Network Error",e,null,h)),h=null},h.ontimeout=function(){u(c("timeout of "+e.timeout+"ms exceeded",e,"ECONNABORTED",h)),h=null},n.isStandardBrowserEnv()){var y=r(37),v=(e.withCredentials||s(e.url))&&e.xsrfCookieName?y.read(e.xsrfCookieName):void 0
 v&&(l[e.xsrfHeaderName]=v)}if("setRequestHeader"in h&&n.forEach(l,function(e,t){void 0===f&&"content-type"===t.toLowerCase()?delete l[t]:h.setRequestHeader(t,e)}),e.withCredentials&&(h.withCredentials=!0),e.responseType)try{h.responseType=e.responseType}catch(t){if("json"!==e.responseType)throw t}"function"==typeof e.onDownloadProgress&&h.addEventListener("progress",e.onDownloadProgress),"function"==typeof e.onUploadProgress&&h.upload&&h.upload.addEventListener("progress",e.onUploadProgress),e.cancelToken&&e.cancelToken.promise.then(function(e){h&&(h.abort(),u(e),h=null)}),void 0===f&&(f=null),h.send(f)})}},function(e,t,r){"use strict"
-var n=r(29)
+var n=r(34)
 e.exports=function(e,t,r,o,i){var a=new Error(e)
 return n(a,t,r,o,i)}},function(e,t,r){"use strict"
-e.exports=function(e){return!(!e||!e.__CANCEL__)}},function(e,t,r){"use strict"
+var n=r(2)
+e.exports=function(e,t){t=t||{}
+var r={}
+return n.forEach(["url","method","params","data"],function(e){void 0!==t[e]&&(r[e]=t[e])}),n.forEach(["headers","auth","proxy"],function(o){n.isObject(t[o])?r[o]=n.deepMerge(e[o],t[o]):void 0!==t[o]?r[o]=t[o]:n.isObject(e[o])?r[o]=n.deepMerge(e[o]):void 0!==e[o]&&(r[o]=e[o])}),n.forEach(["baseURL","transformRequest","transformResponse","paramsSerializer","timeout","withCredentials","adapter","responseType","xsrfCookieName","xsrfHeaderName","onUploadProgress","onDownloadProgress","maxContentLength","validateStatus","maxRedirects","httpAgent","httpsAgent","cancelToken","socketPath"],function(n){void 0!==t[n]?r[n]=t[n]:void 0!==e[n]&&(r[n]=e[n])}),r}},function(e,t,r){"use strict"
 function n(e){this.message=e}n.prototype.toString=function(){return"Cancel"+(this.message?": "+this.message:"")},n.prototype.__CANCEL__=!0,e.exports=n},function(e,t,r){"use strict"
 var n=this&&this.__assign||function(){return(n=Object.assign||function(e){for(var t,r=1,n=arguments.length;r<n;r++)for(var o in t=arguments[r])Object.prototype.hasOwnProperty.call(t,o)&&(e[o]=t[o])
 return e}).apply(this,arguments)},o=this&&this.__read||function(e,t){var r="function"==typeof Symbol&&e[Symbol.iterator]
@@ -128,7 +141,7 @@ try{for(;(void 0===t||t-- >0)&&!(n=i.next()).done;)a.push(n.value)}catch(e){o={e
 return e},a=this&&this.__values||function(e){var t="function"==typeof Symbol&&e[Symbol.iterator],r=0
 return t?t.call(e):{next:function(){return e&&r>=e.length&&(e=void 0),{value:e&&e[r++],done:!e}}}}
 Object.defineProperty(t,"__esModule",{value:!0})
-var s=r(9),c=function(e){void 0===e&&(e={}),this.skippedBinaryExtension=!1,this.options=e}
+var s=r(8),c=function(e){void 0===e&&(e={}),this.skippedBinaryExtension=!1,this.options=e}
 t.SerializerState=c
 var u=function(){function e(e){var t=void 0===e?{}:e,r=t.textEncoder,n=t.textDecoder,o=t.array
 this.readPos=0,this.array=o||new Uint8Array(1024),this.length=o?o.length:0,this.textEncoder=r||new TextEncoder,this.textDecoder=n||new TextDecoder("utf-8",{fatal:!0})}return e.prototype.reserve=function(e){if(!(this.length+e<=this.array.length)){for(var t=this.array.length;this.length+e>t;)t=Math.ceil(1.5*t)
@@ -234,13 +247,13 @@ var n,o=this&&this.__extends||(n=function(e,t){return(n=Object.setPrototypeOf||{
 Object.defineProperty(t,"__esModule",{value:!0})
 var i=function(e){function t(r){var n=this
 return n=r.error&&r.error.details&&r.error.details.length&&r.error.details[0].message?e.call(this,r.error.details[0].message)||this:r.processed&&r.processed.except&&r.processed.except.message?e.call(this,r.processed.except.message)||this:e.call(this,r.message)||this,Object.setPrototypeOf(n,t.prototype),n.json=r,n}return o(t,e),t}(Error)
-t.RpcError=i},function(e,t,r){var n=r(48),o=r(49)
+t.RpcError=i},function(e,t,r){var n=r(49),o=r(50)
 e.exports=function(e,t,r){var i=t&&r||0
 "string"==typeof e&&(t="binary"===e?new Array(16):null,e=null)
 var a=(e=e||{}).random||(e.rng||n)()
 if(a[6]=15&a[6]|64,a[8]=63&a[8]|128,t)for(var s=0;s<16;++s)t[i+s]=a[s]
 return t||o(a)}},function(e,t,r){"use strict"
-var n=r(50)
+var n=r(51)
 function o(e){this.message=e}o.prototype=new Error,o.prototype.name="InvalidTokenError",e.exports=function(e,t){if("string"!=typeof e)throw new o("Invalid token specified")
 var r=!0===(t=t||{}).header?0:1
 try{return JSON.parse(n(e.split(".")[r]))}catch(e){throw new o("Invalid token specified: "+e.message)}},e.exports.InvalidTokenError=o},function(e,t){e.exports=function(e,t,r){return t in e?Object.defineProperty(e,t,{value:r,enumerable:!0,configurable:!0,writable:!0}):e[t]=r,e}},function(e,t,r){var n=function(e){"use strict"
@@ -306,15 +319,21 @@ if(r.tryLoc===e){var n=r.completion
 if("throw"===n.type){var o=n.arg
 S(r)}return o}}throw new Error("illegal catch attempt")},delegateYield:function(e,r,n){return this.delegate={iterator:T(e),resultName:r,nextLoc:n},"next"===this.method&&(this.arg=t),d}},e}(e.exports)
 try{regeneratorRuntime=n}catch(e){Function("r","regeneratorRuntime = r")(n)}},function(e,t,r){"use strict"
-var n=r(2),o=r(11),i=r(25),a=r(8)
+var n=r(2),o=r(10),i=r(27),a=r(16)
 function s(e){var t=new i(e),r=o(i.prototype.request,t)
-return n.extend(r,i.prototype,t),n.extend(r,t),r}var c=s(a)
-c.Axios=i,c.create=function(e){return s(n.merge(a,e))},c.Cancel=r(15),c.CancelToken=r(39),c.isCancel=r(14),c.all=function(e){return Promise.all(e)},c.spread=r(40),e.exports=c,e.exports.default=c},function(e,t){e.exports=function(e){return null!=e&&null!=e.constructor&&"function"==typeof e.constructor.isBuffer&&e.constructor.isBuffer(e)}},function(e,t,r){"use strict"
-var n=r(8),o=r(2),i=r(34),a=r(35)
-function s(e){this.defaults=e,this.interceptors={request:new i,response:new i}}s.prototype.request=function(e){"string"==typeof e&&(e=o.merge({url:arguments[0]},arguments[1])),(e=o.merge(n,{method:"get"},this.defaults,e)).method=e.method.toLowerCase()
+return n.extend(r,i.prototype,t),n.extend(r,t),r}var c=s(r(13))
+c.Axios=i,c.create=function(e){return s(a(c.defaults,e))},c.Cancel=r(17),c.CancelToken=r(40),c.isCancel=r(12),c.all=function(e){return Promise.all(e)},c.spread=r(41),e.exports=c,e.exports.default=c},function(e,t){e.exports=function(e){return null!=e&&null!=e.constructor&&"function"==typeof e.constructor.isBuffer&&e.constructor.isBuffer(e)}},function(e,t,r){"use strict"
+var n=r(2),o=r(11),i=r(28),a=r(29),s=r(16)
+function c(e){this.defaults=e,this.interceptors={request:new i,response:new i}}c.prototype.request=function(e){"string"==typeof e?(e=arguments[1]||{}).url=arguments[0]:e=e||{},(e=s(this.defaults,e)).method=e.method?e.method.toLowerCase():"get"
 var t=[a,void 0],r=Promise.resolve(e)
 for(this.interceptors.request.forEach(function(e){t.unshift(e.fulfilled,e.rejected)}),this.interceptors.response.forEach(function(e){t.push(e.fulfilled,e.rejected)});t.length;)r=r.then(t.shift(),t.shift())
-return r},o.forEach(["delete","get","head","options"],function(e){s.prototype[e]=function(t,r){return this.request(o.merge(r||{},{method:e,url:t}))}}),o.forEach(["post","put","patch"],function(e){s.prototype[e]=function(t,r,n){return this.request(o.merge(n||{},{method:e,url:t,data:r}))}}),e.exports=s},function(e,t){var r,n,o=e.exports={}
+return r},c.prototype.getUri=function(e){return e=s(this.defaults,e),o(e.url,e.params,e.paramsSerializer).replace(/^\?/,"")},n.forEach(["delete","get","head","options"],function(e){c.prototype[e]=function(t,r){return this.request(n.merge(r||{},{method:e,url:t}))}}),n.forEach(["post","put","patch"],function(e){c.prototype[e]=function(t,r,o){return this.request(n.merge(o||{},{method:e,url:t,data:r}))}}),e.exports=c},function(e,t,r){"use strict"
+var n=r(2)
+function o(){this.handlers=[]}o.prototype.use=function(e,t){return this.handlers.push({fulfilled:e,rejected:t}),this.handlers.length-1},o.prototype.eject=function(e){this.handlers[e]&&(this.handlers[e]=null)},o.prototype.forEach=function(e){n.forEach(this.handlers,function(t){null!==t&&e(t)})},e.exports=o},function(e,t,r){"use strict"
+var n=r(2),o=r(30),i=r(12),a=r(13),s=r(38),c=r(39)
+function u(e){e.cancelToken&&e.cancelToken.throwIfRequested()}e.exports=function(e){return u(e),e.baseURL&&!s(e.url)&&(e.url=c(e.baseURL,e.url)),e.headers=e.headers||{},e.data=o(e.data,e.headers,e.transformRequest),e.headers=n.merge(e.headers.common||{},e.headers[e.method]||{},e.headers||{}),n.forEach(["delete","get","head","post","put","patch","common"],function(t){delete e.headers[t]}),(e.adapter||a.adapter)(e).then(function(t){return u(e),t.data=o(t.data,t.headers,e.transformResponse),t},function(t){return i(t)||(u(e),t&&t.response&&(t.response.data=o(t.response.data,t.response.headers,e.transformResponse))),Promise.reject(t)})}},function(e,t,r){"use strict"
+var n=r(2)
+e.exports=function(e,t,r){return n.forEach(r,function(r){e=r(e,t)}),e}},function(e,t){var r,n,o=e.exports={}
 function i(){throw new Error("setTimeout has not been defined")}function a(){throw new Error("clearTimeout has not been defined")}function s(e){if(r===setTimeout)return setTimeout(e,0)
 if((r===i||!r)&&setTimeout)return r=setTimeout,setTimeout(e,0)
 try{return r(e,0)}catch(t){try{return r.call(null,e,0)}catch(t){return r.call(this,e,0)}}}!function(){try{r="function"==typeof setTimeout?setTimeout:i}catch(e){r=i}try{n="function"==typeof clearTimeout?clearTimeout:a}catch(e){n=a}}()
@@ -329,17 +348,10 @@ if(arguments.length>1)for(var r=1;r<arguments.length;r++)t[r-1]=arguments[r]
 u.push(new d(e,t)),1!==u.length||f||s(p)},d.prototype.run=function(){this.fun.apply(null,this.array)},o.title="browser",o.browser=!0,o.env={},o.argv=[],o.version="",o.versions={},o.on=y,o.addListener=y,o.once=y,o.off=y,o.removeListener=y,o.removeAllListeners=y,o.emit=y,o.prependListener=y,o.prependOnceListener=y,o.listeners=function(e){return[]},o.binding=function(e){throw new Error("process.binding is not supported")},o.cwd=function(){return"/"},o.chdir=function(e){throw new Error("process.chdir is not supported")},o.umask=function(){return 0}},function(e,t,r){"use strict"
 var n=r(2)
 e.exports=function(e,t){n.forEach(e,function(r,n){n!==t&&n.toUpperCase()===t.toUpperCase()&&(e[t]=r,delete e[n])})}},function(e,t,r){"use strict"
-var n=r(13)
+var n=r(15)
 e.exports=function(e,t,r){var o=r.config.validateStatus
-r.status&&o&&!o(r.status)?t(n("Request failed with status code "+r.status,r.config,null,r.request,r)):e(r)}},function(e,t,r){"use strict"
-e.exports=function(e,t,r,n,o){return e.config=t,r&&(e.code=r),e.request=n,e.response=o,e}},function(e,t,r){"use strict"
-var n=r(2)
-function o(e){return encodeURIComponent(e).replace(/%40/gi,"@").replace(/%3A/gi,":").replace(/%24/g,"$").replace(/%2C/gi,",").replace(/%20/g,"+").replace(/%5B/gi,"[").replace(/%5D/gi,"]")}e.exports=function(e,t,r){if(!t)return e
-var i
-if(r)i=r(t)
-else if(n.isURLSearchParams(t))i=t.toString()
-else{var a=[]
-n.forEach(t,function(e,t){null!=e&&(n.isArray(e)?t+="[]":e=[e],n.forEach(e,function(e){n.isDate(e)?e=e.toISOString():n.isObject(e)&&(e=JSON.stringify(e)),a.push(o(t)+"="+o(e))}))}),i=a.join("&")}return i&&(e+=(-1===e.indexOf("?")?"?":"&")+i),e}},function(e,t,r){"use strict"
+!o||o(r.status)?e(r):t(n("Request failed with status code "+r.status,r.config,null,r.request,r))}},function(e,t,r){"use strict"
+e.exports=function(e,t,r,n,o){return e.config=t,r&&(e.code=r),e.request=n,e.response=o,e.isAxiosError=!0,e.toJSON=function(){return{message:this.message,name:this.name,description:this.description,number:this.number,fileName:this.fileName,lineNumber:this.lineNumber,columnNumber:this.columnNumber,stack:this.stack,config:this.config,code:this.code}},e}},function(e,t,r){"use strict"
 var n=r(2),o=["age","authorization","content-length","content-type","etag","expires","from","host","if-modified-since","if-unmodified-since","last-modified","location","max-forwards","proxy-authorization","referer","retry-after","user-agent"]
 e.exports=function(e){var t,r,i,a={}
 return e?(n.forEach(e.split("\n"),function(e){if(i=e.indexOf(":"),t=n.trim(e.substr(0,i)).toLowerCase(),r=n.trim(e.substr(i+1)),t){if(a[t]&&o.indexOf(t)>=0)return
@@ -353,15 +365,9 @@ var n=r(2)
 e.exports=n.isStandardBrowserEnv()?{write:function(e,t,r,o,i,a){var s=[]
 s.push(e+"="+encodeURIComponent(t)),n.isNumber(r)&&s.push("expires="+new Date(r).toGMTString()),n.isString(o)&&s.push("path="+o),n.isString(i)&&s.push("domain="+i),!0===a&&s.push("secure"),document.cookie=s.join("; ")},read:function(e){var t=document.cookie.match(new RegExp("(^|;\\s*)("+e+")=([^;]*)"))
 return t?decodeURIComponent(t[3]):null},remove:function(e){this.write(e,"",Date.now()-864e5)}}:{write:function(){},read:function(){return null},remove:function(){}}},function(e,t,r){"use strict"
-var n=r(2)
-function o(){this.handlers=[]}o.prototype.use=function(e,t){return this.handlers.push({fulfilled:e,rejected:t}),this.handlers.length-1},o.prototype.eject=function(e){this.handlers[e]&&(this.handlers[e]=null)},o.prototype.forEach=function(e){n.forEach(this.handlers,function(t){null!==t&&e(t)})},e.exports=o},function(e,t,r){"use strict"
-var n=r(2),o=r(36),i=r(14),a=r(8),s=r(37),c=r(38)
-function u(e){e.cancelToken&&e.cancelToken.throwIfRequested()}e.exports=function(e){return u(e),e.baseURL&&!s(e.url)&&(e.url=c(e.baseURL,e.url)),e.headers=e.headers||{},e.data=o(e.data,e.headers,e.transformRequest),e.headers=n.merge(e.headers.common||{},e.headers[e.method]||{},e.headers||{}),n.forEach(["delete","get","head","post","put","patch","common"],function(t){delete e.headers[t]}),(e.adapter||a.adapter)(e).then(function(t){return u(e),t.data=o(t.data,t.headers,e.transformResponse),t},function(t){return i(t)||(u(e),t&&t.response&&(t.response.data=o(t.response.data,t.response.headers,e.transformResponse))),Promise.reject(t)})}},function(e,t,r){"use strict"
-var n=r(2)
-e.exports=function(e,t,r){return n.forEach(r,function(r){e=r(e,t)}),e}},function(e,t,r){"use strict"
 e.exports=function(e){return/^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(e)}},function(e,t,r){"use strict"
 e.exports=function(e,t){return t?e.replace(/\/+$/,"")+"/"+t.replace(/^\/+/,""):e}},function(e,t,r){"use strict"
-var n=r(15)
+var n=r(17)
 function o(e){if("function"!=typeof e)throw new TypeError("executor must be a function.")
 var t
 this.promise=new Promise(function(e){t=e})
@@ -398,7 +404,7 @@ try{for(;(void 0===t||t-- >0)&&!(n=i.next()).done;)a.push(n.value)}catch(e){o={e
 return e},u=this&&this.__values||function(e){var t="function"==typeof Symbol&&e[Symbol.iterator],r=0
 return t?t.call(e):{next:function(){return e&&r>=e.length&&(e=void 0),{value:e&&e[r++],done:!e}}}}
 Object.defineProperty(t,"__esModule",{value:!0})
-var f=r(16),l=r(43),h=r(44),p=function(){function e(e){this.contracts=new Map,this.cachedAbis=new Map,this.rpc=e.rpc,this.authorityProvider=e.authorityProvider||e.rpc,this.abiProvider=e.abiProvider||e.rpc,this.signatureProvider=e.signatureProvider,this.chainId=e.chainId,this.textEncoder=e.textEncoder,this.textDecoder=e.textDecoder,this.abiTypes=f.getTypesFromAbi(f.createInitialTypes(),l),this.transactionTypes=f.getTypesFromAbi(f.createInitialTypes(),h)}return e.prototype.rawAbiToJson=function(e){var t=new f.SerialBuffer({textEncoder:this.textEncoder,textDecoder:this.textDecoder,array:e})
+var f=r(18),l=r(44),h=r(45),p=function(){function e(e){this.contracts=new Map,this.cachedAbis=new Map,this.rpc=e.rpc,this.authorityProvider=e.authorityProvider||e.rpc,this.abiProvider=e.abiProvider||e.rpc,this.signatureProvider=e.signatureProvider,this.chainId=e.chainId,this.textEncoder=e.textEncoder,this.textDecoder=e.textDecoder,this.abiTypes=f.getTypesFromAbi(f.createInitialTypes(),l),this.transactionTypes=f.getTypesFromAbi(f.createInitialTypes(),h)}return e.prototype.rawAbiToJson=function(e){var t=new f.SerialBuffer({textEncoder:this.textEncoder,textDecoder:this.textDecoder,array:e})
 if(!f.supportedAbiVersion(t.getString()))throw new Error("Unsupported abi version")
 return t.restartRead(),this.abiTypes.get("abi_def").deserialize(t)},e.prototype.getCachedAbi=function(e,t){return void 0===t&&(t=!1),o(this,void 0,void 0,function(){var r,n,o,a
 return i(this,function(i){switch(i.label){case 0:if(!t&&this.cachedAbis.get(e))return[2,this.cachedAbis.get(e)]
@@ -482,7 +488,7 @@ continue}i=t.call(e,a)}catch(e){i=[6,e],n=0}finally{r=o=0}if(5&i[0])throw i[1]
 return{value:i[0]?i[1]:void 0,done:!0}}([i,s])}}},i=this&&this.__values||function(e){var t="function"==typeof Symbol&&e[Symbol.iterator],r=0
 return t?t.call(e):{next:function(){return e&&r>=e.length&&(e=void 0),{value:e&&e[r++],done:!e}}}}
 Object.defineProperty(t,"__esModule",{value:!0})
-var a=r(9),s=r(18)
+var a=r(8),s=r(20)
 function c(e){var t,r,n=""
 try{for(var o=i(e),a=o.next();!a.done;a=o.next()){n+=("00"+a.value.toString(16)).slice(-2)}}catch(e){t={error:e}}finally{try{a&&!a.done&&(r=o.return)&&r.call(o)}finally{if(t)throw t.error}}return n}var u=function(){function t(t,r){void 0===r&&(r={}),this.endpoint=t,r.fetch?this.fetchBuiltin=r.fetch:this.fetchBuiltin=e.fetch}return t.prototype.fetch=function(e,t){return n(this,void 0,void 0,function(){var r,n,i
 return o(this,function(o){switch(o.label){case 0:return o.trys.push([0,3,,4]),[4,(0,this.fetchBuiltin)(this.endpoint+e,{body:JSON.stringify(t),method:"POST"})]
@@ -518,14 +524,14 @@ case 1:return[2,n.sent()]}})})},t.prototype.history_get_transaction=function(e,t
 case 1:return[2,r.sent()]}})})},t.prototype.history_get_key_accounts=function(e){return n(this,void 0,void 0,function(){return o(this,function(t){switch(t.label){case 0:return[4,this.fetch("/v1/history/get_key_accounts",{public_key:e})]
 case 1:return[2,t.sent()]}})})},t.prototype.history_get_controlled_accounts=function(e){return n(this,void 0,void 0,function(){return o(this,function(t){switch(t.label){case 0:return[4,this.fetch("/v1/history/get_controlled_accounts",{controlling_account:e})]
 case 1:return[2,t.sent()]}})})},t}()
-t.JsonRpc=u}).call(this,r(17))},function(e,t,r){"use strict"
+t.JsonRpc=u}).call(this,r(19))},function(e,t,r){"use strict"
 Object.defineProperty(t,"__esModule",{value:!0})},function(e,t){var r="undefined"!=typeof crypto&&crypto.getRandomValues&&crypto.getRandomValues.bind(crypto)||"undefined"!=typeof msCrypto&&"function"==typeof window.msCrypto.getRandomValues&&msCrypto.getRandomValues.bind(msCrypto)
 if(r){var n=new Uint8Array(16)
 e.exports=function(){return r(n),n}}else{var o=new Array(16)
 e.exports=function(){for(var e,t=0;t<16;t++)0==(3&t)&&(e=4294967296*Math.random()),o[t]=e>>>((3&t)<<3)&255
 return o}}},function(e,t){for(var r=[],n=0;n<256;++n)r[n]=(n+256).toString(16).substr(1)
 e.exports=function(e,t){var n=t||0,o=r
-return[o[e[n++]],o[e[n++]],o[e[n++]],o[e[n++]],"-",o[e[n++]],o[e[n++]],"-",o[e[n++]],o[e[n++]],"-",o[e[n++]],o[e[n++]],"-",o[e[n++]],o[e[n++]],o[e[n++]],o[e[n++]],o[e[n++]],o[e[n++]]].join("")}},function(e,t,r){var n=r(51)
+return[o[e[n++]],o[e[n++]],o[e[n++]],o[e[n++]],"-",o[e[n++]],o[e[n++]],"-",o[e[n++]],o[e[n++]],"-",o[e[n++]],o[e[n++]],"-",o[e[n++]],o[e[n++]],o[e[n++]],o[e[n++]],o[e[n++]],o[e[n++]]].join("")}},function(e,t,r){var n=r(52)
 e.exports=function(e){var t=e.replace(/-/g,"+").replace(/_/g,"/")
 switch(t.length%4){case 0:break
 case 2:t+="=="
@@ -552,12 +558,12 @@ default:return fromCharCode((31&e.charCodeAt(0))<<6|63&e.charCodeAt(1))}},btou=f
 return o.length-=[0,0,2,1][r],o.join("")},_atob=global.atob?function(e){return global.atob(e)}:function(e){return e.replace(/\S{1,4}/g,cb_decode)},atob=function(e){return _atob(String(e).replace(/[^A-Za-z0-9\+\/]/g,""))},_decode=buffer?buffer.from&&Uint8Array&&buffer.from!==Uint8Array.from?function(e){return(e.constructor===buffer.constructor?e:buffer.from(e,"base64")).toString()}:function(e){return(e.constructor===buffer.constructor?e:new buffer(e,"base64")).toString()}:function(e){return btou(_atob(e))},decode=function(e){return _decode(String(e).replace(/[-_]/g,function(e){return"-"==e?"+":"/"}).replace(/[^A-Za-z0-9\+\/]/g,""))},noConflict=function(){var e=global.Base64
 return global.Base64=_Base64,e}
 if(global.Base64={VERSION:version,atob:atob,btoa:btoa,fromBase64:decode,toBase64:encode,utob:utob,encode:encode,encodeURI:encodeURI,btou:btou,decode:decode,noConflict:noConflict,__buffer__:buffer},"function"==typeof Object.defineProperty){var noEnum=function(e){return{value:e,enumerable:!1,writable:!0,configurable:!0}}
-global.Base64.extendString=function(){Object.defineProperty(String.prototype,"fromBase64",noEnum(function(){return decode(this)})),Object.defineProperty(String.prototype,"toBase64",noEnum(function(e){return encode(this,e)})),Object.defineProperty(String.prototype,"toBase64URI",noEnum(function(){return encode(this,!0)}))}}return global.Meteor&&(Base64=global.Base64),module.exports?module.exports.Base64=global.Base64:(__WEBPACK_AMD_DEFINE_ARRAY__=[],__WEBPACK_AMD_DEFINE_RESULT__=function(){return global.Base64}.apply(exports,__WEBPACK_AMD_DEFINE_ARRAY__),void 0===__WEBPACK_AMD_DEFINE_RESULT__||(module.exports=__WEBPACK_AMD_DEFINE_RESULT__)),{Base64:global.Base64}})}).call(this,__webpack_require__(17))},function(e,t,r){"use strict"
+global.Base64.extendString=function(){Object.defineProperty(String.prototype,"fromBase64",noEnum(function(){return decode(this)})),Object.defineProperty(String.prototype,"toBase64",noEnum(function(e){return encode(this,e)})),Object.defineProperty(String.prototype,"toBase64URI",noEnum(function(){return encode(this,!0)}))}}return global.Meteor&&(Base64=global.Base64),module.exports?module.exports.Base64=global.Base64:(__WEBPACK_AMD_DEFINE_ARRAY__=[],__WEBPACK_AMD_DEFINE_RESULT__=function(){return global.Base64}.apply(exports,__WEBPACK_AMD_DEFINE_ARRAY__),void 0===__WEBPACK_AMD_DEFINE_RESULT__||(module.exports=__WEBPACK_AMD_DEFINE_RESULT__)),{Base64:global.Base64}})}).call(this,__webpack_require__(19))},function(e,t,r){"use strict"
 r.r(t)
 var n=r(0),o=r.n(n),i=r(1),a=r.n(i),s=r(3),c=r.n(s),u=r(4),f=r.n(u),l=r(5),h=r.n(l),p=r(6)
 function d(e){var t=e,r=[]
 return{getState:function(){return t},updateState:function(e){t="function"==typeof e?e(t):e
-for(var n=0,o=r;n<o.length;n++){(0,o[n])(t)}},subscribe:function(e){return r.push(e),function(){r=r.filter(function(t){return t!==e})}}}}var y=r(19),v=r.n(y)
+for(var n=0,o=r;n<o.length;n++){(0,o[n])(t)}},subscribe:function(e){return r.push(e),function(){r=r.filter(function(t){return t!==e})}}}}var y=r(21),v=r.n(y)
 function g(e,t){return void 0===t&&(t="Error"),e?"string"==typeof e?e:e.message||t:t}var m=function(){return(m=Object.assign||function(e){for(var t,r=1,n=arguments.length;r<n;r++)for(var o in t=arguments[r])Object.prototype.hasOwnProperty.call(t,o)&&(e[o]=t[o])
 return e}).apply(this,arguments)},b=function(e,t,r,n){return new(r||(r=Promise))(function(o,i){function a(e){try{c(n.next(e))}catch(e){i(e)}}function s(e){try{c(n.throw(e))}catch(e){i(e)}}function c(e){e.done?o(e.value):new r(function(t){t(e.value)}).then(a,s)}c((n=n.apply(e,t||[])).next())})},w=function(e,t){var r,n,o,i,a={label:0,sent:function(){if(1&o[0])throw o[1]
 return o[1]},trys:[],ops:[]}
@@ -625,7 +631,7 @@ return e&&e.wallets||[]},getActiveWallets:function(){return v.getWallets().filte
 var t=e._instanceId
 if(l.has(t)){var r=l.get(t)
 "function"==typeof r&&r()}},logoutAll:function(){return Promise.all(v.getWallets().map(function(e){return e.logout()})).then(function(){return!0})},disconnectAll:function(){return Promise.all(v.getWallets().map(function(e){return e.disconnect()})).then(function(){return!0})},terminateAll:function(){return Promise.all(v.getWallets().map(function(e){return e.terminate()})).then(function(){return!0})},destroy:function(){return v.terminateAll().then(function(){h(),l.forEach(function(e){"function"==typeof e&&e()}),i=[]})},subscribe:function(e){return i=i.concat([e]),function(){i=i.filter(function(t){return t!==e})}}}
-return v}var E=r(10),S=r.n(E),C=r(20),T=r.n(C),I=r(52).Base64,O=function(e,t,r){return e.replace(new RegExp(t,"g"),r)},P=function(){function e(){c()(this,e)}return f()(e,null,[{key:"isNullOrEmpty",value:function(e){return void 0===e||(null===e||(!(!Array.isArray(e)||0!==e.length)||0===Object.keys(e).length&&e.constructor===Object))}},{key:"log",value:function(e,t){0}},{key:"jwtDecodeSafe",value:function(e){var t={}
+return v}var E=r(9),S=r.n(E),C=r(22),T=r.n(C),I=r(53).Base64,O=function(e,t,r){return e.replace(new RegExp(t,"g"),r)},P=function(){function e(){c()(this,e)}return f()(e,null,[{key:"isNullOrEmpty",value:function(e){return void 0===e||(null===e||(!(!Array.isArray(e)||0!==e.length)||0===Object.keys(e).length&&e.constructor===Object))}},{key:"log",value:function(e,t){0}},{key:"jwtDecodeSafe",value:function(e){var t={}
 if(this.isNullOrEmpty(e))return{}
 try{t=T()(e)}catch(e){}return t}},{key:"tokenHasExpired",value:function(e){var t=null
 try{t=this.jwtDecodeSafe(e)}catch(e){return!0}var r=Date.now().valueOf()/1e3
@@ -643,25 +649,28 @@ try{t&&(r=decodeURI(r)),n=O(r,"'",'"'),n=O(n,"`",'"')
 var o=JSON.parse(n)
 if(o&&"object"===S()(o))return o}catch(e){console.log(e)}return null}},{key:"isAnObject",value:function(e){return null!==e&&"object"===S()(e)}},{key:"base64DecodeSafe",value:function(t){var r={}
 if(this.isNullOrEmpty(t))return null
-try{r=I.decode(t),e.tryParseJSON(r)&&(r=JSON.parse(r))}catch(e){return null}return r}},{key:"base64Encode",value:function(t){return e.isAnObject(t)&&(t=JSON.stringify(t)),I.encode(t)}},{key:"sleep",value:function(e){return new Promise(function(t){return setTimeout(t,e)})}}]),e}(),U=r(21),z=r.n(U),N=r(7),D=r.n(N)
+try{r=I.decode(t),e.tryParseJSON(r)&&(r=JSON.parse(r))}catch(e){return null}return r}},{key:"base64Encode",value:function(t){return e.isAnObject(t)&&(t=JSON.stringify(t)),I.encode(t)}},{key:"sleep",value:function(e){return new Promise(function(t){return setTimeout(t,e)})}}]),e}(),U=r(23),z=r.n(U),N=r(7),D=r.n(N)
 function j(e,t){var r=Object.keys(e)
-return Object.getOwnPropertySymbols&&r.push.apply(r,Object.getOwnPropertySymbols(e)),t&&(r=r.filter(function(t){return Object.getOwnPropertyDescriptor(e,t).enumerable})),r}var R=function(){function e(){c()(this,e)}return f()(e,[{key:"getItem",value:function(e){return D.a.get(e)}},{key:"removeItem",value:function(e){D.a.remove(e)}},{key:"setItem",value:function(e,t,r){var n=function(e){for(var t=1;t<arguments.length;t++)if(t%2){var r=null!=arguments[t]?arguments[t]:{}
-j(r,!0).forEach(function(t){z()(e,t,r[t])})}else Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(arguments[t])):j(r).forEach(function(r){Object.defineProperty(e,r,Object.getOwnPropertyDescriptor(arguments[t],r))})
-return e}({expires:1},r)
+return Object.getOwnPropertySymbols&&r.push.apply(r,Object.getOwnPropertySymbols(e)),t&&(r=r.filter(function(t){return Object.getOwnPropertyDescriptor(e,t).enumerable})),r}var R=function(){function e(){c()(this,e)}return f()(e,[{key:"getItem",value:function(e){return D.a.get(e)}},{key:"removeItem",value:function(e){D.a.remove(e)}},{key:"setItem",value:function(e,t,r){var n=function(e){for(var t=1;t<arguments.length;t++){var r=null!=arguments[t]?arguments[t]:{}
+t%2?j(r,!0).forEach(function(t){z()(e,t,r[t])}):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(r)):j(r).forEach(function(t){Object.defineProperty(e,t,Object.getOwnPropertyDescriptor(r,t))})}return e}({expires:1},r)
 D.a.set(e,t,n)}}]),e}(),B=function(){function e(){c()(this,e),window?this.storage=window.localStorage:P.log("Not running in Browser. Using CookieStorage instead.")}return f()(e,[{key:"getItem",value:function(e){if(this.storage)return this.storage.getItem(e)}},{key:"removeItem",value:function(e){if(this.storage)return this.storage.removeItem(e)}},{key:"setItem",value:function(e,t,r){if(this.storage)return this.storage.setItem(e,t,r)}}]),e}(),L=function(){function e(){c()(this,e)}return f()(e,[{key:"getItem",value:function(e){return null}},{key:"removeItem",value:function(e){}},{key:"setItem",value:function(e,t,r){}}]),e}(),F=function(){function e(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{tryLocalStorageFirst:!0}
 if(c()(this,e),this.triedLocalStorage=!1,this.triedCookieStorage=!1,!0===t.tryLocalStorageFirst){this.triedLocalStorage=!0
 try{var r=new B
 r&&r.storage&&(this.storage=r)}catch(e){P.log("Can't use localStorage. Using CookieStorage instead.",t)}}this.storage||(this.storage=new R,this.triedCookieStorage=!0)}return f()(e,[{key:"failover",value:function(){if(!(this.storage instanceof L)){var e=!1
-this.storage instanceof B?this.triedCookieStorage||(this.storage=new R,this.triedCookieStorage=!0,e=!0):this.storage instanceof R&&(this.triedLocalStorage||(this.storage=new B,this.triedLocalStorage=!0,e=!0)),e||(this.storage=new L)}}},{key:"getItem",value:function(e){try{return this.storage.getItem(e)}catch(t){return P.log("Can't getItem in storage.",t),this.failover(),this.storage.getItem(e)}}},{key:"removeItem",value:function(e){try{return this.storage.removeItem(e)}catch(t){return P.log("Can't removeItem in storage.",t),this.failover(),this.storage.removeItem(e)}}},{key:"setItem",value:function(e,t,r){try{return this.storage.setItem(e,t,r)}catch(n){return P.log("Can't setItem in storage.",n),this.failover(),this.storage.setItem(e,t,r)}}}]),e}(),M={ledger:{providerId:"ledger",requiresLogin:!1,supportsDiscovery:!0},lynx:{providerId:"EOS Lynx",requiresLogin:!1,supportsDiscovery:!1},meetone:{providerId:"meetone_provider",requiresLogin:!1,supportsDiscovery:!1},metro:{providerId:"metro",requiresLogin:!1,supportsDiscovery:!1},scatter:{providerId:"scatter",requiresLogin:!0,supportsDiscovery:!1},tokenpocket:{providerId:"TokenPocket",requiresLogin:!1,supportsDiscovery:!1},portis:{providerId:"PortisProvider",requiresLogin:!0,supportsDiscovery:!1},whalevault:{providerId:"whalevault",requiresLogin:!0,supportsDiscovery:!1},simpleos:{providerId:"simpleos",requiresLogin:!0,supportsDiscovery:!1},keycat:{providerId:"keycat",requiresLogin:!0,supportsDiscovery:!1}},K=["metro"],W=function(){function e(t){c()(this,e),this.options=null,this.appAccessToken=null,this.user=null,this.storage=new F,this.validateOptions(t),this.chainContexts={},this.chainNetworks=[],this.init()}var t,r,n,i,s,u,l,p,d,y,v,g,m,b,w,_,x,k,E,S,C,T,I,O,U,z,N,D,j
-return f()(e,[{key:"init",value:(j=a()(o.a.mark(function e(){var t
-return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.next=2,this.getConfigFromApi("chains")
-case 2:t=e.sent,this.chainNetworks=t.chains
-case 4:case"end":return e.stop()}},e,this)})),function(){return j.apply(this,arguments)})},{key:"getOrCreateChainContext",value:function(e){var t=this.options,r=t.appName,n=t.eosTransitWalletProviders,o=void 0===n?[]:n
-if(this.chainContexts[e])return this.chainContexts[e]
-var i=this.chainNetworks.find(function(t){return t.network===e})
-if(!i)throw new Error("Invalid chain network: ".concat(e,"."))
-var a=i.hosts[0],s=a.chainId,c=A({appName:r||"missing appName",network:{host:a.host,port:a.port,protocol:a.protocol,chainId:s},walletProviders:o})
-return this.chainContexts[e]=c,c}},{key:"callPasswordlessApi",value:(D=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,p,d,y,v=arguments
+this.storage instanceof B?this.triedCookieStorage||(this.storage=new R,this.triedCookieStorage=!0,e=!0):this.storage instanceof R&&(this.triedLocalStorage||(this.storage=new B,this.triedLocalStorage=!0,e=!0)),e||(this.storage=new L)}}},{key:"getItem",value:function(e){try{return this.storage.getItem(e)}catch(t){return P.log("Can't getItem in storage.",t),this.failover(),this.storage.getItem(e)}}},{key:"removeItem",value:function(e){try{return this.storage.removeItem(e)}catch(t){return P.log("Can't removeItem in storage.",t),this.failover(),this.storage.removeItem(e)}}},{key:"setItem",value:function(e,t,r){try{return this.storage.setItem(e,t,r)}catch(n){return P.log("Can't setItem in storage.",n),this.failover(),this.storage.setItem(e,t,r)}}}]),e}(),M={ledger:{providerId:"ledger",requiresLogin:!1,supportsDiscovery:!0},lynx:{providerId:"EOS Lynx",requiresLogin:!1,supportsDiscovery:!1},meetone:{providerId:"meetone_provider",requiresLogin:!1,supportsDiscovery:!1},metro:{providerId:"metro",requiresLogin:!1,supportsDiscovery:!1},scatter:{providerId:"scatter",requiresLogin:!0,supportsDiscovery:!1},tokenpocket:{providerId:"TokenPocket",requiresLogin:!1,supportsDiscovery:!1},portis:{providerId:"PortisProvider",requiresLogin:!0,supportsDiscovery:!1},whalevault:{providerId:"whalevault",requiresLogin:!0,supportsDiscovery:!1},simpleos:{providerId:"simpleos",requiresLogin:!0,supportsDiscovery:!1},keycat:{providerId:"keycat",requiresLogin:!0,supportsDiscovery:!1}},K=["metro"],W=function(){function e(t){c()(this,e),this.options=null,this.appAccessToken=null,this.user=null,this.storage=new F,this.validateOptions(t),this.chainContexts={},this.cachedChainNetworks=null}var t,r,n,i,s,u,l,p,d,y,v,g,m,b,w,_,x,k,E,S,C,T,I,O,U,z,N,D,j,R,B
+return f()(e,[{key:"chainNetworks",value:(B=a()(o.a.mark(function e(){var t
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(this.cachedChainNetworks){e.next=5
+break}return e.next=3,this.getConfigFromApi("chains")
+case 3:t=e.sent,this.cachedChainNetworks=t.chains
+case 5:return e.abrupt("return",this.cachedChainNetworks)
+case 6:case"end":return e.stop()}},e,this)})),function(){return B.apply(this,arguments)})},{key:"getOrCreateChainContext",value:(R=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,h,p,d,y
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.options,n=r.appName,i=r.eosTransitWalletProviders,a=void 0===i?[]:i,!this.chainContexts[t]){e.next=3
+break}return e.abrupt("return",this.chainContexts[t])
+case 3:return e.next=5,this.chainNetworks()
+case 5:if(s=e.sent,c=s.find(function(e){return e.network===t})){e.next=9
+break}throw new Error("Invalid chain network: ".concat(t,"."))
+case 9:return u=c.hosts,f=u[0],l=f.chainId,h=f.host,p=f.port,d=f.protocol,y=A({appName:n||"missing appName",network:{host:h,port:p,protocol:d,chainId:l},walletProviders:a}),this.chainContexts[t]=y,e.abrupt("return",y)
+case 15:case"end":return e.stop()}},e,this)})),function(e){return R.apply(this,arguments)})},{key:"callPasswordlessApi",value:(j=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,p,d,y,v=arguments
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=v.length>1&&void 0!==v[1]&&v[1],n=t.provider,i=t.phone,a=t.email,s=t.code,c=this.options,u=c.apiKey,f=c.oreIdUrl,n&&(i||a)&&(!r||s)){e.next=5
 break}throw new Error("Missing a required parameter")
 case 5:return l="send",r&&(l="verify"),p="".concat(f,"/api/account/login-passwordless-").concat(l,"-code?provider=").concat(n),a&&(p+="&email=".concat(a)),i&&(d=encodeURIComponent(i),p+="&phone=".concat(d)),r&&(p+="&code=".concat(s)),y={},e.prev=12,e.next=15,h.a.get(p,{headers:{"api-key":u}})
@@ -669,25 +678,25 @@ case 15:y=e.sent,e.next=21
 break
 case 18:e.prev=18,e.t0=e.catch(12),y=e.t0.response
 case 21:return e.abrupt("return",y.data)
-case 22:case"end":return e.stop()}},e,this,[[12,18]])})),function(e){return D.apply(this,arguments)})},{key:"passwordlessSendCodeApi",value:(N=a()(o.a.mark(function e(t){var r
+case 22:case"end":return e.stop()}},e,this,[[12,18]])})),function(e){return j.apply(this,arguments)})},{key:"passwordlessSendCodeApi",value:(D=a()(o.a.mark(function e(t){var r
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r={},e.prev=1,e.next=4,this.callPasswordlessApi(t)
 case 4:r=e.sent,e.next=10
 break
 case 7:return e.prev=7,e.t0=e.catch(1),e.abrupt("return",{error:e.t0})
 case 10:return e.abrupt("return",r)
-case 11:case"end":return e.stop()}},e,this,[[1,7]])})),function(e){return N.apply(this,arguments)})},{key:"passwordlessVerifyCodeApi",value:(z=a()(o.a.mark(function e(t){var r
+case 11:case"end":return e.stop()}},e,this,[[1,7]])})),function(e){return D.apply(this,arguments)})},{key:"passwordlessVerifyCodeApi",value:(N=a()(o.a.mark(function e(t){var r
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r={},e.prev=1,e.next=4,this.callPasswordlessApi(t,!0)
 case 4:r=e.sent,e.next=10
 break
 case 7:return e.prev=7,e.t0=e.catch(1),e.abrupt("return",{error:e.t0})
 case 10:return e.abrupt("return",r)
-case 11:case"end":return e.stop()}},e,this,[[1,7]])})),function(e){return z.apply(this,arguments)})},{key:"login",value:(U=a()(o.a.mark(function e(t){var r,n,i,a
+case 11:case"end":return e.stop()}},e,this,[[1,7]])})),function(e){return N.apply(this,arguments)})},{key:"login",value:(z=a()(o.a.mark(function e(t){var r,n,i,a
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=t.chainNetwork,i=void 0===n?"eos_main":n,a=Object.keys(M),!K.includes(r)){e.next=4
 break}throw new Error("Not Implemented")
 case 4:if(!a.includes(r)){e.next=6
 break}return e.abrupt("return",this.connectToTransitProvider(r,i))
 case 6:return e.abrupt("return",this.loginWithOreId(t))
-case 7:case"end":return e.stop()}},e,this)})),function(e){return U.apply(this,arguments)})},{key:"sign",value:(O=a()(o.a.mark(function e(t){var r,n
+case 7:case"end":return e.stop()}},e,this)})),function(e){return z.apply(this,arguments)})},{key:"sign",value:(U=a()(o.a.mark(function e(t){var r,n
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=Object.keys(M),!K.includes(r)){e.next=4
 break}return e.abrupt("return")
 case 4:if(!this.isCustodial(r)){e.next=6
@@ -695,25 +704,25 @@ break}return e.abrupt("return",this.custodialSignWithOreId(t))
 case 6:if(!n.includes(r)){e.next=8
 break}return e.abrupt("return",this.signWithTransitProvider(t))
 case 8:return e.abrupt("return",this.signWithOreId(t))
-case 9:case"end":return e.stop()}},e,this)})),function(e){return O.apply(this,arguments)})},{key:"discover",value:(I=a()(o.a.mark(function e(t){var r,n,i,a
+case 9:case"end":return e.stop()}},e,this)})),function(e){return U.apply(this,arguments)})},{key:"discover",value:(O=a()(o.a.mark(function e(t){var r,n,i,a
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=t.chainNetwork,i=void 0===n?"eos_main":n,a=t.discoveryPathIndexList,this.assertValidProvider(r),!this.canDiscover(r)){e.next=4
 break}return e.abrupt("return",this.discoverCredentialsInWallet(i,r,a))
 case 4:throw new Error("Discover not support for provider: ".concat(r))
-case 5:case"end":return e.stop()}},e,this)})),function(e){return I.apply(this,arguments)})},{key:"assertValidProvider",value:function(e){if(M[e])return!0
-throw new Error("Provider ".concat(e," is not a valid option"))}},{key:"canDiscover",value:function(e){return!0===M[e].supportsDiscovery}},{key:"loginWithOreId",value:(T=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,h
+case 5:case"end":return e.stop()}},e,this)})),function(e){return O.apply(this,arguments)})},{key:"assertValidProvider",value:function(e){if(M[e])return!0
+throw new Error("Provider ".concat(e," is not a valid option"))}},{key:"canDiscover",value:function(e){return!0===M[e].supportsDiscovery}},{key:"loginWithOreId",value:(I=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,h
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=t.code,n=t.email,i=t.phone,a=t.provider,s=t.state,c=this.options,u=c.authCallbackUrl,f=c.backgroundColor,l={code:r,email:n,phone:i,provider:a,backgroundColor:f,callbackUrl:u,state:s},e.next=5,this.getOreIdAuthUrl(l)
 case 5:return h=e.sent,e.abrupt("return",{loginUrl:h,errors:null})
-case 7:case"end":return e.stop()}},e,this)})),function(e){return T.apply(this,arguments)})},{key:"signWithOreId",value:(C=a()(o.a.mark(function e(t){var r,n
+case 7:case"end":return e.stop()}},e,this)})),function(e){return I.apply(this,arguments)})},{key:"signWithOreId",value:(T=a()(o.a.mark(function e(t){var r,n
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=this.options.signCallbackUrl,t.callbackUrl=r,e.next=4,this.getOreIdSignUrl(t)
 case 4:return n=e.sent,e.abrupt("return",{signUrl:n,errors:null})
-case 6:case"end":return e.stop()}},e,this)})),function(e){return C.apply(this,arguments)})},{key:"custodialSignWithOreId",value:(S=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,p,d,y,v,g,m,b,w,_,x
+case 6:case"end":return e.stop()}},e,this)})),function(e){return T.apply(this,arguments)})},{key:"custodialSignWithOreId",value:(C=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,p,d,y,v,g,m,b,w,_,x
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.options,n=r.apiKey,i=r.oreIdUrl,a=r.serviceKey){e.next=3
 break}throw new Error("Missing serviceKey in oreId config options - required to call api/custodial/new-user.")
 case 3:return s=t.account,c=t.broadcast,u=t.chainAccount,f=t.chainNetwork,l=t.returnSignedTransaction,p=t.transaction,d=t.userPassword,y=P.base64Encode(p),v={account:s,broadcast:c,chain_account:u,chain_network:f,return_signed_transaction:l,transaction:y,user_password:d},g="".concat(i,"/api/custodial/sign"),e.next=9,h.a.post(g,JSON.stringify(v),{headers:{"Content-Type":"application/json","api-key":n,"service-key":a},body:v})
 case 9:if(m=e.sent,!(b=m.error)){e.next=13
 break}throw new Error(b)
 case 13:return w=m.data,_=w.signed_transaction,x=w.transaction_id,e.abrupt("return",{signedTransaction:_,transactionId:x})
-case 16:case"end":return e.stop()}},e,this)})),function(e){return S.apply(this,arguments)})},{key:"signWithTransitProvider",value:(E=a()(o.a.mark(function e(t){var r,n,i,a,s,c
+case 16:case"end":return e.stop()}},e,this)})),function(e){return C.apply(this,arguments)})},{key:"signWithTransitProvider",value:(S=a()(o.a.mark(function e(t){var r,n,i,a,s,c
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=t.broadcast,n=t.chainNetwork,i=t.transaction,a=t.provider,e.next=3,this.connectToTransitProvider(a,n)
 case 3:return s=e.sent,c=s.transitWallet,e.prev=5,this.setIsBusy(!0),e.next=9,c.eosApi.transact({actions:[i]},{broadcast:r,blocksBehind:3,expireSeconds:60})
 case 9:s=e.sent,e.next=15
@@ -721,14 +730,14 @@ break
 case 12:throw e.prev=12,e.t0=e.catch(5),e.t0
 case 15:return e.prev=15,this.setIsBusy(!1),e.finish(15)
 case 18:return e.abrupt("return",{signedTransaction:s})
-case 19:case"end":return e.stop()}},e,this,[[5,12,15,18]])})),function(e){return E.apply(this,arguments)})},{key:"custodialNewAccount",value:(k=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,p,d,y,v,g,m
+case 19:case"end":return e.stop()}},e,this,[[5,12,15,18]])})),function(e){return S.apply(this,arguments)})},{key:"custodialNewAccount",value:(E=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,p,d,y,v,g,m
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.options,n=r.apiKey,i=r.oreIdUrl,a=r.serviceKey,s=t.accountType,c=t.email,u=t.name,f=t.picture,l=t.phone,p=t.userName,d=t.userPassword,y={account_type:s,email:c,name:u,picture:f,phone:l,user_name:p,user_password:d},a){e.next=5
 break}throw new Error("Missing serviceKey in oreId config options - required to call api/custodial/new-user.")
 case 5:return v="".concat(i,"/api/custodial/new-user"),e.next=8,h.a.post(v,JSON.stringify(y),{headers:{"Content-Type":"application/json","api-key":n,"service-key":a},body:y})
 case 8:if(g=e.sent,!(m=g.error)){e.next=12
 break}throw new Error(m)
 case 12:return e.abrupt("return",g.data)
-case 13:case"end":return e.stop()}},e,this)})),function(e){return k.apply(this,arguments)})},{key:"loginToTransitProvider",value:(x=a()(o.a.mark(function e(t,r,n){var i
+case 13:case"end":return e.stop()}},e,this)})),function(e){return E.apply(this,arguments)})},{key:"loginToTransitProvider",value:(k=a()(o.a.mark(function e(t,r,n){var i
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.prev=0,e.next=3,t.login()
 case 3:e.next=13
 break
@@ -737,44 +746,50 @@ break}throw new Error("The account selected by the wallet for login isn't on the
 case 12:throw e.t0
 case 13:return e.prev=13,e.next=16,this.waitWhileWalletIsBusy(t,r)
 case 16:return e.finish(13)
-case 17:case"end":return e.stop()}},e,this,[[0,5,13,17]])})),function(e,t,r){return x.apply(this,arguments)})},{key:"connectToTransitProvider",value:(_=a()(o.a.mark(function e(t,r){var n,i,a,s,c,u,f,l,h,p,d,y,v,g,m,b
-return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return n=M[t].providerId,i=this.getOrCreateChainContext(r),a=i.getWalletProviders().find(function(e){return e.id===n}),s=i.initWallet(a),c={transitWallet:s},e.prev=5,e.next=8,s.connect()
-case 8:return e.next=10,this.waitWhileWalletIsBusy(s,t)
-case 10:if(!M[t].requiresLogin){e.next=18
-break}if(!s||s.authenticated){e.next=16
-break}return e.next=14,this.loginToTransitProvider(s,t,r)
-case 14:e.next=18
+case 17:case"end":return e.stop()}},e,this,[[0,5,13,17]])})),function(e,t,r){return k.apply(this,arguments)})},{key:"connectToTransitProvider",value:(x=a()(o.a.mark(function e(t,r){var n,i,a,s,c,u,f,l,h,p,d,y,v,g,m,b
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return n=M[t].providerId,e.next=3,this.getOrCreateChainContext(r)
+case 3:return i=e.sent,a=i.getWalletProviders().find(function(e){return e.id===n}),s=i.initWallet(a),c={transitWallet:s},e.prev=7,e.next=10,s.connect()
+case 10:return e.next=12,this.waitWhileWalletIsBusy(s,t)
+case 12:if(!M[t].requiresLogin){e.next=20
+break}if(!s||s.authenticated){e.next=18
+break}return e.next=16,this.loginToTransitProvider(s,t,r)
+case 16:e.next=20
 break
-case 16:if(s&&s.authenticated){e.next=18
+case 18:if(s&&s.authenticated){e.next=20
 break}throw new Error("Couldn't connect to ".concat(t))
-case 18:if(!s.connected||!s.authenticated){e.next=23
-break}u=s.auth,f=u.accountName,l=u.permission,h=u.publicKey,c={isLoggedIn:!0,account:f,permissions:[{name:l,publicKey:h}],provider:t},e.next=25
+case 20:if(!s.connected||!s.authenticated){e.next=25
+break}u=s.auth,f=u.accountName,l=u.permission,h=u.publicKey,c={isLoggedIn:!0,account:f,permissions:[{name:l,publicKey:h}],provider:t,transitWallet:s},e.next=27
 break
-case 23:throw p=s.hasError,d=s.errorMessage,new Error("".concat(t," not connected!").concat(p)?" Error: ".concat(d):"")
-case 25:if(!(y=(this.user||{}).accountName)){e.next=31
-break}return g=(v=c).account,m=v.permissions,b=this.getChainNetworkFromTransitWallet(s),e.next=31,this.addWalletPermissionstoOreIdAccount(g,b,m,y,t)
-case 31:e.next=37
+case 25:throw p=s.hasError,d=s.errorMessage,new Error("".concat(t," not connected!").concat(p)?" Error: ".concat(d):"")
+case 27:if(!(y=(this.user||{}).accountName)){e.next=35
+break}return g=(v=c).account,m=v.permissions,e.next=32,this.getChainNetworkFromTransitWallet(s)
+case 32:return b=e.sent,e.next=35,this.addWalletPermissionstoOreIdAccount(g,b,m,y,t)
+case 35:e.next=41
 break
-case 33:throw e.prev=33,e.t0=e.catch(5),console.log("Failed to connect to ".concat(t," wallet:"),e.t0),e.t0
-case 37:return e.prev=37,this.setIsBusy(!1),e.finish(37)
-case 40:return e.abrupt("return",c)
-case 41:case"end":return e.stop()}},e,this,[[5,33,37,40]])})),function(e,t){return _.apply(this,arguments)})},{key:"waitWhileWalletIsBusy",value:(w=a()(o.a.mark(function e(t,r){return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(!t.inProgress){e.next=7
+case 37:throw e.prev=37,e.t0=e.catch(7),console.log("Failed to connect to ".concat(t," wallet:"),e.t0),e.t0
+case 41:return e.prev=41,this.setIsBusy(!1),e.finish(41)
+case 44:return e.abrupt("return",c)
+case 45:case"end":return e.stop()}},e,this,[[7,37,41,44]])})),function(e,t){return x.apply(this,arguments)})},{key:"waitWhileWalletIsBusy",value:(_=a()(o.a.mark(function e(t,r){return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(!t.inProgress){e.next=7
 break}return this.setIsBusy(!0),e.next=4,P.sleep(250)
 case 4:console.log("connecting to ".concat(r," via eos-transit wallet in progress:"),t.inProgress),e.next=0
 break
 case 7:this.setIsBusy(!1)
-case 8:case"end":return e.stop()}},e,this)})),function(e,t){return w.apply(this,arguments)})},{key:"getChainNetworkFromTransitWallet",value:function(e){var t
-if(e&&e.eosApi){var r=e.eosApi.chainId,n=this.chainNetworks.find(function(e){return e.hosts.find(function(e){return e.chainId===r})})
-P.isNullOrEmpty(n)||(t=n.network)}return t}},{key:"discoverCredentialsInWallet",value:(b=a()(o.a.mark(function e(t,r){var n,i,s,c,u,f,l,h,p=this,d=arguments
+case 8:case"end":return e.stop()}},e,this)})),function(e,t){return _.apply(this,arguments)})},{key:"getChainNetworkFromTransitWallet",value:(w=a()(o.a.mark(function e(t){var r,n,i,a
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(!t||!t.eosApi){e.next=7
+break}return n=t.eosApi.chainId,e.next=4,this.chainNetworks()
+case 4:i=e.sent,a=i.find(function(e){return e.hosts.find(function(e){return e.chainId===n})}),P.isNullOrEmpty(a)||(r=a.network)
+case 7:return e.abrupt("return",r)
+case 8:case"end":return e.stop()}},e,this)})),function(e){return w.apply(this,arguments)})},{key:"discoverCredentialsInWallet",value:(b=a()(o.a.mark(function e(t,r){var n,i,s,c,u,f,l,h,p=this,d=arguments
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return n=d.length>2&&void 0!==d[2]?d[2]:[0,1,2,3,4,5,6,7,8,9],i=[],e.prev=2,e.next=5,this.connectToTransitProvider(r,t)
 case 5:if(c=e.sent,u=c.transitWallet){e.next=9
 break}return e.abrupt("return",i)
 case 9:return this.setIsBusy(!0),e.next=12,u.discover({pathIndexList:n})
 case 12:return f=e.sent,l=(this.user||{}).accountName,h=f.keyToAccountMap,e.next=17,h.forEach(function(){var e=a()(o.a.mark(function e(t){var n,a,c,f,h,d
-return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(n=t.accounts,!((a=void 0===n?[]:n).length>0)){e.next=8
-break}return c=a[0],f=c.account,h=c.authorization,s=[{account:f,publicKey:t.key,name:h,parent:null}],d=p.getChainNetworkFromTransitWallet(u),e.next=7,p.addWalletPermissionstoOreIdAccount(f,d,s,l,r)
-case 7:i=i.concat(s)
-case 8:case"end":return e.stop()}},e)}))
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(n=t.accounts,!((a=void 0===n?[]:n).length>0)){e.next=10
+break}return c=a[0],f=c.account,h=c.authorization,s=[{account:f,publicKey:t.key,name:h,parent:null}],e.next=6,p.getChainNetworkFromTransitWallet(u)
+case 6:return d=e.sent,e.next=9,p.addWalletPermissionstoOreIdAccount(f,d,s,l,r)
+case 9:i=i.concat(s)
+case 10:case"end":return e.stop()}},e)}))
 return function(t){return e.apply(this,arguments)}}())
 case 17:e.next=22
 break

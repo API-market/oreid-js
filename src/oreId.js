@@ -68,24 +68,29 @@ export default class OreId {
     this.storage = new StorageHandler();
     this.validateOptions(options);
     this.chainContexts = {};
-    this.chainNetworks = [];
-    this.init(); // todo: handle multiple networks
+    this.cachedChainNetworks = null;
   }
 
-  // Initialize the library
-  async init() {
-    // load the chainNetworks list from the ORE ID API
-    const results = await this.getConfigFromApi('chains');
-    this.chainNetworks = results.chains;
+  // todo: handle multiple networks
+  async chainNetworks() {
+    if (!this.cachedChainNetworks) {
+      // load the chainNetworks list from the ORE ID API
+      const results = await this.getConfigFromApi('chains');
+      this.cachedChainNetworks = results.chains;
+    }
+
+    return this.cachedChainNetworks;
   }
 
-  getOrCreateChainContext(chainNetwork) {
+  async getOrCreateChainContext(chainNetwork) {
     const { appName, eosTransitWalletProviders = [] } = this.options;
     if (this.chainContexts[chainNetwork]) {
       return this.chainContexts[chainNetwork];
     }
 
-    const chainConfig = this.chainNetworks.find((n) => n.network === chainNetwork);
+    const networks = await this.chainNetworks();
+
+    const chainConfig = networks.find((n) => n.network === chainNetwork);
     if (!chainConfig) {
       throw new Error(`Invalid chain network: ${chainNetwork}.`);
     }
@@ -353,7 +358,7 @@ export default class OreId {
 
   async connectToTransitProvider(provider, chainNetwork) {
     const providerId = providerAttributes[provider].providerId;
-    const chainContext = this.getOrCreateChainContext(chainNetwork);
+    const chainContext = await this.getOrCreateChainContext(chainNetwork);
     const transitProvider = chainContext.getWalletProviders().find((wp) => wp.id === providerId);
     const transitWallet = chainContext.initWallet(transitProvider);
     let response = {
@@ -394,7 +399,7 @@ export default class OreId {
       const userOreAccount = (this.user || {}).accountName;
       if (userOreAccount) {
         const { account, permissions } = response;
-        const chainNetworkToUpdate = this.getChainNetworkFromTransitWallet(transitWallet);
+        const chainNetworkToUpdate = await this.getChainNetworkFromTransitWallet(transitWallet);
         await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, userOreAccount, provider);
       }
     } catch (error) {
@@ -417,11 +422,14 @@ export default class OreId {
     this.setIsBusy(false);
   }
 
-  getChainNetworkFromTransitWallet(transitWallet) {
+  async getChainNetworkFromTransitWallet(transitWallet) {
     let chainNetwork;
     if (transitWallet && transitWallet.eosApi) {
       const chainId = transitWallet.eosApi.chainId;
-      const chainConfig = this.chainNetworks.find((n) => n.hosts.find((h) => h.chainId === chainId));
+
+      const networks = await this.chainNetworks();
+
+      const chainConfig = networks.find((n) => n.hosts.find((h) => h.chainId === chainId));
       if (!Helpers.isNullOrEmpty(chainConfig)) {
         chainNetwork = chainConfig.network;
       }
@@ -459,7 +467,7 @@ export default class OreId {
               parent: null
             }
           ];
-          const chainNetworkToUpdate = this.getChainNetworkFromTransitWallet(transitWallet);
+          const chainNetworkToUpdate = await this.getChainNetworkFromTransitWallet(transitWallet);
           await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, userOreAccount, provider);
           accountsAndPermissions = accountsAndPermissions.concat(permissions);
         }
