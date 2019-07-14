@@ -50,7 +50,7 @@ const providerAttributes = {
     supportsDiscovery: false
   },
   keycat: {
-    providerId: 'keycat',
+    providerId: 'Keycat',
     requiresLogin: true,
     supportsDiscovery: false
   }
