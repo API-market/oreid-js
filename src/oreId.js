@@ -271,9 +271,18 @@ export default class OreId {
       throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/new-user.');
     }
 
-    const { account, broadcast, chainAccount, chainNetwork, returnSignedTransaction, transaction, userPassword } = signOptions;
+    const { account, allowChainAccountSelection, broadcast, chainAccount, chainNetwork, returnSignedTransaction, transaction, userPassword } = signOptions;
     const encodedTransaction = Helpers.base64Encode(transaction);
-    const body = { account, broadcast, chain_account: chainAccount, chain_network: chainNetwork, return_signed_transaction: returnSignedTransaction, transaction: encodedTransaction, user_password: userPassword };
+    const body = {
+      account,
+      allow_chain_account_selection: allowChainAccountSelection,
+      broadcast,
+      chain_account: chainAccount,
+      chain_network: chainNetwork,
+      return_signed_transaction: returnSignedTransaction,
+      transaction: encodedTransaction,
+      user_password: userPassword
+    };
 
     const url = `${oreIdUrl}/api/custodial/sign`;
     const response = await axios.post(url,
@@ -643,7 +652,7 @@ export default class OreId {
       chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin', 'ore_main', 'eos_test', etc.
   */
   async getOreIdSignUrl(signOptions) {
-    const { account, accountIsTransactionPermission, broadcast, callbackUrl, chainNetwork, provider, returnSignedTransaction, state, transaction, userPassword } = signOptions;
+    const { account, allowChainAccountSelection, broadcast, callbackUrl, chainNetwork, provider, returnSignedTransaction, state, transaction, userPassword } = signOptions;
     let { chainAccount } = signOptions;
     const { oreIdUrl } = this.options;
 
@@ -659,7 +668,7 @@ export default class OreId {
     const appAccessToken = await this.getAccessToken();
     const encodedTransaction = Helpers.base64Encode(transaction);
     let optionalParams = state ? `&state=${state}` : '';
-    optionalParams += accountIsTransactionPermission ? `&account_is_transaction_permission=${accountIsTransactionPermission}` : '';
+    optionalParams += !Helpers.isNullOrEmpty(allowChainAccountSelection) ? `&allow_chain_account_selection=${allowChainAccountSelection}` : '';
     optionalParams += !Helpers.isNullOrEmpty(returnSignedTransaction) ? `&return_signed_transaction=${returnSignedTransaction}` : '';
     optionalParams += !Helpers.isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : '';
 
