@@ -3,7 +3,7 @@ import { initAccessContext } from 'eos-transit';
 import Helpers from './helpers';
 import StorageHandler from './storage';
 
-const providerAttributes = {
+const transitProviderAttributes = {
   ledger: {
     providerId: 'ledger',
     requiresLogin: false,
@@ -56,6 +56,12 @@ const providerAttributes = {
   }
 };
 
+const ualProviderAttributes = {
+  scatter: {
+    requiresLogin: true
+  }
+};
+
 const providersNotImplemented = [
   'metro'
 ];
@@ -69,6 +75,25 @@ export default class OreId {
     this.validateOptions(options);
     this.chainContexts = {};
     this.cachedChainNetworks = null;
+
+    this.validateProviders();
+  }
+
+  async validateProviders() {
+    const { isNullOrEmpty } = Helpers;
+    const { ualProviders, eosTransitWalletProviders } = this.options;
+    if (!isNullOrEmpty(eosTransitWalletProviders) && !isNullOrEmpty(ualProviders)) {
+      const duplicates = eosTransitWalletProviders
+        .map((makeWalletProvider) => makeWalletProvider({}))
+        .map((provider) => provider.id)
+        .filter((transitProvider) => {
+          return ualProviders.find((ualProvider) => ualProvider.name.toLowerCase() === transitProvider.toLowerCase());
+        });
+
+      if (!isNullOrEmpty(duplicates)) {
+        throw Error(`Duplicate providers's found -> ${duplicates}. Please remove one before continuing.`);
+      }
+    }
   }
 
   // todo: handle multiple networks
@@ -82,12 +107,7 @@ export default class OreId {
     return this.cachedChainNetworks;
   }
 
-  async getOrCreateChainContext(chainNetwork) {
-    const { appName, eosTransitWalletProviders = [] } = this.options;
-    if (this.chainContexts[chainNetwork]) {
-      return this.chainContexts[chainNetwork];
-    }
-
+  async getNetworkConfig(chainNetwork) {
     const networks = await this.chainNetworks();
 
     const chainConfig = networks.find((n) => n.network === chainNetwork);
@@ -97,7 +117,16 @@ export default class OreId {
 
     const { hosts } = chainConfig;
     const { chainId, host, port, protocol } = hosts[0]; // using first host
-    const NETWORK_CONFIG = { host, port, protocol, chainId };
+    return { host, port, protocol, chainId };
+  }
+
+  async getOrCreateChainContext(chainNetwork) {
+    const { appName, eosTransitWalletProviders = [] } = this.options;
+    if (this.chainContexts[chainNetwork]) {
+      return this.chainContexts[chainNetwork];
+    }
+
+    const NETWORK_CONFIG = await this.getNetworkConfig(chainNetwork);
 
     // create context
     const chainContext = initAccessContext({
@@ -184,14 +213,25 @@ export default class OreId {
 
   async login(loginOptions) {
     const { provider, chainNetwork = 'eos_main' } = loginOptions;
-    const supportedTransitProviders = Object.keys(providerAttributes);
+    const supportedTransitProviders = Object.keys(transitProviderAttributes);
+    const supportedUALProviders = Object.keys(ualProviderAttributes);
 
     if (providersNotImplemented.includes(provider)) {
       throw new Error('Not Implemented');
     }
 
+    // TODO:
+    // 1. Check which is available and call that one
+    // 2. Connect init/login
+    // 3. Connect sign
+    // 4. Test all the available providers
+
     if (supportedTransitProviders.includes(provider)) {
       return this.connectToTransitProvider(provider, chainNetwork);
+    }
+
+    if (supportedUALProviders.includes(provider)) {
+      return this.connectToUALProvider(provider, chainNetwork);
     }
 
     return this.loginWithOreId(loginOptions);
@@ -201,7 +241,7 @@ export default class OreId {
   async sign(signOptions) {
     // handle sign transaction based on provider type
     const { provider } = signOptions;
-    const supportedTransitProviders = Object.keys(providerAttributes);
+    const supportedTransitProviders = Object.keys(transitProviderAttributes);
 
     if (providersNotImplemented.includes(provider)) {
       return;
@@ -231,7 +271,7 @@ export default class OreId {
 
   // throw error if invalid provider
   assertValidProvider(provider) {
-    if (providerAttributes[provider]) {
+    if (transitProviderAttributes[provider]) {
       return true;
     }
     throw new Error(`Provider ${provider} is not a valid option`);
@@ -239,7 +279,7 @@ export default class OreId {
 
   // determine whether discovery is supported by the provider
   canDiscover(provider) {
-    return providerAttributes[provider].supportsDiscovery === true;
+    return transitProviderAttributes[provider].supportsDiscovery === true;
   }
 
   async loginWithOreId(loginOptions) {
@@ -378,6 +418,10 @@ export default class OreId {
     return { account: newAccount };
   }
 
+  async connectToUALProvider(provider, chainNetwork) {
+    console.info('UAL ===>', this, provider, chainNetwork);
+  }
+
   async loginToTransitProvider(transitWallet, provider, chainNetwork) {
     try {
       await transitWallet.login();
@@ -394,7 +438,7 @@ export default class OreId {
   }
 
   async connectToTransitProvider(provider, chainNetwork) {
-    const providerId = providerAttributes[provider].providerId;
+    const providerId = transitProviderAttributes[provider].providerId;
     const chainContext = await this.getOrCreateChainContext(chainNetwork);
     const transitProvider = chainContext.getWalletProviders().find((wp) => wp.id === providerId);
     const transitWallet = chainContext.initWallet(transitProvider);
@@ -407,7 +451,7 @@ export default class OreId {
       await this.waitWhileWalletIsBusy(transitWallet, provider);
 
       // some providers require login flow to connect (usually this means connect() does nothing but login selects an account)
-      if (providerAttributes[provider].requiresLogin) {
+      if (transitProviderAttributes[provider].requiresLogin) {
         // if connected, but not authenticated, then login
         if (transitWallet && !transitWallet.authenticated) {
           await this.loginToTransitProvider(transitWallet, provider, chainNetwork);
