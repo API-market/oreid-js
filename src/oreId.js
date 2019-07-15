@@ -86,6 +86,7 @@ export default class OreId {
     this.storage = new StorageHandler();
     this.chainContexts = {};
     this.cachedChainNetworks = null;
+
     this.validateOptions(options);
     this.validateProviders();
   }
@@ -446,6 +447,7 @@ export default class OreId {
     return { account: newAccount };
   }
 
+<<<<<<< HEAD
   async loginWithNonOreIdProvider(loginOptions) {
     const isUALProvider = this.isUALProvider(loginOptions.provider);
     return isUALProvider ? this.connectToUALProvider(loginOptions) : this.connectToTransitProvider(loginOptions);
@@ -522,7 +524,11 @@ export default class OreId {
     }
   }
 
+<<<<<<< HEAD
   async connectToTransitProvider({ provider, chainNetwork }) {
+=======
+  async connectToTransitProvider(provider, chainNetwork) {
+>>>>>>> Set up ual/transit validation
     const providerId = transitProviderAttributes[provider].providerId;
     const chainContext = await this.getOrCreateChainContext(chainNetwork);
     const transitProvider = chainContext.getWalletProviders().find((wp) => wp.id === providerId);

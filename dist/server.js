@@ -452,7 +452,11 @@ case"Apple_Terminal":return 2}}return/-256(color)?$/i.test(i.TERM)?2:/^screen|^x
 e.exports=(e,t)=>{t=t||process.argv
 const r=e.startsWith("-")?"":1===e.length?"-":"--",n=t.indexOf(r+e),o=t.indexOf("--")
 return-1!==n&&(-1===o||n<o)}},function(e,t){e.exports=require("zlib")},function(e){e.exports=JSON.parse('{"_from":"axios@^0.19.0","_id":"axios@0.19.0","_inBundle":false,"_integrity":"sha512-1uvKqKQta3KBxIz14F2v06AEHZ/dIoeKfbTRkK1E5oqjDnuEerLmYTgJB5AiQZHJcljpg1TuRzdjDR06qNk0DQ==","_location":"/axios","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"axios@^0.19.0","name":"axios","escapedName":"axios","rawSpec":"^0.19.0","saveSpec":null,"fetchSpec":"^0.19.0"},"_requiredBy":["/"],"_resolved":"https://registry.npmjs.org/axios/-/axios-0.19.0.tgz","_shasum":"8e09bff3d9122e133f7b8101c8fbdd00ed3d2ab8","_spec":"axios@^0.19.0","_where":"/Users/randytorres/aikon/oreid-js","author":{"name":"Matt Zabriskie"},"browser":{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},"bugs":{"url":"https://github.com/axios/axios/issues"},"bundleDependencies":false,"bundlesize":[{"path":"./dist/axios.min.js","threshold":"5kB"}],"dependencies":{"follow-redirects":"1.5.10","is-buffer":"^2.0.2"},"deprecated":false,"description":"Promise based HTTP client for the browser and node.js","devDependencies":{"bundlesize":"^0.17.0","coveralls":"^3.0.0","es6-promise":"^4.2.4","grunt":"^1.0.2","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.1.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^20.1.0","grunt-karma":"^2.0.0","grunt-mocha-test":"^0.13.3","grunt-ts":"^6.0.0-beta.19","grunt-webpack":"^1.0.18","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^1.3.0","karma-chrome-launcher":"^2.2.0","karma-coverage":"^1.1.1","karma-firefox-launcher":"^1.1.0","karma-jasmine":"^1.1.1","karma-jasmine-ajax":"^0.1.13","karma-opera-launcher":"^1.0.0","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^1.2.0","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^1.7.0","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","mocha":"^5.2.0","sinon":"^4.5.0","typescript":"^2.8.1","url-search-params":"^0.10.0","webpack":"^1.13.1","webpack-dev-server":"^1.14.1"},"homepage":"https://github.com/axios/axios","keywords":["xhr","http","ajax","promise","node"],"license":"MIT","main":"index.js","name":"axios","repository":{"type":"git","url":"git+https://github.com/axios/axios.git"},"scripts":{"build":"NODE_ENV=production grunt build","coveralls":"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js","examples":"node ./examples/server.js","fix":"eslint --fix lib/**/*.js","postversion":"git push && git push --tags","preversion":"npm test","start":"node ./sandbox/server.js","test":"grunt test && bundlesize","version":"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json"},"typings":"./index.d.ts","version":"0.19.0"}')},function(e,t,r){"use strict"
+<<<<<<< HEAD
 var n=r(2),o=r(16),i=r(9),a=r(52),s=r(53),c=r(10)
+=======
+var n=r(2),o=r(15),i=r(8),a=r(52),s=r(53),c=r(9)
+>>>>>>> Set up ual/transit validation
 e.exports=function(e){return new Promise(function(t,u){var f=e.data,l=e.headers
 n.isFormData(f)&&delete l["Content-Type"]
 var p=new XMLHttpRequest
@@ -755,6 +759,7 @@ try{t&&(r=decodeURI(r)),n=U(r,"'",'"'),n=U(n,"`",'"')
 var o=JSON.parse(n)
 if(o&&"object"===O()(o))return o}catch(e){console.log(e)}return null}},{key:"isAnObject",value:function(e){return null!==e&&"object"===O()(e)}},{key:"base64DecodeSafe",value:function(t){var r={}
 if(this.isNullOrEmpty(t))return null
+<<<<<<< HEAD
 try{r=I.decode(t),e.tryParseJSON(r)&&(r=JSON.parse(r))}catch(e){return null}return r}},{key:"base64Encode",value:function(t){return e.isAnObject(t)&&(t=JSON.stringify(t)),I.encode(t)}},{key:"sleep",value:function(e){return new Promise(function(t){return setTimeout(t,e)})}}]),e}(),R=r(8),z=r.n(R)
 function j(e,t){var r=Object.keys(e)
 return Object.getOwnPropertySymbols&&r.push.apply(r,Object.getOwnPropertySymbols(e)),t&&(r=r.filter(function(t){return Object.getOwnPropertyDescriptor(e,t).enumerable})),r}var B=function(){function e(){f()(this,e)}return p()(e,[{key:"getItem",value:function(e){return z.a.get(e)}},{key:"removeItem",value:function(e){z.a.remove(e)}},{key:"setItem",value:function(e,t,r){var n=function(e){for(var t=1;t<arguments.length;t++){var r=null!=arguments[t]?arguments[t]:{}
@@ -788,24 +793,67 @@ case 3:return e.next=5,this.getNetworkConfig(t)
 case 5:return s=e.sent,c=E({appName:n||"missing appName",network:s,walletProviders:i}),this.chainContexts[t]=c,e.abrupt("return",c)
 case 9:case"end":return e.stop()}},e,this)})),function(e){return Y.apply(this,arguments)})},{key:"callPasswordlessApi",value:($=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,y,v=arguments
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=v.length>1&&void 0!==v[1]&&v[1],n=t.provider,o=t.phone,i=t.email,s=t.code,c=this.options,u=c.apiKey,f=c.oreIdUrl,n&&(o||i)&&(!r||s)){e.next=5
+=======
+try{r=T.decode(t),e.tryParseJSON(r)&&(r=JSON.parse(r))}catch(e){return null}return r}},{key:"base64Encode",value:function(t){return e.isAnObject(t)&&(t=JSON.stringify(t)),T.encode(t)}},{key:"sleep",value:function(e){return new Promise(function(t){return setTimeout(t,e)})}}]),e}(),U=r(28),R=r.n(U),z=r(7),N=r.n(z)
+function B(e,t){var r=Object.keys(e)
+return Object.getOwnPropertySymbols&&r.push.apply(r,Object.getOwnPropertySymbols(e)),t&&(r=r.filter(function(t){return Object.getOwnPropertyDescriptor(e,t).enumerable})),r}var F=function(){function e(){c()(this,e)}return f()(e,[{key:"getItem",value:function(e){return N.a.get(e)}},{key:"removeItem",value:function(e){N.a.remove(e)}},{key:"setItem",value:function(e,t,r){var n=function(e){for(var t=1;t<arguments.length;t++){var r=null!=arguments[t]?arguments[t]:{}
+t%2?B(r,!0).forEach(function(t){R()(e,t,r[t])}):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(r)):B(r).forEach(function(t){Object.defineProperty(e,t,Object.getOwnPropertyDescriptor(r,t))})}return e}({expires:1},r)
+N.a.set(e,t,n)}}]),e}(),j=function(){function e(){c()(this,e),window?this.storage=window.localStorage:P.log("Not running in Browser. Using CookieStorage instead.")}return f()(e,[{key:"getItem",value:function(e){if(this.storage)return this.storage.getItem(e)}},{key:"removeItem",value:function(e){if(this.storage)return this.storage.removeItem(e)}},{key:"setItem",value:function(e,t,r){if(this.storage)return this.storage.setItem(e,t,r)}}]),e}(),D=function(){function e(){c()(this,e)}return f()(e,[{key:"getItem",value:function(e){return null}},{key:"removeItem",value:function(e){}},{key:"setItem",value:function(e,t,r){}}]),e}(),L=function(){function e(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{tryLocalStorageFirst:!0}
+if(c()(this,e),this.triedLocalStorage=!1,this.triedCookieStorage=!1,!0===t.tryLocalStorageFirst){this.triedLocalStorage=!0
+try{var r=new j
+r&&r.storage&&(this.storage=r)}catch(e){P.log("Can't use localStorage. Using CookieStorage instead.",t)}}this.storage||(this.storage=new F,this.triedCookieStorage=!0)}return f()(e,[{key:"failover",value:function(){if(!(this.storage instanceof D)){var e=!1
+this.storage instanceof j?this.triedCookieStorage||(this.storage=new F,this.triedCookieStorage=!0,e=!0):this.storage instanceof F&&(this.triedLocalStorage||(this.storage=new j,this.triedLocalStorage=!0,e=!0)),e||(this.storage=new D)}}},{key:"getItem",value:function(e){try{return this.storage.getItem(e)}catch(t){return P.log("Can't getItem in storage.",t),this.failover(),this.storage.getItem(e)}}},{key:"removeItem",value:function(e){try{return this.storage.removeItem(e)}catch(t){return P.log("Can't removeItem in storage.",t),this.failover(),this.storage.removeItem(e)}}},{key:"setItem",value:function(e,t,r){try{return this.storage.setItem(e,t,r)}catch(n){return P.log("Can't setItem in storage.",n),this.failover(),this.storage.setItem(e,t,r)}}}]),e}(),M={ledger:{providerId:"ledger",requiresLogin:!1,supportsDiscovery:!0},lynx:{providerId:"EOS Lynx",requiresLogin:!1,supportsDiscovery:!1},meetone:{providerId:"meetone_provider",requiresLogin:!1,supportsDiscovery:!1},metro:{providerId:"metro",requiresLogin:!1,supportsDiscovery:!1},scatter:{providerId:"scatter",requiresLogin:!0,supportsDiscovery:!1},tokenpocket:{providerId:"TokenPocket",requiresLogin:!1,supportsDiscovery:!1},portis:{providerId:"PortisProvider",requiresLogin:!0,supportsDiscovery:!1},whalevault:{providerId:"whalevault",requiresLogin:!0,supportsDiscovery:!1},simpleos:{providerId:"simpleos",requiresLogin:!0,supportsDiscovery:!1},keycat:{providerId:"Keycat",requiresLogin:!0,supportsDiscovery:!1}},q={scatter:{requiresLogin:!0}},K=["metro"],W=function(){function e(t){c()(this,e),this.options=null,this.appAccessToken=null,this.user=null,this.storage=new L,this.validateOptions(t),this.chainContexts={},this.cachedChainNetworks=null,this.validateProviders()}var t,r,n,i,s,u,l,h,d,y,v,g,m,b,w,_,x,k,A,E,S,O,T,I,U,R,z,N,B,F,j,D,W,V,J
+return f()(e,[{key:"validateProviders",value:(J=a()(o.a.mark(function e(){var t,r,n,i,a
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(t=P.isNullOrEmpty,r=this.options,n=r.ualProviders,i=r.eosTransitWalletProviders,t(i)||t(n)){e.next=6
+break}if(a=i.map(function(e){return e({})}).map(function(e){return e.id}).filter(function(e){return n.find(function(t){return t.name.toLowerCase()===e.toLowerCase()})}),t(a)){e.next=6
+break}throw Error("Duplicate providers's found -> ".concat(a,". Please remove one before continuing."))
+case 6:case"end":return e.stop()}},e,this)})),function(){return J.apply(this,arguments)})},{key:"chainNetworks",value:(V=a()(o.a.mark(function e(){var t
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(this.cachedChainNetworks){e.next=5
+break}return e.next=3,this.getConfigFromApi("chains")
+case 3:t=e.sent,this.cachedChainNetworks=t.chains
+case 5:return e.abrupt("return",this.cachedChainNetworks)
+case 6:case"end":return e.stop()}},e,this)})),function(){return V.apply(this,arguments)})},{key:"getNetworkConfig",value:(W=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.next=2,this.chainNetworks()
+case 2:if(r=e.sent,n=r.find(function(e){return e.network===t})){e.next=6
+break}throw new Error("Invalid chain network: ".concat(t,"."))
+case 6:return i=n.hosts,a=i[0],s=a.chainId,c=a.host,u=a.port,f=a.protocol,e.abrupt("return",{host:c,port:u,protocol:f,chainId:s})
+case 9:case"end":return e.stop()}},e,this)})),function(e){return W.apply(this,arguments)})},{key:"getOrCreateChainContext",value:(D=a()(o.a.mark(function e(t){var r,n,i,a,s,c
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.options,n=r.appName,i=r.eosTransitWalletProviders,a=void 0===i?[]:i,!this.chainContexts[t]){e.next=3
+break}return e.abrupt("return",this.chainContexts[t])
+case 3:return e.next=5,this.getNetworkConfig(t)
+case 5:return s=e.sent,c=C({appName:n||"missing appName",network:s,walletProviders:a}),this.chainContexts[t]=c,e.abrupt("return",c)
+case 9:case"end":return e.stop()}},e,this)})),function(e){return D.apply(this,arguments)})},{key:"callPasswordlessApi",value:(j=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,h,d,y,v=arguments
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=v.length>1&&void 0!==v[1]&&v[1],n=t.provider,i=t.phone,a=t.email,s=t.code,c=this.options,u=c.apiKey,f=c.oreIdUrl,n&&(i||a)&&(!r||s)){e.next=5
+>>>>>>> Set up ual/transit validation
 break}throw new Error("Missing a required parameter")
 case 5:return l="send",r&&(l="verify"),p="".concat(f,"/api/account/login-passwordless-").concat(l,"-code?provider=").concat(n),i&&(p+="&email=".concat(i)),o&&(h=encodeURIComponent(o),p+="&phone=".concat(h)),r&&(p+="&code=".concat(s)),y={},e.prev=12,e.next=15,d.a.get(p,{headers:{"api-key":u}})
 case 15:y=e.sent,e.next=21
 break
 case 18:e.prev=18,e.t0=e.catch(12),y=e.t0.response
 case 21:return e.abrupt("return",y.data)
+<<<<<<< HEAD
 case 22:case"end":return e.stop()}},e,this,[[12,18]])})),function(e){return $.apply(this,arguments)})},{key:"passwordlessSendCodeApi",value:(H=c()(a.a.mark(function e(t){var r
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r={},e.prev=1,e.next=4,this.callPasswordlessApi(t)
+=======
+case 22:case"end":return e.stop()}},e,this,[[12,18]])})),function(e){return j.apply(this,arguments)})},{key:"passwordlessSendCodeApi",value:(F=a()(o.a.mark(function e(t){var r
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r={},e.prev=1,e.next=4,this.callPasswordlessApi(t)
+>>>>>>> Set up ual/transit validation
 case 4:r=e.sent,e.next=10
 break
 case 7:return e.prev=7,e.t0=e.catch(1),e.abrupt("return",{error:e.t0})
 case 10:return e.abrupt("return",r)
+<<<<<<< HEAD
 case 11:case"end":return e.stop()}},e,this,[[1,7]])})),function(e){return H.apply(this,arguments)})},{key:"passwordlessVerifyCodeApi",value:(G=c()(a.a.mark(function e(t){var r
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r={},e.prev=1,e.next=4,this.callPasswordlessApi(t,!0)
+=======
+case 11:case"end":return e.stop()}},e,this,[[1,7]])})),function(e){return F.apply(this,arguments)})},{key:"passwordlessVerifyCodeApi",value:(B=a()(o.a.mark(function e(t){var r
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r={},e.prev=1,e.next=4,this.callPasswordlessApi(t,!0)
+>>>>>>> Set up ual/transit validation
 case 4:r=e.sent,e.next=10
 break
 case 7:return e.prev=7,e.t0=e.catch(1),e.abrupt("return",{error:e.t0})
 case 10:return e.abrupt("return",r)
+<<<<<<< HEAD
 case 11:case"end":return e.stop()}},e,this,[[1,7]])})),function(e){return G.apply(this,arguments)})},{key:"login",value:(J=c()(a.a.mark(function e(t){var r,n,o
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=Object.keys(K),o=Object.keys(W),!V.includes(r)){e.next=5
 break}throw new Error("Not Implemented")
@@ -814,9 +862,22 @@ break}return e.abrupt("return",this.loginWithNonOreIdProvider(t))
 case 7:return e.abrupt("return",this.loginWithOreId(t))
 case 8:case"end":return e.stop()}},e,this)})),function(e){return J.apply(this,arguments)})},{key:"sign",value:(M=c()(a.a.mark(function e(t){var r,n,o
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=Object.keys(K),o=Object.keys(W),!V.includes(r)){e.next=5
+=======
+case 11:case"end":return e.stop()}},e,this,[[1,7]])})),function(e){return B.apply(this,arguments)})},{key:"login",value:(N=a()(o.a.mark(function e(t){var r,n,i,a,s
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=t.chainNetwork,i=void 0===n?"eos_main":n,a=Object.keys(M),s=Object.keys(q),console.info(this,r,i),!K.includes(r)){e.next=6
+break}throw new Error("Not Implemented")
+case 6:if(!a.includes(r)){e.next=8
+break}return e.abrupt("return",this.connectToTransitProvider(r,i))
+case 8:if(!s.includes(r)){e.next=10
+break}return e.abrupt("return",this.connectToUALProvider(r,i))
+case 10:return e.abrupt("return",this.loginWithOreId(t))
+case 11:case"end":return e.stop()}},e,this)})),function(e){return N.apply(this,arguments)})},{key:"sign",value:(z=a()(o.a.mark(function e(t){var r,n
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=Object.keys(M),!K.includes(r)){e.next=4
+>>>>>>> Set up ual/transit validation
 break}return e.abrupt("return")
 case 5:if(!this.isCustodial(r)){e.next=7
 break}return e.abrupt("return",this.custodialSignWithOreId(t))
+<<<<<<< HEAD
 case 7:if(!n.includes(r)&&!o.includes(r)){e.next=9
 break}return e.abrupt("return",this.signWithNonOreIdProvider(t))
 case 9:return e.abrupt("return",this.signWithOreId(t))
@@ -849,25 +910,62 @@ case 17:return e.prev=17,this.setIsBusy(!1),e.finish(17)
 case 20:case"end":return e.stop()}},e,this,[[5,13,17,20]])})),function(e){return R.apply(this,arguments)})},{key:"signWithTransitProvider",value:(U=c()(a.a.mark(function e(t){var r,n,o,i,s,c
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=t.broadcast,n=t.chainNetwork,o=t.transaction,i=t.provider,e.next=3,this.connectToTransitProvider(i,n)
 case 3:return s=e.sent,c=s.transitWallet,e.prev=5,this.setIsBusy(!0),e.next=9,c.eosApi.transact({actions:[o]},{broadcast:r,blocksBehind:3,expireSeconds:60})
+=======
+case 6:if(!n.includes(r)){e.next=8
+break}return e.abrupt("return",this.signWithTransitProvider(t))
+case 8:return e.abrupt("return",this.signWithOreId(t))
+case 9:case"end":return e.stop()}},e,this)})),function(e){return z.apply(this,arguments)})},{key:"discover",value:(R=a()(o.a.mark(function e(t){var r,n,i,a
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=t.chainNetwork,i=void 0===n?"eos_main":n,a=t.discoveryPathIndexList,this.assertValidProvider(r),!this.canDiscover(r)){e.next=4
+break}return e.abrupt("return",this.discoverCredentialsInWallet(i,r,a))
+case 4:throw new Error("Discover not support for provider: ".concat(r))
+case 5:case"end":return e.stop()}},e,this)})),function(e){return R.apply(this,arguments)})},{key:"assertValidProvider",value:function(e){if(M[e])return!0
+throw new Error("Provider ".concat(e," is not a valid option"))}},{key:"canDiscover",value:function(e){return!0===M[e].supportsDiscovery}},{key:"loginWithOreId",value:(U=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,p
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=t.code,n=t.email,i=t.phone,a=t.provider,s=t.state,c=this.options,u=c.authCallbackUrl,f=c.backgroundColor,l={code:r,email:n,phone:i,provider:a,backgroundColor:f,callbackUrl:u,state:s},e.next=5,this.getOreIdAuthUrl(l)
+case 5:return p=e.sent,e.abrupt("return",{loginUrl:p,errors:null})
+case 7:case"end":return e.stop()}},e,this)})),function(e){return U.apply(this,arguments)})},{key:"signWithOreId",value:(I=a()(o.a.mark(function e(t){var r,n
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=this.options.signCallbackUrl,t.callbackUrl=r,e.next=4,this.getOreIdSignUrl(t)
+case 4:return n=e.sent,e.abrupt("return",{signUrl:n,errors:null})
+case 6:case"end":return e.stop()}},e,this)})),function(e){return I.apply(this,arguments)})},{key:"custodialSignWithOreId",value:(T=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,h,d,y,v,g,m,b,w,_,x
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.options,n=r.apiKey,i=r.oreIdUrl,a=r.serviceKey){e.next=3
+break}throw new Error("Missing serviceKey in oreId config options - required to call api/custodial/new-user.")
+case 3:return s=t.account,c=t.broadcast,u=t.chainAccount,f=t.chainNetwork,l=t.returnSignedTransaction,h=t.transaction,d=t.userPassword,y=P.base64Encode(h),v={account:s,broadcast:c,chain_account:u,chain_network:f,return_signed_transaction:l,transaction:y,user_password:d},g="".concat(i,"/api/custodial/sign"),e.next=9,p.a.post(g,JSON.stringify(v),{headers:{"Content-Type":"application/json","api-key":n,"service-key":a},body:v})
+case 9:if(m=e.sent,!(b=m.error)){e.next=13
+break}throw new Error(b)
+case 13:return w=m.data,_=w.signed_transaction,x=w.transaction_id,e.abrupt("return",{signedTransaction:_,transactionId:x})
+case 16:case"end":return e.stop()}},e,this)})),function(e){return T.apply(this,arguments)})},{key:"signWithTransitProvider",value:(O=a()(o.a.mark(function e(t){var r,n,i,a,s,c
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=t.broadcast,n=t.chainNetwork,i=t.transaction,a=t.provider,e.next=3,this.connectToTransitProvider(a,n)
+case 3:return s=e.sent,c=s.transitWallet,e.prev=5,this.setIsBusy(!0),e.next=9,c.eosApi.transact({actions:[i]},{broadcast:r,blocksBehind:3,expireSeconds:60})
+>>>>>>> Set up ual/transit validation
 case 9:s=e.sent,e.next=15
 break
 case 12:throw e.prev=12,e.t0=e.catch(5),e.t0
 case 15:return e.prev=15,this.setIsBusy(!1),e.finish(15)
 case 18:return e.abrupt("return",{signedTransaction:s})
+<<<<<<< HEAD
 case 19:case"end":return e.stop()}},e,this,[[5,12,15,18]])})),function(e){return U.apply(this,arguments)})},{key:"custodialNewAccount",value:(I=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,y,v,g,m
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.options,n=r.apiKey,o=r.oreIdUrl,i=r.serviceKey,s=t.accountType,c=t.email,u=t.name,f=t.picture,l=t.phone,p=t.userName,h=t.userPassword,y={account_type:s,email:c,name:u,picture:f,phone:l,user_name:p,user_password:h},i){e.next=5
+=======
+case 19:case"end":return e.stop()}},e,this,[[5,12,15,18]])})),function(e){return O.apply(this,arguments)})},{key:"custodialNewAccount",value:(S=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,h,d,y,v,g,m
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.options,n=r.apiKey,i=r.oreIdUrl,a=r.serviceKey,s=t.accountType,c=t.email,u=t.name,f=t.picture,l=t.phone,h=t.userName,d=t.userPassword,y={account_type:s,email:c,name:u,picture:f,phone:l,user_name:h,user_password:d},a){e.next=5
+>>>>>>> Set up ual/transit validation
 break}throw new Error("Missing serviceKey in oreId config options - required to call api/custodial/new-user.")
 case 5:return v="".concat(o,"/api/custodial/new-user"),e.next=8,d.a.post(v,JSON.stringify(y),{headers:{"Content-Type":"application/json","api-key":n,"service-key":i},body:y})
 case 8:if(g=e.sent,!(m=g.error)){e.next=12
 break}throw new Error(m)
 case 12:return e.abrupt("return",g.data)
+<<<<<<< HEAD
 case 13:case"end":return e.stop()}},e,this)})),function(e){return I.apply(this,arguments)})},{key:"custodialMigrateAccount",value:(P=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,y,v,g,m
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.options,n=r.apiKey,o=r.oreIdUrl,i=r.serviceKey){e.next=3
+=======
+case 13:case"end":return e.stop()}},e,this)})),function(e){return S.apply(this,arguments)})},{key:"custodialMigrateAccount",value:(E=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,h,d,y,v,g,m
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.options,n=r.apiKey,i=r.oreIdUrl,a=r.serviceKey){e.next=3
+>>>>>>> Set up ual/transit validation
 break}throw new Error("Missing serviceKey in oreId config options - required to call api/custodial/migrate-account.")
 case 3:return s=t.account,c=t.chainAccount,u=t.chainNetwork,f=t.toType,l=t.userPassword,p={account:s,chain_account:c,chain_network:u,to_type:f,user_password:l},h="".concat(o,"/api/custodial/migrate-account"),e.next=8,d.a.post(h,JSON.stringify(p),{headers:{"Content-Type":"application/json","api-key":n,"service-key":i},body:p})
 case 8:if(y=e.sent,!(v=y.error)){e.next=12
 break}throw new Error(v)
 case 12:return g=y.data,m=g.account,e.abrupt("return",{account:m})
+<<<<<<< HEAD
 case 15:case"end":return e.stop()}},e,this)})),function(e){return P.apply(this,arguments)})},{key:"loginWithNonOreIdProvider",value:(T=c()(a.a.mark(function e(t){var r
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=this.isUALProvider(t.provider),e.abrupt("return",r?this.connectToUALProvider(t):this.connectToTransitProvider(t))
 case 2:case"end":return e.stop()}},e,this)})),function(e){return T.apply(this,arguments)})},{key:"loginToUALProvider",value:(O=c()(a.a.mark(function e(t,r,n){var o,i
@@ -893,6 +991,11 @@ break
 case 31:throw Error("Provider does not match")
 case 32:case"end":return e.stop()}},e,this,[[3,25]])})),function(e){return S.apply(this,arguments)})},{key:"loginToTransitProvider",value:(A=c()(a.a.mark(function e(t,r,n){var o
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.prev=0,e.next=3,t.login()
+=======
+case 15:case"end":return e.stop()}},e,this)})),function(e){return E.apply(this,arguments)})},{key:"connectToUALProvider",value:(A=a()(o.a.mark(function e(t,r){return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:console.info("UAL ===>",this,t,r)
+case 1:case"end":return e.stop()}},e,this)})),function(e,t){return A.apply(this,arguments)})},{key:"loginToTransitProvider",value:(k=a()(o.a.mark(function e(t,r,n){var i
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.prev=0,e.next=3,t.login()
+>>>>>>> Set up ual/transit validation
 case 3:e.next=13
 break
 case 5:if(e.prev=5,e.t0=e.catch(0),o=e.t0.message,!(void 0===o?"":o).includes("unknown key (boost::tuples::tuple")){e.next=12
@@ -1016,11 +1119,18 @@ case 9:case"end":return e.stop()}},e,this)})),function(e){return r.apply(this,ar
 return r&&(t=r.split(/[\/?\/$&]/)),(t||n)&&(t=t||[]).push(n),t}},{key:"logout",value:function(){this.clearLocalState()}},{key:"userKey",value:function(){return"oreid.".concat(this.options.appId,".user")}},{key:"saveUserLocally",value:function(e){if(!N.isNullOrEmpty(e)){this.user=e
 var t=JSON.stringify(this.user)
 this.storage.setItem(this.userKey(),t)}}},{key:"loadUserLocally",value:function(){var e=this.storage.getItem(this.userKey())
+<<<<<<< HEAD
 return N.isNullOrEmpty(e)?(this.user=null,null):(this.user=JSON.parse(e),this.user)}},{key:"clearLocalState",value:(t=c()(a.a.mark(function e(){return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:this.storage.removeItem(this.userKey())
 case 1:case"end":return e.stop()}},e,this)})),function(){return t.apply(this,arguments)})},{key:"isCustodial",value:function(e){return"custodial"===e}},{key:"isUALProvider",value:function(e){var t=this.options.ualProviders
 return t&&t.find(function(t){return t.name.toLowerCase()===e.toLowerCase()})}}]),e}(),G=function(e){return function(t,r,n){Promise.resolve(e(t,r,n)).catch(n)}}
 function H(e){return G(function(){var t=c()(a.a.mark(function t(r,n,o){var i,s,c,u,f,l,p,h
 return a.a.wrap(function(t){for(;;)switch(t.prev=t.next){case 0:if(r.query){t.next=3
+=======
+return P.isNullOrEmpty(e)?(this.user=null,null):(this.user=JSON.parse(e),this.user)}},{key:"clearLocalState",value:(t=a()(o.a.mark(function e(){return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:this.storage.removeItem(this.userKey())
+case 1:case"end":return e.stop()}},e,this)})),function(){return t.apply(this,arguments)})},{key:"isCustodial",value:function(e){return"custodial"===e}}]),e}(),V=function(e){return function(t,r,n){Promise.resolve(e(t,r,n)).catch(n)}}
+function J(e){return V(function(){var t=a()(o.a.mark(function t(r,n,i){var a,s,c,u,f,l,p,h
+return o.a.wrap(function(t){for(;;)switch(t.prev=t.next){case 0:if(r.query){t.next=3
+>>>>>>> Set up ual/transit validation
 break}return t.abrupt("return",{})
 case 3:if(e.errors=null,i=e.handleAuthResponse(r.originalUrl),s=i.accessToken,c=i.account,u=i.errors,f=i.idToken,l=i.state,!u){t.next=10
 break}return e.errors=u,p=new Error("Errors Processing auth callback: ".concat(u.join(", "))),t.abrupt("return",o(p))
@@ -1029,11 +1139,20 @@ break}return t.next=17,e.getUserInfoFromApi(c)
 case 17:h=t.sent,r.user=h
 case 19:return t.abrupt("return",o())
 case 20:case"end":return t.stop()}},t)}))
+<<<<<<< HEAD
 return function(e,r,n){return t.apply(this,arguments)}}())}function $(e){return G(function(){var t=c()(a.a.mark(function t(r,n,o){var i,s,c,u,f,l,p
 return a.a.wrap(function(t){for(;;)switch(t.prev=t.next){case 0:if(i=r.body){t.next=3
+=======
+return function(e,r,n){return t.apply(this,arguments)}}())}function G(e){return V(function(){var t=a()(o.a.mark(function t(r,n,i){var a,s,c,u,f,l,p
+return o.a.wrap(function(t){for(;;)switch(t.prev=t.next){case 0:if(a=r.body){t.next=3
+>>>>>>> Set up ual/transit validation
 break}return t.abrupt("return",{})
 case 3:if(e.errors=null,s=e.handleSignResponse(i),c=s.signedTransaction,u=s.state,f=s.transactionId,!(l=s.errors)){t.next=9
 break}return e.errors=l,p=new Error("Errors Processing sign callback: ".concat(l.join(", "))),t.abrupt("return",o(p))
 case 9:return c&&(r.signedTransaction=c,r.appId=e.appId),f&&(r.transactionId=f),u&&(r.state=u),t.abrupt("return",o())
 case 13:case"end":return t.stop()}},t)}))
+<<<<<<< HEAD
 return function(e,r,n){return t.apply(this,arguments)}}())}r.d(t,"asyncHandler",function(){return G}),r.d(t,"authCallbackHandler",function(){return H}),r.d(t,"OreId",function(){return J}),r.d(t,"signCallbackHandler",function(){return $})}])})
+=======
+return function(e,r,n){return t.apply(this,arguments)}}())}r.d(t,"asyncHandler",function(){return V}),r.d(t,"authCallbackHandler",function(){return J}),r.d(t,"OreId",function(){return W}),r.d(t,"signCallbackHandler",function(){return G})}])})
+>>>>>>> Set up ual/transit validation
