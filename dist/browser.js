@@ -715,13 +715,13 @@ case 5:return p=e.sent,e.abrupt("return",{loginUrl:p,errors:null})
 case 7:case"end":return e.stop()}},e,this)})),function(e){return O.apply(this,arguments)})},{key:"signWithOreId",value:(I=a()(o.a.mark(function e(t){var r,n
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=this.options.signCallbackUrl,t.callbackUrl=r,e.next=4,this.getOreIdSignUrl(t)
 case 4:return n=e.sent,e.abrupt("return",{signUrl:n,errors:null})
-case 6:case"end":return e.stop()}},e,this)})),function(e){return I.apply(this,arguments)})},{key:"custodialSignWithOreId",value:(T=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,h,d,y,v,g,m,b,w,_,x
+case 6:case"end":return e.stop()}},e,this)})),function(e){return I.apply(this,arguments)})},{key:"custodialSignWithOreId",value:(T=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,h,d,y,v,g,m,b,w,_,x,k
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.options,n=r.apiKey,i=r.oreIdUrl,a=r.serviceKey){e.next=3
 break}throw new Error("Missing serviceKey in oreId config options - required to call api/custodial/new-user.")
-case 3:return s=t.account,c=t.broadcast,u=t.chainAccount,f=t.chainNetwork,l=t.returnSignedTransaction,h=t.transaction,d=t.userPassword,y=P.base64Encode(h),v={account:s,broadcast:c,chain_account:u,chain_network:f,return_signed_transaction:l,transaction:y,user_password:d},g="".concat(i,"/api/custodial/sign"),e.next=9,p.a.post(g,JSON.stringify(v),{headers:{"Content-Type":"application/json","api-key":n,"service-key":a},body:v})
-case 9:if(m=e.sent,!(b=m.error)){e.next=13
-break}throw new Error(b)
-case 13:return w=m.data,_=w.signed_transaction,x=w.transaction_id,e.abrupt("return",{signedTransaction:_,transactionId:x})
+case 3:return s=t.account,c=t.allowChainAccountSelection,u=t.broadcast,f=t.chainAccount,l=t.chainNetwork,h=t.returnSignedTransaction,d=t.transaction,y=t.userPassword,v=P.base64Encode(d),g={account:s,allow_chain_account_selection:c,broadcast:u,chain_account:f,chain_network:l,return_signed_transaction:h,transaction:v,user_password:y},m="".concat(i,"/api/custodial/sign"),e.next=9,p.a.post(m,JSON.stringify(g),{headers:{"Content-Type":"application/json","api-key":n,"service-key":a},body:g})
+case 9:if(b=e.sent,!(w=b.error)){e.next=13
+break}throw new Error(w)
+case 13:return _=b.data,x=_.signed_transaction,k=_.transaction_id,e.abrupt("return",{signedTransaction:x,transactionId:k})
 case 16:case"end":return e.stop()}},e,this)})),function(e){return T.apply(this,arguments)})},{key:"signWithTransitProvider",value:(C=a()(o.a.mark(function e(t){var r,n,i,a,s,c
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=t.broadcast,n=t.chainNetwork,i=t.transaction,a=t.provider,e.next=3,this.connectToTransitProvider(a,n)
 case 3:return s=e.sent,c=s.transitWallet,e.prev=5,this.setIsBusy(!0),e.next=9,c.eosApi.transact({actions:[i]},{broadcast:r,blocksBehind:3,expireSeconds:60})
@@ -830,10 +830,10 @@ break}throw new Error("Missing a required parameter")
 case 4:return e.next=6,this.getAccessToken()
 case 6:return l=e.sent,p=u?"&state=".concat(u):"",h=r?"&code=".concat(r):"",d=n?"&email=".concat(n):"",y="",i&&(v=encodeURIComponent(i),y="&phone=".concat(v)),e.abrupt("return","".concat(f,"/auth#app_access_token=").concat(l,"&provider=").concat(a)+"".concat(h).concat(d).concat(y)+"&callback_url=".concat(encodeURIComponent(s),"&background_color=").concat(encodeURIComponent(c)).concat(p))
 case 13:case"end":return e.stop()}},e,this)})),function(e){return d.apply(this,arguments)})},{key:"getOreIdSignUrl",value:(h=a()(o.a.mark(function e(t){var r,n,i,a,s,c,u,f,l,p,h,d,y,v
-return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.account,n=t.accountIsTransactionPermission,i=t.broadcast,a=t.callbackUrl,s=t.chainNetwork,t.provider,c=t.returnSignedTransaction,u=t.state,f=t.transaction,l=t.userPassword,p=t.chainAccount,h=this.options.oreIdUrl,r&&a&&f){e.next=5
+return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.account,n=t.allowChainAccountSelection,i=t.broadcast,a=t.callbackUrl,s=t.chainNetwork,t.provider,c=t.returnSignedTransaction,u=t.state,f=t.transaction,l=t.userPassword,p=t.chainAccount,h=this.options.oreIdUrl,r&&a&&f){e.next=5
 break}throw new Error("Missing a required parameter")
 case 5:return p||(p=r),e.next=8,this.getAccessToken()
-case 8:return d=e.sent,y=P.base64Encode(f),v=u?"&state=".concat(u):"",v+=n?"&account_is_transaction_permission=".concat(n):"",v+=P.isNullOrEmpty(c)?"":"&return_signed_transaction=".concat(c),v+=P.isNullOrEmpty(l)?"":"&user_password=".concat(l),e.abrupt("return","".concat(h,"/sign#app_access_token=").concat(d,"&account=").concat(r,"&broadcast=").concat(i,"&callback_url=").concat(encodeURIComponent(a),"&chain_account=").concat(p,"&chain_network=").concat(encodeURIComponent(s),"&transaction=").concat(y).concat(v))
+case 8:return d=e.sent,y=P.base64Encode(f),v=u?"&state=".concat(u):"",v+=P.isNullOrEmpty(n)?"":"&allow_chain_account_selection=".concat(n),v+=P.isNullOrEmpty(c)?"":"&return_signed_transaction=".concat(c),v+=P.isNullOrEmpty(l)?"":"&user_password=".concat(l),e.abrupt("return","".concat(h,"/sign#app_access_token=").concat(d,"&account=").concat(r,"&broadcast=").concat(i,"&callback_url=").concat(encodeURIComponent(a),"&chain_account=").concat(p,"&chain_network=").concat(encodeURIComponent(s),"&transaction=").concat(y).concat(v))
 case 15:case"end":return e.stop()}},e,this)})),function(e){return h.apply(this,arguments)})},{key:"handleAuthResponse",value:function(e){var t=P.urlParamsToArray(e),r=t.accessToken,n=t.account,o=t.idToken,i=t.state,a=this.getErrorCodesFromParams(t),s={account:n}
 return r&&(s.accessToken=r),o&&(s.idToken=o),a&&(s.errors=a),i&&(s.state=i),this.setIsBusy(!1),s}},{key:"handleSignResponse",value:function(e){var t,r=P.urlParamsToArray(e),n=r.signed_transaction,o=r.state,i=r.transaction_id,a=this.getErrorCodesFromParams(r)
 return a||(t=P.base64DecodeSafe(n)),this.setIsBusy(!1),{signedTransaction:t,state:o,transactionId:i,errors:a}}},{key:"getNewAppAccessToken",value:(l=a()(o.a.mark(function e(){var t,r
