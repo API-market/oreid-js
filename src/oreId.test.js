@@ -10,9 +10,8 @@ describe('OreId', () => {
     oreIdUrl: 'https://service.oreid.io'
   };
 
-  beforeEach(async () => {
+  beforeEach(() => {
     oreId = new OreId(options);
-    await oreId.init();
   });
 
   describe('Errors without the required params', () => {
@@ -56,8 +55,8 @@ describe('OreId', () => {
   });
 
   it('sets the chainNetworks correctly when initializing', async () => {
-    await oreId.init();
-    expect(oreId.chainNetworks).toEqual(demoChainNetworks);
+    await oreId.chainNetworks();
+    expect(oreId.cachedChainNetworks).toEqual(demoChainNetworks);
   });
 
   describe('Login', () => {
@@ -75,9 +74,8 @@ describe('OreId', () => {
       state: 'CA'
     };
 
-    beforeEach(async () => {
+    beforeEach(() => {
       oreId = new OreId(options);
-      await oreId.init();
     });
 
     it('errors without `provider` and `callbackUrl`', async () => {
@@ -120,9 +118,8 @@ describe('OreId', () => {
     //     eosTransitWalletProviders: [fakeScatterProvider]
     //   };
 
-    //   beforeEach(async () => {
+    //   beforeEach(() => {
     //     oreId = new OreId(options);
-    //     oreId.init();
     //   });
 
     //   it('tries to login with scatter', async () => {
