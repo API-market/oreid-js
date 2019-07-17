@@ -59,6 +59,9 @@ const transitProviderAttributes = {
 const ualProviderAttributes = {
   scatter: {
     requiresLogin: true
+  },
+  ledger: {
+    requiresLogin: true
   }
 };
 
@@ -222,15 +225,14 @@ export default class OreId {
 
     // TODO:
     // 1. Check which is available and call that one
-    // 2. Connect init/login
-    // 3. Connect sign
     // 4. Test all the available providers
 
-    if (supportedTransitProviders.includes(provider)) {
-      return this.connectToTransitProvider(provider, chainNetwork);
-    }
+    // if (supportedTransitProviders.includes(provider)) {
+    //   return this.connectToTransitProvider(provider, chainNetwork);
+    // }
 
     if (supportedUALProviders.includes(provider)) {
+      console.info(provider, chainNetwork);
       return this.connectToUALProvider(provider, chainNetwork);
     }
 
@@ -242,6 +244,7 @@ export default class OreId {
     // handle sign transaction based on provider type
     const { provider } = signOptions;
     const supportedTransitProviders = Object.keys(transitProviderAttributes);
+    const supportedUALProviders = Object.keys(ualProviderAttributes);
 
     if (providersNotImplemented.includes(provider)) {
       return;
@@ -251,8 +254,12 @@ export default class OreId {
       return this.custodialSignWithOreId(signOptions);
     }
 
-    if (supportedTransitProviders.includes(provider)) {
-      return this.signWithTransitProvider(signOptions);
+    // if (supportedTransitProviders.includes(provider)) {
+    //   return this.signWithTransitProvider(signOptions);
+    // }
+
+    if (supportedUALProviders.includes(provider)) {
+      return this.signWithUALProvider(signOptions);
     }
 
     return this.signWithOreId(signOptions);
@@ -279,6 +286,11 @@ export default class OreId {
 
   // determine whether discovery is supported by the provider
   canDiscover(provider) {
+    const isUALProvider = this.options.ualProviders.find((ualProvider) => ualProvider.name.toLowerCase() === provider.toLowerCase());
+    if (isUALProvider) {
+      return false;
+    }
+
     return transitProviderAttributes[provider].supportsDiscovery === true;
   }
 
@@ -337,6 +349,20 @@ export default class OreId {
     const { data } = response;
     const { signed_transaction: signedTransaction, transaction_id: transactionId } = data;
     return { signedTransaction, transactionId };
+  }
+
+  async signWithUALProvider({ provider, broadcast, chainNetwork, transaction }) {
+    const { user } = await this.connectToUALProvider(provider, chainNetwork);
+    try {
+      this.setIsBusy(true);
+      const response = await user.signTransaction({ actions: [transaction] }, { broadcast });
+      return { signedTransaction: response };
+    } catch (error) {
+      console.error(error);
+      throw error;
+    } finally {
+      this.setIsBusy(false);
+    }
   }
 
   async signWithTransitProvider(signOptions) {
@@ -418,8 +444,61 @@ export default class OreId {
     return { account: newAccount };
   }
 
+  async loginToUALProvider(wallet, chainNetwork) {
+    try {
+      const users = await wallet.login();
+      return users;
+    } catch (error) {
+      const { message = '' } = error;
+      if (message.includes('unknown key (boost::tuples::tuple')) {
+        throw new Error(`The account selected by the wallet for login isn't on the ${chainNetwork} chain`);
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  // TODO: Refactor this, separate connect/init and login
   async connectToUALProvider(provider, chainNetwork) {
-    console.info('UAL ===>', this, provider, chainNetwork);
+    const SelectedProvider = this.options.ualProviders.find((ualProvider) => ualProvider.name.toLowerCase() === provider);
+    if (SelectedProvider) {
+      try {
+        const networkConfig = await this.getNetworkConfig(chainNetwork);
+        const ualNetworkConfig = {
+          chainId: networkConfig.chainId,
+          rpcEndpoints: [{
+            ...networkConfig
+          }]
+        };
+        const wallet = new SelectedProvider([ualNetworkConfig], { appName: this.options.appName });
+        console.info('Wallet', wallet);
+        await wallet.init();
+        const users = await this.loginToUALProvider(wallet, chainNetwork) 
+
+        console.info('Users', users);
+        if (!Helpers.isNullOrEmpty(users)) {
+          // TODO: Handle multiple users
+          const user = users[0];
+          const response = {
+            isLoggedIn: true,
+            account: user.accountName, // TODO: Switch this to accountname
+            permissions: [{ name: 'active', publicKey: user.keys[0] }], // todo: add parent permission when available
+            provider,
+            wallet,
+            user
+          };
+
+          await this.updatePermissionsIfNecessary(response, ualNetworkConfig.chainId, provider);
+
+          return response;
+        }
+      } catch (error) {
+        console.log(`Failed to connect to ${provider} wallet:`, error);
+        throw error;
+      }
+    } else {
+      throw Error('Provider does not match');
+    }
   }
 
   async loginToTransitProvider(transitWallet, provider, chainNetwork) {
@@ -484,12 +563,10 @@ export default class OreId {
         throw new Error(errorString);
       }
 
-      // if an account is selected, add it to the ORE ID account (if not already there)
-      const userOreAccount = (this.user || {}).accountName;
-      if (userOreAccount) {
-        const { account, permissions } = response;
-        const chainNetworkToUpdate = await this.getChainNetworkFromTransitWallet(transitWallet);
-        await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, userOreAccount, provider);
+      // TODO: Clean up -> move inside of if state above
+      if (transitWallet.eosApi) {
+        const chainId = transitWallet.eosApi.chainId;
+        await this.updatePermissionsIfNecessary(response, chainId, provider);
       }
     } catch (error) {
       console.log(`Failed to connect to ${provider} wallet:`, error);
@@ -511,8 +588,16 @@ export default class OreId {
     this.setIsBusy(false);
   }
 
+  async getChainNetworkByChainId(chainId) {
+    const networks = await this.chainNetworks();
+    const chainConfig = networks.find((n) => n.hosts.find((h) => h.chainId === chainId));
+
+    if (!Helpers.isNullOrEmpty(chainConfig)) {
+      return chainConfig.network;
+    }
+  }
+
   async getChainNetworkFromTransitWallet(transitWallet) {
-    let chainNetwork;
     if (transitWallet && transitWallet.eosApi) {
       const chainId = transitWallet.eosApi.chainId;
 
@@ -520,10 +605,9 @@ export default class OreId {
 
       const chainConfig = networks.find((n) => n.hosts.find((h) => h.chainId === chainId));
       if (!Helpers.isNullOrEmpty(chainConfig)) {
-        chainNetwork = chainConfig.network;
+        return chainConfig.network;
       }
     }
-    return chainNetwork;
   }
 
   // Discover all accounts (and related permissions) in the wallet and add them to ORE ID
@@ -576,6 +660,16 @@ export default class OreId {
       if (this.options.setBusyCallback) {
         this.options.setBusyCallback(value);
       }
+    }
+  }
+
+  async updatePermissionsIfNecessary(response, chainId, provider) {
+    // if an account is selected, add it to the ORE ID account (if not already there)
+    const userOreAccount = (this.user || {}).accountName;
+    if (userOreAccount) {
+      const { account, permissions } = response;
+      const chainNetworkToUpdate = await this.getChainNetworkByChainId(chainId);
+      await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, userOreAccount, provider);
     }
   }
 
@@ -637,6 +731,7 @@ export default class OreId {
   /*
         load user from local storage and call api to get latest info
     */
+  // What uses this?
   async getUser(account) {
     if (account) {
       const user = await this.getUserInfoFromApi(account); // get the latest user data
