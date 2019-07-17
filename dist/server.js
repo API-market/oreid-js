@@ -260,15 +260,20 @@ e.pushVaruint32(t.length)
 try{for(var s=a(t),c=s.next();!c.done;c=s.next()){var u=c.value
 this.arrayOf.serialize(e,u,r,!1)}}catch(e){o={error:e}}finally{try{c&&!c.done&&(i=s.return)&&i.call(s)}finally{if(o)throw o.error}}}function O(e,t,r){for(var n=e.getVaruint32(),o=[],i=0;i<n;++i)o.push(this.arrayOf.deserialize(e,t,!1))
 <<<<<<< HEAD
+<<<<<<< HEAD
 return o}function T(e,t,r,n){null==t?e.push(0):(e.push(1),this.optionalOf.serialize(e,t,r,n))}function P(e,t,r){return e.get()?this.optionalOf.deserialize(e,t,r):null}function I(e,t,r,n){this.extensionOf.serialize(e,t,r,n)}function U(e,t,r){return this.extensionOf.deserialize(e,t,r)}function N(e){return n({name:"<missing name>",aliasOfName:"",arrayOf:null,optionalOf:null,extensionOf:null,baseName:"",base:null,fields:[],serialize:x,deserialize:_},e)}function R(e,t){if(Number.isNaN(+e)||Number.isNaN(+t)||"number"!=typeof e&&"string"!=typeof e)throw new Error("Expected number")
 =======
 return o}function T(e,t,r,n){null==t?e.push(0):(e.push(1),this.optionalOf.serialize(e,t,r,n))}function I(e,t,r){return e.get()?this.optionalOf.deserialize(e,t,r):null}function P(e,t,r,n){this.extensionOf.serialize(e,t,r,n)}function U(e,t,r){return this.extensionOf.deserialize(e,t,r)}function N(e){return n({name:"<missing name>",aliasOfName:"",arrayOf:null,optionalOf:null,extensionOf:null,baseName:"",base:null,fields:[],serialize:_,deserialize:x},e)}function R(e,t){if(Number.isNaN(+e)||Number.isNaN(+t)||"number"!=typeof e&&"string"!=typeof e)throw new Error("Expected number")
 >>>>>>> Add ual-ledger support
+=======
+return o}function T(e,t,r,n){null==t?e.push(0):(e.push(1),this.optionalOf.serialize(e,t,r,n))}function P(e,t,r){return e.get()?this.optionalOf.deserialize(e,t,r):null}function I(e,t,r,n){this.extensionOf.serialize(e,t,r,n)}function U(e,t,r){return this.extensionOf.deserialize(e,t,r)}function N(e){return n({name:"<missing name>",aliasOfName:"",arrayOf:null,optionalOf:null,extensionOf:null,baseName:"",base:null,fields:[],serialize:x,deserialize:_},e)}function R(e,t){if(Number.isNaN(+e)||Number.isNaN(+t)||"number"!=typeof e&&"string"!=typeof e)throw new Error("Expected number")
+>>>>>>> Add all available ual providers
 if(+e!=+t)throw new Error("Number is out of range")
 return+e}function z(e,t){var r=e.get(t)
 if(r&&r.aliasOfName)return z(e,r.aliasOfName)
 if(r)return r
 if(t.endsWith("[]"))return N({name:t,arrayOf:z(e,t.substr(0,t.length-2)),serialize:S,deserialize:O})
+<<<<<<< HEAD
 <<<<<<< HEAD
 if(t.endsWith("?"))return N({name:t,optionalOf:z(e,t.substr(0,t.length-1)),serialize:T,deserialize:P})
 if(t.endsWith("$"))return N({name:t,extensionOf:z(e,t.substr(0,t.length-1)),serialize:I,deserialize:U})
@@ -276,6 +281,10 @@ if(t.endsWith("$"))return N({name:t,extensionOf:z(e,t.substr(0,t.length-1)),seri
 if(t.endsWith("?"))return N({name:t,optionalOf:z(e,t.substr(0,t.length-1)),serialize:T,deserialize:I})
 if(t.endsWith("$"))return N({name:t,extensionOf:z(e,t.substr(0,t.length-1)),serialize:P,deserialize:U})
 >>>>>>> Add ual-ledger support
+=======
+if(t.endsWith("?"))return N({name:t,optionalOf:z(e,t.substr(0,t.length-1)),serialize:T,deserialize:P})
+if(t.endsWith("$"))return N({name:t,extensionOf:z(e,t.substr(0,t.length-1)),serialize:I,deserialize:U})
+>>>>>>> Add all available ual providers
 throw new Error("Unknown type: "+t)}function j(e,t,r,n,o,i){var a=e.actions.get(r)
 if(!a)throw new Error("Unknown action "+r+" in contract "+t)
 var s=new u({textEncoder:o,textDecoder:i})
@@ -287,6 +296,7 @@ e.push(t?1:0)},deserialize:function(e){return!!e.get()}}),uint8:N({name:"uint8",
 return e.set("extended_asset",N({name:"extended_asset",baseName:"",fields:[{name:"quantity",typeName:"asset",type:e.get("asset")},{name:"contract",typeName:"name",type:e.get("name")}],serialize:k,deserialize:C})),e},t.getType=z,t.getTypesFromAbi=function(e,t){var r,n,i,s,c,u,f,l,p,h,d=new Map(e)
 if(t.types)try{for(var y=a(t.types),v=y.next();!v.done;v=y.next()){var g=v.value,m=g.new_type_name,b=g.type
 <<<<<<< HEAD
+<<<<<<< HEAD
 d.set(m,N({name:m,aliasOfName:b}))}}catch(e){r={error:e}}finally{try{v&&!v.done&&(n=y.return)&&n.call(y)}finally{if(r)throw r.error}}if(t.structs)try{for(var w=a(t.structs),x=w.next();!x.done;x=w.next()){var _=x.value,S=_.name,O=_.base,T=_.fields
 d.set(S,N({name:S,baseName:O,fields:T.map(function(e){return{name:e.name,typeName:e.type,type:null}}),serialize:k,deserialize:C}))}}catch(e){i={error:e}}finally{try{x&&!x.done&&(s=w.return)&&s.call(w)}finally{if(i)throw i.error}}if(t.variants)try{for(var P=a(t.variants),I=P.next();!I.done;I=P.next()){var U=I.value,R=U.name,j=U.types
 d.set(R,N({name:R,fields:j.map(function(e){return{name:e,typeName:e,type:null}}),serialize:A,deserialize:E}))}}catch(e){c={error:e}}finally{try{I&&!I.done&&(u=P.return)&&u.call(P)}finally{if(c)throw c.error}}try{for(var B=a(d),F=B.next();!F.done;F=B.next()){var D=o(F.value,2)
@@ -295,6 +305,11 @@ d.set(m,N({name:m,aliasOfName:b}))}}catch(e){r={error:e}}finally{try{v&&!v.done&
 d.set(S,N({name:S,baseName:O,fields:T.map(function(e){return{name:e.name,typeName:e.type,type:null}}),serialize:k,deserialize:C}))}}catch(e){i={error:e}}finally{try{_&&!_.done&&(s=w.return)&&s.call(w)}finally{if(i)throw i.error}}if(t.variants)try{for(var I=a(t.variants),P=I.next();!P.done;P=I.next()){var U=P.value,R=U.name,j=U.types
 d.set(R,N({name:R,fields:j.map(function(e){return{name:e,typeName:e,type:null}}),serialize:A,deserialize:E}))}}catch(e){c={error:e}}finally{try{P&&!P.done&&(u=I.return)&&u.call(I)}finally{if(c)throw c.error}}try{for(var B=a(d),F=B.next();!F.done;F=B.next()){var D=o(F.value,2)
 >>>>>>> Add ual-ledger support
+=======
+d.set(m,N({name:m,aliasOfName:b}))}}catch(e){r={error:e}}finally{try{v&&!v.done&&(n=y.return)&&n.call(y)}finally{if(r)throw r.error}}if(t.structs)try{for(var w=a(t.structs),x=w.next();!x.done;x=w.next()){var _=x.value,S=_.name,O=_.base,T=_.fields
+d.set(S,N({name:S,baseName:O,fields:T.map(function(e){return{name:e.name,typeName:e.type,type:null}}),serialize:k,deserialize:C}))}}catch(e){i={error:e}}finally{try{x&&!x.done&&(s=w.return)&&s.call(w)}finally{if(i)throw i.error}}if(t.variants)try{for(var P=a(t.variants),I=P.next();!I.done;I=P.next()){var U=I.value,R=U.name,j=U.types
+d.set(R,N({name:R,fields:j.map(function(e){return{name:e,typeName:e,type:null}}),serialize:A,deserialize:E}))}}catch(e){c={error:e}}finally{try{I&&!I.done&&(u=P.return)&&u.call(P)}finally{if(c)throw c.error}}try{for(var B=a(d),F=B.next();!F.done;F=B.next()){var D=o(F.value,2)
+>>>>>>> Add all available ual providers
 D[0],(b=D[1]).baseName&&(b.base=z(d,b.baseName))
 try{for(var L=a(b.fields),M=L.next();!M.done;M=L.next()){var q=M.value
 q.type=z(d,q.typeName)}}catch(e){p={error:e}}finally{try{M&&!M.done&&(h=L.return)&&h.call(L)}finally{if(p)throw p.error}}}}catch(e){f={error:e}}finally{try{F&&!F.done&&(l=B.return)&&l.call(B)}finally{if(f)throw f.error}}return d},t.transactionHeader=function(e,t){return{expiration:d(h(e.timestamp)+t),ref_block_num:65535&e.block_num,ref_block_prefix:e.ref_block_prefix}},t.serializeActionData=j,t.serializeAction=function(e,t,r,n,o,i,a){return{account:t,name:r,authorization:n,data:j(e,t,r,o,i,a)}},t.deserializeActionData=B,t.deserializeAction=function(e,t,r,n,o,i,a){return{account:t,name:r,authorization:n,data:B(e,t,r,o,i,a)}}},function(e,t,r){"use strict"
@@ -404,6 +419,7 @@ var A=y.test(k),E=A?e.httpsAgent:e.httpAgent,S={path:i(_.path,e.params,e.paramsS
 e.socketPath?S.socketPath=e.socketPath:(S.hostname=_.hostname,S.port=_.port)
 var O,T=e.proxy
 <<<<<<< HEAD
+<<<<<<< HEAD
 if(!T&&!1!==T){var P=k.slice(0,-1)+"_proxy",I=process.env[P]||process.env[P.toUpperCase()]
 if(I){var U=f.parse(I),N=process.env.no_proxy||process.env.NO_PROXY,R=!0
 if(N)R=!N.split(",").map(function(e){return e.trim()}).some(function(e){return!!e&&("*"===e||("."===e[0]&&_.hostname.substr(_.hostname.length-e.length)===e&&e.match(/\./g).length===_.hostname.match(/\./g).length||_.hostname===e))})
@@ -416,6 +432,13 @@ if(N)R=!N.split(",").map(function(e){return e.trim()}).some(function(e){return!!
 if(R&&(T={host:U.hostname,port:U.port},U.auth)){var z=U.auth.split(":")
 T.auth={username:z[0],password:z[1]}}}}if(T&&(S.hostname=T.host,S.host=T.host,S.headers.host=x.hostname+(x.port?":"+x.port:""),S.port=T.port,S.path=k+"//"+x.hostname+(x.port?":"+x.port:"")+S.path,T.auth)){var j=Buffer.from(T.auth.username+":"+T.auth.password,"utf8").toString("base64")
 >>>>>>> Add ual-ledger support
+=======
+if(!T&&!1!==T){var P=k.slice(0,-1)+"_proxy",I=process.env[P]||process.env[P.toUpperCase()]
+if(I){var U=f.parse(I),N=process.env.no_proxy||process.env.NO_PROXY,R=!0
+if(N)R=!N.split(",").map(function(e){return e.trim()}).some(function(e){return!!e&&("*"===e||("."===e[0]&&_.hostname.substr(_.hostname.length-e.length)===e&&e.match(/\./g).length===_.hostname.match(/\./g).length||_.hostname===e))})
+if(R&&(T={host:U.hostname,port:U.port},U.auth)){var z=U.auth.split(":")
+T.auth={username:z[0],password:z[1]}}}}if(T&&(S.hostname=T.host,S.host=T.host,S.headers.host=_.hostname+(_.port?":"+_.port:""),S.port=T.port,S.path=k+"//"+_.hostname+(_.port?":"+_.port:"")+S.path,T.auth)){var j=Buffer.from(T.auth.username+":"+T.auth.password,"utf8").toString("base64")
+>>>>>>> Add all available ual providers
 S.headers["Proxy-Authorization"]="Basic "+j}var B=A&&(!T||y.test(T.protocol))
 e.transport?O=e.transport:0===e.maxRedirects?O=B?s:a:(e.maxRedirects&&(S.maxRedirects=e.maxRedirects),O=B?u:c),e.maxContentLength&&e.maxContentLength>-1&&(S.maxBodyLength=e.maxContentLength)
 var F=O.request(S,function(t){if(!F.aborted){var r=t
@@ -703,10 +726,14 @@ return{getState:function(){return t},updateState:function(e){t="function"==typeo
 for(var n=0,o=r;n<o.length;n++){(0,o[n])(t)}},subscribe:function(e){return r.push(e),function(){r=r.filter(function(t){return t!==e})}}}}var g=r(27),m=r.n(g)
 function b(e,t){return void 0===t&&(t="Error"),e?"string"==typeof e?e:e.message||t:t}var w=function(){return(w=Object.assign||function(e){for(var t,r=1,n=arguments.length;r<n;r++)for(var o in t=arguments[r])Object.prototype.hasOwnProperty.call(t,o)&&(e[o]=t[o])
 <<<<<<< HEAD
+<<<<<<< HEAD
 return e}).apply(this,arguments)},x=function(e,t,r,n){return new(r||(r=Promise))(function(o,i){function a(e){try{c(n.next(e))}catch(e){i(e)}}function s(e){try{c(n.throw(e))}catch(e){i(e)}}function c(e){e.done?o(e.value):new r(function(t){t(e.value)}).then(a,s)}c((n=n.apply(e,t||[])).next())})},_=function(e,t){var r,n,o,i,a={label:0,sent:function(){if(1&o[0])throw o[1]
 =======
 return e}).apply(this,arguments)},_=function(e,t,r,n){return new(r||(r=Promise))(function(o,i){function a(e){try{c(n.next(e))}catch(e){i(e)}}function s(e){try{c(n.throw(e))}catch(e){i(e)}}function c(e){e.done?o(e.value):new r(function(t){t(e.value)}).then(a,s)}c((n=n.apply(e,t||[])).next())})},x=function(e,t){var r,n,o,i,a={label:0,sent:function(){if(1&o[0])throw o[1]
 >>>>>>> Add ual-ledger support
+=======
+return e}).apply(this,arguments)},x=function(e,t,r,n){return new(r||(r=Promise))(function(o,i){function a(e){try{c(n.next(e))}catch(e){i(e)}}function s(e){try{c(n.throw(e))}catch(e){i(e)}}function c(e){e.done?o(e.value):new r(function(t){t(e.value)}).then(a,s)}c((n=n.apply(e,t||[])).next())})},_=function(e,t){var r,n,o,i,a={label:0,sent:function(){if(1&o[0])throw o[1]
+>>>>>>> Add all available ual providers
 return o[1]},trys:[],ops:[]}
 return i={next:s(0),throw:s(1),return:s(2)},"function"==typeof Symbol&&(i[Symbol.iterator]=function(){return this}),i
 function s(i){return function(s){return function(i){if(r)throw new TypeError("Generator is already executing.")
@@ -743,6 +770,9 @@ var t=e.connectionError,r=e.authenticationError,n=e.accountFetchError
 return!!(t||r||n)},get errorMessage(){var e=i()
 if(e&&f.hasError){var t=e.connectionErrorMessage,r=e.authenticationErrorMessage,n=e.accountFetchErrorMessage
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Add all available ual providers
 return t||r||n||"Wallet connection error"}},connect:function(){return n.updateState(function(e){return w({},e,{connected:!1,connecting:!0,connectionError:!1,connectionErrorMessage:void 0})}),e.connect(t.appName).then(function(){return n.updateState(function(e){return w({},e,{connecting:!1,connected:!0})}),!0}).catch(function(e){return n.updateState(function(t){return w({},t,{connecting:!1,connectionError:!0,connectionErrorMessage:b(e)})}),Promise.reject(e)})},discover:function(r){return x(this,void 0,void 0,function(){var n,i=this
 return _(this,function(a){switch(a.label){case 0:return n={keyToAccountMap:[]},[4,e.discover(r).then(function(e){return x(i,void 0,void 0,function(){var i,a,s,c,u,f,l=this
 return _(this,function(p){switch(p.label){case 0:for(delete(n=w({},n,e)).keys,void 0!==r.keyModifierFunc&&(i=r.keyModifierFunc(e),e=i),a=[],s=function(e){var r=e.key,n=e.index,i=!1
@@ -750,6 +780,7 @@ if(o.keyToAccountMap&&o.keyToAccountMap.findIndex(function(e){return e.index==n}
 return _(this,function(f){switch(f.label){case 0:if(o={index:n,key:r,accounts:[]},!(e.account_names.length>0))return[3,4]
 i=function(e){return _(this,function(n){switch(n.label){case 0:return[4,t.eosRpc.get_account(e).then(function(t){return x(u,void 0,void 0,function(){var n,i,a,s,c
 return _(this,function(u){for(n=0,i=t.permissions;n<i.length;n++)for(a=i[n],s=0,c=a.required_auth.keys;s<c.length;s++)c[s].key==r&&o.accounts.push({account:e,authorization:a.perm_name})
+<<<<<<< HEAD
 =======
 return t||r||n||"Wallet connection error"}},connect:function(){return n.updateState(function(e){return w({},e,{connected:!1,connecting:!0,connectionError:!1,connectionErrorMessage:void 0})}),e.connect(t.appName).then(function(){return n.updateState(function(e){return w({},e,{connecting:!1,connected:!0})}),!0}).catch(function(e){return n.updateState(function(t){return w({},t,{connecting:!1,connectionError:!0,connectionErrorMessage:b(e)})}),Promise.reject(e)})},discover:function(r){return _(this,void 0,void 0,function(){var n,i=this
 return x(this,function(a){switch(a.label){case 0:return n={keyToAccountMap:[]},[4,e.discover(r).then(function(e){return _(i,void 0,void 0,function(){var i,a,s,c,u,f,l=this
@@ -759,6 +790,8 @@ return x(this,function(f){switch(f.label){case 0:if(o={index:n,key:r,accounts:[]
 i=function(e){return x(this,function(n){switch(n.label){case 0:return[4,t.eosRpc.get_account(e).then(function(t){return _(u,void 0,void 0,function(){var n,i,a,s,c
 return x(this,function(u){for(n=0,i=t.permissions;n<i.length;n++)for(a=i[n],s=0,c=a.required_auth.keys;s<c.length;s++)c[s].key==r&&o.accounts.push({account:e,authorization:a.perm_name})
 >>>>>>> Add ual-ledger support
+=======
+>>>>>>> Add all available ual providers
 return[2]})})})]
 case 1:return n.sent(),[2]}})},a=0,s=e.account_names,f.label=1
 case 1:return a<s.length?(c=s[a],[5,i(c)]):[3,4]
@@ -783,6 +816,7 @@ var t=e._instanceId
 if(l.has(t)){var r=l.get(t)
 "function"==typeof r&&r()}},logoutAll:function(){return Promise.all(d.getWallets().map(function(e){return e.logout()})).then(function(){return!0})},disconnectAll:function(){return Promise.all(d.getWallets().map(function(e){return e.disconnect()})).then(function(){return!0})},terminateAll:function(){return Promise.all(d.getWallets().map(function(e){return e.terminate()})).then(function(){return!0})},destroy:function(){return d.terminateAll().then(function(){p(),l.forEach(function(e){"function"==typeof e&&e()}),i=[]})},subscribe:function(e){return i=i.concat([e]),function(){i=i.filter(function(t){return t!==e})}}}
 <<<<<<< HEAD
+<<<<<<< HEAD
 return d}var S=r(12),O=r.n(S),T=r(28),P=r.n(T),I=r(71).Base64,U=function(e,t,r){return e.replace(new RegExp(t,"g"),r)},N=function(){function e(){f()(this,e)}return p()(e,null,[{key:"isNullOrEmpty",value:function(e){return void 0===e||(null===e||(!(!Array.isArray(e)||0!==e.length)||0===Object.keys(e).length&&e.constructor===Object))}},{key:"log",value:function(e,t){0}},{key:"jwtDecodeSafe",value:function(e){var t={}
 if(this.isNullOrEmpty(e))return{}
 try{t=P()(e)}catch(e){}return t}},{key:"tokenHasExpired",value:function(e){var t=null
@@ -791,6 +825,11 @@ return d}var S=r(12),O=r.n(S),T=r(28),I=r.n(T),P=r(71).Base64,U=function(e,t,r){
 if(this.isNullOrEmpty(e))return{}
 try{t=I()(e)}catch(e){}return t}},{key:"tokenHasExpired",value:function(e){var t=null
 >>>>>>> Add ual-ledger support
+=======
+return d}var S=r(12),O=r.n(S),T=r(28),P=r.n(T),I=r(71).Base64,U=function(e,t,r){return e.replace(new RegExp(t,"g"),r)},N=function(){function e(){f()(this,e)}return p()(e,null,[{key:"isNullOrEmpty",value:function(e){return void 0===e||(null===e||(!(!Array.isArray(e)||0!==e.length)||0===Object.keys(e).length&&e.constructor===Object))}},{key:"log",value:function(e,t){0}},{key:"jwtDecodeSafe",value:function(e){var t={}
+if(this.isNullOrEmpty(e))return{}
+try{t=P()(e)}catch(e){}return t}},{key:"tokenHasExpired",value:function(e){var t=null
+>>>>>>> Add all available ual providers
 try{t=this.jwtDecodeSafe(e)}catch(e){return!0}var r=Date.now().valueOf()/1e3
 return void 0!==t.exp&&t.exp<r||void 0!==t.nbf&&t.nbf>r}},{key:"urlParamsToArray",value:function(e){var t=e
 if(this.isNullOrEmpty(t))return[]
@@ -808,10 +847,14 @@ if(o&&"object"===O()(o))return o}catch(e){console.log(e)}return null}},{key:"isA
 if(this.isNullOrEmpty(t))return null
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 try{r=I.decode(t),e.tryParseJSON(r)&&(r=JSON.parse(r))}catch(e){return null}return r}},{key:"base64Encode",value:function(t){return e.isAnObject(t)&&(t=JSON.stringify(t)),I.encode(t)}},{key:"sleep",value:function(e){return new Promise(function(t){return setTimeout(t,e)})}}]),e}(),R=r(8),z=r.n(R)
 =======
 try{r=P.decode(t),e.tryParseJSON(r)&&(r=JSON.parse(r))}catch(e){return null}return r}},{key:"base64Encode",value:function(t){return e.isAnObject(t)&&(t=JSON.stringify(t)),P.encode(t)}},{key:"sleep",value:function(e){return new Promise(function(t){return setTimeout(t,e)})}}]),e}(),R=r(8),z=r.n(R)
 >>>>>>> Add ual-ledger support
+=======
+try{r=I.decode(t),e.tryParseJSON(r)&&(r=JSON.parse(r))}catch(e){return null}return r}},{key:"base64Encode",value:function(t){return e.isAnObject(t)&&(t=JSON.stringify(t)),I.encode(t)}},{key:"sleep",value:function(e){return new Promise(function(t){return setTimeout(t,e)})}}]),e}(),R=r(8),z=r.n(R)
+>>>>>>> Add all available ual providers
 function j(e,t){var r=Object.keys(e)
 return Object.getOwnPropertySymbols&&r.push.apply(r,Object.getOwnPropertySymbols(e)),t&&(r=r.filter(function(t){return Object.getOwnPropertyDescriptor(e,t).enumerable})),r}var B=function(){function e(){f()(this,e)}return p()(e,[{key:"getItem",value:function(e){return z.a.get(e)}},{key:"removeItem",value:function(e){z.a.remove(e)}},{key:"setItem",value:function(e,t,r){var n=function(e){for(var t=1;t<arguments.length;t++){var r=null!=arguments[t]?arguments[t]:{}
 t%2?j(r,!0).forEach(function(t){o()(e,t,r[t])}):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(r)):j(r).forEach(function(t){Object.defineProperty(e,t,Object.getOwnPropertyDescriptor(r,t))})}return e}({expires:1},r)
@@ -822,6 +865,7 @@ r&&r.storage&&(this.storage=r)}catch(e){N.log("Can't use localStorage. Using Coo
 this.storage instanceof F?this.triedCookieStorage||(this.storage=new B,this.triedCookieStorage=!0,e=!0):this.storage instanceof B&&(this.triedLocalStorage||(this.storage=new F,this.triedLocalStorage=!0,e=!0)),e||(this.storage=new D)}}},{key:"getItem",value:function(e){try{return this.storage.getItem(e)}catch(t){return N.log("Can't getItem in storage.",t),this.failover(),this.storage.getItem(e)}}},{key:"removeItem",value:function(e){try{return this.storage.removeItem(e)}catch(t){return N.log("Can't removeItem in storage.",t),this.failover(),this.storage.removeItem(e)}}},{key:"setItem",value:function(e,t,r){try{return this.storage.setItem(e,t,r)}catch(n){return N.log("Can't setItem in storage.",n),this.failover(),this.storage.setItem(e,t,r)}}}]),e}()
 function M(e,t){var r=Object.keys(e)
 return Object.getOwnPropertySymbols&&r.push.apply(r,Object.getOwnPropertySymbols(e)),t&&(r=r.filter(function(t){return Object.getOwnPropertyDescriptor(e,t).enumerable})),r}function q(e){for(var t=1;t<arguments.length;t++){var r=null!=arguments[t]?arguments[t]:{}
+<<<<<<< HEAD
 <<<<<<< HEAD
 t%2?M(r,!0).forEach(function(t){o()(e,t,r[t])}):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(r)):M(r).forEach(function(t){Object.defineProperty(e,t,Object.getOwnPropertyDescriptor(r,t))})}return e}var K={ledger:{providerId:"ledger",requiresLogin:!1,supportsDiscovery:!0},lynx:{providerId:"EOS Lynx",requiresLogin:!1,supportsDiscovery:!1},meetone:{providerId:"meetone_provider",requiresLogin:!1,supportsDiscovery:!1},metro:{providerId:"metro",requiresLogin:!1,supportsDiscovery:!1},scatter:{providerId:"scatter",requiresLogin:!0,supportsDiscovery:!1},tokenpocket:{providerId:"TokenPocket",requiresLogin:!1,supportsDiscovery:!1},portis:{providerId:"PortisProvider",requiresLogin:!0,supportsDiscovery:!1},whalevault:{providerId:"whalevault",requiresLogin:!0,supportsDiscovery:!1},simpleos:{providerId:"simpleos",requiresLogin:!0,supportsDiscovery:!1},keycat:{providerId:"Keycat",requiresLogin:!0,supportsDiscovery:!1}},W={scatter:{requiresLogin:!0},ledger:{requiresLogin:!0},lynx:{requiresLogin:!1},meetone:{requiresLogin:!1},tokenpocket:{requiresLogin:!1}},V=["metro"],J=function(){function e(t){f()(this,e),this.options=null,this.appAccessToken=null,this.user=null,this.storage=new L,this.chainContexts={},this.cachedChainNetworks=null,this.validateOptions(t),this.validateProviders()}var t,r,n,o,i,s,u,l,h,y,v,g,m,b,w,x,_,k,C,A,S,O,T,P,I,U,R,z,j,B,F,D,M,J,G,H,$,Y,Z,X,Q
 return p()(e,[{key:"validateProviders",value:(Q=c()(a.a.mark(function e(){var t,r,n,o,i
@@ -864,21 +908,25 @@ return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(this.cachedCh
 =======
 t%2?M(r,!0).forEach(function(t){o()(e,t,r[t])}):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(r)):M(r).forEach(function(t){Object.defineProperty(e,t,Object.getOwnPropertyDescriptor(r,t))})}return e}var K={ledger:{providerId:"ledger",requiresLogin:!1,supportsDiscovery:!0},lynx:{providerId:"EOS Lynx",requiresLogin:!1,supportsDiscovery:!1},meetone:{providerId:"meetone_provider",requiresLogin:!1,supportsDiscovery:!1},metro:{providerId:"metro",requiresLogin:!1,supportsDiscovery:!1},scatter:{providerId:"scatter",requiresLogin:!0,supportsDiscovery:!1},tokenpocket:{providerId:"TokenPocket",requiresLogin:!1,supportsDiscovery:!1},portis:{providerId:"PortisProvider",requiresLogin:!0,supportsDiscovery:!1},whalevault:{providerId:"whalevault",requiresLogin:!0,supportsDiscovery:!1},simpleos:{providerId:"simpleos",requiresLogin:!0,supportsDiscovery:!1},keycat:{providerId:"Keycat",requiresLogin:!0,supportsDiscovery:!1}},W={scatter:{requiresLogin:!0},ledger:{requiresLogin:!0}},V=["metro"],J=function(){function e(t){f()(this,e),this.options=null,this.appAccessToken=null,this.user=null,this.storage=new L,this.validateOptions(t),this.chainContexts={},this.cachedChainNetworks=null,this.validateProviders()}var t,r,n,o,i,s,u,l,h,y,v,g,m,b,w,_,x,k,C,A,S,O,T,I,P,U,R,z,j,B,F,D,M,J,G,H,$,Y
 return p()(e,[{key:"validateProviders",value:(Y=c()(a.a.mark(function e(){var t,r,n,o,i
+=======
+t%2?M(r,!0).forEach(function(t){o()(e,t,r[t])}):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(r)):M(r).forEach(function(t){Object.defineProperty(e,t,Object.getOwnPropertyDescriptor(r,t))})}return e}var K={ledger:{providerId:"ledger",requiresLogin:!1,supportsDiscovery:!0},lynx:{providerId:"EOS Lynx",requiresLogin:!1,supportsDiscovery:!1},meetone:{providerId:"meetone_provider",requiresLogin:!1,supportsDiscovery:!1},metro:{providerId:"metro",requiresLogin:!1,supportsDiscovery:!1},scatter:{providerId:"scatter",requiresLogin:!0,supportsDiscovery:!1},tokenpocket:{providerId:"TokenPocket",requiresLogin:!1,supportsDiscovery:!1},portis:{providerId:"PortisProvider",requiresLogin:!0,supportsDiscovery:!1},whalevault:{providerId:"whalevault",requiresLogin:!0,supportsDiscovery:!1},simpleos:{providerId:"simpleos",requiresLogin:!0,supportsDiscovery:!1},keycat:{providerId:"Keycat",requiresLogin:!0,supportsDiscovery:!1}},W={scatter:{requiresLogin:!0},ledger:{requiresLogin:!0},lynx:{requiresLogin:!1},meetone:{requiresLogin:!1},tokenpocket:{requiresLogin:!1}},V=["metro"],J=function(){function e(t){f()(this,e),this.options=null,this.appAccessToken=null,this.user=null,this.storage=new L,this.chainContexts={},this.cachedChainNetworks=null,this.validateOptions(t),this.validateProviders()}var t,r,n,o,i,s,u,l,h,y,v,g,m,b,w,x,_,k,C,A,S,O,T,P,I,U,R,z,j,B,F,D,M,J,G,H,$,Y,Z,X,Q
+return p()(e,[{key:"validateProviders",value:(Q=c()(a.a.mark(function e(){var t,r,n,o,i
+>>>>>>> Add all available ual providers
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(t=N.isNullOrEmpty,r=this.options,n=r.ualProviders,o=r.eosTransitWalletProviders,t(o)||t(n)){e.next=6
-break}if(i=o.map(function(e){return e({})}).map(function(e){return e.id}).filter(function(e){return n.find(function(t){return t.name.toLowerCase()===e.toLowerCase()})}),t(i)){e.next=6
+break}if(i=o.map(function(e){return e({})}).map(function(e){return e.id}).filter(function(e){return n.find(function(t){return e.toLowerCase().includes(t.name.toLowerCase())})}),t(i)){e.next=6
 break}throw Error("Duplicate providers's found -> ".concat(i,". Please remove one before continuing."))
-case 6:case"end":return e.stop()}},e,this)})),function(){return Y.apply(this,arguments)})},{key:"chainNetworks",value:($=c()(a.a.mark(function e(){var t
+case 6:case"end":return e.stop()}},e,this)})),function(){return Q.apply(this,arguments)})},{key:"chainNetworks",value:(X=c()(a.a.mark(function e(){var t
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(this.cachedChainNetworks){e.next=5
 >>>>>>> Add ual-ledger support
 break}return e.next=3,this.getConfigFromApi("chains")
 case 3:t=e.sent,this.cachedChainNetworks=t.chains
 case 5:return e.abrupt("return",this.cachedChainNetworks)
-case 6:case"end":return e.stop()}},e,this)})),function(){return $.apply(this,arguments)})},{key:"getNetworkConfig",value:(H=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f
+case 6:case"end":return e.stop()}},e,this)})),function(){return X.apply(this,arguments)})},{key:"getNetworkConfig",value:(Z=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.next=2,this.chainNetworks()
 case 2:if(r=e.sent,n=r.find(function(e){return e.network===t})){e.next=6
 break}throw new Error("Invalid chain network: ".concat(t,"."))
 case 6:return o=n.hosts,i=o[0],s=i.chainId,c=i.host,u=i.port,f=i.protocol,e.abrupt("return",{host:c,port:u,protocol:f,chainId:s})
-case 9:case"end":return e.stop()}},e,this)})),function(e){return H.apply(this,arguments)})},{key:"getOrCreateChainContext",value:(G=c()(a.a.mark(function e(t){var r,n,o,i,s,c
+case 9:case"end":return e.stop()}},e,this)})),function(e){return Z.apply(this,arguments)})},{key:"getOrCreateChainContext",value:(Y=c()(a.a.mark(function e(t){var r,n,o,i,s,c
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.options,n=r.appName,o=r.eosTransitWalletProviders,i=void 0===o?[]:o,!this.chainContexts[t]){e.next=3
 break}return e.abrupt("return",this.chainContexts[t])
 case 3:return e.next=5,this.getNetworkConfig(t)
@@ -889,7 +937,7 @@ return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=v.length>1&
 >>>>>>> Set up ual/transit validation
 =======
 case 5:return s=e.sent,c=E({appName:n||"missing appName",network:s,walletProviders:i}),this.chainContexts[t]=c,e.abrupt("return",c)
-case 9:case"end":return e.stop()}},e,this)})),function(e){return G.apply(this,arguments)})},{key:"callPasswordlessApi",value:(J=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,y,v=arguments
+case 9:case"end":return e.stop()}},e,this)})),function(e){return Y.apply(this,arguments)})},{key:"callPasswordlessApi",value:($=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,y,v=arguments
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=v.length>1&&void 0!==v[1]&&v[1],n=t.provider,o=t.phone,i=t.email,s=t.code,c=this.options,u=c.apiKey,f=c.oreIdUrl,n&&(o||i)&&(!r||s)){e.next=5
 >>>>>>> Add ual-ledger support
 break}throw new Error("Missing a required parameter")
@@ -900,6 +948,7 @@ case 18:e.prev=18,e.t0=e.catch(12),y=e.t0.response
 case 21:return e.abrupt("return",y.data)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 case 22:case"end":return e.stop()}},e,this,[[12,18]])})),function(e){return $.apply(this,arguments)})},{key:"passwordlessSendCodeApi",value:(H=c()(a.a.mark(function e(t){var r
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r={},e.prev=1,e.next=4,this.callPasswordlessApi(t)
 =======
@@ -908,12 +957,16 @@ return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r={},e.pr
 >>>>>>> Set up ual/transit validation
 =======
 case 22:case"end":return e.stop()}},e,this,[[12,18]])})),function(e){return J.apply(this,arguments)})},{key:"passwordlessSendCodeApi",value:(M=c()(a.a.mark(function e(t){var r
+=======
+case 22:case"end":return e.stop()}},e,this,[[12,18]])})),function(e){return $.apply(this,arguments)})},{key:"passwordlessSendCodeApi",value:(H=c()(a.a.mark(function e(t){var r
+>>>>>>> Add all available ual providers
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r={},e.prev=1,e.next=4,this.callPasswordlessApi(t)
 >>>>>>> Add ual-ledger support
 case 4:r=e.sent,e.next=10
 break
 case 7:return e.prev=7,e.t0=e.catch(1),e.abrupt("return",{error:e.t0})
 case 10:return e.abrupt("return",r)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 case 11:case"end":return e.stop()}},e,this,[[1,7]])})),function(e){return H.apply(this,arguments)})},{key:"passwordlessVerifyCodeApi",value:(G=c()(a.a.mark(function e(t){var r
@@ -924,12 +977,16 @@ return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r={},e.pr
 >>>>>>> Set up ual/transit validation
 =======
 case 11:case"end":return e.stop()}},e,this,[[1,7]])})),function(e){return M.apply(this,arguments)})},{key:"passwordlessVerifyCodeApi",value:(D=c()(a.a.mark(function e(t){var r
+=======
+case 11:case"end":return e.stop()}},e,this,[[1,7]])})),function(e){return H.apply(this,arguments)})},{key:"passwordlessVerifyCodeApi",value:(G=c()(a.a.mark(function e(t){var r
+>>>>>>> Add all available ual providers
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r={},e.prev=1,e.next=4,this.callPasswordlessApi(t,!0)
 >>>>>>> Add ual-ledger support
 case 4:r=e.sent,e.next=10
 break
 case 7:return e.prev=7,e.t0=e.catch(1),e.abrupt("return",{error:e.t0})
 case 10:return e.abrupt("return",r)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 case 11:case"end":return e.stop()}},e,this,[[1,7]])})),function(e){return G.apply(this,arguments)})},{key:"login",value:(J=c()(a.a.mark(function e(t){var r,n,o
@@ -998,36 +1055,41 @@ break}return e.abrupt("return",this.discoverCredentialsInWallet(i,r,a))
 =======
 case 11:case"end":return e.stop()}},e,this,[[1,7]])})),function(e){return D.apply(this,arguments)})},{key:"login",value:(F=c()(a.a.mark(function e(t){var r,n,o,i
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=t.chainNetwork,o=void 0===n?"eos_main":n,Object.keys(K),i=Object.keys(W),!V.includes(r)){e.next=5
+=======
+case 11:case"end":return e.stop()}},e,this,[[1,7]])})),function(e){return G.apply(this,arguments)})},{key:"login",value:(J=c()(a.a.mark(function e(t){var r,n,o,i,s
+return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=t.chainNetwork,o=void 0===n?"eos_main":n,i=Object.keys(K),s=Object.keys(W),!V.includes(r)){e.next=5
+>>>>>>> Add all available ual providers
 break}throw new Error("Not Implemented")
-case 5:if(!i.includes(r)){e.next=8
-break}return console.info(r,o),e.abrupt("return",this.connectToUALProvider(r,o))
-case 8:return e.abrupt("return",this.loginWithOreId(t))
-case 9:case"end":return e.stop()}},e,this)})),function(e){return F.apply(this,arguments)})},{key:"sign",value:(B=c()(a.a.mark(function e(t){var r,n
-return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,Object.keys(K),n=Object.keys(W),!V.includes(r)){e.next=5
+case 5:if(!i.includes(r)&&!s.includes(r)){e.next=7
+break}return e.abrupt("return",this.loginWithNonOreIdProvider(r,o))
+case 7:return e.abrupt("return",this.loginWithOreId(t))
+case 8:case"end":return e.stop()}},e,this)})),function(e){return J.apply(this,arguments)})},{key:"sign",value:(M=c()(a.a.mark(function e(t){var r,n,o
+return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=Object.keys(K),o=Object.keys(W),!V.includes(r)){e.next=5
 break}return e.abrupt("return")
 case 5:if(!this.isCustodial(r)){e.next=7
 break}return e.abrupt("return",this.custodialSignWithOreId(t))
-case 7:if(!n.includes(r)){e.next=9
-break}return e.abrupt("return",this.signWithUALProvider(t))
+case 7:if(!n.includes(r)&&!o.includes(r)){e.next=9
+break}return e.abrupt("return",this.signWithNonOreIdProvider(t))
 case 9:return e.abrupt("return",this.signWithOreId(t))
-case 10:case"end":return e.stop()}},e,this)})),function(e){return B.apply(this,arguments)})},{key:"discover",value:(j=c()(a.a.mark(function e(t){var r,n,o,i
+case 10:case"end":return e.stop()}},e,this)})),function(e){return M.apply(this,arguments)})},{key:"discover",value:(D=c()(a.a.mark(function e(t){var r,n,o,i
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=t.chainNetwork,o=void 0===n?"eos_main":n,i=t.discoveryPathIndexList,this.assertValidProvider(r),!this.canDiscover(r)){e.next=4
 break}return e.abrupt("return",this.discoverCredentialsInWallet(o,r,i))
 >>>>>>> Add ual-ledger support
 case 4:throw new Error("Discover not support for provider: ".concat(r))
-case 5:case"end":return e.stop()}},e,this)})),function(e){return j.apply(this,arguments)})},{key:"assertValidProvider",value:function(e){if(K[e])return!0
-throw new Error("Provider ".concat(e," is not a valid option"))}},{key:"canDiscover",value:function(e){return!this.options.ualProviders.find(function(t){return t.name.toLowerCase()===e.toLowerCase()})&&!0===K[e].supportsDiscovery}},{key:"loginWithOreId",value:(z=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p
+case 5:case"end":return e.stop()}},e,this)})),function(e){return D.apply(this,arguments)})},{key:"assertValidProvider",value:function(e){if(K[e])return!0
+throw new Error("Provider ".concat(e," is not a valid option"))}},{key:"canDiscover",value:function(e){return!this.isUALProvider(e)&&!0===K[e].supportsDiscovery}},{key:"loginWithOreId",value:(F=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=t.code,n=t.email,o=t.phone,i=t.provider,s=t.state,c=this.options,u=c.authCallbackUrl,f=c.backgroundColor,l={code:r,email:n,phone:o,provider:i,backgroundColor:f,callbackUrl:u,state:s},e.next=5,this.getOreIdAuthUrl(l)
 case 5:return p=e.sent,e.abrupt("return",{loginUrl:p,errors:null})
-case 7:case"end":return e.stop()}},e,this)})),function(e){return z.apply(this,arguments)})},{key:"signWithOreId",value:(R=c()(a.a.mark(function e(t){var r,n
+case 7:case"end":return e.stop()}},e,this)})),function(e){return F.apply(this,arguments)})},{key:"signWithOreId",value:(B=c()(a.a.mark(function e(t){var r,n
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=this.options.signCallbackUrl,t.callbackUrl=r,e.next=4,this.getOreIdSignUrl(t)
 case 4:return n=e.sent,e.abrupt("return",{signUrl:n,errors:null})
-case 6:case"end":return e.stop()}},e,this)})),function(e){return R.apply(this,arguments)})},{key:"custodialSignWithOreId",value:(U=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,y,v,g,m,b,w,_,x
+case 6:case"end":return e.stop()}},e,this)})),function(e){return B.apply(this,arguments)})},{key:"custodialSignWithOreId",value:(j=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,y,v,g,m,b,w,x,_
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.options,n=r.apiKey,o=r.oreIdUrl,i=r.serviceKey){e.next=3
 break}throw new Error("Missing serviceKey in oreId config options - required to call api/custodial/new-user.")
 case 3:return s=t.account,c=t.broadcast,u=t.chainAccount,f=t.chainNetwork,l=t.returnSignedTransaction,p=t.transaction,h=t.userPassword,y=N.base64Encode(p),v={account:s,broadcast:c,chain_account:u,chain_network:f,return_signed_transaction:l,transaction:y,user_password:h},g="".concat(o,"/api/custodial/sign"),e.next=9,d.a.post(g,JSON.stringify(v),{headers:{"Content-Type":"application/json","api-key":n,"service-key":i},body:v})
 case 9:if(m=e.sent,!(b=m.error)){e.next=13
 break}throw new Error(b)
+<<<<<<< HEAD
 case 13:return w=m.data,_=w.signed_transaction,x=w.transaction_id,e.abrupt("return",{signedTransaction:_,transactionId:x})
 <<<<<<< HEAD
 case 16:case"end":return e.stop()}},e,this)})),function(e){return T.apply(this,arguments)})},{key:"signWithTransitProvider",value:(O=a()(o.a.mark(function e(t){var r,n,i,a,s,c
@@ -1036,12 +1098,18 @@ case 3:return s=e.sent,c=s.transitWallet,e.prev=5,this.setIsBusy(!0),e.next=9,c.
 >>>>>>> Set up ual/transit validation
 =======
 case 16:case"end":return e.stop()}},e,this)})),function(e){return U.apply(this,arguments)})},{key:"signWithUALProvider",value:(P=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u
+=======
+case 13:return w=m.data,x=w.signed_transaction,_=w.transaction_id,e.abrupt("return",{signedTransaction:x,transactionId:_})
+case 16:case"end":return e.stop()}},e,this)})),function(e){return j.apply(this,arguments)})},{key:"signWithNonOreIdProvider",value:(z=c()(a.a.mark(function e(t){var r
+return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=this.isUALProvider(t.provider),e.abrupt("return",r?this.signWithUALProvider(t):this.signWithTransitProvider(t))
+case 2:case"end":return e.stop()}},e,this)})),function(e){return z.apply(this,arguments)})},{key:"signWithUALProvider",value:(R=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u
+>>>>>>> Add all available ual providers
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=t.provider,n=t.broadcast,o=t.chainNetwork,i=t.transaction,e.next=3,this.connectToUALProvider(r,o)
 case 3:return s=e.sent,c=s.user,e.prev=5,this.setIsBusy(!0),e.next=9,c.signTransaction({actions:[i]},{broadcast:n})
 case 9:return u=e.sent,e.abrupt("return",{signedTransaction:u})
 case 13:throw e.prev=13,e.t0=e.catch(5),console.error(e.t0),e.t0
 case 17:return e.prev=17,this.setIsBusy(!1),e.finish(17)
-case 20:case"end":return e.stop()}},e,this,[[5,13,17,20]])})),function(e){return P.apply(this,arguments)})},{key:"signWithTransitProvider",value:(I=c()(a.a.mark(function e(t){var r,n,o,i,s,c
+case 20:case"end":return e.stop()}},e,this,[[5,13,17,20]])})),function(e){return R.apply(this,arguments)})},{key:"signWithTransitProvider",value:(U=c()(a.a.mark(function e(t){var r,n,o,i,s,c
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=t.broadcast,n=t.chainNetwork,o=t.transaction,i=t.provider,e.next=3,this.connectToTransitProvider(i,n)
 case 3:return s=e.sent,c=s.transitWallet,e.prev=5,this.setIsBusy(!0),e.next=9,c.eosApi.transact({actions:[o]},{broadcast:r,blocksBehind:3,expireSeconds:60})
 >>>>>>> Add ual-ledger support
@@ -1052,6 +1120,7 @@ case 15:return e.prev=15,this.setIsBusy(!1),e.finish(15)
 case 18:return e.abrupt("return",{signedTransaction:s})
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 case 19:case"end":return e.stop()}},e,this,[[5,12,15,18]])})),function(e){return U.apply(this,arguments)})},{key:"custodialNewAccount",value:(I=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,y,v,g,m
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.options,n=r.apiKey,o=r.oreIdUrl,i=r.serviceKey,s=t.accountType,c=t.email,u=t.name,f=t.picture,l=t.phone,p=t.userName,h=t.userPassword,y={account_type:s,email:c,name:u,picture:f,phone:l,user_name:p,user_password:h},i){e.next=5
 =======
@@ -1060,6 +1129,9 @@ return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.option
 >>>>>>> Set up ual/transit validation
 =======
 case 19:case"end":return e.stop()}},e,this,[[5,12,15,18]])})),function(e){return I.apply(this,arguments)})},{key:"custodialNewAccount",value:(T=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,y,v,g,m
+=======
+case 19:case"end":return e.stop()}},e,this,[[5,12,15,18]])})),function(e){return U.apply(this,arguments)})},{key:"custodialNewAccount",value:(I=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,y,v,g,m
+>>>>>>> Add all available ual providers
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.options,n=r.apiKey,o=r.oreIdUrl,i=r.serviceKey,s=t.accountType,c=t.email,u=t.name,f=t.picture,l=t.phone,p=t.userName,h=t.userPassword,y={account_type:s,email:c,name:u,picture:f,phone:l,user_name:p,user_password:h},i){e.next=5
 >>>>>>> Add ual-ledger support
 break}throw new Error("Missing serviceKey in oreId config options - required to call api/custodial/new-user.")
@@ -1067,6 +1139,7 @@ case 5:return v="".concat(o,"/api/custodial/new-user"),e.next=8,d.a.post(v,JSON.
 case 8:if(g=e.sent,!(m=g.error)){e.next=12
 break}throw new Error(m)
 case 12:return e.abrupt("return",g.data)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 case 13:case"end":return e.stop()}},e,this)})),function(e){return I.apply(this,arguments)})},{key:"custodialMigrateAccount",value:(P=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,y,v,g,m
@@ -1077,6 +1150,9 @@ return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.option
 >>>>>>> Set up ual/transit validation
 =======
 case 13:case"end":return e.stop()}},e,this)})),function(e){return T.apply(this,arguments)})},{key:"custodialMigrateAccount",value:(O=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,y,v,g,m
+=======
+case 13:case"end":return e.stop()}},e,this)})),function(e){return I.apply(this,arguments)})},{key:"custodialMigrateAccount",value:(P=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,y,v,g,m
+>>>>>>> Add all available ual providers
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.options,n=r.apiKey,o=r.oreIdUrl,i=r.serviceKey){e.next=3
 >>>>>>> Add ual-ledger support
 break}throw new Error("Missing serviceKey in oreId config options - required to call api/custodial/migrate-account.")
@@ -1084,6 +1160,7 @@ case 3:return s=t.account,c=t.chainAccount,u=t.chainNetwork,f=t.toType,l=t.userP
 case 8:if(y=e.sent,!(v=y.error)){e.next=12
 break}throw new Error(v)
 case 12:return g=y.data,m=g.account,e.abrupt("return",{account:m})
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 case 15:case"end":return e.stop()}},e,this)})),function(e){return P.apply(this,arguments)})},{key:"loginWithNonOreIdProvider",value:(T=c()(a.a.mark(function e(t){var r
@@ -1126,12 +1203,31 @@ case 13:if(c=e.sent,console.info("Users",c),N.isNullOrEmpty(c)){e.next=21
 break}return u=c[0],f={isLoggedIn:!0,account:u.accountName,permissions:[{name:"active",publicKey:u.keys[0]}],provider:t,wallet:s,user:u},e.next=20,this.updatePermissionsIfNecessary(f,i.chainId,t)
 case 20:return e.abrupt("return",f)
 case 21:e.next=27
+=======
+case 15:case"end":return e.stop()}},e,this)})),function(e){return P.apply(this,arguments)})},{key:"loginWithNonOreIdProvider",value:(T=c()(a.a.mark(function e(t,r){var n
+return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return alert("provider",t),n=this.isUALProvider(t),alert("ISUAL",n),e.abrupt("return",n?this.connectToUALProvider(t,r):this.connectToTransitProvider(t,r))
+case 4:case"end":return e.stop()}},e,this)})),function(e,t){return T.apply(this,arguments)})},{key:"loginToUALProvider",value:(O=c()(a.a.mark(function e(t,r){var n,o
+return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.prev=0,e.next=3,t.login()
+case 3:return n=e.sent,e.abrupt("return",n)
+case 7:if(e.prev=7,e.t0=e.catch(0),o=e.t0.message,!(void 0===o?"":o).includes("unknown key (boost::tuples::tuple")){e.next=14
+break}throw new Error("The account selected by the wallet for login isn't on the ".concat(r," chain"))
+case 14:throw e.t0
+case 15:case"end":return e.stop()}},e,null,[[0,7]])})),function(e,t){return O.apply(this,arguments)})},{key:"connectToUALProvider",value:(S=c()(a.a.mark(function e(t,r){var n,o,i,s,c,u,f
+return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(n=this.options.ualProviders.find(function(e){return e.name.toLowerCase()===t}),console.info("Selected",n),!n){e.next=30
+break}return e.prev=3,e.next=6,this.getNetworkConfig(r)
+case 6:return o=e.sent,i={chainId:o.chainId,rpcEndpoints:[q({},o)]},s=new n([i],{appName:this.options.appName}),e.next=11,s.init()
+case 11:return e.next=13,this.loginToUALProvider(s,r)
+case 13:if(c=e.sent,alert(JSON.stringify(c)),N.isNullOrEmpty(c)){e.next=22
+break}return u=c[0],f={isLoggedIn:!0,account:u.accountName,permissions:[{name:"active",publicKey:u.keys[0]}],provider:t,wallet:s,user:u},alert(JSON.stringify(f)),e.next=21,this.updatePermissionsIfNecessary(f,i.chainId,t)
+case 21:return e.abrupt("return",f)
+case 22:e.next=28
+>>>>>>> Add all available ual providers
 break
-case 23:throw e.prev=23,e.t0=e.catch(2),console.log("Failed to connect to ".concat(t," wallet:"),e.t0),e.t0
-case 27:e.next=30
+case 24:throw e.prev=24,e.t0=e.catch(3),console.log("Failed to connect to ".concat(t," wallet:"),e.t0),e.t0
+case 28:e.next=31
 break
-case 29:throw Error("Provider does not match")
-case 30:case"end":return e.stop()}},e,this,[[2,23]])})),function(e,t){return S.apply(this,arguments)})},{key:"loginToTransitProvider",value:(A=c()(a.a.mark(function e(t,r,n){var o
+case 30:throw Error("Provider does not match")
+case 31:case"end":return e.stop()}},e,this,[[3,24]])})),function(e,t){return S.apply(this,arguments)})},{key:"loginToTransitProvider",value:(A=c()(a.a.mark(function e(t,r,n){var o
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.prev=0,e.next=3,t.login()
 >>>>>>> Add ual-ledger support
 case 3:e.next=13
@@ -1192,6 +1288,7 @@ case 4:console.log("connecting to ".concat(r," via eos-transit wallet in progres
 break
 case 7:this.setIsBusy(!1)
 <<<<<<< HEAD
+<<<<<<< HEAD
 case 8:case"end":return e.stop()}},e,this)})),function(e,t){return k.apply(this,arguments)})},{key:"getChainNetworkByChainId",value:(_=c()(a.a.mark(function e(t){var r,n
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.next=2,this.chainNetworks()
 case 2:if(r=e.sent,n=r.find(function(e){return e.hosts.find(function(e){return e.chainId===t})}),N.isNullOrEmpty(n)){e.next=6
@@ -1204,15 +1301,26 @@ case 2:if(r=e.sent,n=r.find(function(e){return e.hosts.find(function(e){return e
 break}return e.abrupt("return",n.network)
 case 6:case"end":return e.stop()}},e,this)})),function(e){return x.apply(this,arguments)})},{key:"getChainNetworkFromTransitWallet",value:(_=c()(a.a.mark(function e(t){var r,n,o
 >>>>>>> Add ual-ledger support
+=======
+case 8:case"end":return e.stop()}},e,this)})),function(e,t){return k.apply(this,arguments)})},{key:"getChainNetworkByChainId",value:(_=c()(a.a.mark(function e(t){var r,n
+return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.next=2,this.chainNetworks()
+case 2:if(r=e.sent,n=r.find(function(e){return e.hosts.find(function(e){return e.chainId===t})}),N.isNullOrEmpty(n)){e.next=6
+break}return e.abrupt("return",n.network)
+case 6:case"end":return e.stop()}},e,this)})),function(e){return _.apply(this,arguments)})},{key:"getChainNetworkFromTransitWallet",value:(x=c()(a.a.mark(function e(t){var r,n,o
+>>>>>>> Add all available ual providers
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(!t||!t.eosApi){e.next=8
 break}return r=t.eosApi.chainId,e.next=4,this.chainNetworks()
 case 4:if(n=e.sent,o=n.find(function(e){return e.hosts.find(function(e){return e.chainId===r})}),N.isNullOrEmpty(o)){e.next=8
 break}return e.abrupt("return",o.network)
 <<<<<<< HEAD
+<<<<<<< HEAD
 case 8:case"end":return e.stop()}},e,this)})),function(e){return x.apply(this,arguments)})},{key:"discoverCredentialsInWallet",value:(w=c()(a.a.mark(function e(t,r){var n,o,i,s,u,f,l,p,h=this,d=arguments
 =======
 case 8:case"end":return e.stop()}},e,this)})),function(e){return _.apply(this,arguments)})},{key:"discoverCredentialsInWallet",value:(w=c()(a.a.mark(function e(t,r){var n,o,i,s,u,f,l,p,h=this,d=arguments
 >>>>>>> Add ual-ledger support
+=======
+case 8:case"end":return e.stop()}},e,this)})),function(e){return x.apply(this,arguments)})},{key:"discoverCredentialsInWallet",value:(w=c()(a.a.mark(function e(t,r){var n,o,i,s,u,f,l,p,h=this,d=arguments
+>>>>>>> Add all available ual providers
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return n=d.length>2&&void 0!==d[2]?d[2]:[0,1,2,3,4,5,6,7,8,9],o=[],e.prev=2,e.next=5,this.connectToTransitProvider(r,t)
 case 5:if(s=e.sent,u=s.transitWallet){e.next=9
 break}return e.abrupt("return",o)
@@ -1314,7 +1422,8 @@ return o.a.wrap(function(t){for(;;)switch(t.prev=t.next){case 0:if(r.query){t.ne
 >>>>>>> Set up ual/transit validation
 =======
 return N.isNullOrEmpty(e)?(this.user=null,null):(this.user=JSON.parse(e),this.user)}},{key:"clearLocalState",value:(t=c()(a.a.mark(function e(){return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:this.storage.removeItem(this.userKey())
-case 1:case"end":return e.stop()}},e,this)})),function(){return t.apply(this,arguments)})},{key:"isCustodial",value:function(e){return"custodial"===e}}]),e}(),G=function(e){return function(t,r,n){Promise.resolve(e(t,r,n)).catch(n)}}
+case 1:case"end":return e.stop()}},e,this)})),function(){return t.apply(this,arguments)})},{key:"isCustodial",value:function(e){return"custodial"===e}},{key:"isUALProvider",value:function(e){var t=this.options.ualProviders
+return t&&t.find(function(t){return t.name.toLowerCase()===e.toLowerCase()})}}]),e}(),G=function(e){return function(t,r,n){Promise.resolve(e(t,r,n)).catch(n)}}
 function H(e){return G(function(){var t=c()(a.a.mark(function t(r,n,o){var i,s,c,u,f,l,p,h
 return a.a.wrap(function(t){for(;;)switch(t.prev=t.next){case 0:if(r.query){t.next=3
 >>>>>>> Add ual-ledger support

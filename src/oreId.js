@@ -104,7 +104,7 @@ export default class OreId {
           });
         });
 
-      // TODO: Return both ual and transit provider names
+      // TODO: Return name of both duplicate providers (current only returns transit duplicates) 
       if (!isNullOrEmpty(duplicates)) {
         throw Error(`Duplicate providers's found -> ${duplicates}. Please remove one before continuing.`);
       }
@@ -484,12 +484,13 @@ export default class OreId {
 
         if (!Helpers.isNullOrEmpty(users)) {
           // TODO: Handle multiple users
+          // UAL doesn't return the permission so we default to active
           const user = users[0];
           const publicKeys = await user.getKeys();
           const response = {
             isLoggedIn: true,
             account: user.accountName,
-            permissions: [{ name: 'active', publicKey: publicKeys[0] }], // todo: add parent permission when available
+            permissions: [{ name: 'active', publicKey: publicKeys[0] }],
             provider,
             wallet,
             user
