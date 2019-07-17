@@ -447,7 +447,6 @@ export default class OreId {
     return { account: newAccount };
   }
 
-<<<<<<< HEAD
   async loginWithNonOreIdProvider(loginOptions) {
     const isUALProvider = this.isUALProvider(loginOptions.provider);
     return isUALProvider ? this.connectToUALProvider(loginOptions) : this.connectToTransitProvider(loginOptions);
@@ -524,11 +523,7 @@ export default class OreId {
     }
   }
 
-<<<<<<< HEAD
-  async connectToTransitProvider({ provider, chainNetwork }) {
-=======
-  async connectToTransitProvider(provider, chainNetwork) {
->>>>>>> Set up ual/transit validation
+  async connectToTransitProvider({ provider, chainNetwork = 'eos_main' }) {
     const providerId = transitProviderAttributes[provider].providerId;
     const chainContext = await this.getOrCreateChainContext(chainNetwork);
     const transitProvider = chainContext.getWalletProviders().find((wp) => wp.id === providerId);
@@ -742,6 +737,7 @@ export default class OreId {
   /*
         load user from local storage and call api to get latest info
     */
+  // What uses this?
   async getUser(account) {
     if (account) {
       const user = await this.getUserInfoFromApi(account); // get the latest user data
