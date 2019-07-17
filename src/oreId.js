@@ -62,6 +62,15 @@ const ualProviderAttributes = {
   },
   ledger: {
     requiresLogin: true
+  },
+  lynx: {
+    requiresLogin: false
+  },
+  meetone: {
+    requiresLogin: false
+  },
+  tokenpocket: {
+    requiresLogin: false
   }
 };
 
@@ -75,10 +84,9 @@ export default class OreId {
     this.appAccessToken = null;
     this.user = null;
     this.storage = new StorageHandler();
-    this.validateOptions(options);
     this.chainContexts = {};
     this.cachedChainNetworks = null;
-
+    this.validateOptions(options);
     this.validateProviders();
   }
 
@@ -90,9 +98,12 @@ export default class OreId {
         .map((makeWalletProvider) => makeWalletProvider({}))
         .map((provider) => provider.id)
         .filter((transitProvider) => {
-          return ualProviders.find((ualProvider) => ualProvider.name.toLowerCase() === transitProvider.toLowerCase());
+          return ualProviders.find((ualProvider) => {
+            return transitProvider.toLowerCase().includes(ualProvider.name.toLowerCase());
+          });
         });
 
+      // TODO: Return both duplicate names
       if (!isNullOrEmpty(duplicates)) {
         throw Error(`Duplicate providers's found -> ${duplicates}. Please remove one before continuing.`);
       }
@@ -223,17 +234,8 @@ export default class OreId {
       throw new Error('Not Implemented');
     }
 
-    // TODO:
-    // 1. Check which is available and call that one
-    // 4. Test all the available providers
-
-    // if (supportedTransitProviders.includes(provider)) {
-    //   return this.connectToTransitProvider(provider, chainNetwork);
-    // }
-
-    if (supportedUALProviders.includes(provider)) {
-      console.info(provider, chainNetwork);
-      return this.connectToUALProvider(provider, chainNetwork);
+    if (supportedTransitProviders.includes(provider) || supportedUALProviders.includes(provider)) {
+      return this.loginWithNonOreIdProvider(provider, chainNetwork);
     }
 
     return this.loginWithOreId(loginOptions);
@@ -254,12 +256,8 @@ export default class OreId {
       return this.custodialSignWithOreId(signOptions);
     }
 
-    // if (supportedTransitProviders.includes(provider)) {
-    //   return this.signWithTransitProvider(signOptions);
-    // }
-
-    if (supportedUALProviders.includes(provider)) {
-      return this.signWithUALProvider(signOptions);
+    if (supportedTransitProviders.includes(provider) || supportedUALProviders.includes(provider)) {
+      return this.signWithNonOreIdProvider(signOptions);
     }
 
     return this.signWithOreId(signOptions);
@@ -286,8 +284,7 @@ export default class OreId {
 
   // determine whether discovery is supported by the provider
   canDiscover(provider) {
-    const isUALProvider = this.options.ualProviders.find((ualProvider) => ualProvider.name.toLowerCase() === provider.toLowerCase());
-    if (isUALProvider) {
+    if (this.isUALProvider(provider)) {
       return false;
     }
 
@@ -349,6 +346,11 @@ export default class OreId {
     const { data } = response;
     const { signed_transaction: signedTransaction, transaction_id: transactionId } = data;
     return { signedTransaction, transactionId };
+  }
+
+  async signWithNonOreIdProvider(signOptions) {
+    const isUALProvider = this.isUALProvider(signOptions.provider);
+    return isUALProvider ? this.signWithUALProvider(signOptions) : this.signWithTransitProvider(signOptions);
   }
 
   async signWithUALProvider({ provider, broadcast, chainNetwork, transaction }) {
@@ -444,6 +446,11 @@ export default class OreId {
     return { account: newAccount };
   }
 
+  async loginWithNonOreIdProvider(provider, chainNetwork) {
+    const isUALProvider = this.isUALProvider(provider);
+    return isUALProvider ? this.connectToUALProvider(provider, chainNetwork) : this.connectToTransitProvider(provider, chainNetwork);
+  }
+
   async loginToUALProvider(wallet, chainNetwork) {
     try {
       const users = await wallet.login();
@@ -458,7 +465,6 @@ export default class OreId {
     }
   }
 
-  // TODO: Refactor this, separate connect/init and login
   async connectToUALProvider(provider, chainNetwork) {
     const SelectedProvider = this.options.ualProviders.find((ualProvider) => ualProvider.name.toLowerCase() === provider);
     if (SelectedProvider) {
@@ -471,17 +477,15 @@ export default class OreId {
           }]
         };
         const wallet = new SelectedProvider([ualNetworkConfig], { appName: this.options.appName });
-        console.info('Wallet', wallet);
         await wallet.init();
-        const users = await this.loginToUALProvider(wallet, chainNetwork) 
+        const users = await this.loginToUALProvider(wallet, chainNetwork);
 
-        console.info('Users', users);
         if (!Helpers.isNullOrEmpty(users)) {
           // TODO: Handle multiple users
           const user = users[0];
           const response = {
             isLoggedIn: true,
-            account: user.accountName, // TODO: Switch this to accountname
+            account: user.accountName,
             permissions: [{ name: 'active', publicKey: user.keys[0] }], // todo: add parent permission when available
             provider,
             wallet,
@@ -563,7 +567,6 @@ export default class OreId {
         throw new Error(errorString);
       }
 
-      // TODO: Clean up -> move inside of if state above
       if (transitWallet.eosApi) {
         const chainId = transitWallet.eosApi.chainId;
         await this.updatePermissionsIfNecessary(response, chainId, provider);
@@ -995,5 +998,10 @@ export default class OreId {
 
   isCustodial(provider) {
     return provider === 'custodial';
+  }
+
+  isUALProvider(provider) {
+    const { ualProviders } = this.options;
+    return ualProviders && ualProviders.find((ualProvider) => ualProvider.name.toLowerCase() === provider.toLowerCase());
   }
 }
