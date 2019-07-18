@@ -239,8 +239,8 @@ d.set(m,N({name:m,aliasOfName:b}))}}catch(e){r={error:e}}finally{try{v&&!v.done&
 d.set(C,N({name:C,baseName:T,fields:O.map(function(e){return{name:e.name,typeName:e.type,type:null}}),serialize:k,deserialize:A}))}}catch(e){i={error:e}}finally{try{_&&!_.done&&(s=w.return)&&s.call(w)}finally{if(i)throw i.error}}if(t.variants)try{for(var P=a(t.variants),I=P.next();!I.done;I=P.next()){var U=I.value,z=U.name,D=U.types
 d.set(z,N({name:z,fields:D.map(function(e){return{name:e,typeName:e,type:null}}),serialize:E,deserialize:S}))}}catch(e){c={error:e}}finally{try{I&&!I.done&&(u=P.return)&&u.call(P)}finally{if(c)throw c.error}}try{for(var R=a(d),B=R.next();!B.done;B=R.next()){var L=o(B.value,2)
 L[0],(b=L[1]).baseName&&(b.base=j(d,b.baseName))
-try{for(var M=a(b.fields),K=M.next();!K.done;K=M.next()){var F=K.value
-F.type=j(d,F.typeName)}}catch(e){p={error:e}}finally{try{K&&!K.done&&(h=M.return)&&h.call(M)}finally{if(p)throw p.error}}}}catch(e){f={error:e}}finally{try{B&&!B.done&&(l=R.return)&&l.call(R)}finally{if(f)throw f.error}}return d},t.transactionHeader=function(e,t){return{expiration:d(h(e.timestamp)+t),ref_block_num:65535&e.block_num,ref_block_prefix:e.ref_block_prefix}},t.serializeActionData=D,t.serializeAction=function(e,t,r,n,o,i,a){return{account:t,name:r,authorization:n,data:D(e,t,r,o,i,a)}},t.deserializeActionData=R,t.deserializeAction=function(e,t,r,n,o,i,a){return{account:t,name:r,authorization:n,data:R(e,t,r,o,i,a)}}},function(e,t){var r
+try{for(var K=a(b.fields),M=K.next();!M.done;M=K.next()){var F=M.value
+F.type=j(d,F.typeName)}}catch(e){p={error:e}}finally{try{M&&!M.done&&(h=K.return)&&h.call(K)}finally{if(p)throw p.error}}}}catch(e){f={error:e}}finally{try{B&&!B.done&&(l=R.return)&&l.call(R)}finally{if(f)throw f.error}}return d},t.transactionHeader=function(e,t){return{expiration:d(h(e.timestamp)+t),ref_block_num:65535&e.block_num,ref_block_prefix:e.ref_block_prefix}},t.serializeActionData=D,t.serializeAction=function(e,t,r,n,o,i,a){return{account:t,name:r,authorization:n,data:D(e,t,r,o,i,a)}},t.deserializeActionData=R,t.deserializeAction=function(e,t,r,n,o,i,a){return{account:t,name:r,authorization:n,data:R(e,t,r,o,i,a)}}},function(e,t){var r
 r=function(){return this}()
 try{r=r||new Function("return this")()}catch(e){"object"==typeof window&&(r=window)}e.exports=r},function(e,t,r){"use strict"
 var n,o=this&&this.__extends||(n=function(e,t){return(n=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)t.hasOwnProperty(r)&&(e[r]=t[r])})(e,t)},function(e,t){function r(){this.constructor=e}n(e,t),e.prototype=null===t?Object.create(t):(r.prototype=t.prototype,new r)})
@@ -653,14 +653,14 @@ try{r=I.decode(t),e.tryParseJSON(r)&&(r=JSON.parse(r))}catch(e){return null}retu
 function D(e,t){var r=Object.keys(e)
 return Object.getOwnPropertySymbols&&r.push.apply(r,Object.getOwnPropertySymbols(e)),t&&(r=r.filter(function(t){return Object.getOwnPropertyDescriptor(e,t).enumerable})),r}var R=function(){function e(){f()(this,e)}return p()(e,[{key:"getItem",value:function(e){return j.a.get(e)}},{key:"removeItem",value:function(e){j.a.remove(e)}},{key:"setItem",value:function(e,t,r){var n=function(e){for(var t=1;t<arguments.length;t++){var r=null!=arguments[t]?arguments[t]:{}
 t%2?D(r,!0).forEach(function(t){o()(e,t,r[t])}):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(r)):D(r).forEach(function(t){Object.defineProperty(e,t,Object.getOwnPropertyDescriptor(r,t))})}return e}({expires:1},r)
-j.a.set(e,t,n)}}]),e}(),B=function(){function e(){f()(this,e),window?this.storage=window.localStorage:N.log("Not running in Browser. Using CookieStorage instead.")}return p()(e,[{key:"getItem",value:function(e){if(this.storage)return this.storage.getItem(e)}},{key:"removeItem",value:function(e){if(this.storage)return this.storage.removeItem(e)}},{key:"setItem",value:function(e,t,r){if(this.storage)return this.storage.setItem(e,t,r)}}]),e}(),L=function(){function e(){f()(this,e)}return p()(e,[{key:"getItem",value:function(e){return null}},{key:"removeItem",value:function(e){}},{key:"setItem",value:function(e,t,r){}}]),e}(),M=function(){function e(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{tryLocalStorageFirst:!0}
+j.a.set(e,t,n)}}]),e}(),B=function(){function e(){f()(this,e),window?this.storage=window.localStorage:N.log("Not running in Browser. Using CookieStorage instead.")}return p()(e,[{key:"getItem",value:function(e){if(this.storage)return this.storage.getItem(e)}},{key:"removeItem",value:function(e){if(this.storage)return this.storage.removeItem(e)}},{key:"setItem",value:function(e,t,r){if(this.storage)return this.storage.setItem(e,t,r)}}]),e}(),L=function(){function e(){f()(this,e)}return p()(e,[{key:"getItem",value:function(e){return null}},{key:"removeItem",value:function(e){}},{key:"setItem",value:function(e,t,r){}}]),e}(),K=function(){function e(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{tryLocalStorageFirst:!0}
 if(f()(this,e),this.triedLocalStorage=!1,this.triedCookieStorage=!1,!0===t.tryLocalStorageFirst){this.triedLocalStorage=!0
 try{var r=new B
 r&&r.storage&&(this.storage=r)}catch(e){N.log("Can't use localStorage. Using CookieStorage instead.",t)}}this.storage||(this.storage=new R,this.triedCookieStorage=!0)}return p()(e,[{key:"failover",value:function(){if(!(this.storage instanceof L)){var e=!1
 this.storage instanceof B?this.triedCookieStorage||(this.storage=new R,this.triedCookieStorage=!0,e=!0):this.storage instanceof R&&(this.triedLocalStorage||(this.storage=new B,this.triedLocalStorage=!0,e=!0)),e||(this.storage=new L)}}},{key:"getItem",value:function(e){try{return this.storage.getItem(e)}catch(t){return N.log("Can't getItem in storage.",t),this.failover(),this.storage.getItem(e)}}},{key:"removeItem",value:function(e){try{return this.storage.removeItem(e)}catch(t){return N.log("Can't removeItem in storage.",t),this.failover(),this.storage.removeItem(e)}}},{key:"setItem",value:function(e,t,r){try{return this.storage.setItem(e,t,r)}catch(n){return N.log("Can't setItem in storage.",n),this.failover(),this.storage.setItem(e,t,r)}}}]),e}()
-function K(e,t){var r=Object.keys(e)
+function M(e,t){var r=Object.keys(e)
 return Object.getOwnPropertySymbols&&r.push.apply(r,Object.getOwnPropertySymbols(e)),t&&(r=r.filter(function(t){return Object.getOwnPropertyDescriptor(e,t).enumerable})),r}function F(e){for(var t=1;t<arguments.length;t++){var r=null!=arguments[t]?arguments[t]:{}
-t%2?K(r,!0).forEach(function(t){o()(e,t,r[t])}):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(r)):K(r).forEach(function(t){Object.defineProperty(e,t,Object.getOwnPropertyDescriptor(r,t))})}return e}var W={ledger:{providerId:"ledger",requiresLogin:!1,supportsDiscovery:!0},lynx:{providerId:"EOS Lynx",requiresLogin:!1,supportsDiscovery:!1},meetone:{providerId:"meetone_provider",requiresLogin:!1,supportsDiscovery:!1},metro:{providerId:"metro",requiresLogin:!1,supportsDiscovery:!1},scatter:{providerId:"scatter",requiresLogin:!0,supportsDiscovery:!1},tokenpocket:{providerId:"TokenPocket",requiresLogin:!1,supportsDiscovery:!1},portis:{providerId:"PortisProvider",requiresLogin:!0,supportsDiscovery:!1},whalevault:{providerId:"whalevault",requiresLogin:!0,supportsDiscovery:!1},simpleos:{providerId:"simpleos",requiresLogin:!0,supportsDiscovery:!1},keycat:{providerId:"Keycat",requiresLogin:!0,supportsDiscovery:!1}},q={scatter:{requiresLogin:!0},ledger:{requiresLogin:!0},lynx:{requiresLogin:!1},meetone:{requiresLogin:!1},tokenpocket:{requiresLogin:!1}},V=["metro"],J=function(){function e(t){f()(this,e),this.options=null,this.appAccessToken=null,this.user=null,this.storage=new M,this.chainContexts={},this.cachedChainNetworks=null,this.validateOptions(t),this.validateProviders()}var t,r,n,o,i,s,u,l,h,y,v,g,m,b,w,_,x,k,A,E,C,T,O,P,I,U,z,j,D,R,B,L,K,J,G,H,Y,Z,$,X,Q
+t%2?M(r,!0).forEach(function(t){o()(e,t,r[t])}):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(r)):M(r).forEach(function(t){Object.defineProperty(e,t,Object.getOwnPropertyDescriptor(r,t))})}return e}var W={ledger:{providerId:"ledger",requiresLogin:!1,supportsDiscovery:!0},lynx:{providerId:"EOS Lynx",requiresLogin:!1,supportsDiscovery:!1},meetone:{providerId:"meetone_provider",requiresLogin:!1,supportsDiscovery:!1},metro:{providerId:"metro",requiresLogin:!1,supportsDiscovery:!1},scatter:{providerId:"scatter",requiresLogin:!0,supportsDiscovery:!1},tokenpocket:{providerId:"TokenPocket",requiresLogin:!1,supportsDiscovery:!1},portis:{providerId:"PortisProvider",requiresLogin:!0,supportsDiscovery:!1},whalevault:{providerId:"whalevault",requiresLogin:!0,supportsDiscovery:!1},simpleos:{providerId:"simpleos",requiresLogin:!0,supportsDiscovery:!1},keycat:{providerId:"Keycat",requiresLogin:!0,supportsDiscovery:!1}},q={scatter:{requiresLogin:!0},ledger:{requiresLogin:!0},lynx:{requiresLogin:!1},meetone:{requiresLogin:!1},tokenpocket:{requiresLogin:!1}},V=["metro"],J=function(){function e(t){f()(this,e),this.options=null,this.appAccessToken=null,this.user=null,this.storage=new K,this.chainContexts={},this.cachedChainNetworks=null,this.validateOptions(t),this.validateProviders()}var t,r,n,o,i,s,u,l,h,y,v,g,m,b,w,_,x,k,A,E,C,T,O,P,I,U,z,j,D,R,B,L,M,J,G,H,Y,Z,$,X,Q
 return p()(e,[{key:"validateProviders",value:(Q=c()(a.a.mark(function e(){var t,r,n,o,i
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(t=N.isNullOrEmpty,r=this.options,n=r.ualProviders,o=r.eosTransitWalletProviders,t(o)||t(n)){e.next=6
 break}if(i=o.map(function(e){return e({})}).map(function(e){return e.id}).filter(function(e){return n.find(function(t){return e.toLowerCase().includes(t.name.toLowerCase())})}),t(i)){e.next=6
@@ -700,13 +700,13 @@ case 4:r=e.sent,e.next=10
 break
 case 7:return e.prev=7,e.t0=e.catch(1),e.abrupt("return",{error:e.t0})
 case 10:return e.abrupt("return",r)
-case 11:case"end":return e.stop()}},e,this,[[1,7]])})),function(e){return G.apply(this,arguments)})},{key:"login",value:(J=c()(a.a.mark(function e(t){var r,n,o,i,s
-return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=t.chainNetwork,o=void 0===n?"eos_main":n,i=Object.keys(W),s=Object.keys(q),!V.includes(r)){e.next=5
+case 11:case"end":return e.stop()}},e,this,[[1,7]])})),function(e){return G.apply(this,arguments)})},{key:"login",value:(J=c()(a.a.mark(function e(t){var r,n,o
+return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=Object.keys(W),o=Object.keys(q),!V.includes(r)){e.next=5
 break}throw new Error("Not Implemented")
-case 5:if(!i.includes(r)&&!s.includes(r)){e.next=7
-break}return e.abrupt("return",this.loginWithNonOreIdProvider(r,o))
+case 5:if(!n.includes(r)&&!o.includes(r)){e.next=7
+break}return e.abrupt("return",this.loginWithNonOreIdProvider(t))
 case 7:return e.abrupt("return",this.loginWithOreId(t))
-case 8:case"end":return e.stop()}},e,this)})),function(e){return J.apply(this,arguments)})},{key:"sign",value:(K=c()(a.a.mark(function e(t){var r,n,o
+case 8:case"end":return e.stop()}},e,this)})),function(e){return J.apply(this,arguments)})},{key:"sign",value:(M=c()(a.a.mark(function e(t){var r,n,o
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=Object.keys(W),o=Object.keys(q),!V.includes(r)){e.next=5
 break}return e.abrupt("return")
 case 5:if(!this.isCustodial(r)){e.next=7
@@ -714,7 +714,7 @@ break}return e.abrupt("return",this.custodialSignWithOreId(t))
 case 7:if(!n.includes(r)&&!o.includes(r)){e.next=9
 break}return e.abrupt("return",this.signWithNonOreIdProvider(t))
 case 9:return e.abrupt("return",this.signWithOreId(t))
-case 10:case"end":return e.stop()}},e,this)})),function(e){return K.apply(this,arguments)})},{key:"discover",value:(L=c()(a.a.mark(function e(t){var r,n,o,i
+case 10:case"end":return e.stop()}},e,this)})),function(e){return M.apply(this,arguments)})},{key:"discover",value:(L=c()(a.a.mark(function e(t){var r,n,o,i
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=t.chainNetwork,o=void 0===n?"eos_main":n,i=t.discoveryPathIndexList,this.assertValidProvider(r),!this.canDiscover(r)){e.next=4
 break}return e.abrupt("return",this.discoverCredentialsInWallet(o,r,i))
 case 4:throw new Error("Discover not support for provider: ".concat(r))
@@ -734,10 +734,10 @@ break}throw new Error(b)
 case 13:return w=m.data,_=w.signed_transaction,x=w.transaction_id,e.abrupt("return",{signedTransaction:_,transactionId:x})
 case 16:case"end":return e.stop()}},e,this)})),function(e){return D.apply(this,arguments)})},{key:"signWithNonOreIdProvider",value:(j=c()(a.a.mark(function e(t){var r
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=this.isUALProvider(t.provider),e.abrupt("return",r?this.signWithUALProvider(t):this.signWithTransitProvider(t))
-case 2:case"end":return e.stop()}},e,this)})),function(e){return j.apply(this,arguments)})},{key:"signWithUALProvider",value:(z=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u
-return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=t.provider,n=t.broadcast,o=t.chainNetwork,i=t.transaction,e.next=3,this.connectToUALProvider(r,o)
-case 3:return s=e.sent,c=s.user,e.prev=5,this.setIsBusy(!0),e.next=9,c.signTransaction({actions:[i]},{broadcast:n})
-case 9:return u=e.sent,e.abrupt("return",{signedTransaction:u})
+case 2:case"end":return e.stop()}},e,this)})),function(e){return j.apply(this,arguments)})},{key:"signWithUALProvider",value:(z=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f
+return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=t.provider,n=t.broadcast,o=t.chainNetwork,i=t.transaction,s=t.chainAccount,e.next=3,this.connectToUALProvider({provider:r,chainNetwork:o,accountName:s})
+case 3:return c=e.sent,u=c.user,e.prev=5,this.setIsBusy(!0),e.next=9,u.signTransaction({actions:[i]},{broadcast:n})
+case 9:return f=e.sent,e.abrupt("return",{signedTransaction:f})
 case 13:throw e.prev=13,e.t0=e.catch(5),console.error(e.t0),e.t0
 case 17:return e.prev=17,this.setIsBusy(!1),e.finish(17)
 case 20:case"end":return e.stop()}},e,this,[[5,13,17,20]])})),function(e){return z.apply(this,arguments)})},{key:"signWithTransitProvider",value:(U=c()(a.a.mark(function e(t){var r,n,o,i,s,c
@@ -762,29 +762,30 @@ case 3:return s=t.account,c=t.chainAccount,u=t.chainNetwork,f=t.toType,l=t.userP
 case 8:if(y=e.sent,!(v=y.error)){e.next=12
 break}throw new Error(v)
 case 12:return g=y.data,m=g.account,e.abrupt("return",{account:m})
-case 15:case"end":return e.stop()}},e,this)})),function(e){return P.apply(this,arguments)})},{key:"loginWithNonOreIdProvider",value:(O=c()(a.a.mark(function e(t,r){var n
-return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return alert("provider",t),n=this.isUALProvider(t),alert("ISUAL",n),e.abrupt("return",n?this.connectToUALProvider(t,r):this.connectToTransitProvider(t,r))
-case 4:case"end":return e.stop()}},e,this)})),function(e,t){return O.apply(this,arguments)})},{key:"loginToUALProvider",value:(T=c()(a.a.mark(function e(t,r){var n,o
-return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.prev=0,e.next=3,t.login()
-case 3:return n=e.sent,e.abrupt("return",n)
-case 7:if(e.prev=7,e.t0=e.catch(0),o=e.t0.message,!(void 0===o?"":o).includes("unknown key (boost::tuples::tuple")){e.next=14
+case 15:case"end":return e.stop()}},e,this)})),function(e){return P.apply(this,arguments)})},{key:"loginWithNonOreIdProvider",value:(O=c()(a.a.mark(function e(t){var r
+return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=this.isUALProvider(t.provider),e.abrupt("return",r?this.connectToUALProvider(t):this.connectToTransitProvider(t))
+case 2:case"end":return e.stop()}},e,this)})),function(e){return O.apply(this,arguments)})},{key:"loginToUALProvider",value:(T=c()(a.a.mark(function e(t,r,n){var o,i
+return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.prev=0,e.next=3,t.login(n)
+case 3:return o=e.sent,e.abrupt("return",o)
+case 7:if(e.prev=7,e.t0=e.catch(0),i=e.t0.message,!(void 0===i?"":i).includes("unknown key (boost::tuples::tuple")){e.next=14
 break}throw new Error("The account selected by the wallet for login isn't on the ".concat(r," chain"))
 case 14:throw e.t0
-case 15:case"end":return e.stop()}},e,null,[[0,7]])})),function(e,t){return T.apply(this,arguments)})},{key:"connectToUALProvider",value:(C=c()(a.a.mark(function e(t,r){var n,o,i,s,c,u,f
-return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(n=this.options.ualProviders.find(function(e){return e.name.toLowerCase()===t}),console.info("Selected",n),!n){e.next=30
-break}return e.prev=3,e.next=6,this.getNetworkConfig(r)
-case 6:return o=e.sent,i={chainId:o.chainId,rpcEndpoints:[F({},o)]},s=new n([i],{appName:this.options.appName}),e.next=11,s.init()
-case 11:return e.next=13,this.loginToUALProvider(s,r)
-case 13:if(c=e.sent,alert(JSON.stringify(c)),N.isNullOrEmpty(c)){e.next=22
-break}return u=c[0],f={isLoggedIn:!0,account:u.accountName,permissions:[{name:"active",publicKey:u.keys[0]}],provider:t,wallet:s,user:u},alert(JSON.stringify(f)),e.next=21,this.updatePermissionsIfNecessary(f,i.chainId,t)
-case 21:return e.abrupt("return",f)
-case 22:e.next=28
+case 15:case"end":return e.stop()}},e,null,[[0,7]])})),function(e,t,r){return T.apply(this,arguments)})},{key:"connectToUALProvider",value:(C=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,d,y
+return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=t.chainNetwork,o=void 0===n?"eos_main":n,i=t.accountName,s=void 0===i?"":i,!(c=this.options.ualProviders.find(function(e){return e.name.toLowerCase()===r}))){e.next=32
+break}return e.prev=3,e.next=6,this.getNetworkConfig(o)
+case 6:return u=e.sent,f={chainId:u.chainId,rpcEndpoints:[F({},u)]},l=new c([f],{appName:this.options.appName}),e.next=11,l.init()
+case 11:return e.next=13,this.loginToUALProvider(l,o,s)
+case 13:if(p=e.sent,N.isNullOrEmpty(p)){e.next=24
+break}return h=p[0],e.next=18,h.getKeys()
+case 18:return d=e.sent,y={isLoggedIn:!0,account:h.accountName,permissions:[{name:"active",publicKey:d[0]}],provider:r,wallet:l,user:h},alert(JSON.stringify(y)),e.next=23,this.updatePermissionsIfNecessary(y,f.chainId,r)
+case 23:return e.abrupt("return",y)
+case 24:e.next=30
 break
-case 24:throw e.prev=24,e.t0=e.catch(3),console.log("Failed to connect to ".concat(t," wallet:"),e.t0),e.t0
-case 28:e.next=31
+case 26:throw e.prev=26,e.t0=e.catch(3),console.log("Failed to connect to ".concat(r," wallet:"),e.t0),e.t0
+case 30:e.next=33
 break
-case 30:throw Error("Provider does not match")
-case 31:case"end":return e.stop()}},e,this,[[3,24]])})),function(e,t){return C.apply(this,arguments)})},{key:"loginToTransitProvider",value:(E=c()(a.a.mark(function e(t,r,n){var o
+case 32:throw Error("Provider does not match")
+case 33:case"end":return e.stop()}},e,this,[[3,26]])})),function(e){return C.apply(this,arguments)})},{key:"loginToTransitProvider",value:(E=c()(a.a.mark(function e(t,r,n){var o
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.prev=0,e.next=3,t.login()
 case 3:e.next=13
 break
@@ -793,29 +794,29 @@ break}throw new Error("The account selected by the wallet for login isn't on the
 case 12:throw e.t0
 case 13:return e.prev=13,e.next=16,this.waitWhileWalletIsBusy(t,r)
 case 16:return e.finish(13)
-case 17:case"end":return e.stop()}},e,this,[[0,5,13,17]])})),function(e,t,r){return E.apply(this,arguments)})},{key:"connectToTransitProvider",value:(A=c()(a.a.mark(function e(t,r){var n,o,i,s,c,u,f,l,p,h,d,y
-return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return n=W[t].providerId,e.next=3,this.getOrCreateChainContext(r)
-case 3:return o=e.sent,i=o.getWalletProviders().find(function(e){return e.id===n}),s=o.initWallet(i),c={transitWallet:s},e.prev=7,e.next=10,s.connect()
-case 10:return e.next=12,this.waitWhileWalletIsBusy(s,t)
-case 12:if(!W[t].requiresLogin){e.next=20
-break}if(!s||s.authenticated){e.next=18
-break}return e.next=16,this.loginToTransitProvider(s,t,r)
-case 16:e.next=20
+case 17:case"end":return e.stop()}},e,this,[[0,5,13,17]])})),function(e,t,r){return E.apply(this,arguments)})},{key:"connectToTransitProvider",value:(A=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,d,y,v
+return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=t.provider,n=t.chainNetwork,o=W[r].providerId,e.next=4,this.getOrCreateChainContext(n)
+case 4:return i=e.sent,s=i.getWalletProviders().find(function(e){return e.id===o}),c=i.initWallet(s),u={transitWallet:c},e.prev=8,e.next=11,c.connect()
+case 11:return e.next=13,this.waitWhileWalletIsBusy(c,r)
+case 13:if(!W[r].requiresLogin){e.next=21
+break}if(!c||c.authenticated){e.next=19
+break}return e.next=17,this.loginToTransitProvider(c,r,n)
+case 17:e.next=21
 break
-case 18:if(s&&s.authenticated){e.next=20
-break}throw new Error("Couldn't connect to ".concat(t))
-case 20:if(!s.connected||!s.authenticated){e.next=25
-break}u=s.auth,f=u.accountName,l=u.permission,p=u.publicKey,c={isLoggedIn:!0,account:f,permissions:[{name:l,publicKey:p}],provider:t,transitWallet:s},e.next=27
+case 19:if(c&&c.authenticated){e.next=21
+break}throw new Error("Couldn't connect to ".concat(r))
+case 21:if(!c.connected||!c.authenticated){e.next=26
+break}f=c.auth,l=f.accountName,p=f.permission,h=f.publicKey,u={isLoggedIn:!0,account:l,permissions:[{name:p,publicKey:h}],provider:r,transitWallet:c},e.next=28
 break
-case 25:throw h=s.hasError,d=s.errorMessage,new Error("".concat(t," not connected!").concat(h)?" Error: ".concat(d):"")
-case 27:if(!s.eosApi){e.next=31
-break}return y=s.eosApi.chainId,e.next=31,this.updatePermissionsIfNecessary(c,y,t)
-case 31:e.next=37
+case 26:throw d=c.hasError,y=c.errorMessage,new Error("".concat(r," not connected!").concat(d)?" Error: ".concat(y):"")
+case 28:if(!c.eosApi){e.next=32
+break}return v=c.eosApi.chainId,e.next=32,this.updatePermissionsIfNecessary(u,v,r)
+case 32:e.next=38
 break
-case 33:throw e.prev=33,e.t0=e.catch(7),console.log("Failed to connect to ".concat(t," wallet:"),e.t0),e.t0
-case 37:return e.prev=37,this.setIsBusy(!1),e.finish(37)
-case 40:return e.abrupt("return",c)
-case 41:case"end":return e.stop()}},e,this,[[7,33,37,40]])})),function(e,t){return A.apply(this,arguments)})},{key:"waitWhileWalletIsBusy",value:(k=c()(a.a.mark(function e(t,r){return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(!t.inProgress){e.next=7
+case 34:throw e.prev=34,e.t0=e.catch(8),console.log("Failed to connect to ".concat(r," wallet:"),e.t0),e.t0
+case 38:return e.prev=38,this.setIsBusy(!1),e.finish(38)
+case 41:return e.abrupt("return",u)
+case 42:case"end":return e.stop()}},e,this,[[8,34,38,41]])})),function(e){return A.apply(this,arguments)})},{key:"waitWhileWalletIsBusy",value:(k=c()(a.a.mark(function e(t,r){return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(!t.inProgress){e.next=7
 break}return this.setIsBusy(!0),e.next=4,N.sleep(250)
 case 4:console.log("connecting to ".concat(r," via eos-transit wallet in progress:"),t.inProgress),e.next=0
 break
@@ -853,10 +854,11 @@ case 5:return c=e.sent,e.next=8,this.addWalletPermissionstoOreIdAccount(i,c,s,o,
 case 8:case"end":return e.stop()}},e,this)})),function(e,t,r){return b.apply(this,arguments)})},{key:"addWalletPermissionstoOreIdAccount",value:(m=c()(a.a.mark(function e(t,r,n,o,i){var s=this
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(!(N.isNullOrEmpty(o)||N.isNullOrEmpty(n)||N.isNullOrEmpty(r))){e.next=2
 break}return e.abrupt("return")
-case 2:return e.next=4,n.map(function(){var e=c()(a.a.mark(function e(n){var c,u,f
-return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(c=n.name,(u=n.parent)||(u="active","owner"===c?u="":"active"===c&&(u="owner")),!0===s.user.permissions.some(function(e){return e.chainAccount===t&&e.chainNetwork===r&&e.permission===c||"owner"===c})){e.next=8
+case 2:return e.next=4,n.map(function(){var e=c()(a.a.mark(function e(n){var c,u,f,l
+return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(c=n.name,(u=n.parent)||(u="active","owner"===c?u="":"active"===c&&(u="owner")),!0===s.user.permissions.some(function(e){return e.chainAccount===t&&e.chainNetwork===r&&e.permission===c||"owner"===c})){e.next=10
 break}return f=n.publicKey,e.next=8,s.addPermission(o,t,r,f,u,c,i)
-case 8:case"end":return e.stop()}},e)}))
+case 8:l=e.sent,alert("RESULT====> ".concat(JSON.stringify(l)))
+case 10:case"end":return e.stop()}},e)}))
 return function(t){return e.apply(this,arguments)}}())
 case 4:return e.next=6,this.getUserInfoFromApi(o)
 case 6:case"end":return e.stop()}},e,this)})),function(e,t,r,n,o){return m.apply(this,arguments)})},{key:"validateOptions",value:function(e){var t=""

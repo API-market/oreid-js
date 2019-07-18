@@ -103,7 +103,7 @@ export default class OreId {
           });
         });
 
-      // TODO: Return both duplicate names
+      // TODO: Return both ual and transit provider names
       if (!isNullOrEmpty(duplicates)) {
         throw Error(`Duplicate providers's found -> ${duplicates}. Please remove one before continuing.`);
       }
@@ -226,7 +226,7 @@ export default class OreId {
   }
 
   async login(loginOptions) {
-    const { provider, chainNetwork = 'eos_main' } = loginOptions;
+    const { provider } = loginOptions;
     const supportedTransitProviders = Object.keys(transitProviderAttributes);
     const supportedUALProviders = Object.keys(ualProviderAttributes);
 
@@ -235,7 +235,7 @@ export default class OreId {
     }
 
     if (supportedTransitProviders.includes(provider) || supportedUALProviders.includes(provider)) {
-      return this.loginWithNonOreIdProvider(provider, chainNetwork);
+      return this.loginWithNonOreIdProvider(loginOptions);
     }
 
     return this.loginWithOreId(loginOptions);
@@ -353,8 +353,8 @@ export default class OreId {
     return isUALProvider ? this.signWithUALProvider(signOptions) : this.signWithTransitProvider(signOptions);
   }
 
-  async signWithUALProvider({ provider, broadcast, chainNetwork, transaction }) {
-    const { user } = await this.connectToUALProvider(provider, chainNetwork);
+  async signWithUALProvider({ provider, broadcast, chainNetwork, transaction, chainAccount }) {
+    const { user } = await this.connectToUALProvider({ provider, chainNetwork, accountName: chainAccount });
     try {
       this.setIsBusy(true);
       const response = await user.signTransaction({ actions: [transaction] }, { broadcast });
@@ -446,14 +446,14 @@ export default class OreId {
     return { account: newAccount };
   }
 
-  async loginWithNonOreIdProvider(provider, chainNetwork) {
-    const isUALProvider = this.isUALProvider(provider);
-    return isUALProvider ? this.connectToUALProvider(provider, chainNetwork) : this.connectToTransitProvider(provider, chainNetwork);
+  async loginWithNonOreIdProvider(loginOptions) {
+    const isUALProvider = this.isUALProvider(loginOptions.provider);
+    return isUALProvider ? this.connectToUALProvider(loginOptions) : this.connectToTransitProvider(loginOptions);
   }
 
-  async loginToUALProvider(wallet, chainNetwork) {
+  async loginToUALProvider(wallet, chainNetwork, accountName) {
     try {
-      const users = await wallet.login();
+      const users = await wallet.login(accountName);
       return users;
     } catch (error) {
       const { message = '' } = error;
@@ -465,7 +465,8 @@ export default class OreId {
     }
   }
 
-  async connectToUALProvider(provider, chainNetwork) {
+  // TODO: We should cache the wallet/user object to avoid calling login everytime we need to sign
+  async connectToUALProvider({ provider, chainNetwork = 'eos_main', accountName = '' }) {
     const SelectedProvider = this.options.ualProviders.find((ualProvider) => ualProvider.name.toLowerCase() === provider);
     if (SelectedProvider) {
       try {
@@ -478,15 +479,16 @@ export default class OreId {
         };
         const wallet = new SelectedProvider([ualNetworkConfig], { appName: this.options.appName });
         await wallet.init();
-        const users = await this.loginToUALProvider(wallet, chainNetwork);
+        const users = await this.loginToUALProvider(wallet, chainNetwork, accountName);
 
         if (!Helpers.isNullOrEmpty(users)) {
           // TODO: Handle multiple users
           const user = users[0];
+          const publicKeys = await user.getKeys();
           const response = {
             isLoggedIn: true,
             account: user.accountName,
-            permissions: [{ name: 'active', publicKey: user.keys[0] }], // todo: add parent permission when available
+            permissions: [{ name: 'active', publicKey: publicKeys[0] }], // todo: add parent permission when available
             provider,
             wallet,
             user
@@ -520,7 +522,7 @@ export default class OreId {
     }
   }
 
-  async connectToTransitProvider(provider, chainNetwork) {
+  async connectToTransitProvider({ provider, chainNetwork }) {
     const providerId = transitProviderAttributes[provider].providerId;
     const chainContext = await this.getOrCreateChainContext(chainNetwork);
     const transitProvider = chainContext.getWalletProviders().find((wp) => wp.id === providerId);
