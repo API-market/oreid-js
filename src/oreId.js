@@ -736,7 +736,6 @@ export default class OreId {
   /*
         load user from local storage and call api to get latest info
     */
-  // What uses this?
   async getUser(account) {
     if (account) {
       const user = await this.getUserInfoFromApi(account); // get the latest user data
