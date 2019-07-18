@@ -7,76 +7,94 @@ const transitProviderAttributes = {
   ledger: {
     providerId: 'ledger',
     requiresLogin: false,
-    supportsDiscovery: true
+    supportsDiscovery: true,
+    supportsSignArbitrary: false
   },
   lynx: {
     providerId: 'EOS Lynx',
     requiresLogin: false,
-    supportsDiscovery: false
+    supportsDiscovery: false,
+    supportsSignArbitrary: true
   },
   meetone: {
     providerId: 'meetone_provider',
     requiresLogin: false,
-    supportsDiscovery: false
+    supportsDiscovery: false,
+    supportsSignArbitrary: true
   },
   metro: {
     providerId: 'metro',
     requiresLogin: false,
-    supportsDiscovery: false
+    supportsDiscovery: false,
+    supportsSignArbitrary: false
   },
   scatter: {
     providerId: 'scatter',
     requiresLogin: true,
-    supportsDiscovery: false
+    supportsDiscovery: false,
+    supportsSignArbitrary: true
   },
   tokenpocket: {
     providerId: 'TokenPocket',
     requiresLogin: false,
-    supportsDiscovery: false
+    supportsDiscovery: false,
+    supportsSignArbitrary: true
   },
   portis: {
     providerId: 'PortisProvider',
     requiresLogin: true,
-    supportsDiscovery: false
+    supportsDiscovery: false,
+    supportsSignArbitrary: false
   },
   whalevault: {
     providerId: 'whalevault',
     requiresLogin: true,
-    supportsDiscovery: false
+    supportsDiscovery: false,
+    supportsSignArbitrary: true
   },
   simpleos: {
     providerId: 'simpleos',
     requiresLogin: true,
-    supportsDiscovery: false
+    supportsDiscovery: false,
+    supportsSignArbitrary: false
   },
   keycat: {
     providerId: 'Keycat',
     requiresLogin: true,
-    supportsDiscovery: false
+    supportsDiscovery: false,
+    supportsSignArbitrary: true
   }
 };
 
 const ualProviderAttributes = {
   scatter: {
-    requiresLogin: true
+    requiresLogin: true,
+    supportsSignArbitrary: true
   },
   ledger: {
-    requiresLogin: true
+    requiresLogin: true,
+    supportsSignArbitrary: false
   },
   lynx: {
-    requiresLogin: false
+    requiresLogin: false,
+    supportsSignArbitrary: true
   },
   meetone: {
-    requiresLogin: false
+    requiresLogin: false,
+    supportsSignArbitrary: true
   },
   tokenpocket: {
-    requiresLogin: false
+    requiresLogin: false,
+    supportsSignArbitrary: true
   }
 };
 
 const providersNotImplemented = [
   'metro'
 ];
+
+const supportedTransitProviders = Object.keys(transitProviderAttributes);
+const supportedUALProviders = Object.keys(ualProviderAttributes);
 
 export default class OreId {
   constructor(options) {
@@ -228,8 +246,6 @@ export default class OreId {
 
   async login(loginOptions) {
     const { provider } = loginOptions;
-    const supportedTransitProviders = Object.keys(transitProviderAttributes);
-    const supportedUALProviders = Object.keys(ualProviderAttributes);
 
     if (providersNotImplemented.includes(provider)) {
       throw new Error('Not Implemented');
@@ -246,8 +262,6 @@ export default class OreId {
   async sign(signOptions) {
     // handle sign transaction based on provider type
     const { provider } = signOptions;
-    const supportedTransitProviders = Object.keys(transitProviderAttributes);
-    const supportedUALProviders = Object.keys(ualProviderAttributes);
 
     if (providersNotImplemented.includes(provider)) {
       return;
@@ -347,6 +361,59 @@ export default class OreId {
     const { data } = response;
     const { signed_transaction: signedTransaction, transaction_id: transactionId } = data;
     return { signedTransaction, transactionId };
+  }
+
+  async signString(signOptions) {
+    const { provider } = signOptions;
+    if (!this.canSignString(provider)) {
+      throw Error(`The specific provider ${provider} does not support signString`);
+    }
+
+    return this.isUALProvider(provider)
+      ? this.signArbitraryWithUALProvider(signOptions)
+      : this.signArbitraryWithTransitProvider(signOptions);
+  }
+
+  canSignString(provider) {
+    if (supportedTransitProviders.includes(provider) || supportedUALProviders.includes(provider)) {
+      const isUALProvider = this.isUALProvider(provider);
+      if (isUALProvider) {
+        return ualProviderAttributes[provider].supportsSignArbitrary;
+      }
+
+      return transitProviderAttributes[provider].supportsSignArbitrary;
+    }
+
+    return false;
+  }
+
+  async signArbitraryWithUALProvider({ provider, chainNetwork, string, chainAccount, message }) {
+    const { user } = await this.connectToUALProvider({ provider, chainNetwork, accountName: chainAccount });
+    try {
+      this.setIsBusy(true);
+      const keys = await user.getKeys();
+      const response = await user.signArbitrary(keys[0], string, message);
+      return { signedString: response };
+    } catch (error) {
+      console.error(error);
+      throw error;
+    } finally {
+      this.setIsBusy(false);
+    }
+  }
+
+  async signArbitraryWithTransitProvider({ provider, chainNetwork, string, message }) {
+    const { transitWallet } = await this.connectToTransitProvider({ provider, chainNetwork });
+    try {
+      this.setIsBusy(true);
+      const response = await transitWallet.signArbitrary(string, message);
+      return { signedString: response };
+    } catch (error) {
+      console.error(error);
+      throw error;
+    } finally {
+      this.setIsBusy(false);
+    }
   }
 
   async signWithNonOreIdProvider(signOptions) {
@@ -483,13 +550,14 @@ export default class OreId {
         const users = await this.loginToUALProvider(wallet, chainNetwork, accountName);
 
         if (!Helpers.isNullOrEmpty(users)) {
-          // TODO: Handle multiple users
+          // TODO: Handle multiple users/permissions
           // UAL doesn't return the permission so we default to active
           const user = users[0];
           const publicKeys = await user.getKeys();
+          const account = await user.getAccountName();
           const response = {
             isLoggedIn: true,
-            account: user.accountName,
+            account,
             permissions: [{ name: 'active', publicKey: publicKeys[0] }],
             provider,
             wallet,
