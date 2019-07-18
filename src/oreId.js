@@ -418,18 +418,26 @@ export default class OreId {
 
       // If connecting also performs login
       // return login results or throw error
-      if (transitWallet.connected && transitWallet.authenticated) {
-        const { accountName, permission, publicKey } = transitWallet.auth;
-        response = {
-          isLoggedIn: true,
-          account: accountName,
-          permissions: [{ name: permission, publicKey }], // todo: add parent permission when available
-          provider,
-          transitWallet
-        };
+      if (transitWallet.connected) {
+        if (transitWallet.authenticated) {
+          const { accountName, permission, publicKey } = transitWallet.auth;
+          response = {
+            isLoggedIn: true,
+            account: accountName,
+            permissions: [{ name: permission, publicKey }], // todo: add parent permission when available
+            provider,
+            transitWallet
+          };
+        }
       } else {
         const { hasError, errorMessage } = transitWallet;
-        throw new Error(`${provider} not connected!${hasError}` ? ` Error: ${errorMessage}` : '');
+
+        let errorString = `${provider} not connected!`;
+        if (hasError) {
+          errorString += ` Error: ${errorMessage}`;
+        }
+
+        throw new Error(errorString);
       }
 
       // if an account is selected, add it to the ORE ID account (if not already there)

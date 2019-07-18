@@ -859,7 +859,7 @@ break}throw new Error("The account selected by the wallet for login isn't on the
 case 12:throw e.t0
 case 13:return e.prev=13,e.next=16,this.waitWhileWalletIsBusy(t,r)
 case 16:return e.finish(13)
-case 17:case"end":return e.stop()}},e,this,[[0,5,13,17]])})),function(e,t,r){return k.apply(this,arguments)})},{key:"connectToTransitProvider",value:(x=a()(o.a.mark(function e(t,r){var n,i,a,s,c,u,f,l,p,h,d,y,v,g,m,b
+case 17:case"end":return e.stop()}},e,this,[[0,5,13,17]])})),function(e,t,r){return k.apply(this,arguments)})},{key:"connectToTransitProvider",value:(x=a()(o.a.mark(function e(t,r){var n,i,a,s,c,u,f,l,p,h,d,y,v,g,m,b,w
 return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return n=M[t].providerId,e.next=3,this.getOrCreateChainContext(r)
 case 3:return i=e.sent,a=i.getWalletProviders().find(function(e){return e.id===n}),s=i.initWallet(a),c={transitWallet:s},e.prev=7,e.next=10,s.connect()
 case 10:return e.next=12,this.waitWhileWalletIsBusy(s,t)
@@ -870,19 +870,19 @@ case 16:e.next=20
 break
 case 18:if(s&&s.authenticated){e.next=20
 break}throw new Error("Couldn't connect to ".concat(t))
-case 20:if(!s.connected||!s.authenticated){e.next=25
-break}u=s.auth,f=u.accountName,l=u.permission,p=u.publicKey,c={isLoggedIn:!0,account:f,permissions:[{name:l,publicKey:p}],provider:t,transitWallet:s},e.next=27
+case 20:if(!s.connected){e.next=24
+break}s.authenticated&&(u=s.auth,f=u.accountName,l=u.permission,p=u.publicKey,c={isLoggedIn:!0,account:f,permissions:[{name:l,publicKey:p}],provider:t,transitWallet:s}),e.next=28
 break
-case 25:throw h=s.hasError,d=s.errorMessage,new Error("".concat(t," not connected!").concat(h)?" Error: ".concat(d):"")
-case 27:if(!(y=(this.user||{}).accountName)){e.next=35
-break}return g=(v=c).account,m=v.permissions,e.next=32,this.getChainNetworkFromTransitWallet(s)
-case 32:return b=e.sent,e.next=35,this.addWalletPermissionstoOreIdAccount(g,b,m,y,t)
-case 35:e.next=41
+case 24:throw h=s.hasError,d=s.errorMessage,y="".concat(t," not connected!"),h&&(y+=" Error: ".concat(d)),new Error(y)
+case 28:if(!(v=(this.user||{}).accountName)){e.next=36
+break}return m=(g=c).account,b=g.permissions,e.next=33,this.getChainNetworkFromTransitWallet(s)
+case 33:return w=e.sent,e.next=36,this.addWalletPermissionstoOreIdAccount(m,w,b,v,t)
+case 36:e.next=42
 break
-case 37:throw e.prev=37,e.t0=e.catch(7),console.log("Failed to connect to ".concat(t," wallet:"),e.t0),e.t0
-case 41:return e.prev=41,this.setIsBusy(!1),e.finish(41)
-case 44:return e.abrupt("return",c)
-case 45:case"end":return e.stop()}},e,this,[[7,37,41,44]])})),function(e,t){return x.apply(this,arguments)})},{key:"waitWhileWalletIsBusy",value:(_=a()(o.a.mark(function e(t,r){return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(!t.inProgress){e.next=7
+case 38:throw e.prev=38,e.t0=e.catch(7),console.log("Failed to connect to ".concat(t," wallet:"),e.t0),e.t0
+case 42:return e.prev=42,this.setIsBusy(!1),e.finish(42)
+case 45:return e.abrupt("return",c)
+case 46:case"end":return e.stop()}},e,this,[[7,38,42,45]])})),function(e,t){return x.apply(this,arguments)})},{key:"waitWhileWalletIsBusy",value:(_=a()(o.a.mark(function e(t,r){return o.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(!t.inProgress){e.next=7
 break}return this.setIsBusy(!0),e.next=4,P.sleep(250)
 case 4:console.log("connecting to ".concat(r," via eos-transit wallet in progress:"),t.inProgress),e.next=0
 break
