@@ -12,7 +12,7 @@ const transitProviderAttributes = {
   },
   lynx: {
     providerId: 'EOS Lynx',
-    requiresLogin: false,
+    requiresLogin: true,
     supportsDiscovery: false,
     supportsSignArbitrary: true
   },
@@ -36,7 +36,7 @@ const transitProviderAttributes = {
   },
   tokenpocket: {
     providerId: 'TokenPocket',
-    requiresLogin: false,
+    requiresLogin: true,
     supportsDiscovery: false,
     supportsSignArbitrary: true
   },
@@ -438,7 +438,7 @@ export default class OreId {
   async signWithTransitProvider(signOptions) {
     const { broadcast, chainNetwork, transaction, provider } = signOptions;
     // connect to wallet
-    let response = await this.connectToTransitProvider(provider, chainNetwork);
+    let response = await this.connectToTransitProvider({ provider, chainNetwork });
     const { transitWallet } = response;
 
     try {
@@ -691,7 +691,7 @@ export default class OreId {
     let accountsAndPermissions = [];
     try {
       let permissions;
-      const { transitWallet } = await this.connectToTransitProvider(provider, chainNetwork);
+      const { transitWallet } = await this.connectToTransitProvider({ provider, chainNetwork });
       if (!transitWallet) {
         return accountsAndPermissions;
       }
