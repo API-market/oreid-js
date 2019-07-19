@@ -831,13 +831,13 @@ case 5:return p=e.sent,e.abrupt("return",{loginUrl:p,errors:null})
 case 7:case"end":return e.stop()}},e,this)})),function(e){return F.apply(this,arguments)})},{key:"signWithOreId",value:(B=c()(a.a.mark(function e(t){var r,n
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=this.options.signCallbackUrl,t.callbackUrl=r,e.next=4,this.getOreIdSignUrl(t)
 case 4:return n=e.sent,e.abrupt("return",{signUrl:n,errors:null})
-case 6:case"end":return e.stop()}},e,this)})),function(e){return B.apply(this,arguments)})},{key:"custodialSignWithOreId",value:(j=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,y,v,g,m,b,w,x,_
+case 6:case"end":return e.stop()}},e,this)})),function(e){return B.apply(this,arguments)})},{key:"custodialSignWithOreId",value:(j=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,y,v,g,m,b,w,x,_,k
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=this.options,n=r.apiKey,o=r.oreIdUrl,i=r.serviceKey){e.next=3
 break}throw new Error("Missing serviceKey in oreId config options - required to call api/custodial/new-user.")
-case 3:return s=t.account,c=t.broadcast,u=t.chainAccount,f=t.chainNetwork,l=t.returnSignedTransaction,p=t.transaction,h=t.userPassword,y=N.base64Encode(p),v={account:s,broadcast:c,chain_account:u,chain_network:f,return_signed_transaction:l,transaction:y,user_password:h},g="".concat(o,"/api/custodial/sign"),e.next=9,d.a.post(g,JSON.stringify(v),{headers:{"Content-Type":"application/json","api-key":n,"service-key":i},body:v})
-case 9:if(m=e.sent,!(b=m.error)){e.next=13
-break}throw new Error(b)
-case 13:return w=m.data,x=w.signed_transaction,_=w.transaction_id,e.abrupt("return",{signedTransaction:x,transactionId:_})
+case 3:return s=t.account,c=t.allowChainAccountSelection,u=t.broadcast,f=t.chainAccount,l=t.chainNetwork,p=t.returnSignedTransaction,h=t.transaction,y=t.userPassword,v=N.base64Encode(h),g={account:s,allow_chain_account_selection:c,broadcast:u,chain_account:f,chain_network:l,return_signed_transaction:p,transaction:v,user_password:y},m="".concat(o,"/api/custodial/sign"),e.next=9,d.a.post(m,JSON.stringify(g),{headers:{"Content-Type":"application/json","api-key":n,"service-key":i},body:g})
+case 9:if(b=e.sent,!(w=b.error)){e.next=13
+break}throw new Error(w)
+case 13:return x=b.data,_=x.signed_transaction,k=x.transaction_id,e.abrupt("return",{signedTransaction:_,transactionId:k})
 case 16:case"end":return e.stop()}},e,this)})),function(e){return j.apply(this,arguments)})},{key:"signWithNonOreIdProvider",value:(z=c()(a.a.mark(function e(t){var r
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=this.isUALProvider(t.provider),e.abrupt("return",r?this.signWithUALProvider(t):this.signWithTransitProvider(t))
 case 2:case"end":return e.stop()}},e,this)})),function(e){return z.apply(this,arguments)})},{key:"signWithUALProvider",value:(R=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f
@@ -877,21 +877,21 @@ case 7:if(e.prev=7,e.t0=e.catch(0),i=e.t0.message,!(void 0===i?"":i).includes("u
 break}throw new Error("The account selected by the wallet for login isn't on the ".concat(r," chain"))
 case 14:throw e.t0
 case 15:case"end":return e.stop()}},e,null,[[0,7]])})),function(e,t,r){return O.apply(this,arguments)})},{key:"connectToUALProvider",value:(S=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,d,y
-return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=t.chainNetwork,o=void 0===n?"eos_main":n,i=t.accountName,s=void 0===i?"":i,!(c=this.options.ualProviders.find(function(e){return e.name.toLowerCase()===r}))){e.next=32
+return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.provider,n=t.chainNetwork,o=void 0===n?"eos_main":n,i=t.accountName,s=void 0===i?"":i,!(c=this.options.ualProviders.find(function(e){return e.name.toLowerCase()===r}))){e.next=31
 break}return e.prev=3,e.next=6,this.getNetworkConfig(o)
 case 6:return u=e.sent,f={chainId:u.chainId,rpcEndpoints:[q({},u)]},l=new c([f],{appName:this.options.appName}),e.next=11,l.init()
 case 11:return e.next=13,this.loginToUALProvider(l,o,s)
-case 13:if(p=e.sent,N.isNullOrEmpty(p)){e.next=24
+case 13:if(p=e.sent,N.isNullOrEmpty(p)){e.next=23
 break}return h=p[0],e.next=18,h.getKeys()
-case 18:return d=e.sent,y={isLoggedIn:!0,account:h.accountName,permissions:[{name:"active",publicKey:d[0]}],provider:r,wallet:l,user:h},alert(JSON.stringify(y)),e.next=23,this.updatePermissionsIfNecessary(y,f.chainId,r)
-case 23:return e.abrupt("return",y)
-case 24:e.next=30
+case 18:return d=e.sent,y={isLoggedIn:!0,account:h.accountName,permissions:[{name:"active",publicKey:d[0]}],provider:r,wallet:l,user:h},e.next=22,this.updatePermissionsIfNecessary(y,f.chainId,r)
+case 22:return e.abrupt("return",y)
+case 23:e.next=29
 break
-case 26:throw e.prev=26,e.t0=e.catch(3),console.log("Failed to connect to ".concat(r," wallet:"),e.t0),e.t0
-case 30:e.next=33
+case 25:throw e.prev=25,e.t0=e.catch(3),console.log("Failed to connect to ".concat(r," wallet:"),e.t0),e.t0
+case 29:e.next=32
 break
-case 32:throw Error("Provider does not match")
-case 33:case"end":return e.stop()}},e,this,[[3,26]])})),function(e){return S.apply(this,arguments)})},{key:"loginToTransitProvider",value:(A=c()(a.a.mark(function e(t,r,n){var o
+case 31:throw Error("Provider does not match")
+case 32:case"end":return e.stop()}},e,this,[[3,25]])})),function(e){return S.apply(this,arguments)})},{key:"loginToTransitProvider",value:(A=c()(a.a.mark(function e(t,r,n){var o
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.prev=0,e.next=3,t.login()
 case 3:e.next=13
 break
@@ -900,7 +900,7 @@ break}throw new Error("The account selected by the wallet for login isn't on the
 case 12:throw e.t0
 case 13:return e.prev=13,e.next=16,this.waitWhileWalletIsBusy(t,r)
 case 16:return e.finish(13)
-case 17:case"end":return e.stop()}},e,this,[[0,5,13,17]])})),function(e,t,r){return A.apply(this,arguments)})},{key:"connectToTransitProvider",value:(C=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,d,y,v
+case 17:case"end":return e.stop()}},e,this,[[0,5,13,17]])})),function(e,t,r){return A.apply(this,arguments)})},{key:"connectToTransitProvider",value:(C=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,d,y,v,g
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=t.provider,n=t.chainNetwork,o=K[r].providerId,e.next=4,this.getOrCreateChainContext(n)
 case 4:return i=e.sent,s=i.getWalletProviders().find(function(e){return e.id===o}),c=i.initWallet(s),u={transitWallet:c},e.prev=8,e.next=11,c.connect()
 case 11:return e.next=13,this.waitWhileWalletIsBusy(c,r)
@@ -911,18 +911,18 @@ case 17:e.next=21
 break
 case 19:if(c&&c.authenticated){e.next=21
 break}throw new Error("Couldn't connect to ".concat(r))
-case 21:if(!c.connected||!c.authenticated){e.next=26
-break}f=c.auth,l=f.accountName,p=f.permission,h=f.publicKey,u={isLoggedIn:!0,account:l,permissions:[{name:p,publicKey:h}],provider:r,transitWallet:c},e.next=28
+case 21:if(!c.connected){e.next=25
+break}c.authenticated&&(f=c.auth,l=f.accountName,p=f.permission,h=f.publicKey,u={isLoggedIn:!0,account:l,permissions:[{name:p,publicKey:h}],provider:r,transitWallet:c}),e.next=29
 break
-case 26:throw d=c.hasError,y=c.errorMessage,new Error("".concat(r," not connected!").concat(d)?" Error: ".concat(y):"")
-case 28:if(!c.eosApi){e.next=32
-break}return v=c.eosApi.chainId,e.next=32,this.updatePermissionsIfNecessary(u,v,r)
-case 32:e.next=38
+case 25:throw d=c.hasError,y=c.errorMessage,v="".concat(r," not connected!"),d&&(v+=" Error: ".concat(y)),new Error(v)
+case 29:if(!c.eosApi){e.next=33
+break}return g=c.eosApi.chainId,e.next=33,this.updatePermissionsIfNecessary(u,g,r)
+case 33:e.next=39
 break
-case 34:throw e.prev=34,e.t0=e.catch(8),console.log("Failed to connect to ".concat(r," wallet:"),e.t0),e.t0
-case 38:return e.prev=38,this.setIsBusy(!1),e.finish(38)
-case 41:return e.abrupt("return",u)
-case 42:case"end":return e.stop()}},e,this,[[8,34,38,41]])})),function(e){return C.apply(this,arguments)})},{key:"waitWhileWalletIsBusy",value:(k=c()(a.a.mark(function e(t,r){return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(!t.inProgress){e.next=7
+case 35:throw e.prev=35,e.t0=e.catch(8),console.log("Failed to connect to ".concat(r," wallet:"),e.t0),e.t0
+case 39:return e.prev=39,this.setIsBusy(!1),e.finish(39)
+case 42:return e.abrupt("return",u)
+case 43:case"end":return e.stop()}},e,this,[[8,35,39,42]])})),function(e){return C.apply(this,arguments)})},{key:"waitWhileWalletIsBusy",value:(k=c()(a.a.mark(function e(t,r){return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(!t.inProgress){e.next=7
 break}return this.setIsBusy(!0),e.next=4,N.sleep(250)
 case 4:console.log("connecting to ".concat(r," via eos-transit wallet in progress:"),t.inProgress),e.next=0
 break
@@ -960,11 +960,10 @@ case 5:return c=e.sent,e.next=8,this.addWalletPermissionstoOreIdAccount(i,c,s,o,
 case 8:case"end":return e.stop()}},e,this)})),function(e,t,r){return b.apply(this,arguments)})},{key:"addWalletPermissionstoOreIdAccount",value:(m=c()(a.a.mark(function e(t,r,n,o,i){var s=this
 return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(!(N.isNullOrEmpty(o)||N.isNullOrEmpty(n)||N.isNullOrEmpty(r))){e.next=2
 break}return e.abrupt("return")
-case 2:return e.next=4,n.map(function(){var e=c()(a.a.mark(function e(n){var c,u,f,l
-return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(c=n.name,(u=n.parent)||(u="active","owner"===c?u="":"active"===c&&(u="owner")),!0===s.user.permissions.some(function(e){return e.chainAccount===t&&e.chainNetwork===r&&e.permission===c||"owner"===c})){e.next=10
+case 2:return e.next=4,n.map(function(){var e=c()(a.a.mark(function e(n){var c,u,f
+return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(c=n.name,(u=n.parent)||(u="active","owner"===c?u="":"active"===c&&(u="owner")),!0===s.user.permissions.some(function(e){return e.chainAccount===t&&e.chainNetwork===r&&e.permission===c||"owner"===c})){e.next=8
 break}return f=n.publicKey,e.next=8,s.addPermission(o,t,r,f,u,c,i)
-case 8:l=e.sent,alert("RESULT====> ".concat(JSON.stringify(l)))
-case 10:case"end":return e.stop()}},e)}))
+case 8:case"end":return e.stop()}},e)}))
 return function(t){return e.apply(this,arguments)}}())
 case 4:return e.next=6,this.getUserInfoFromApi(o)
 case 6:case"end":return e.stop()}},e,this)})),function(e,t,r,n,o){return m.apply(this,arguments)})},{key:"validateOptions",value:function(e){var t=""
@@ -985,10 +984,10 @@ break}throw new Error("Missing a required parameter")
 case 4:return e.next=6,this.getAccessToken()
 case 6:return l=e.sent,p=u?"&state=".concat(u):"",h=r?"&code=".concat(r):"",d=n?"&email=".concat(n):"",y="",o&&(v=encodeURIComponent(o),y="&phone=".concat(v)),e.abrupt("return","".concat(f,"/auth#app_access_token=").concat(l,"&provider=").concat(i)+"".concat(h).concat(d).concat(y)+"&callback_url=".concat(encodeURIComponent(s),"&background_color=").concat(encodeURIComponent(c)).concat(p))
 case 13:case"end":return e.stop()}},e,this)})),function(e){return h.apply(this,arguments)})},{key:"getOreIdSignUrl",value:(l=c()(a.a.mark(function e(t){var r,n,o,i,s,c,u,f,l,p,h,d,y,v
-return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.account,n=t.accountIsTransactionPermission,o=t.broadcast,i=t.callbackUrl,s=t.chainNetwork,t.provider,c=t.returnSignedTransaction,u=t.state,f=t.transaction,l=t.userPassword,p=t.chainAccount,h=this.options.oreIdUrl,r&&i&&f){e.next=5
+return a.a.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.account,n=t.allowChainAccountSelection,o=t.broadcast,i=t.callbackUrl,s=t.chainNetwork,t.provider,c=t.returnSignedTransaction,u=t.state,f=t.transaction,l=t.userPassword,p=t.chainAccount,h=this.options.oreIdUrl,r&&i&&f){e.next=5
 break}throw new Error("Missing a required parameter")
 case 5:return p||(p=r),e.next=8,this.getAccessToken()
-case 8:return d=e.sent,y=N.base64Encode(f),v=u?"&state=".concat(u):"",v+=n?"&account_is_transaction_permission=".concat(n):"",v+=N.isNullOrEmpty(c)?"":"&return_signed_transaction=".concat(c),v+=N.isNullOrEmpty(l)?"":"&user_password=".concat(l),e.abrupt("return","".concat(h,"/sign#app_access_token=").concat(d,"&account=").concat(r,"&broadcast=").concat(o,"&callback_url=").concat(encodeURIComponent(i),"&chain_account=").concat(p,"&chain_network=").concat(encodeURIComponent(s),"&transaction=").concat(y).concat(v))
+case 8:return d=e.sent,y=N.base64Encode(f),v=u?"&state=".concat(u):"",v+=N.isNullOrEmpty(n)?"":"&allow_chain_account_selection=".concat(n),v+=N.isNullOrEmpty(c)?"":"&return_signed_transaction=".concat(c),v+=N.isNullOrEmpty(l)?"":"&user_password=".concat(l),e.abrupt("return","".concat(h,"/sign#app_access_token=").concat(d,"&account=").concat(r,"&broadcast=").concat(o,"&callback_url=").concat(encodeURIComponent(i),"&chain_account=").concat(p,"&chain_network=").concat(encodeURIComponent(s),"&transaction=").concat(y).concat(v))
 case 15:case"end":return e.stop()}},e,this)})),function(e){return l.apply(this,arguments)})},{key:"handleAuthResponse",value:function(e){var t=N.urlParamsToArray(e),r=t.accessToken,n=t.account,o=t.idToken,i=t.state,a=this.getErrorCodesFromParams(t),s={account:n}
 return r&&(s.accessToken=r),o&&(s.idToken=o),a&&(s.errors=a),i&&(s.state=i),this.setIsBusy(!1),s}},{key:"handleSignResponse",value:function(e){var t,r=N.urlParamsToArray(e),n=r.signed_transaction,o=r.state,i=r.transaction_id,a=this.getErrorCodesFromParams(r)
 return a||(t=N.base64DecodeSafe(n)),this.setIsBusy(!1),{signedTransaction:t,state:o,transactionId:i,errors:a}}},{key:"getNewAppAccessToken",value:(u=c()(a.a.mark(function e(){var t,r
