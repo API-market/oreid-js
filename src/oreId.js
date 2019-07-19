@@ -122,7 +122,7 @@ export default class OreId {
           });
         });
 
-      // TODO: Return name of both duplicate providers (current only returns transit duplicates) 
+      // TODO: Return name of both duplicate providers (current only returns transit duplicates)
       if (!isNullOrEmpty(duplicates)) {
         throw Error(`Duplicate providers's found -> ${duplicates}. Please remove one before continuing.`);
       }
