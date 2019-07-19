@@ -993,7 +993,7 @@ export default class OreId {
   }
 
   getWalletProviderInfo(provider, type) {
-    if (!provider && !type) {
+    if (!provider || !type) {
       return {
         ualProviderAttributes,
         transitProviderAttributes
