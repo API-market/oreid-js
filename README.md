@@ -48,25 +48,43 @@ app.use('/authcallback', authCallbackHandler(oreId) );
 
 Check out the Express Server example for a complete example.
 
-# Using EOS Transit
+# Using EOS Transit and/or UAL
 
-eos-auth makes it easy for you to add many popular EOS wallets to your app. It integrates EOS Transit so that you can use any wallet that has published an [EOS Transit Wallet Provider](https://github.com/eosnewyork/eos-transit). eos-auth is the easiest way to use EOS Transit with your app.
+eos-auth makes it easy for you to add many popular EOS wallets to your app. It integrates [EOS Transit](https://github.com/eosnewyork/eos-transit) and [UAL](https://github.com/EOSIO/universal-authenticator-library) so that you can use any wallet they support. eos-auth is the easiest way to use EOS Transit or UAL with your app.
 
+EOS Transit
 ```javascript
 // add the provider package for each wallet you want to support
 import scatterProvider from 'eos-transit-scatter-provider';
 // pass in the array of providers when you initialize the library
-let eosTransitWalletProviders = [ scatterProvider(), ... ]
-let oreId = new OreId({ ..., eosTransitWalletProviders });
+const eosTransitWalletProviders = [ scatterProvider(), ... ]
+const oreId = new OreId({ ..., eosTransitWalletProviders });
 ```
 
-As of now, this library supports these wallets using EOS Transit
+UAL
+```javascript
+// add the provider package for each wallet you want to support
+import { Scatter } from 'ual-scatter';
+// pass in the array of providers when you initialize the library
+const ualWalletProviders = [ Scatter, ... ]
+let oreId = new OreId({ ..., ualWalletProviders });
+```
 
-- Ledger
-- Lynx
-- Meet One
-- Scatter
-- Token Pocket
+**NOTE:** You can use both UAL and Transit together however you can't pass in duplicate providers. Using `ual-scatter` and `eos-transit-scatter-provider` at the same time will result in an error.
+
+
+### Current Support
+
+| Providers/Authenticators   | EOS Transit   | UAL  |
+| -------------------------- |---------------|------|
+| Scatter                    |  ✅           |  ✅  |
+| Ledger                     |  ✅           |  ✅  |
+| Lynx                       |  ✅           |  ✅  |
+| Token Pocket               |  ✅           |  ✅  |
+| Meet One                   |  ✅           |  ✅  |
+| Keycat                     |  ✅           |  ❌  |
+| Whalevault                 |  ✅           |  ❌  |
+| Portis                     |  ✅           |  ❌  |
 
 Check out the Express Server example for a complete example.
 

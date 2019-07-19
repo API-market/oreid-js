@@ -284,6 +284,7 @@ export default class OreId {
     return { signedTransaction, transactionId };
   }
 
+  // OreId does not support signString
   async signString(signOptions) {
     const { provider } = signOptions;
     if (!this.canSignString(provider)) {
