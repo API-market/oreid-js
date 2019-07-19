@@ -11,6 +11,12 @@ import {
   providersNotImplemented
 } from './constants';
 
+const PROVIDER_TYPE = {
+  custodial: 'custodial',
+  ual: 'ual',
+  transit: 'transit'
+};
+
 export default class OreId {
   constructor(options) {
     this.options = null;
@@ -984,7 +990,7 @@ export default class OreId {
   }
 
   isCustodial(provider) {
-    return provider === 'custodial';
+    return provider === PROVIDER_TYPE.custodial;
   }
 
   isUALProvider(provider) {
@@ -1000,11 +1006,11 @@ export default class OreId {
       };
     }
 
-    if (type.toLowerCase() === 'transit') {
+    if (type.toLowerCase() === PROVIDER_TYPE.transit) {
       return transitProviderAttributes[provider];
     }
 
-    if (type.toLowerCase() === 'ual') {
+    if (type.toLowerCase() === PROVIDER_TYPE.ual) {
       return ualProviderAttributes[provider];
     }
   }
