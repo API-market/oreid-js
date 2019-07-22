@@ -18,12 +18,12 @@ module.exports = (env, argv) => {
               parallel: true,
               output: {
                 comments: false,
-                semicolons: false,
-              },
-            },
-          }),
-        ],
-      },
+                semicolons: false
+              }
+            }
+          })
+        ]
+      }
     };
   }
 
@@ -32,7 +32,7 @@ module.exports = (env, argv) => {
       output: {
         library: 'eos-auth',
         libraryTarget: 'umd',
-        filename: inFilename,
+        filename: inFilename
       },
       target: inTarget,
       devtool: sourceMap,
@@ -45,18 +45,18 @@ module.exports = (env, argv) => {
             loader: 'eslint-loader',
             exclude: /node_modules/,
             options: {
-              fix: true,
-            },
+              fix: true
+            }
           },
           {
             test: /\.js$/,
             exclude: /node_modules/,
             use: {
-              loader: 'babel-loader',
-            },
-          },
-        ],
-      },
+              loader: 'babel-loader'
+            }
+          }
+        ]
+      }
     };
   };
 

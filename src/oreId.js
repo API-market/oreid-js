@@ -577,8 +577,15 @@ export default class OreId {
     }
   }
 
+  // This seems like a hack, but eos-transit only works if it's done this way
+  // if you have scatter for example and you login with an account, the next time you login
+  // no matter what you pass to login(), you will be logged in to that account
+  // you have to logout first. But you don't want to logout unless the first account isn't the right one,
+  // otherwise the user would have to login everytime.
+  // the user in scatter has to make sure they pick the correct account when the login window comes up
+  // this should be simpler, maybe will be resolved in a future eos-transit
   async doTransitProviderLogin(transitWallet, chainAccount, retryCount = 0) {
-    const info = await transitWallet.login();
+    const info = await transitWallet.login(chainAccount, 'active');
 
     if (retryCount > 2) {
       // don't get stuck in a loop, let the transaction fail so the user will figure it out
