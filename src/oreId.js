@@ -1,100 +1,21 @@
 import axios from 'axios';
 import { initAccessContext } from 'eos-transit';
+
 import Helpers from './helpers';
 import StorageHandler from './storage';
+import {
+  transitProviderAttributes,
+  ualProviderAttributes,
+  supportedTransitProviders,
+  supportedUALProviders,
+  providersNotImplemented
+} from './constants';
 
-const transitProviderAttributes = {
-  ledger: {
-    providerId: 'ledger',
-    requiresLogin: false,
-    supportsDiscovery: true,
-    supportsSignArbitrary: false
-  },
-  lynx: {
-    providerId: 'EOS Lynx',
-    requiresLogin: true,
-    supportsDiscovery: false,
-    supportsSignArbitrary: true
-  },
-  meetone: {
-    providerId: 'meetone_provider',
-    requiresLogin: false,
-    supportsDiscovery: false,
-    supportsSignArbitrary: true
-  },
-  metro: {
-    providerId: 'metro',
-    requiresLogin: false,
-    supportsDiscovery: false,
-    supportsSignArbitrary: false
-  },
-  scatter: {
-    providerId: 'scatter',
-    requiresLogin: true,
-    supportsDiscovery: false,
-    supportsSignArbitrary: true
-  },
-  tokenpocket: {
-    providerId: 'TokenPocket',
-    requiresLogin: true,
-    supportsDiscovery: false,
-    supportsSignArbitrary: true
-  },
-  portis: {
-    providerId: 'PortisProvider',
-    requiresLogin: true,
-    supportsDiscovery: false,
-    supportsSignArbitrary: false
-  },
-  whalevault: {
-    providerId: 'whalevault',
-    requiresLogin: true,
-    supportsDiscovery: false,
-    supportsSignArbitrary: true
-  },
-  simpleos: {
-    providerId: 'simpleos',
-    requiresLogin: true,
-    supportsDiscovery: false,
-    supportsSignArbitrary: false
-  },
-  keycat: {
-    providerId: 'Keycat',
-    requiresLogin: true,
-    supportsDiscovery: false,
-    supportsSignArbitrary: true
-  }
+const PROVIDER_TYPE = {
+  custodial: 'custodial',
+  ual: 'ual',
+  transit: 'transit'
 };
-
-const ualProviderAttributes = {
-  scatter: {
-    requiresLogin: true,
-    supportsSignArbitrary: true
-  },
-  ledger: {
-    requiresLogin: true,
-    supportsSignArbitrary: false
-  },
-  lynx: {
-    requiresLogin: false,
-    supportsSignArbitrary: true
-  },
-  meetone: {
-    requiresLogin: false,
-    supportsSignArbitrary: true
-  },
-  tokenpocket: {
-    requiresLogin: false,
-    supportsSignArbitrary: true
-  }
-};
-
-const providersNotImplemented = [
-  'metro'
-];
-
-const supportedTransitProviders = Object.keys(transitProviderAttributes);
-const supportedUALProviders = Object.keys(ualProviderAttributes);
 
 export default class OreId {
   constructor(options) {
@@ -1069,11 +990,28 @@ export default class OreId {
   }
 
   isCustodial(provider) {
-    return provider === 'custodial';
+    return provider === PROVIDER_TYPE.custodial;
   }
 
   isUALProvider(provider) {
     const { ualProviders } = this.options;
     return ualProviders && ualProviders.find((ualProvider) => ualProvider.name.toLowerCase() === provider.toLowerCase());
+  }
+
+  getWalletProviderInfo(provider, type) {
+    if (!provider || !type) {
+      return {
+        ualProviderAttributes,
+        transitProviderAttributes
+      };
+    }
+
+    if (type.toLowerCase() === PROVIDER_TYPE.transit) {
+      return transitProviderAttributes[provider];
+    }
+
+    if (type.toLowerCase() === PROVIDER_TYPE.ual) {
+      return ualProviderAttributes[provider];
+    }
   }
 }
