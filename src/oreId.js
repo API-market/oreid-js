@@ -6,7 +6,7 @@ import StorageHandler from './storage';
 const transitProviderAttributes = {
   ledger: {
     providerId: 'ledger',
-    requiresLogin: false,
+    requiresLogin: true,
     supportsDiscovery: true,
     supportsSignArbitrary: false
   },
@@ -584,8 +584,31 @@ export default class OreId {
   // otherwise the user would have to login everytime.
   // the user in scatter has to make sure they pick the correct account when the login window comes up
   // this should be simpler, maybe will be resolved in a future eos-transit
-  async doTransitProviderLogin(transitWallet, chainAccount, retryCount = 0) {
-    const info = await transitWallet.login(); // params didn't seem to make it easier (chainAccount, 'active')
+  async doTransitProviderLogin(transitWallet, chainAccount, provider, retryCount = 0) {
+    let info = {};
+
+    switch (provider) {
+      case 'ledger':
+        {
+          const discoveryData = await transitWallet.discover({
+            pathIndexList: [1]
+          });
+
+          console.log(JSON.stringify(discoveryData, null, 2));
+
+          if (discoveryData.keyToAccountMap.length > 0) {
+            info = await transitWallet.login(chainAccount, 'active', discoveryData.index, discoveryData.key);
+
+            console.log(chainAccount, info, 'info ledger');
+          }
+        }
+        break;
+      case 'scatter':
+      default:
+        info = await transitWallet.login(chainAccount);
+        console.log(chainAccount, info, 'info scatter');
+        break;
+    }
 
     if (retryCount > 2) {
       // don't get stuck in a loop, let the transaction fail so the user will figure it out
@@ -596,14 +619,14 @@ export default class OreId {
       // in scatter, it will ask you to choose an account if you logout and log back in
       // we could also call discover and login to the matching account and that would avoid a step
       await transitWallet.logout();
-      this.doTransitProviderLogin(transitWallet, chainAccount, retryCount + 1);
+      this.doTransitProviderLogin(transitWallet, chainAccount, provider, retryCount + 1);
     }
   }
 
   async loginToTransitProvider(transitWallet, provider, chainNetwork, chainAccount = null) {
     try {
       // if the default login is for a different account
-      await this.doTransitProviderLogin(transitWallet, chainAccount);
+      await this.doTransitProviderLogin(transitWallet, chainAccount, provider);
     } catch (error) {
       const { message = '' } = error;
       if (message.includes('unknown key (boost::tuples::tuple')) {
