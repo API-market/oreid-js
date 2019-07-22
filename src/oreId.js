@@ -609,18 +609,34 @@ export default class OreId {
     }
   }
 
-  // chainAccount is needed since login will try to use the default account (in scatter)
-  // and it wil fail to sign the transaction
-  async connectToTransitProvider({ provider, chainNetwork = 'eos_main', chainAccount = null }) {
+  // throws and error on failure
+  async setupTransitWallet({ provider, chainNetwork }) {
     const providerId = transitProviderAttributes[provider].providerId;
     const chainContext = await this.getOrCreateChainContext(chainNetwork);
     const transitProvider = chainContext.getWalletProviders().find((wp) => wp.id === providerId);
     const transitWallet = chainContext.initWallet(transitProvider);
-    let response = {
-      transitWallet
-    };
 
     try {
+      await transitWallet.connect();
+      await this.waitWhileWalletIsBusy(transitWallet, provider);
+
+      return transitWallet;
+    } catch (error) {
+      console.log(`Failed to connect to ${provider}`, error);
+      throw new Error(`Failed to connect to ${provider}`);
+    }
+  }
+
+  // chainAccount is needed since login will try to use the default account (in scatter)
+  // and it wil fail to sign the transaction
+  async connectToTransitProvider({ provider, chainNetwork = 'eos_main', chainAccount = null }) {
+    let response;
+
+    try {
+      const transitWallet = await this.setupTransitWallet({ provider, chainNetwork });
+
+      response = { transitWallet, provider };
+
       await transitWallet.connect();
       await this.waitWhileWalletIsBusy(transitWallet, provider);
 
@@ -641,14 +657,13 @@ export default class OreId {
             isLoggedIn: true,
             account: accountName,
             permissions: [{ name: permission, publicKey }], // todo: add parent permission when available
-            provider,
-            transitWallet
+            ...response
           };
         }
       } else {
+        let errorString = `${provider} not connected!`;
         const { hasError, errorMessage } = transitWallet;
 
-        let errorString = `${provider} not connected!`;
         if (hasError) {
           errorString += ` Error: ${errorMessage}`;
         }
@@ -706,21 +721,27 @@ export default class OreId {
   // Note: Most wallets don't support discovery (as of April 2019)
   async discoverCredentialsInWallet(chainNetwork, provider, discoveryPathIndexList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]) {
     let accountsAndPermissions = [];
+
     try {
-      let permissions;
-      const { transitWallet } = await this.connectToTransitProvider({ provider, chainNetwork });
-      if (!transitWallet) {
-        return accountsAndPermissions;
-      }
+      // we don't need to login or anything else just to discover, may be faster than calling connectToTransitProvider
+      const transitWallet = await this.setupTransitWallet({ provider, chainNetwork });
+
       this.setIsBusy(true);
       const discoveryData = await transitWallet.discover({
         pathIndexList: discoveryPathIndexList
       });
+
       // add accounts to ORE ID - if ORE ID user account is known
       const userOreAccount = (this.user || {}).accountName;
       // this data looks like this: keyToAccountMap[accounts[{account,permission}]] - e.g. keyToAccountMap[accounts[{'myaccount':'owner','myaccount':'active'}]]
       const credentials = discoveryData.keyToAccountMap;
-      await credentials.forEach(async (credential) => {
+
+      // You can't use forEach or other loop function with await (unless you know what you're doing)
+      for (let i = 0; i < credentials.length; i += 1) {
+        const credential = credentials[i];
+
+        let permissions;
+
         const { accounts = [] } = credential;
         if (accounts.length > 0) {
           const { account, authorization } = accounts[0];
@@ -736,7 +757,7 @@ export default class OreId {
           await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, userOreAccount, provider);
           accountsAndPermissions = accountsAndPermissions.concat(permissions);
         }
-      });
+      }
     } catch (error) {
       throw error;
     } finally {
