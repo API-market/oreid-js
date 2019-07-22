@@ -585,7 +585,7 @@ export default class OreId {
   // the user in scatter has to make sure they pick the correct account when the login window comes up
   // this should be simpler, maybe will be resolved in a future eos-transit
   async doTransitProviderLogin(transitWallet, chainAccount, retryCount = 0) {
-    const info = await transitWallet.login(chainAccount, 'active');
+    const info = await transitWallet.login(); // params didn't seem to make it easier (chainAccount, 'active')
 
     if (retryCount > 2) {
       // don't get stuck in a loop, let the transaction fail so the user will figure it out
