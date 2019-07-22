@@ -436,9 +436,9 @@ export default class OreId {
   }
 
   async signWithTransitProvider(signOptions) {
-    const { broadcast, chainNetwork, transaction, provider } = signOptions;
+    const { broadcast, chainNetwork, chainAccount, transaction, provider } = signOptions;
     // connect to wallet
-    let response = await this.connectToTransitProvider({ provider, chainNetwork });
+    let response = await this.connectToTransitProvider({ provider, chainNetwork, chainAccount });
     const { transitWallet } = response;
 
     try {
@@ -577,9 +577,26 @@ export default class OreId {
     }
   }
 
-  async loginToTransitProvider(transitWallet, provider, chainNetwork) {
+  async doTransitProviderLogin(transitWallet, chainAccount, retryCount = 0) {
+    const info = await transitWallet.login();
+
+    if (retryCount > 2) {
+      // don't get stuck in a loop, let the transaction fail so the user will figure it out
+      return;
+    }
+    if (chainAccount && info.account_name !== chainAccount) {
+      // keep trying until the user logs in with the correct wallet
+      // in scatter, it will ask you to choose an account if you logout and log back in
+      // we could also call discover and login to the matching account and that would avoid a step
+      await transitWallet.logout();
+      this.doTransitProviderLogin(transitWallet, chainAccount, retryCount + 1);
+    }
+  }
+
+  async loginToTransitProvider(transitWallet, provider, chainNetwork, chainAccount = null) {
     try {
-      await transitWallet.login();
+      // if the default login is for a different account
+      await this.doTransitProviderLogin(transitWallet, chainAccount);
     } catch (error) {
       const { message = '' } = error;
       if (message.includes('unknown key (boost::tuples::tuple')) {
@@ -592,7 +609,9 @@ export default class OreId {
     }
   }
 
-  async connectToTransitProvider({ provider, chainNetwork = 'eos_main' }) {
+  // chainAccount is needed since login will try to use the default account (in scatter)
+  // and it wil fail to sign the transaction
+  async connectToTransitProvider({ provider, chainNetwork = 'eos_main', chainAccount = null }) {
     const providerId = transitProviderAttributes[provider].providerId;
     const chainContext = await this.getOrCreateChainContext(chainNetwork);
     const transitProvider = chainContext.getWalletProviders().find((wp) => wp.id === providerId);
@@ -608,10 +627,8 @@ export default class OreId {
       // some providers require login flow to connect (usually this means connect() does nothing but login selects an account)
       if (transitProviderAttributes[provider].requiresLogin) {
         // if connected, but not authenticated, then login
-        if (transitWallet && !transitWallet.authenticated) {
-          await this.loginToTransitProvider(transitWallet, provider, chainNetwork);
-        } else if (!transitWallet || !transitWallet.authenticated) {
-          throw new Error(`Couldn't connect to ${provider}`);
+        if (!transitWallet.authenticated) {
+          await this.loginToTransitProvider(transitWallet, provider, chainNetwork, chainAccount);
         }
       }
 
