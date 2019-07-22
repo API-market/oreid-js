@@ -740,12 +740,10 @@ export default class OreId {
       for (let i = 0; i < credentials.length; i += 1) {
         const credential = credentials[i];
 
-        let permissions;
-
         const { accounts = [] } = credential;
         if (accounts.length > 0) {
           const { account, authorization } = accounts[0];
-          permissions = [
+          const permissions = [
             {
               account,
               publicKey: credential.key,
