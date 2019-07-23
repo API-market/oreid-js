@@ -591,7 +591,7 @@ export default class OreId {
       case 'ledger':
         {
           const discoveryData = await transitWallet.discover({
-            pathIndexList: [1]
+            pathIndexList: [0, 1, 2]
           });
 
           console.log(JSON.stringify(discoveryData, null, 2));
