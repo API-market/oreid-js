@@ -577,6 +577,52 @@ export default class OreId {
     }
   }
 
+  findAccountInDiscoverData(discoveryData, chainAccount) {
+    // sample data
+    // {
+    //   "index": 0,
+    //   "key": "EOS7gRSgSdYGdQ6yb9vZ8BZK8Aeu4oiYgNWQ1e8fJdYYjuDDazbzr",
+    //   "accounts": [
+    //     {
+    //       "account": "lsdlsdlsdlsd",
+    //       "authorization": "active"
+    //     },
+    //     {
+    //       "account": "lsdlsdlsdlsd",
+    //       "authorization": "owner"
+    //     }
+    //   ]
+    // }
+
+    const result = discoveryData.keyToAccountMap.find((data) => {
+      return data.accounts.find((acct) => {
+        return acct.account === chainAccount;
+      });
+    });
+
+    if (result) {
+      let authorization = 'active';
+
+      // could active not exist?  If not, then just get first permission
+      // this may be completely unecessary. remove if so.
+      const active = result.accounts.find((acct) => {
+        return acct.authorization === 'active';
+      });
+
+      if (!active) {
+        const [first] = result.accounts;
+
+        if (first) {
+          authorization = first.authorization;
+        }
+      }
+
+      return { index: result.index, key: result.key, authorization };
+    }
+
+    return null;
+  }
+
   // This seems like a hack, but eos-transit only works if it's done this way
   // if you have scatter for example and you login with an account, the next time you login
   // no matter what you pass to login(), you will be logged in to that account
@@ -590,23 +636,22 @@ export default class OreId {
     switch (provider) {
       case 'ledger':
         {
+          // we have to discover on ledger since we don't know the index of the account
           const discoveryData = await transitWallet.discover({
-            pathIndexList: [0, 1, 2]
+            pathIndexList: [0, 1, 2] // this is slow, not sure if we should go past 3
           });
 
-          console.log(JSON.stringify(discoveryData, null, 2));
-
-          if (discoveryData.keyToAccountMap.length > 0) {
-            info = await transitWallet.login(chainAccount, 'active', discoveryData.index, discoveryData.key);
-
-            console.log(chainAccount, info, 'info ledger');
+          const foundData = this.findAccountInDiscoverData(discoveryData, chainAccount);
+          if (foundData) {
+            info = await transitWallet.login(chainAccount, foundData.authorization, foundData.index, foundData.key);
+          } else {
+            throw new Error(`Account ${chainAccount} not found on Ledger`);
           }
         }
         break;
       case 'scatter':
       default:
         info = await transitWallet.login(chainAccount);
-        console.log(chainAccount, info, 'info scatter');
         break;
     }
 
