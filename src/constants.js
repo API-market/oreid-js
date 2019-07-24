@@ -1,7 +1,7 @@
 export const transitProviderAttributes = {
   ledger: {
     providerId: 'ledger',
-    requiresLogin: false,
+    requiresLogin: true,
     supportsDiscovery: true,
     supportsSignArbitrary: false,
     helpText: {
