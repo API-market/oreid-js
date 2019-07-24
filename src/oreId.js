@@ -104,7 +104,6 @@ export default class OreId {
     this.storage = new StorageHandler();
     this.chainContexts = {};
     this.cachedChainNetworks = null;
-
     this.validateOptions(options);
     this.validateProviders();
   }
@@ -856,6 +855,8 @@ export default class OreId {
       const { account, permissions } = response;
       const chainNetworkToUpdate = await this.getChainNetworkByChainId(chainId);
       await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, userOreAccount, provider);
+    } else {
+      console.log('updatePermissionsIfNecessary: users account name is null', this.user);
     }
   }
 
