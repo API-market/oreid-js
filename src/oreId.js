@@ -282,10 +282,18 @@ export default class OreId {
   async discover(discoverOptions) {
     const { provider, chainNetwork = 'eos_main', discoveryPathIndexList } = discoverOptions;
     this.assertValidProvider(provider);
+
+    let result = null;
+
     if (this.canDiscover(provider)) {
-      return this.discoverCredentialsInWallet(chainNetwork, provider, discoveryPathIndexList);
+      result = this.discoverCredentialsInWallet(chainNetwork, provider, discoveryPathIndexList);
+    } else {
+      const transitWallet = await this.setupTransitWallet({ provider, chainNetwork });
+
+      // for scatter, you have to logout and log back in to get the option to choose a new account
+      await transitWallet.logout();
+      transitWallet.login();
     }
-    throw new Error(`Discover not support for provider: ${provider}`);
   }
 
   // throw error if invalid provider
