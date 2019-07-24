@@ -25,6 +25,7 @@ export default class OreId {
     this.storage = new StorageHandler();
     this.chainContexts = {};
     this.cachedChainNetworks = null;
+
     this.validateOptions(options);
     this.validateProviders();
   }
@@ -507,22 +508,6 @@ export default class OreId {
   }
 
   findAccountInDiscoverData(discoveryData, chainAccount) {
-    // sample data
-    // {
-    //   "index": 0,
-    //   "key": "EOS7gRSgSdYGdQ6yb9vZ8BZK8Aeu4oiYgNWQ1e8fJdYYjuDDazbzr",
-    //   "accounts": [
-    //     {
-    //       "account": "lsdlsdlsdlsd",
-    //       "authorization": "active"
-    //     },
-    //     {
-    //       "account": "lsdlsdlsdlsd",
-    //       "authorization": "owner"
-    //     }
-    //   ]
-    // }
-
     const result = discoveryData.keyToAccountMap.find((data) => {
       return data.accounts.find((acct) => {
         return acct.account === chainAccount;
