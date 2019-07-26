@@ -708,7 +708,7 @@ export default class OreId {
 
   // Discover all accounts (and related permissions) in the wallet and add them to ORE ID
   // Note: Most wallets don't support discovery (as of April 2019)
-  async discoverCredentialsInWallet(chainNetwork, provider, discoveryPathIndexList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]) {
+  async discoverCredentialsInWallet(chainNetwork, provider, discoveryPathIndexList = [0, 1, 2]) {
     let accountsAndPermissions = [];
 
     try {
