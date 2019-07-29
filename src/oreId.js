@@ -17,6 +17,9 @@ const PROVIDER_TYPE = {
   transit: 'transit'
 };
 
+// avoid Helpers.isNullOrEmpty, use isNullOrEmpty()
+const { isNullOrEmpty } = Helpers;
+
 export default class OreId {
   constructor(options) {
     this.options = null;
@@ -31,7 +34,6 @@ export default class OreId {
   }
 
   async validateProviders() {
-    const { isNullOrEmpty } = Helpers;
     const { ualProviders, eosTransitWalletProviders } = this.options;
     if (!isNullOrEmpty(eosTransitWalletProviders) && !isNullOrEmpty(ualProviders)) {
       const duplicates = eosTransitWalletProviders
@@ -479,7 +481,7 @@ export default class OreId {
         await wallet.init();
         const users = await this.loginToUALProvider(wallet, chainNetwork, accountName);
 
-        if (!Helpers.isNullOrEmpty(users)) {
+        if (!isNullOrEmpty(users)) {
           // TODO: Handle multiple users/permissions
           // UAL doesn't return the permission so we default to active
           const user = users[0];
@@ -688,7 +690,7 @@ export default class OreId {
     const networks = await this.chainNetworks();
     const chainConfig = networks.find((n) => n.hosts.find((h) => h.chainId === chainId));
 
-    if (!Helpers.isNullOrEmpty(chainConfig)) {
+    if (!isNullOrEmpty(chainConfig)) {
       return chainConfig.network;
     }
   }
@@ -700,7 +702,7 @@ export default class OreId {
       const networks = await this.chainNetworks();
 
       const chainConfig = networks.find((n) => n.hosts.find((h) => h.chainId === chainId));
-      if (!Helpers.isNullOrEmpty(chainConfig)) {
+      if (!isNullOrEmpty(chainConfig)) {
         return chainConfig.network;
       }
     }
@@ -777,7 +779,7 @@ export default class OreId {
 
   // for each permission in the wallet, add to ORE ID (if not in user's record)
   async addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, walletPermissions, userOreAccount, provider) {
-    if (Helpers.isNullOrEmpty(userOreAccount) || Helpers.isNullOrEmpty(walletPermissions) || Helpers.isNullOrEmpty(chainNetwork)) {
+    if (isNullOrEmpty(userOreAccount) || isNullOrEmpty(walletPermissions) || isNullOrEmpty(chainNetwork)) {
       return;
     }
     await walletPermissions.map(async (p) => {
@@ -917,9 +919,9 @@ export default class OreId {
     const appAccessToken = await this.getAccessToken();
     const encodedTransaction = Helpers.base64Encode(transaction);
     let optionalParams = state ? `&state=${state}` : '';
-    optionalParams += !Helpers.isNullOrEmpty(allowChainAccountSelection) ? `&allow_chain_account_selection=${allowChainAccountSelection}` : '';
-    optionalParams += !Helpers.isNullOrEmpty(returnSignedTransaction) ? `&return_signed_transaction=${returnSignedTransaction}` : '';
-    optionalParams += !Helpers.isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : '';
+    optionalParams += !isNullOrEmpty(allowChainAccountSelection) ? `&allow_chain_account_selection=${allowChainAccountSelection}` : '';
+    optionalParams += !isNullOrEmpty(returnSignedTransaction) ? `&return_signed_transaction=${returnSignedTransaction}` : '';
+    optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : '';
 
     // prettier-ignore
     return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}&transaction=${encodedTransaction}${optionalParams}`;
@@ -1072,18 +1074,18 @@ export default class OreId {
   }
 
   saveUserLocally(user) {
-    if (Helpers.isNullOrEmpty(user)) {
-      return;
-    }
     this.user = user;
-    const serialized = JSON.stringify(this.user);
-    this.storage.setItem(this.userKey(), serialized);
+
+    if (!isNullOrEmpty(this.user)) {
+      const serialized = JSON.stringify(this.user);
+      this.storage.setItem(this.userKey(), serialized);
+    }
   }
 
   loadUserLocally() {
     const serialized = this.storage.getItem(this.userKey());
     // user state does not exist
-    if (Helpers.isNullOrEmpty(serialized)) {
+    if (isNullOrEmpty(serialized)) {
       this.user = null;
       return null;
     }
@@ -1091,7 +1093,7 @@ export default class OreId {
     return this.user;
   }
 
-  async clearLocalState() {
+  clearLocalState() {
     this.storage.removeItem(this.userKey());
   }
 
