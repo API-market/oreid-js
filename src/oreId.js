@@ -203,13 +203,13 @@ export default class OreId {
   // connect to wallet and discover keys
   // any new keys discovered in wallet are added to user's ORE ID record
   async discover(discoverOptions) {
-    const { provider, chainNetwork = 'eos_main', discoveryPathIndexList } = discoverOptions;
+    const { provider, chainNetwork = 'eos_main', oreAccount, discoveryPathIndexList } = discoverOptions;
     this.assertValidProvider(provider);
 
     let result = null;
 
     if (this.canDiscover(provider)) {
-      result = this.discoverCredentialsInWallet(chainNetwork, provider, discoveryPathIndexList);
+      result = this.discoverCredentialsInWallet(chainNetwork, provider, oreAccount, discoveryPathIndexList);
     } else {
       const transitWallet = await this.setupTransitWallet({ provider, chainNetwork });
 
@@ -709,7 +709,7 @@ export default class OreId {
 
   // Discover all accounts (and related permissions) in the wallet and add them to ORE ID
   // Note: Most wallets don't support discovery (as of April 2019)
-  async discoverCredentialsInWallet(chainNetwork, provider, discoveryPathIndexList = [0, 1, 2]) {
+  async discoverCredentialsInWallet(chainNetwork, provider, oreAccount, discoveryPathIndexList = [0, 1, 2]) {
     let accountsAndPermissions = [];
 
     try {
@@ -721,8 +721,6 @@ export default class OreId {
         pathIndexList: discoveryPathIndexList
       });
 
-      // add accounts to ORE ID - if ORE ID user account is known
-      const userOreAccount = this.localState.accountName();
       // this data looks like this: keyToAccountMap[accounts[{account,permission}]] - e.g. keyToAccountMap[accounts[{'myaccount':'owner','myaccount':'active'}]]
       const credentials = discoveryData.keyToAccountMap;
 
@@ -742,7 +740,7 @@ export default class OreId {
             }
           ];
           const chainNetworkToUpdate = await this.getChainNetworkFromTransitWallet(transitWallet);
-          await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, userOreAccount, provider);
+          await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, oreAccount, provider);
           accountsAndPermissions = accountsAndPermissions.concat(permissions);
         }
       }
@@ -766,23 +764,23 @@ export default class OreId {
 
   async updatePermissionsIfNecessary(response, chainId, provider) {
     // if an account is selected, add it to the ORE ID account (if not already there)
-    const userOreAccount = this.localState.accountName();
-    if (userOreAccount) {
+    const oreAccount = this.localState.accountName();
+    if (oreAccount) {
       const { account, permissions } = response;
       const chainNetworkToUpdate = await this.getChainNetworkByChainId(chainId);
-      await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, userOreAccount, provider);
+      await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, oreAccount, provider);
     } else {
       console.log('updatePermissionsIfNecessary: users account name is null');
     }
   }
 
   // for each permission in the wallet, add to ORE ID (if not in user's record)
-  async addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, walletPermissions, userOreAccount, provider) {
-    if (isNullOrEmpty(userOreAccount) || isNullOrEmpty(walletPermissions) || isNullOrEmpty(chainNetwork)) {
+  async addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, walletPermissions, oreAccount, provider) {
+    if (isNullOrEmpty(oreAccount) || isNullOrEmpty(walletPermissions) || isNullOrEmpty(chainNetwork)) {
       return;
     }
 
-    const theUser = await this.getUser(userOreAccount);
+    const theUser = await this.getUser(oreAccount);
 
     await walletPermissions.map(async (p) => {
       const permission = p.name;
@@ -804,12 +802,12 @@ export default class OreId {
       if (skipThisPermission !== true) {
         // let publicKey = p.required_auth.keys[0].key; //TODO: Handle multiple keys and weights
         const publicKey = p.publicKey;
-        await this.addPermission(userOreAccount, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider);
+        await this.addPermission(oreAccount, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider);
       }
     });
 
     // reload user to get updated permissions
-    await this.getUser(userOreAccount);
+    await this.getUser(oreAccount);
   }
 
   /*
