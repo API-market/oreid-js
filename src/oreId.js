@@ -810,9 +810,21 @@ export default class OreId {
     await this.getUser(oreAccount);
   }
 
-  /*
-        Validates startup options
-    */
+  helpTextForProvider(provider) {
+    // same provider name exists in both lists
+    // so we check what was passed in by the client
+    if (supportedTransitProviders.includes(provider)) {
+      return transitProviderAttributes[provider].helpText;
+    }
+
+    if (supportedUALProviders.includes(provider)) {
+      return ualProviderAttributes[provider].helpText;
+    }
+
+    return null;
+  }
+
+  // Validates startup options
   validateOptions(options) {
     const { appId, apiKey, oreIdUrl } = options;
     let errorMessage = '';
