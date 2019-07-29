@@ -2,7 +2,7 @@ import axios from 'axios';
 import { initAccessContext } from 'eos-transit';
 
 import Helpers from './helpers';
-import StorageHandler from './storage';
+import LocalState from './localState';
 import {
   transitProviderAttributes,
   ualProviderAttributes,
@@ -24,8 +24,7 @@ export default class OreId {
   constructor(options) {
     this.options = null;
     this.appAccessToken = null;
-    this.user = null;
-    this.storage = new StorageHandler();
+    this.localState = new LocalState(options);
     this.chainContexts = {};
     this.cachedChainNetworks = null;
 
@@ -723,7 +722,7 @@ export default class OreId {
       });
 
       // add accounts to ORE ID - if ORE ID user account is known
-      const userOreAccount = (this.user || {}).accountName;
+      const userOreAccount = this.localState.accountName();
       // this data looks like this: keyToAccountMap[accounts[{account,permission}]] - e.g. keyToAccountMap[accounts[{'myaccount':'owner','myaccount':'active'}]]
       const credentials = discoveryData.keyToAccountMap;
 
@@ -767,13 +766,13 @@ export default class OreId {
 
   async updatePermissionsIfNecessary(response, chainId, provider) {
     // if an account is selected, add it to the ORE ID account (if not already there)
-    const userOreAccount = (this.user || {}).accountName;
+    const userOreAccount = this.localState.accountName();
     if (userOreAccount) {
       const { account, permissions } = response;
       const chainNetworkToUpdate = await this.getChainNetworkByChainId(chainId);
       await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, userOreAccount, provider);
     } else {
-      console.log('updatePermissionsIfNecessary: users account name is null', this.user);
+      console.log('updatePermissionsIfNecessary: users account name is null');
     }
   }
 
@@ -782,6 +781,9 @@ export default class OreId {
     if (isNullOrEmpty(userOreAccount) || isNullOrEmpty(walletPermissions) || isNullOrEmpty(chainNetwork)) {
       return;
     }
+
+    const theUser = this.getUserInfoFromApi(userOreAccount);
+
     await walletPermissions.map(async (p) => {
       const permission = p.name;
       let parentPermission = p.parent; // pooky
@@ -796,7 +798,7 @@ export default class OreId {
         }
       }
       // filter out permission that the user already has in his record
-      const skipThisPermission = this.user.permissions.some((up) => (up.chainAccount === chainAccount && up.chainNetwork === chainNetwork && up.permission === permission) || permission === 'owner');
+      const skipThisPermission = theUser.permissions.some((up) => (up.chainAccount === chainAccount && up.chainNetwork === chainNetwork && up.permission === permission) || permission === 'owner');
 
       // don't add 'owner' permission and skip ones that are already stored in user's account
       if (skipThisPermission !== true) {
@@ -832,28 +834,18 @@ export default class OreId {
     this.options = options;
   }
 
-  /*
-        load user from local storage and call api to get latest info
-    */
-  // What uses this?
-  async getUser(account) {
-    if (account) {
-      const user = await this.getUserInfoFromApi(account); // get the latest user data
-      return user;
+  // load user from local storage and call api to get latest info
+  // if you don't pass in an accountName, the cached user is returned
+  async getUser(accountName = null) {
+    if (accountName) {
+      await this.getUserInfoFromApi(accountName);
     }
-    // Check in state
-    if (this.user) {
-      return this.user;
-    }
-    // Check local storage
-    const result = this.loadUserLocally();
-    return result;
+
+    return this.localState.getUser();
   }
 
-  /*
-        Loads settings value from the server
-        e.g. configType='chains' returns valid chain types and addresses
-    */
+  // Loads settings value from the server
+  // e.g. configType='chains' returns valid chain types and addresses
   async getConfig(configType) {
     return this.getConfigFromApi(configType);
   }
@@ -864,9 +856,7 @@ export default class OreId {
     return this.appAccessToken;
   }
 
-  /*
-        Returns a fully formed url to call the auth endpoint
-  */
+  // Returns a fully formed url to call the auth endpoint
   async getOreIdAuthUrl(args) {
     const { code, email, phone, provider, callbackUrl, backgroundColor, state } = args;
     const { oreIdUrl } = this.options;
@@ -898,10 +888,8 @@ export default class OreId {
     );
   }
 
-  /*
-      Returns a fully formed url to call the sign endpoint
-      chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin', 'ore_main', 'eos_test', etc.
-  */
+  // Returns a fully formed url to call the sign endpoint
+  // chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin', 'ore_main', 'eos_test', etc.
   async getOreIdSignUrl(signOptions) {
     const { account, allowChainAccountSelection, broadcast, callbackUrl, chainNetwork, provider, returnSignedTransaction, state, transaction, userPassword } = signOptions;
     let { chainAccount } = signOptions;
@@ -927,9 +915,7 @@ export default class OreId {
     return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}&transaction=${encodedTransaction}${optionalParams}`;
   }
 
-  /*
-      Extracts the response parameters on the /auth callback URL string
-  */
+  // Extracts the response parameters on the /auth callback URL string
   handleAuthResponse(callbackUrlString) {
     // Parses error codes and returns an errors array
     // (if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
@@ -946,9 +932,7 @@ export default class OreId {
     return response;
   }
 
-  /*
-      Extracts the response parameters on the /sign callback URL string
-  */
+  // Extracts the response parameters on the /sign callback URL string
   handleSignResponse(callbackUrlString) {
     let signedTransaction;
     const params = Helpers.urlParamsToArray(callbackUrlString);
@@ -963,29 +947,22 @@ export default class OreId {
     return { signedTransaction, state, transactionId, errors };
   }
 
-  /*
-      Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
-  */
+  // Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
   async getNewAppAccessToken() {
     const responseJson = await this.callOreIdApi('app-token');
     const { appAccessToken } = responseJson;
     this.appAccessToken = appAccessToken;
   }
 
-  /*
-      Get the user info from ORE ID for the given user account
-  */
+  // Get the user info from ORE ID for the given user account
   async getUserInfoFromApi(account) {
-    const responseJson = await this.callOreIdApi(`account/user?account=${account}`);
-    const userInfo = responseJson;
-    this.saveUserLocally(userInfo);
-    await this.loadUserLocally(); // ensures this.user state is set
+    const userInfo = await this.callOreIdApi(`account/user?account=${account}`);
+    this.localState.saveUser(userInfo);
+
     return userInfo;
   }
 
-  /*
-      Get the config (setting) values of a specific type
-  */
+  // Get the config (setting) values of a specific type
   async getConfigFromApi(configType) {
     if (!configType) {
       throw new Error('Missing a required parameter: configType');
@@ -999,13 +976,11 @@ export default class OreId {
     return values;
   }
 
-  /*
-      Adds a public key to an account with a specific permission name
-      The permission name must be one defined in the App Registration record (Which defines its parent permission as well as preventing adding rougue permissions)
-      This feature allows your app to hold private keys locally (for certain actions enabled by the permission) while having the associated public key in the user's account
-      chainAccount = name of the account on the chain - 12/13-digit string on EOS and Ethereum Address on ETH - it may be the same as the account
-      chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin", 'ore_main', 'eos_test', etc.
-  */
+  // Adds a public key to an account with a specific permission name
+  // The permission name must be one defined in the App Registration record (Which defines its parent permission as well as preventing adding rougue permissions)
+  // This feature allows your app to hold private keys locally (for certain actions enabled by the permission) while having the associated public key in the user's account
+  // chainAccount = name of the account on the chain - 12/13-digit string on EOS and Ethereum Address on ETH - it may be the same as the account
+  // chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin", 'ore_main', 'eos_test', etc.
   async addPermission(account, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider) {
     let optionalParams = provider ? `&wallet-type=${provider}` : '';
     optionalParams += parentPermission ? `&parent-permission=${parentPermission}` : '';
@@ -1013,9 +988,7 @@ export default class OreId {
     // if failed, error will be thrown
   }
 
-  /*
-      Get the user info from ORE ID for the given user account
-  */
+  // Get the user info from ORE ID for the given user account
   async getUserWalletInfo(account) {
     throw Error('Not Implemented');
     // let responseJson = await this.callOreIdApi(`wallet?account=${account}`)
@@ -1023,9 +996,7 @@ export default class OreId {
     // return {userWalletInfo, errors};
   }
 
-  /*
-      Helper function to call api endpoint and inject api-key
-  */
+  // Helper function to call api endpoint and inject api-key
   async callOreIdApi(endpointAndParams) {
     const { apiKey, oreIdUrl } = this.options;
     const url = `${oreIdUrl}/api/${endpointAndParams}`;
@@ -1039,9 +1010,7 @@ export default class OreId {
     return response.data;
   }
 
-  /*
-      Params is a javascript object representing the parameters parsed from an URL string
-  */
+  //  Params is a javascript object representing the parameters parsed from an URL string
   getErrorCodesFromParams(params) {
     let errorCodes;
     const errorString = params.error_code;
@@ -1056,45 +1025,10 @@ export default class OreId {
     return errorCodes;
   }
 
-  /*
-      We don't really maintain a logged-in state
-      However, we do have local cached user data, so clear that
-  */
+  // We don't really maintain a logged-in state
+  // However, we do have local cached user data, so clear that
   logout() {
-    // clear local state
-    this.clearLocalState();
-  }
-
-  /*
-      Local state
-  */
-
-  userKey() {
-    return `oreid.${this.options.appId}.user`;
-  }
-
-  saveUserLocally(user) {
-    this.user = user;
-
-    if (!isNullOrEmpty(this.user)) {
-      const serialized = JSON.stringify(this.user);
-      this.storage.setItem(this.userKey(), serialized);
-    }
-  }
-
-  loadUserLocally() {
-    const serialized = this.storage.getItem(this.userKey());
-    // user state does not exist
-    if (isNullOrEmpty(serialized)) {
-      this.user = null;
-      return null;
-    }
-    this.user = JSON.parse(serialized);
-    return this.user;
-  }
-
-  clearLocalState() {
-    this.storage.removeItem(this.userKey());
+    this.localState.clear();
   }
 
   isCustodial(provider) {
