@@ -7,7 +7,7 @@ const { isNullOrEmpty } = Helpers;
 export default class LocalState {
   constructor(options) {
     this.options = options;
-    this.user = null;
+    this.cachedUser = null;
     this.storage = new StorageHandler();
   }
 
@@ -16,39 +16,37 @@ export default class LocalState {
   }
 
   saveUser(user) {
-    this.user = user;
+    this.cachedUser = user;
 
-    if (!isNullOrEmpty(this.user)) {
-      const serialized = JSON.stringify(this.user);
+    if (!isNullOrEmpty(this.cachedUser)) {
+      const serialized = JSON.stringify(this.cachedUser);
       this.storage.setItem(this.userKey(), serialized);
     }
   }
 
-  getAccountName() {
-    const user = this.getUser();
-
-    if (user) {
-      return user.accountName;
+  accountName() {
+    if (this.user()) {
+      return this.user().accountName;
     }
 
     return null;
   }
 
 
-  getUser() {
-    if (!this.user) {
+  user() {
+    if (!this.cachedUser) {
       this.loadUser();
     }
 
-    return this.user;
+    return this.cachedUser;
   }
 
   loadUser() {
-    this.user = null;
+    this.cachedUser = null;
     const serialized = this.storage.getItem(this.userKey());
 
     if (!isNullOrEmpty(serialized)) {
-      this.user = JSON.parse(serialized);
+      this.cachedUser = JSON.parse(serialized);
     }
   }
 

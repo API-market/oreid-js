@@ -782,7 +782,7 @@ export default class OreId {
       return;
     }
 
-    const theUser = this.getUserInfoFromApi(userOreAccount);
+    const theUser = await this.getUser(userOreAccount);
 
     await walletPermissions.map(async (p) => {
       const permission = p.name;
@@ -807,8 +807,9 @@ export default class OreId {
         await this.addPermission(userOreAccount, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider);
       }
     });
+
     // reload user to get updated permissions
-    await this.getUserInfoFromApi(userOreAccount);
+    await this.getUser(userOreAccount);
   }
 
   /*
@@ -838,10 +839,11 @@ export default class OreId {
   // if you don't pass in an accountName, the cached user is returned
   async getUser(accountName = null) {
     if (accountName) {
+      // stores user in the local state, we must await for return to work
       await this.getUserInfoFromApi(accountName);
     }
 
-    return this.localState.getUser();
+    return this.localState.user();
   }
 
   // Loads settings value from the server
@@ -955,6 +957,7 @@ export default class OreId {
   }
 
   // Get the user info from ORE ID for the given user account
+  // we should just standardize on getUser(), I think the demo app calls this
   async getUserInfoFromApi(account) {
     const userInfo = await this.callOreIdApi(`account/user?account=${account}`);
     this.localState.saveUser(userInfo);
