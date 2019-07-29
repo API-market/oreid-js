@@ -988,18 +988,11 @@ export default class OreId {
     // if failed, error will be thrown
   }
 
-  // Get the user info from ORE ID for the given user account
-  async getUserWalletInfo(account) {
-    throw Error('Not Implemented');
-    // let responseJson = await this.callOreIdApi(`wallet?account=${account}`)
-    // let userWalletInfo = responseJson;
-    // return {userWalletInfo, errors};
-  }
-
   // Helper function to call api endpoint and inject api-key
   async callOreIdApi(endpointAndParams) {
     const { apiKey, oreIdUrl } = this.options;
     const url = `${oreIdUrl}/api/${endpointAndParams}`;
+
     const response = await axios.get(url, {
       headers: { 'api-key': apiKey }
     });
@@ -1007,6 +1000,7 @@ export default class OreId {
     if (error) {
       throw new Error(error);
     }
+
     return response.data;
   }
 
