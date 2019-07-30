@@ -17,7 +17,6 @@ const PROVIDER_TYPE = {
   transit: 'transit'
 };
 
-// avoid Helpers.isNullOrEmpty, use isNullOrEmpty()
 const { isNullOrEmpty } = Helpers;
 
 export default class OreId {
@@ -214,6 +213,7 @@ export default class OreId {
       const transitWallet = await this.setupTransitWallet({ provider, chainNetwork });
 
       // for scatter, you have to logout and log back in to get the option to choose a new account
+      // we need to test other wallets to see how they behave, but I would assume it would be the same.
       await transitWallet.logout();
       transitWallet.login();
     }
@@ -601,7 +601,6 @@ export default class OreId {
     }
   }
 
-  // throws and error on failure
   async setupTransitWallet({ provider, chainNetwork }) {
     const providerId = transitProviderAttributes[provider].providerId;
     const chainContext = await this.getOrCreateChainContext(chainNetwork);
@@ -627,10 +626,7 @@ export default class OreId {
     try {
       const transitWallet = await this.setupTransitWallet({ provider, chainNetwork });
 
-      response = { transitWallet, provider };
-
-      await transitWallet.connect();
-      await this.waitWhileWalletIsBusy(transitWallet, provider);
+      response = { transitWallet };
 
       // some providers require login flow to connect (usually this means connect() does nothing but login selects an account)
       if (transitProviderAttributes[provider].requiresLogin) {
@@ -649,7 +645,8 @@ export default class OreId {
             isLoggedIn: true,
             account: accountName,
             permissions: [{ name: permission, publicKey }], // todo: add parent permission when available
-            ...response
+            transitWallet,
+            provider
           };
         }
       } else {
@@ -715,7 +712,6 @@ export default class OreId {
     let accountsAndPermissions = [];
 
     try {
-      // we don't need to login or anything else just to discover, may be faster than calling connectToTransitProvider
       const transitWallet = await this.setupTransitWallet({ provider, chainNetwork });
 
       this.setIsBusy(true);
@@ -726,7 +722,6 @@ export default class OreId {
       // this data looks like this: keyToAccountMap[accounts[{account,permission}]] - e.g. keyToAccountMap[accounts[{'myaccount':'owner','myaccount':'active'}]]
       const credentials = discoveryData.keyToAccountMap;
 
-      // You can't use forEach or other loop function with await (unless you know what you're doing)
       for (let i = 0; i < credentials.length; i += 1) {
         const credential = credentials[i];
 
@@ -782,7 +777,7 @@ export default class OreId {
       return;
     }
 
-    const theUser = await this.getUser(oreAccount);
+    const theUser = await this.getUser(oreAccount, true);
 
     await walletPermissions.map(async (p) => {
       const permission = p.name;
@@ -809,12 +804,10 @@ export default class OreId {
     });
 
     // reload user to get updated permissions
-    await this.getUser(oreAccount);
+    await this.getUser(oreAccount, true);
   }
 
   helpTextForProvider(provider) {
-    // same provider name exists in both lists
-    // so we check what was passed in by the client
     if (supportedTransitProviders.includes(provider)) {
       return transitProviderAttributes[provider].helpText;
     }
@@ -847,13 +840,26 @@ export default class OreId {
     this.options = options;
   }
 
-  // load user from local storage and call api to get latest info
-  // if you don't pass in an accountName, the cached user is returned
-  async getUser(accountName = null) {
-    if (accountName) {
-      // stores user in the local state, we must await for return to work
-      await this.getUserInfoFromApi(accountName);
+  // load user from local storage and call api
+  // to get latest info, pass refresh = true
+  async getUser(accountName = null, refresh = false) {
+    // return the cached user if we have it and matches the accountName
+    if (!refresh) {
+      const cachedUser = this.localState.user();
+      if (!isNullOrEmpty(cachedUser)) {
+        if (!isNullOrEmpty(accountName)) {
+          if (cachedUser.accountName === accountName) {
+            return cachedUser;
+          }
+        } else {
+          return cachedUser;
+        }
+      }
     }
+
+    // stores user in the local state, we must await for return below to work
+    // this function does nothing if accoutName is null
+    await this.getUserInfoFromApi(accountName);
 
     return this.localState.user();
   }
@@ -969,12 +975,15 @@ export default class OreId {
   }
 
   // Get the user info from ORE ID for the given user account
-  // we should just standardize on getUser(), I think the demo app calls this
   async getUserInfoFromApi(account) {
-    const userInfo = await this.callOreIdApi(`account/user?account=${account}`);
-    this.localState.saveUser(userInfo);
+    if (!isNullOrEmpty(account)) {
+      const userInfo = await this.callOreIdApi(`account/user?account=${account}`);
+      this.localState.saveUser(userInfo);
 
-    return userInfo;
+      return userInfo;
+    }
+
+    return null;
   }
 
   // Get the config (setting) values of a specific type

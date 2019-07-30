@@ -4,6 +4,8 @@ export const transitProviderAttributes = {
     requiresLogin: true,
     supportsDiscovery: true,
     supportsSignArbitrary: false,
+    requiresLogoutLoginToDiscover: false,
+    defaultDiscoveryPathIndexList: [0, 1, 2],
     helpText: {
       login: 'This wallet doesn’t require you to login',
       sign: 'Connect and unlock your Ledger with your PIN code. Launch the EOS app on the device.',
@@ -16,6 +18,7 @@ export const transitProviderAttributes = {
     requiresLogin: true,
     supportsDiscovery: false,
     supportsSignArbitrary: true,
+    requiresLogoutLoginToDiscover: true,
     helpText: {
       login: 'EOS Lynx requires logging in through the EOS Lynx app.',
       sign: '',
@@ -28,6 +31,7 @@ export const transitProviderAttributes = {
     requiresLogin: false,
     supportsDiscovery: false,
     supportsSignArbitrary: true,
+    requiresLogoutLoginToDiscover: true,
     helpText: {
       login: 'This wallet doesn’t require you to login',
       sign: '',
@@ -40,6 +44,7 @@ export const transitProviderAttributes = {
     requiresLogin: false,
     supportsDiscovery: false,
     supportsSignArbitrary: false,
+    requiresLogoutLoginToDiscover: false,
     helpText: {
       login: 'This wallet doesn’t require you to login',
       sign: '',
@@ -52,6 +57,7 @@ export const transitProviderAttributes = {
     requiresLogin: true,
     supportsDiscovery: false,
     supportsSignArbitrary: true,
+    requiresLogoutLoginToDiscover: true,
     helpText: {
       login: 'Scatter requires logging in through the Scatter app.',
       sign: '',
@@ -64,6 +70,7 @@ export const transitProviderAttributes = {
     requiresLogin: true,
     supportsDiscovery: false,
     supportsSignArbitrary: true,
+    requiresLogoutLoginToDiscover: true,
     helpText: {
       login: 'This wallet doesn’t require you to login',
       sign: '',
@@ -76,6 +83,7 @@ export const transitProviderAttributes = {
     requiresLogin: true,
     supportsDiscovery: false,
     supportsSignArbitrary: false,
+    requiresLogoutLoginToDiscover: true,
     helpText: {
       login: 'Portis requires logging in through the Portis app.',
       sign: '',
@@ -88,6 +96,7 @@ export const transitProviderAttributes = {
     requiresLogin: true,
     supportsDiscovery: false,
     supportsSignArbitrary: true,
+    requiresLogoutLoginToDiscover: true,
     helpText: {
       login: 'Whalevault requires logging in through the Whalevault app.',
       sign: '',
@@ -100,6 +109,7 @@ export const transitProviderAttributes = {
     requiresLogin: true,
     supportsDiscovery: false,
     supportsSignArbitrary: false,
+    requiresLogoutLoginToDiscover: true,
     helpText: {
       login: 'Simpleos requires logging in through the Simpleos app.',
       sign: '',
@@ -112,6 +122,7 @@ export const transitProviderAttributes = {
     requiresLogin: true,
     supportsDiscovery: false,
     supportsSignArbitrary: true,
+    requiresLogoutLoginToDiscover: true,
     helpText: {
       login: 'Keycat requires logging in through the Keycat app.',
       sign: '',
