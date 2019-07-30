@@ -217,6 +217,8 @@ export default class OreId {
       await transitWallet.logout();
       transitWallet.login();
     }
+
+    return result;
   }
 
   // throw error if invalid provider
