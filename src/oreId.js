@@ -212,10 +212,12 @@ export default class OreId {
     } else {
       const transitWallet = await this.setupTransitWallet({ provider, chainNetwork });
 
-      // for scatter, you have to logout and log back in to get the option to choose a new account
-      // we need to test other wallets to see how they behave, but I would assume it would be the same.
-      await transitWallet.logout();
-      transitWallet.login();
+      if (this.requiresLogoutLoginToDiscover(provider)) {
+        await transitWallet.logout();
+        transitWallet.login();
+      } else {
+        console.log('Discover not working for provider: ', provider);
+      }
     }
 
     return result;
@@ -235,7 +237,11 @@ export default class OreId {
       return false;
     }
 
-    return transitProviderAttributes[provider].supportsDiscovery === true;
+    if (this.isTransitProvider(provider)) {
+      return transitProviderAttributes[provider].supportsDiscovery === true;
+    }
+
+    return false;
   }
 
   async loginWithOreId(loginOptions) {
@@ -308,16 +314,52 @@ export default class OreId {
   }
 
   canSignString(provider) {
-    if (supportedTransitProviders.includes(provider) || supportedUALProviders.includes(provider)) {
-      const isUALProvider = this.isUALProvider(provider);
-      if (isUALProvider) {
-        return ualProviderAttributes[provider].supportsSignArbitrary;
-      }
+    if (this.isUALProvider(provider)) {
+      return ualProviderAttributes[provider].supportsSignArbitrary;
+    }
 
+    if (this.isTransitProvider(provider)) {
       return transitProviderAttributes[provider].supportsSignArbitrary;
     }
 
     return false;
+  }
+
+  requiresLogoutLoginToDiscover(provider) {
+    // this flag does not exist on ualProviderAttributes
+    if (this.isTransitProvider(provider)) {
+      return transitProviderAttributes[provider].requiresLogoutLoginToDiscover;
+    }
+
+    return false;
+  }
+
+  defaultDiscoveryPathIndexList(provider) {
+    // this flag does not exist on ualProviderAttributes
+    if (this.isTransitProvider(provider)) {
+      return transitProviderAttributes[provider].defaultDiscoveryPathIndexList;
+    }
+
+    return null;
+  }
+
+  discoverOptionsForProvider(provider, inPathIndexList = null) {
+    const result = {};
+
+    // checking this first since this proves this provider
+    // actually needs the pathIndexList, if it returns null, it's not a ledger
+    let pathIndexList = this.defaultDiscoveryPathIndexList(provider);
+    if (!isNullOrEmpty(pathIndexList)) {
+      if (!isNullOrEmpty(inPathIndexList)) {
+        pathIndexList = inPathIndexList;
+      }
+    }
+
+    if (!isNullOrEmpty(pathIndexList)) {
+      return { pathIndexList };
+    }
+
+    return {};
   }
 
   async signArbitraryWithUALProvider({ provider, chainNetwork, string, chainAccount, message }) {
@@ -554,9 +596,7 @@ export default class OreId {
       case 'ledger':
         {
           // we have to discover on ledger since we don't know the index of the account
-          const discoveryData = await transitWallet.discover({
-            pathIndexList: [0, 1, 2] // this is slow, not sure if we should go past 3
-          });
+          const discoveryData = await transitWallet.discover(this.discoverOptionsForProvider(provider));
 
           const foundData = this.findAccountInDiscoverData(discoveryData, chainAccount);
           if (foundData) {
@@ -566,7 +606,6 @@ export default class OreId {
           }
         }
         break;
-      case 'scatter':
       default:
         info = await transitWallet.login(chainAccount);
         break;
@@ -708,16 +747,14 @@ export default class OreId {
 
   // Discover all accounts (and related permissions) in the wallet and add them to ORE ID
   // Note: Most wallets don't support discovery (as of April 2019)
-  async discoverCredentialsInWallet(chainNetwork, provider, oreAccount, discoveryPathIndexList = [0, 1, 2]) {
+  async discoverCredentialsInWallet(chainNetwork, provider, oreAccount, discoveryPathIndexList) {
     let accountsAndPermissions = [];
 
     try {
       const transitWallet = await this.setupTransitWallet({ provider, chainNetwork });
 
       this.setIsBusy(true);
-      const discoveryData = await transitWallet.discover({
-        pathIndexList: discoveryPathIndexList
-      });
+      const discoveryData = await transitWallet.discover(this.discoverOptionsForProvider(provider, discoveryPathIndexList));
 
       // this data looks like this: keyToAccountMap[accounts[{account,permission}]] - e.g. keyToAccountMap[accounts[{'myaccount':'owner','myaccount':'active'}]]
       const credentials = discoveryData.keyToAccountMap;
@@ -808,11 +845,11 @@ export default class OreId {
   }
 
   helpTextForProvider(provider) {
-    if (supportedTransitProviders.includes(provider)) {
+    if (this.isTransitProvider(provider)) {
       return transitProviderAttributes[provider].helpText;
     }
 
-    if (supportedUALProviders.includes(provider)) {
+    if (this.isUALProvider(provider)) {
       return ualProviderAttributes[provider].helpText;
     }
 
@@ -1054,8 +1091,28 @@ export default class OreId {
   }
 
   isUALProvider(provider) {
-    const { ualProviders } = this.options;
-    return ualProviders && ualProviders.find((ualProvider) => ualProvider.name.toLowerCase() === provider.toLowerCase());
+    if (supportedUALProviders.includes(provider)) {
+      const { ualProviders } = this.options;
+
+      if (ualProviders) {
+        const found = ualProviders.find((ualProvider) => ualProvider.name.toLowerCase() === provider.toLowerCase());
+
+        return !isNullOrEmpty(found);
+      }
+    }
+
+    return false;
+  }
+
+  isTransitProvider(provider) {
+    if (supportedTransitProviders.includes(provider)) {
+      // didn't want to search the eosTransitWalletProviders in this.options
+      // to get the provider id you have to call a function. I'm not sure if there are side effects of
+      // calling that function.  Seems best to just see if it's not a UALProvider
+      return !this.isUALProvider(provider);
+    }
+
+    return false;
   }
 
   getWalletProviderInfo(provider, type) {
