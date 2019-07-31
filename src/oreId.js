@@ -582,6 +582,14 @@ export default class OreId {
     return null;
   }
 
+  needsDiscoverToLogin(provider) {
+    // This is just for ledger, so we are just going to check if
+    // defaultDiscoveryPathIndexList returns an array which is only set for ledger
+    const list = this.defaultDiscoveryPathIndexList(provider);
+
+    return !isNullOrEmpty(list);
+  }
+
   // This seems like a hack, but eos-transit only works if it's done this way
   // if you have scatter for example and you login with an account, the next time you login
   // no matter what you pass to login(), you will be logged in to that account
@@ -592,23 +600,20 @@ export default class OreId {
   async doTransitProviderLogin(transitWallet, chainAccount, provider, retryCount = 0) {
     let info = {};
 
-    switch (provider) {
-      case 'ledger':
-        {
-          // we have to discover on ledger since we don't know the index of the account
-          const discoveryData = await transitWallet.discover(this.discoverOptionsForProvider(provider));
+    // we should store the index for ledger in the db and pass it along
+    // but for now we need to discover the ledger index
+    if (this.needsDiscoverToLogin(provider)) {
+      // we have to discover on ledger since we don't know the index of the account
+      const discoveryData = await transitWallet.discover(this.discoverOptionsForProvider(provider));
 
-          const foundData = this.findAccountInDiscoverData(discoveryData, chainAccount);
-          if (foundData) {
-            info = await transitWallet.login(chainAccount, foundData.authorization, foundData.index, foundData.key);
-          } else {
-            throw new Error(`Account ${chainAccount} not found on Ledger`);
-          }
-        }
-        break;
-      default:
-        info = await transitWallet.login(chainAccount);
-        break;
+      const foundData = this.findAccountInDiscoverData(discoveryData, chainAccount);
+      if (foundData) {
+        info = await transitWallet.login(chainAccount, foundData.authorization, foundData.index, foundData.key);
+      } else {
+        throw new Error(`Account ${chainAccount} not found in wallet`);
+      }
+    } else {
+      info = await transitWallet.login(chainAccount);
     }
 
     if (retryCount > 2) {
