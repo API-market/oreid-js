@@ -884,7 +884,7 @@ export default class OreId {
       throw new Error('Missing a required parameter: configType');
     }
     const { values } = await this.callOreIdApi(`services/config?type=${configType}`) || {};
-    if (!values) {
+    if (Helpers.isNullOrEmpty(values)) {
       throw new Error(`Not able to retrieve config values for ${configType}`);
     }
     return values;
