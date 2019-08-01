@@ -214,7 +214,9 @@ export default class OreId {
 
       if (this.requiresLogoutLoginToDiscover(provider)) {
         await transitWallet.logout();
-        transitWallet.login();
+        await transitWallet.login();
+
+        this.updatePermissionsOnLogin(transitWallet, provider, oreAccount);
       } else {
         console.log('Discover not working for provider: ', provider);
       }
@@ -530,16 +532,17 @@ export default class OreId {
           const user = users[0];
           const publicKeys = await user.getKeys();
           const account = await user.getAccountName();
+          const permissions = [{ name: 'active', publicKey: publicKeys[0] }];
           const response = {
             isLoggedIn: true,
             account,
-            permissions: [{ name: 'active', publicKey: publicKeys[0] }],
+            permissions,
             provider,
             wallet,
             user
           };
 
-          await this.updatePermissionsIfNecessary(response, ualNetworkConfig.chainId, provider);
+          await this.updatePermissionsIfNecessary(account, permissions, ualNetworkConfig.chainId, provider);
 
           return response;
         }
@@ -662,6 +665,18 @@ export default class OreId {
     }
   }
 
+  async updatePermissionsOnLogin(transitWallet, provider, oreAccount = null) {
+    if (transitWallet.connected) {
+      const { accountName, permission, publicKey } = transitWallet.auth;
+      const permissions = [{ name: permission, publicKey }]; // todo: add parent permission when available
+
+      if (transitWallet.eosApi) {
+        const chainId = transitWallet.eosApi.chainId;
+        await this.updatePermissionsIfNecessary(accountName, permissions, chainId, provider, oreAccount);
+      }
+    }
+  }
+
   // chainAccount is needed since login will try to use the default account (in scatter)
   // and it wil fail to sign the transaction
   async connectToTransitProvider({ provider, chainNetwork = 'eos_main', chainAccount = null }) {
@@ -683,6 +698,8 @@ export default class OreId {
       // If connecting also performs login
       // return login results or throw error
       if (transitWallet.connected) {
+        this.updatePermissionsOnLogin(transitWallet, provider);
+
         if (transitWallet.authenticated) {
           const { accountName, permission, publicKey } = transitWallet.auth;
           response = {
@@ -702,11 +719,6 @@ export default class OreId {
         }
 
         throw new Error(errorString);
-      }
-
-      if (transitWallet.eosApi) {
-        const chainId = transitWallet.eosApi.chainId;
-        await this.updatePermissionsIfNecessary(response, chainId, provider);
       }
     } catch (error) {
       console.log(`Failed to connect to ${provider} wallet:`, error);
@@ -801,15 +813,18 @@ export default class OreId {
     }
   }
 
-  async updatePermissionsIfNecessary(response, chainId, provider) {
-    // if an account is selected, add it to the ORE ID account (if not already there)
-    const oreAccount = this.localState.accountName();
-    if (oreAccount) {
-      const { account, permissions } = response;
+  async updatePermissionsIfNecessary(account, permissions, chainId, provider, oreAccount = null) {
+    let oreAcct = oreAccount;
+
+    if (!oreAcct) {
+      oreAcct = this.localState.accountName();
+    }
+
+    if (oreAcct) {
       const chainNetworkToUpdate = await this.getChainNetworkByChainId(chainId);
-      await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, oreAccount, provider);
+      await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, oreAcct, provider);
     } else {
-      console.log('updatePermissionsIfNecessary: users account name is null');
+      console.log('updatePermissionsIfNecessary: oreAccount is null');
     }
   }
 
