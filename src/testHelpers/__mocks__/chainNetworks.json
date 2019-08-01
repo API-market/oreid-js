@@ -1,0 +1,128 @@
+[
+  {
+    "hosts": [
+      {
+        "chainId": "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906",
+        "host": "9bdc4b43-b287-4e3b-abdd-a4039ca99589.gw.eosinfra.io",
+        "port": 443,
+        "protocol": "https"
+      },
+      {
+        "chainId": "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906",
+        "host": "eos.greymass.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      {
+        "chainId": "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906",
+        "host": "api.cypherglass.com:443",
+        "port": 443,
+        "protocol": "https"
+      },
+      {
+        "chainId": "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906",
+        "host": "api.eosnewyork.io:443",
+        "port": 443,
+        "protocol": "https"
+      }
+    ],
+    "network": "eos_main",
+    "type": "eos"
+  },
+  {
+    "hosts": [
+      {
+        "chainId": "5fff1dae8dc8e2fc4d5b23b2c7665c97f9e9d8edf2b6485a86ba311c25639191",
+        "host": "api-kylin.eosasia.one",
+        "port": "443",
+        "protocol": "https"
+      },
+      {
+        "chainId": "5fff1dae8dc8e2fc4d5b23b2c7665c97f9e9d8edf2b6485a86ba311c25639191",
+        "host": "api-kylin.eoslaomao.com",
+        "port": "443",
+        "protocol": "https"
+      }
+    ],
+    "network": "eos_kylin",
+    "type": "eos"
+  },
+  {
+    "hosts": [
+      {
+        "chainId": "e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473",
+        "host": "jungle.eosio.cr",
+        "port": 443,
+        "protocol": "https"
+      }
+    ],
+    "network": "eos_jungle",
+    "type": "eos"
+  },
+  {
+    "hosts": [
+      {
+        "chainId": "7900eaca71d5b213d3e1e15d54d98ad235a7a5b8166361be78e672edeeb2b47a",
+        "host": "ore.openrights.exchange",
+        "port": 443,
+        "protocol": "https"
+      }
+    ],
+    "network": "ore_main",
+    "type": "ore"
+  },
+  {
+    "hosts": [
+      {
+        "chainId": "a6df478d5593b4efb1ea20d13ba8a3efc1364ee0bf7dbd85d8d756831c0e3256",
+        "host": "ore-staging.openrights.exchange",
+        "port": 443,
+        "protocol": "https"
+      }
+    ],
+    "network": "ore_test",
+    "type": "ore"
+  },
+  {
+    "hosts": [
+      {
+        "chainId": "5fff1dae8dc8e2fc4d5b23b2c7665c97f9e9d8edf2b6485a86ba311c25639191",
+        "host": "kylin-dsp-1.liquidapps.io",
+        "port": 443,
+        "protocol": "https"
+      }
+    ],
+    "network": "kylin-dsp-1.liquidapps.io",
+    "type": "eos"
+  },
+  {
+    "hosts": [
+      {
+        "chainId": "5fff1dae8dc8e2fc4d5b23b2c7665c97f9e9d8edf2b6485a86ba311c25639191",
+        "host": "kylin-dsp-2.liquidapps.io",
+        "port": 443,
+        "protocol": "https"
+      }
+    ],
+    "network": "kylin-dsp-2.liquidapps.io",
+    "type": "eos"
+  },
+  {
+    "hosts": [
+      {
+        "chainId": "cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f",
+        "host": "moontest.blockstartdsp.com",
+        "port": "13115",
+        "protocol": "https"
+      },
+      {
+        "chainId": "cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f",
+        "host": "moontest.blockstartdsp.com",
+        "port": "8888",
+        "protocol": "https"
+      }
+    ],
+    "network": "eos_moontest_blockstartdsp_com",
+    "type": "eos"
+  }
+]
