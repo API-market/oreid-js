@@ -172,7 +172,7 @@ export default class OreId {
       throw new Error('Not Implemented');
     }
 
-    if (supportedTransitProviders.includes(provider) || supportedUALProviders.includes(provider)) {
+    if (this.isUALProvider(provider) || this.isTransitProvider(provider)) {
       return this.loginWithNonOreIdProvider(loginOptions);
     }
 
@@ -192,8 +192,11 @@ export default class OreId {
       return this.custodialSignWithOreId(signOptions);
     }
 
-    if (supportedTransitProviders.includes(provider) || supportedUALProviders.includes(provider)) {
-      return this.signWithNonOreIdProvider(signOptions);
+    if (this.isUALProvider(provider) || this.isTransitProvider(provider)) {
+      // this flag is added to test external signing with the PIN window in OreId service
+      if (!signOptions.signExternalWithOreId) {
+        return this.signWithNonOreIdProvider(signOptions);
+      }
     }
 
     return this.signWithOreId(signOptions);
