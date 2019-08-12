@@ -250,7 +250,7 @@ export default class OreId {
   }
 
   async loginWithOreId(loginOptions) {
-    const { code, email, phone, provider, state } = loginOptions;
+    const { code, email, phone, provider, state, linkToAccount } = loginOptions;
     const { authCallbackUrl, backgroundColor } = this.options;
     const args = {
       code,
@@ -259,7 +259,8 @@ export default class OreId {
       provider,
       backgroundColor,
       callbackUrl: authCallbackUrl,
-      state
+      state,
+      linkToAccount
     };
     const loginUrl = await this.getOreIdAuthUrl(args);
     return { loginUrl, errors: null };
@@ -938,7 +939,7 @@ export default class OreId {
 
   // Returns a fully formed url to call the auth endpoint
   async getOreIdAuthUrl(args) {
-    const { code, email, phone, provider, callbackUrl, backgroundColor, state } = args;
+    const { code, email, phone, provider, callbackUrl, backgroundColor, state, linkToAccount } = args;
     const { oreIdUrl } = this.options;
 
     if (!provider || !callbackUrl) {
@@ -949,6 +950,7 @@ export default class OreId {
 
     // optional params
     const encodedStateParam = state ? `&state=${state}` : '';
+    const linkToAccountParam = linkToAccount ? `&link_to_account=${linkToAccount}` : '';
     // handle passwordless params
     const codeParam = code ? `&code=${code}` : '';
     const emailParam = email ? `&email=${email}` : '';
@@ -964,7 +966,7 @@ export default class OreId {
     return (
       `${oreIdUrl}/auth#app_access_token=${appAccessToken}&provider=${provider}` +
       `${codeParam}${emailParam}${phoneParam}` +
-      `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(backgroundColor)}${encodedStateParam}`
+      `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(backgroundColor)}${linkToAccountParam}${encodedStateParam}`
     );
   }
 
@@ -1051,10 +1053,8 @@ export default class OreId {
     if (!configType) {
       throw new Error('Missing a required parameter: configType');
     }
-    const responseJson = await this.callOreIdApi(`services/config?type=${configType}`);
-    const results = responseJson;
-    const { values } = results || {};
-    if (!values) {
+    const { values } = await this.callOreIdApi(`services/config?type=${configType}`) || {};
+    if (Helpers.isNullOrEmpty(values)) {
       throw new Error(`Not able to retrieve config values for ${configType}`);
     }
     return values;
