@@ -2,7 +2,7 @@ import axios from 'axios';
 import { initAccessContext } from 'eos-transit';
 
 import Helpers from './helpers';
-import StorageHandler from './storage';
+import LocalState from './localState';
 import {
   transitProviderAttributes,
   ualProviderAttributes,
@@ -17,12 +17,13 @@ const PROVIDER_TYPE = {
   transit: 'transit'
 };
 
+const { isNullOrEmpty } = Helpers;
+
 export default class OreId {
   constructor(options) {
     this.options = null;
     this.appAccessToken = null;
-    this.user = null;
-    this.storage = new StorageHandler();
+    this.localState = new LocalState(options);
     this.chainContexts = {};
     this.cachedChainNetworks = null;
 
@@ -31,7 +32,6 @@ export default class OreId {
   }
 
   async validateProviders() {
-    const { isNullOrEmpty } = Helpers;
     const { ualProviders, eosTransitWalletProviders } = this.options;
     if (!isNullOrEmpty(eosTransitWalletProviders) && !isNullOrEmpty(ualProviders)) {
       const duplicates = eosTransitWalletProviders
@@ -172,7 +172,7 @@ export default class OreId {
       throw new Error('Not Implemented');
     }
 
-    if (supportedTransitProviders.includes(provider) || supportedUALProviders.includes(provider)) {
+    if (this.isUALProvider(provider) || this.isTransitProvider(provider)) {
       return this.loginWithNonOreIdProvider(loginOptions);
     }
 
@@ -192,8 +192,11 @@ export default class OreId {
       return this.custodialSignWithOreId(signOptions);
     }
 
-    if (supportedTransitProviders.includes(provider) || supportedUALProviders.includes(provider)) {
-      return this.signWithNonOreIdProvider(signOptions);
+    if (this.isUALProvider(provider) || this.isTransitProvider(provider)) {
+      // this flag is added to test external signing with the PIN window in OreId service
+      if (!signOptions.signExternalWithOreId) {
+        return this.signWithNonOreIdProvider(signOptions);
+      }
     }
 
     return this.signWithOreId(signOptions);
@@ -202,12 +205,27 @@ export default class OreId {
   // connect to wallet and discover keys
   // any new keys discovered in wallet are added to user's ORE ID record
   async discover(discoverOptions) {
-    const { provider, chainNetwork = 'eos_main', discoveryPathIndexList } = discoverOptions;
+    const { provider, chainNetwork = 'eos_main', oreAccount, discoveryPathIndexList } = discoverOptions;
     this.assertValidProvider(provider);
+
+    let result = null;
+
     if (this.canDiscover(provider)) {
-      return this.discoverCredentialsInWallet(chainNetwork, provider, discoveryPathIndexList);
+      result = this.discoverCredentialsInWallet(chainNetwork, provider, oreAccount, discoveryPathIndexList);
+    } else {
+      const transitWallet = await this.setupTransitWallet({ provider, chainNetwork });
+
+      if (this.requiresLogoutLoginToDiscover(provider)) {
+        await transitWallet.logout();
+        await transitWallet.login();
+
+        this.updatePermissionsOnLogin(transitWallet, provider, oreAccount);
+      } else {
+        console.log('Discover not working for provider: ', provider);
+      }
     }
-    throw new Error(`Discover not support for provider: ${provider}`);
+
+    return result;
   }
 
   // throw error if invalid provider
@@ -224,7 +242,11 @@ export default class OreId {
       return false;
     }
 
-    return transitProviderAttributes[provider].supportsDiscovery === true;
+    if (this.isTransitProvider(provider)) {
+      return transitProviderAttributes[provider].supportsDiscovery === true;
+    }
+
+    return false;
   }
 
   async loginWithOreId(loginOptions) {
@@ -298,16 +320,52 @@ export default class OreId {
   }
 
   canSignString(provider) {
-    if (supportedTransitProviders.includes(provider) || supportedUALProviders.includes(provider)) {
-      const isUALProvider = this.isUALProvider(provider);
-      if (isUALProvider) {
-        return ualProviderAttributes[provider].supportsSignArbitrary;
-      }
+    if (this.isUALProvider(provider)) {
+      return ualProviderAttributes[provider].supportsSignArbitrary;
+    }
 
+    if (this.isTransitProvider(provider)) {
       return transitProviderAttributes[provider].supportsSignArbitrary;
     }
 
     return false;
+  }
+
+  requiresLogoutLoginToDiscover(provider) {
+    // this flag does not exist on ualProviderAttributes
+    if (this.isTransitProvider(provider)) {
+      return transitProviderAttributes[provider].requiresLogoutLoginToDiscover;
+    }
+
+    return false;
+  }
+
+  defaultDiscoveryPathIndexList(provider) {
+    // this flag does not exist on ualProviderAttributes
+    if (this.isTransitProvider(provider)) {
+      return transitProviderAttributes[provider].defaultDiscoveryPathIndexList;
+    }
+
+    return null;
+  }
+
+  discoverOptionsForProvider(provider, inPathIndexList = null) {
+    const result = {};
+
+    // checking this first since this proves this provider
+    // actually needs the pathIndexList, if it returns null, it's not a ledger
+    let pathIndexList = this.defaultDiscoveryPathIndexList(provider);
+    if (!isNullOrEmpty(pathIndexList)) {
+      if (!isNullOrEmpty(inPathIndexList)) {
+        pathIndexList = inPathIndexList;
+      }
+    }
+
+    if (!isNullOrEmpty(pathIndexList)) {
+      return { pathIndexList };
+    }
+
+    return {};
   }
 
   async signArbitraryWithUALProvider({ provider, chainNetwork, string, chainAccount, message }) {
@@ -359,9 +417,9 @@ export default class OreId {
   }
 
   async signWithTransitProvider(signOptions) {
-    const { broadcast, chainNetwork, transaction, provider } = signOptions;
+    const { broadcast, chainNetwork, chainAccount, transaction, provider } = signOptions;
     // connect to wallet
-    let response = await this.connectToTransitProvider({ provider, chainNetwork });
+    let response = await this.connectToTransitProvider({ provider, chainNetwork, chainAccount });
     const { transitWallet } = response;
 
     try {
@@ -472,22 +530,23 @@ export default class OreId {
         await wallet.init();
         const users = await this.loginToUALProvider(wallet, chainNetwork, accountName);
 
-        if (!Helpers.isNullOrEmpty(users)) {
+        if (!isNullOrEmpty(users)) {
           // TODO: Handle multiple users/permissions
           // UAL doesn't return the permission so we default to active
           const user = users[0];
           const publicKeys = await user.getKeys();
           const account = await user.getAccountName();
+          const permissions = [{ name: 'active', publicKey: publicKeys[0] }];
           const response = {
             isLoggedIn: true,
             account,
-            permissions: [{ name: 'active', publicKey: publicKeys[0] }],
+            permissions,
             provider,
             wallet,
             user
           };
 
-          await this.updatePermissionsIfNecessary(response, ualNetworkConfig.chainId, provider);
+          await this.updatePermissionsIfNecessary(account, permissions, ualNetworkConfig.chainId, provider);
 
           return response;
         }
@@ -500,9 +559,87 @@ export default class OreId {
     }
   }
 
-  async loginToTransitProvider(transitWallet, provider, chainNetwork) {
+  findAccountInDiscoverData(discoveryData, chainAccount) {
+    const result = discoveryData.keyToAccountMap.find((data) => {
+      return data.accounts.find((acct) => {
+        return acct.account === chainAccount;
+      });
+    });
+
+    if (result) {
+      let authorization = 'active';
+
+      // could active not exist?  If not, then just get first permission
+      // this may be completely unecessary. remove if so.
+      const active = result.accounts.find((acct) => {
+        return acct.authorization === 'active';
+      });
+
+      if (!active) {
+        const [first] = result.accounts;
+
+        if (first) {
+          authorization = first.authorization;
+        }
+      }
+
+      return { index: result.index, key: result.key, authorization };
+    }
+
+    return null;
+  }
+
+  needsDiscoverToLogin(provider) {
+    // This is just for ledger, so we are just going to check if
+    // defaultDiscoveryPathIndexList returns an array which is only set for ledger
+    const list = this.defaultDiscoveryPathIndexList(provider);
+
+    return !isNullOrEmpty(list);
+  }
+
+  // This seems like a hack, but eos-transit only works if it's done this way
+  // if you have scatter for example and you login with an account, the next time you login
+  // no matter what you pass to login(), you will be logged in to that account
+  // you have to logout first. But you don't want to logout unless the first account isn't the right one,
+  // otherwise the user would have to login everytime.
+  // the user in scatter has to make sure they pick the correct account when the login window comes up
+  // this should be simpler, maybe will be resolved in a future eos-transit
+  async doTransitProviderLogin(transitWallet, chainAccount, provider, retryCount = 0) {
+    let info = {};
+
+    // we should store the index for ledger in the db and pass it along
+    // but for now we need to discover the ledger index
+    if (this.needsDiscoverToLogin(provider)) {
+      // we have to discover on ledger since we don't know the index of the account
+      const discoveryData = await transitWallet.discover(this.discoverOptionsForProvider(provider));
+
+      const foundData = this.findAccountInDiscoverData(discoveryData, chainAccount);
+      if (foundData) {
+        info = await transitWallet.login(chainAccount, foundData.authorization, foundData.index, foundData.key);
+      } else {
+        throw new Error(`Account ${chainAccount} not found in wallet`);
+      }
+    } else {
+      info = await transitWallet.login(chainAccount);
+    }
+
+    if (retryCount > 2) {
+      // don't get stuck in a loop, let the transaction fail so the user will figure it out
+      return;
+    }
+    if (chainAccount && info.account_name !== chainAccount) {
+      // keep trying until the user logs in with the correct wallet
+      // in scatter, it will ask you to choose an account if you logout and log back in
+      // we could also call discover and login to the matching account and that would avoid a step
+      await transitWallet.logout();
+      this.doTransitProviderLogin(transitWallet, chainAccount, provider, retryCount + 1);
+    }
+  }
+
+  async loginToTransitProvider(transitWallet, provider, chainNetwork, chainAccount = null) {
     try {
-      await transitWallet.login();
+      // if the default login is for a different account
+      await this.doTransitProviderLogin(transitWallet, chainAccount, provider);
     } catch (error) {
       const { message = '' } = error;
       if (message.includes('unknown key (boost::tuples::tuple')) {
@@ -515,56 +652,77 @@ export default class OreId {
     }
   }
 
-  async connectToTransitProvider({ provider, chainNetwork = 'eos_main' }) {
+  async setupTransitWallet({ provider, chainNetwork }) {
     const providerId = transitProviderAttributes[provider].providerId;
     const chainContext = await this.getOrCreateChainContext(chainNetwork);
     const transitProvider = chainContext.getWalletProviders().find((wp) => wp.id === providerId);
     const transitWallet = chainContext.initWallet(transitProvider);
-    let response = {
-      transitWallet
-    };
 
     try {
       await transitWallet.connect();
       await this.waitWhileWalletIsBusy(transitWallet, provider);
 
+      return transitWallet;
+    } catch (error) {
+      console.log(`Failed to connect to ${provider}`, error);
+      throw new Error(`Failed to connect to ${provider}`);
+    }
+  }
+
+  async updatePermissionsOnLogin(transitWallet, provider, oreAccount = null) {
+    if (transitWallet.connected) {
+      const { accountName, permission, publicKey } = transitWallet.auth;
+      const permissions = [{ name: permission, publicKey }]; // todo: add parent permission when available
+
+      if (transitWallet.eosApi) {
+        const chainId = transitWallet.eosApi.chainId;
+        await this.updatePermissionsIfNecessary(accountName, permissions, chainId, provider, oreAccount);
+      }
+    }
+  }
+
+  // chainAccount is needed since login will try to use the default account (in scatter)
+  // and it wil fail to sign the transaction
+  async connectToTransitProvider({ provider, chainNetwork = 'eos_main', chainAccount = null }) {
+    let response;
+
+    try {
+      const transitWallet = await this.setupTransitWallet({ provider, chainNetwork });
+
+      response = { transitWallet };
+
       // some providers require login flow to connect (usually this means connect() does nothing but login selects an account)
       if (transitProviderAttributes[provider].requiresLogin) {
         // if connected, but not authenticated, then login
-        if (transitWallet && !transitWallet.authenticated) {
-          await this.loginToTransitProvider(transitWallet, provider, chainNetwork);
-        } else if (!transitWallet || !transitWallet.authenticated) {
-          throw new Error(`Couldn't connect to ${provider}`);
+        if (!transitWallet.authenticated) {
+          await this.loginToTransitProvider(transitWallet, provider, chainNetwork, chainAccount);
         }
       }
 
       // If connecting also performs login
       // return login results or throw error
       if (transitWallet.connected) {
+        this.updatePermissionsOnLogin(transitWallet, provider);
+
         if (transitWallet.authenticated) {
           const { accountName, permission, publicKey } = transitWallet.auth;
           response = {
             isLoggedIn: true,
             account: accountName,
             permissions: [{ name: permission, publicKey }], // todo: add parent permission when available
-            provider,
-            transitWallet
+            transitWallet,
+            provider
           };
         }
       } else {
+        let errorString = `${provider} not connected!`;
         const { hasError, errorMessage } = transitWallet;
 
-        let errorString = `${provider} not connected!`;
         if (hasError) {
           errorString += ` Error: ${errorMessage}`;
         }
 
         throw new Error(errorString);
-      }
-
-      if (transitWallet.eosApi) {
-        const chainId = transitWallet.eosApi.chainId;
-        await this.updatePermissionsIfNecessary(response, chainId, provider);
       }
     } catch (error) {
       console.log(`Failed to connect to ${provider} wallet:`, error);
@@ -590,7 +748,7 @@ export default class OreId {
     const networks = await this.chainNetworks();
     const chainConfig = networks.find((n) => n.hosts.find((h) => h.chainId === chainId));
 
-    if (!Helpers.isNullOrEmpty(chainConfig)) {
+    if (!isNullOrEmpty(chainConfig)) {
       return chainConfig.network;
     }
   }
@@ -602,7 +760,7 @@ export default class OreId {
       const networks = await this.chainNetworks();
 
       const chainConfig = networks.find((n) => n.hosts.find((h) => h.chainId === chainId));
-      if (!Helpers.isNullOrEmpty(chainConfig)) {
+      if (!isNullOrEmpty(chainConfig)) {
         return chainConfig.network;
       }
     }
@@ -610,27 +768,25 @@ export default class OreId {
 
   // Discover all accounts (and related permissions) in the wallet and add them to ORE ID
   // Note: Most wallets don't support discovery (as of April 2019)
-  async discoverCredentialsInWallet(chainNetwork, provider, discoveryPathIndexList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]) {
+  async discoverCredentialsInWallet(chainNetwork, provider, oreAccount, discoveryPathIndexList) {
     let accountsAndPermissions = [];
+
     try {
-      let permissions;
-      const { transitWallet } = await this.connectToTransitProvider({ provider, chainNetwork });
-      if (!transitWallet) {
-        return accountsAndPermissions;
-      }
+      const transitWallet = await this.setupTransitWallet({ provider, chainNetwork });
+
       this.setIsBusy(true);
-      const discoveryData = await transitWallet.discover({
-        pathIndexList: discoveryPathIndexList
-      });
-      // add accounts to ORE ID - if ORE ID user account is known
-      const userOreAccount = (this.user || {}).accountName;
+      const discoveryData = await transitWallet.discover(this.discoverOptionsForProvider(provider, discoveryPathIndexList));
+
       // this data looks like this: keyToAccountMap[accounts[{account,permission}]] - e.g. keyToAccountMap[accounts[{'myaccount':'owner','myaccount':'active'}]]
       const credentials = discoveryData.keyToAccountMap;
-      await credentials.forEach(async (credential) => {
+
+      for (let i = 0; i < credentials.length; i += 1) {
+        const credential = credentials[i];
+
         const { accounts = [] } = credential;
         if (accounts.length > 0) {
           const { account, authorization } = accounts[0];
-          permissions = [
+          const permissions = [
             {
               account,
               publicKey: credential.key,
@@ -639,10 +795,10 @@ export default class OreId {
             }
           ];
           const chainNetworkToUpdate = await this.getChainNetworkFromTransitWallet(transitWallet);
-          await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, userOreAccount, provider);
+          await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, oreAccount, provider);
           accountsAndPermissions = accountsAndPermissions.concat(permissions);
         }
-      });
+      }
     } catch (error) {
       throw error;
     } finally {
@@ -661,21 +817,29 @@ export default class OreId {
     }
   }
 
-  async updatePermissionsIfNecessary(response, chainId, provider) {
-    // if an account is selected, add it to the ORE ID account (if not already there)
-    const userOreAccount = (this.user || {}).accountName;
-    if (userOreAccount) {
-      const { account, permissions } = response;
+  async updatePermissionsIfNecessary(account, permissions, chainId, provider, oreAccount = null) {
+    let oreAcct = oreAccount;
+
+    if (!oreAcct) {
+      oreAcct = this.localState.accountName();
+    }
+
+    if (oreAcct) {
       const chainNetworkToUpdate = await this.getChainNetworkByChainId(chainId);
-      await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, userOreAccount, provider);
+      await this.addWalletPermissionstoOreIdAccount(account, chainNetworkToUpdate, permissions, oreAcct, provider);
+    } else {
+      console.log('updatePermissionsIfNecessary: oreAccount is null');
     }
   }
 
   // for each permission in the wallet, add to ORE ID (if not in user's record)
-  async addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, walletPermissions, userOreAccount, provider) {
-    if (Helpers.isNullOrEmpty(userOreAccount) || Helpers.isNullOrEmpty(walletPermissions) || Helpers.isNullOrEmpty(chainNetwork)) {
+  async addWalletPermissionstoOreIdAccount(chainAccount, chainNetwork, walletPermissions, oreAccount, provider) {
+    if (isNullOrEmpty(oreAccount) || isNullOrEmpty(walletPermissions) || isNullOrEmpty(chainNetwork)) {
       return;
     }
+
+    const theUser = await this.getUser(oreAccount, true);
+
     await walletPermissions.map(async (p) => {
       const permission = p.name;
       let parentPermission = p.parent; // pooky
@@ -690,22 +854,33 @@ export default class OreId {
         }
       }
       // filter out permission that the user already has in his record
-      const skipThisPermission = this.user.permissions.some((up) => (up.chainAccount === chainAccount && up.chainNetwork === chainNetwork && up.permission === permission) || permission === 'owner');
+      const skipThisPermission = theUser.permissions.some((up) => (up.chainAccount === chainAccount && up.chainNetwork === chainNetwork && up.permission === permission) || permission === 'owner');
 
       // don't add 'owner' permission and skip ones that are already stored in user's account
       if (skipThisPermission !== true) {
         // let publicKey = p.required_auth.keys[0].key; //TODO: Handle multiple keys and weights
         const publicKey = p.publicKey;
-        await this.addPermission(userOreAccount, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider);
+        await this.addPermission(oreAccount, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider);
       }
     });
+
     // reload user to get updated permissions
-    await this.getUserInfoFromApi(userOreAccount);
+    await this.getUser(oreAccount, true);
   }
 
-  /*
-        Validates startup options
-    */
+  helpTextForProvider(provider) {
+    if (this.isTransitProvider(provider)) {
+      return transitProviderAttributes[provider].helpText;
+    }
+
+    if (this.isUALProvider(provider)) {
+      return ualProviderAttributes[provider].helpText;
+    }
+
+    return null;
+  }
+
+  // Validates startup options
   validateOptions(options) {
     const { appId, apiKey, oreIdUrl } = options;
     let errorMessage = '';
@@ -726,28 +901,32 @@ export default class OreId {
     this.options = options;
   }
 
-  /*
-        load user from local storage and call api to get latest info
-    */
-  // What uses this?
-  async getUser(account) {
-    if (account) {
-      const user = await this.getUserInfoFromApi(account); // get the latest user data
-      return user;
+  // load user from local storage and call api
+  // to get latest info, pass refresh = true
+  async getUser(accountName = null, refresh = false) {
+    // return the cached user if we have it and matches the accountName
+    if (!refresh) {
+      const cachedUser = this.localState.user();
+      if (!isNullOrEmpty(cachedUser)) {
+        if (!isNullOrEmpty(accountName)) {
+          if (cachedUser.accountName === accountName) {
+            return cachedUser;
+          }
+        } else {
+          return cachedUser;
+        }
+      }
     }
-    // Check in state
-    if (this.user) {
-      return this.user;
-    }
-    // Check local storage
-    const result = this.loadUserLocally();
-    return result;
+
+    // stores user in the local state, we must await for return below to work
+    // this function does nothing if accoutName is null
+    await this.getUserInfoFromApi(accountName);
+
+    return this.localState.user();
   }
 
-  /*
-        Loads settings value from the server
-        e.g. configType='chains' returns valid chain types and addresses
-    */
+  // Loads settings value from the server
+  // e.g. configType='chains' returns valid chain types and addresses
   async getConfig(configType) {
     return this.getConfigFromApi(configType);
   }
@@ -758,9 +937,7 @@ export default class OreId {
     return this.appAccessToken;
   }
 
-  /*
-        Returns a fully formed url to call the auth endpoint
-  */
+  // Returns a fully formed url to call the auth endpoint
   async getOreIdAuthUrl(args) {
     const { code, email, phone, provider, callbackUrl, backgroundColor, state, linkToAccount } = args;
     const { oreIdUrl } = this.options;
@@ -793,10 +970,8 @@ export default class OreId {
     );
   }
 
-  /*
-      Returns a fully formed url to call the sign endpoint
-      chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin', 'ore_main', 'eos_test', etc.
-  */
+  // Returns a fully formed url to call the sign endpoint
+  // chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin', 'ore_main', 'eos_test', etc.
   async getOreIdSignUrl(signOptions) {
     const { account, allowChainAccountSelection, broadcast, callbackUrl, chainNetwork, provider, returnSignedTransaction, state, transaction, userPassword } = signOptions;
     let { chainAccount } = signOptions;
@@ -814,17 +989,15 @@ export default class OreId {
     const appAccessToken = await this.getAccessToken();
     const encodedTransaction = Helpers.base64Encode(transaction);
     let optionalParams = state ? `&state=${state}` : '';
-    optionalParams += !Helpers.isNullOrEmpty(allowChainAccountSelection) ? `&allow_chain_account_selection=${allowChainAccountSelection}` : '';
-    optionalParams += !Helpers.isNullOrEmpty(returnSignedTransaction) ? `&return_signed_transaction=${returnSignedTransaction}` : '';
-    optionalParams += !Helpers.isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : '';
+    optionalParams += !isNullOrEmpty(allowChainAccountSelection) ? `&allow_chain_account_selection=${allowChainAccountSelection}` : '';
+    optionalParams += !isNullOrEmpty(returnSignedTransaction) ? `&return_signed_transaction=${returnSignedTransaction}` : '';
+    optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : '';
 
     // prettier-ignore
     return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}&transaction=${encodedTransaction}${optionalParams}`;
   }
 
-  /*
-      Extracts the response parameters on the /auth callback URL string
-  */
+  // Extracts the response parameters on the /auth callback URL string
   handleAuthResponse(callbackUrlString) {
     // Parses error codes and returns an errors array
     // (if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
@@ -841,9 +1014,7 @@ export default class OreId {
     return response;
   }
 
-  /*
-      Extracts the response parameters on the /sign callback URL string
-  */
+  // Extracts the response parameters on the /sign callback URL string
   handleSignResponse(callbackUrlString) {
     let signedTransaction;
     const params = Helpers.urlParamsToArray(callbackUrlString);
@@ -858,29 +1029,26 @@ export default class OreId {
     return { signedTransaction, state, transactionId, errors };
   }
 
-  /*
-      Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
-  */
+  // Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
   async getNewAppAccessToken() {
     const responseJson = await this.callOreIdApi('app-token');
     const { appAccessToken } = responseJson;
     this.appAccessToken = appAccessToken;
   }
 
-  /*
-      Get the user info from ORE ID for the given user account
-  */
+  // Get the user info from ORE ID for the given user account
   async getUserInfoFromApi(account) {
-    const responseJson = await this.callOreIdApi(`account/user?account=${account}`);
-    const userInfo = responseJson;
-    this.saveUserLocally(userInfo);
-    await this.loadUserLocally(); // ensures this.user state is set
-    return userInfo;
+    if (!isNullOrEmpty(account)) {
+      const userInfo = await this.callOreIdApi(`account/user?account=${account}`);
+      this.localState.saveUser(userInfo);
+
+      return userInfo;
+    }
+
+    return null;
   }
 
-  /*
-      Get the config (setting) values of a specific type
-  */
+  // Get the config (setting) values of a specific type
   async getConfigFromApi(configType) {
     if (!configType) {
       throw new Error('Missing a required parameter: configType');
@@ -892,13 +1060,11 @@ export default class OreId {
     return values;
   }
 
-  /*
-      Adds a public key to an account with a specific permission name
-      The permission name must be one defined in the App Registration record (Which defines its parent permission as well as preventing adding rougue permissions)
-      This feature allows your app to hold private keys locally (for certain actions enabled by the permission) while having the associated public key in the user's account
-      chainAccount = name of the account on the chain - 12/13-digit string on EOS and Ethereum Address on ETH - it may be the same as the account
-      chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin", 'ore_main', 'eos_test', etc.
-  */
+  // Adds a public key to an account with a specific permission name
+  // The permission name must be one defined in the App Registration record (Which defines its parent permission as well as preventing adding rougue permissions)
+  // This feature allows your app to hold private keys locally (for certain actions enabled by the permission) while having the associated public key in the user's account
+  // chainAccount = name of the account on the chain - 12/13-digit string on EOS and Ethereum Address on ETH - it may be the same as the account
+  // chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin", 'ore_main', 'eos_test', etc.
   async addPermission(account, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider) {
     let optionalParams = provider ? `&wallet-type=${provider}` : '';
     optionalParams += parentPermission ? `&parent-permission=${parentPermission}` : '';
@@ -906,22 +1072,11 @@ export default class OreId {
     // if failed, error will be thrown
   }
 
-  /*
-      Get the user info from ORE ID for the given user account
-  */
-  async getUserWalletInfo(account) {
-    throw Error('Not Implemented');
-    // let responseJson = await this.callOreIdApi(`wallet?account=${account}`)
-    // let userWalletInfo = responseJson;
-    // return {userWalletInfo, errors};
-  }
-
-  /*
-      Helper function to call api endpoint and inject api-key
-  */
+  // Helper function to call api endpoint and inject api-key
   async callOreIdApi(endpointAndParams) {
     const { apiKey, oreIdUrl } = this.options;
     const url = `${oreIdUrl}/api/${endpointAndParams}`;
+
     const response = await axios.get(url, {
       headers: { 'api-key': apiKey }
     });
@@ -929,12 +1084,11 @@ export default class OreId {
     if (error) {
       throw new Error(error);
     }
+
     return response.data;
   }
 
-  /*
-      Params is a javascript object representing the parameters parsed from an URL string
-  */
+  //  Params is a javascript object representing the parameters parsed from an URL string
   getErrorCodesFromParams(params) {
     let errorCodes;
     const errorString = params.error_code;
@@ -949,45 +1103,10 @@ export default class OreId {
     return errorCodes;
   }
 
-  /*
-      We don't really maintain a logged-in state
-      However, we do have local cached user data, so clear that
-  */
+  // We don't really maintain a logged-in state
+  // However, we do have local cached user data, so clear that
   logout() {
-    // clear local state
-    this.clearLocalState();
-  }
-
-  /*
-      Local state
-  */
-
-  userKey() {
-    return `oreid.${this.options.appId}.user`;
-  }
-
-  saveUserLocally(user) {
-    if (Helpers.isNullOrEmpty(user)) {
-      return;
-    }
-    this.user = user;
-    const serialized = JSON.stringify(this.user);
-    this.storage.setItem(this.userKey(), serialized);
-  }
-
-  loadUserLocally() {
-    const serialized = this.storage.getItem(this.userKey());
-    // user state does not exist
-    if (Helpers.isNullOrEmpty(serialized)) {
-      this.user = null;
-      return null;
-    }
-    this.user = JSON.parse(serialized);
-    return this.user;
-  }
-
-  async clearLocalState() {
-    this.storage.removeItem(this.userKey());
+    this.localState.clear();
   }
 
   isCustodial(provider) {
@@ -995,8 +1114,28 @@ export default class OreId {
   }
 
   isUALProvider(provider) {
-    const { ualProviders } = this.options;
-    return ualProviders && ualProviders.find((ualProvider) => ualProvider.name.toLowerCase() === provider.toLowerCase());
+    if (supportedUALProviders.includes(provider)) {
+      const { ualProviders } = this.options;
+
+      if (ualProviders) {
+        const found = ualProviders.find((ualProvider) => ualProvider.name.toLowerCase() === provider.toLowerCase());
+
+        return !isNullOrEmpty(found);
+      }
+    }
+
+    return false;
+  }
+
+  isTransitProvider(provider) {
+    if (supportedTransitProviders.includes(provider)) {
+      // didn't want to search the eosTransitWalletProviders in this.options
+      // to get the provider id you have to call a function. I'm not sure if there are side effects of
+      // calling that function.  Seems best to just see if it's not a UALProvider
+      return !this.isUALProvider(provider);
+    }
+
+    return false;
   }
 
   getWalletProviderInfo(provider, type) {

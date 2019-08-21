@@ -1,6 +1,6 @@
 {
   "name": "eos-auth",
-  "version": "2.1.23",
+  "version": "2.2.0",
   "description": "Add user authentication and wallet access to any EOS dApp",
   "author": "AIKON",
   "license": "MIT",
