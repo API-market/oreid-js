@@ -161,4 +161,17 @@ export default class Helpers {
   static sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
+
+  // extract key data from EOS transaction object
+  static getTransactionData(transaction) {
+    const transactionDetails = {};
+    if (transaction && Array.isArray(transaction.authorization)) {
+      transactionDetails.contract = transaction.account;
+      transactionDetails.action = transaction.name;
+      transactionDetails.account = transaction.authorization[0].actor;
+      transactionDetails.permission = transaction.authorization[0].permission;
+      transactionDetails.data = transaction.data;
+    }
+    return transactionDetails;
+  }
 }
