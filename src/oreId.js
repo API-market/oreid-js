@@ -266,21 +266,44 @@ export default class OreId {
     return { loginUrl, errors: null };
   }
 
-  async signWithOreId(signOptions) {
-    const { signCallbackUrl } = this.options;
-    signOptions.callbackUrl = signCallbackUrl;
-    const signUrl = await this.getOreIdSignUrl(signOptions);
-    return { signUrl, errors: null };
-  }
+  async checkIfTrxAutoSignable(signOptions) {
+    let autoSignCredentialsExist = false;
+    const { oreIdUrl, apiKey } = this.options;
+    const { account, chainAccount, chainNetwork, transaction } = signOptions;
+    const { contract, action, permission } = Helpers.getTransactionData(transaction);
 
-  async custodialSignWithOreId(signOptions) {
-    const { apiKey, oreIdUrl, serviceKey } = this.options;
-    if (!serviceKey) {
-      throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/new-user.');
+    const body = {
+      account,
+      chain_account: chainAccount,
+      chain_network: chainNetwork,
+      contract,
+      action,
+      permission
+    };
+
+    const url = `${oreIdUrl}/api/transaction/check-auto-sign`;
+    const response = await axios.post(url,
+      JSON.stringify(body),
+      { headers: { 'Content-Type': 'application/json', 'api-key': apiKey },
+        body
+      });
+
+    const { data } = response;
+    const { errorCode, errorMessage } = data;
+    if (errorCode) {
+      autoSignCredentialsExist = false;
+      return autoSignCredentialsExist;
     }
 
+    ({ autoSignCredentialsExist } = data);
+    return autoSignCredentialsExist;
+  }
+
+  async callSignTransaction(signUrl, signOptions, autoSign = false) {
+    const { apiKey, serviceKey } = this.options;
     const { account, allowChainAccountSelection, broadcast, chainAccount, chainNetwork, returnSignedTransaction, transaction, userPassword } = signOptions;
     const encodedTransaction = Helpers.base64Encode(transaction);
+
     const body = {
       account,
       allow_chain_account_selection: allowChainAccountSelection,
@@ -288,22 +311,65 @@ export default class OreId {
       chain_account: chainAccount,
       chain_network: chainNetwork,
       return_signed_transaction: returnSignedTransaction,
-      transaction: encodedTransaction,
-      user_password: userPassword
+      transaction: encodedTransaction
     };
 
-    const url = `${oreIdUrl}/api/custodial/sign`;
-    const response = await axios.post(url,
+    if (autoSign) {
+      body.auto_sign = autoSign;
+    }
+
+    if (userPassword) {
+      body.user_password = userPassword;
+    }
+
+    const headers = { 'Content-Type': 'application/json', 'api-key': apiKey };
+    if (serviceKey) {
+      headers['service-key'] = serviceKey;
+    }
+
+
+    const response = await axios.post(signUrl,
       JSON.stringify(body),
-      { headers: { 'Content-Type': 'application/json', 'api-key': apiKey, 'service-key': serviceKey },
+      { headers,
         body
       });
-    const { error } = response;
-    if (error) {
-      throw new Error(error);
-    }
+
     const { data } = response;
+    const { errorCode, errorMessage } = data;
+    if (errorCode) {
+      throw new Error(errorMessage);
+    }
     const { signed_transaction: signedTransaction, transaction_id: transactionId } = data;
+    return { signedTransaction, transactionId };
+  }
+
+  async autoSignTransaction(signOptions) {
+    const { oreIdUrl } = this.options;
+    const url = `${oreIdUrl}/api/transaction/sign`;
+    const { signedTransaction, transactionId } = await this.callSignTransaction(url, signOptions, true);
+    return { signedTransaction, transactionId };
+  }
+
+  async signWithOreId(signOptions) {
+    const autoSign = await this.checkIfTrxAutoSignable(signOptions);
+    if (autoSign) {
+      const { signedTransaction, transactionId } = await this.autoSignTransaction(signOptions);
+      return { signedTransaction, transactionId };
+    }
+    const { signCallbackUrl } = this.options;
+    signOptions.callbackUrl = signCallbackUrl;
+    const signUrl = await this.getOreIdSignUrl(signOptions);
+    return { signUrl, errors: null };
+  }
+
+  async custodialSignWithOreId(signOptions) {
+    const { oreIdUrl, serviceKey } = this.options;
+    if (!serviceKey) {
+      throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/new-user.');
+    }
+
+    const url = `${oreIdUrl}/api/custodial/sign`;
+    const { signedTransaction, transactionId } = await this.callSignTransaction(url, signOptions);
     return { signedTransaction, transactionId };
   }
 
