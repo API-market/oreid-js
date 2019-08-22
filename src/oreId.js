@@ -300,6 +300,7 @@ export default class OreId {
   }
 
   async callSignTransaction(signUrl, signOptions, autoSign = false) {
+    let response;
     const { apiKey, serviceKey } = this.options;
     const { account, allowChainAccountSelection, broadcast, chainAccount, chainNetwork, returnSignedTransaction, transaction, userPassword } = signOptions;
     const encodedTransaction = Helpers.base64Encode(transaction);
@@ -328,11 +329,16 @@ export default class OreId {
     }
 
 
-    const response = await axios.post(signUrl,
-      JSON.stringify(body),
-      { headers,
-        body
-      });
+    try {
+      response = await axios.post(signUrl,
+        JSON.stringify(body),
+        { headers,
+          body
+        });
+    } catch (error) {
+      console.log(error.response);
+    }
+
 
     const { data } = response;
     const { errorCode, errorMessage } = data;
