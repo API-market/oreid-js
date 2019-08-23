@@ -1105,6 +1105,7 @@ export default class OreId {
     };
 
     // if failed, error will be thrown
+    // TODO: make this a post request on the api
     await this.callOreIdApi('get', 'account/add-permission', queryParams);
   }
 
