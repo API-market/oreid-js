@@ -287,7 +287,6 @@ export default class OreId {
   async callSignTransaction(signEndpoint, signOptions, autoSign = false) {
     const { account, allowChainAccountSelection, broadcast, chainAccount, chainNetwork, returnSignedTransaction, transaction, userPassword } = signOptions;
     const encodedTransaction = Helpers.base64Encode(transaction);
-
     const body = {
       account,
       allow_chain_account_selection: allowChainAccountSelection,
@@ -295,7 +294,8 @@ export default class OreId {
       chain_account: chainAccount,
       chain_network: chainNetwork,
       return_signed_transaction: returnSignedTransaction,
-      transaction: encodedTransaction
+      transaction: encodedTransaction,
+      user_password: userPassword
     };
 
     if (autoSign) {
