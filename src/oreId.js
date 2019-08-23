@@ -1086,7 +1086,7 @@ export default class OreId {
   // chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin", 'ore_main', 'eos_test', etc.
   async addPermission(account, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider) {
     const optionalParams = {};
-    // provider ? `&wallet-type=${provider}` : '';
+
     if (provider) {
       optionalParams['wallet-type'] = provider;
     }
