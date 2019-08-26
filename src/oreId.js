@@ -268,7 +268,6 @@ export default class OreId {
 
   async checkIfTrxAutoSignable(signOptions) {
     let autoSignCredentialsExist = false;
-    const { oreIdUrl, apiKey } = this.options;
     const { account, chainAccount, chainNetwork, transaction } = signOptions;
     const { contract, action, permission } = Helpers.getTransactionData(transaction);
 
