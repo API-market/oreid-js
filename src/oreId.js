@@ -19,6 +19,11 @@ const PROVIDER_TYPE = {
 
 const { isNullOrEmpty } = Helpers;
 
+const requestType = {
+  Get: 'get',
+  Post: 'post'
+};
+
 export default class OreId {
   constructor(options) {
     this.options = null;
@@ -128,7 +133,7 @@ export default class OreId {
       queryParams.code = code;
     }
 
-    const data = await this.callOreIdApi('get', passwordlessEndpoint, queryParams);
+    const data = await this.callOreIdApi(requestType.Get, passwordlessEndpoint, queryParams);
     return data;
   }
 
@@ -277,7 +282,7 @@ export default class OreId {
     };
 
     try {
-      ({ autoSignCredentialsExist } = await this.callOreIdApi('post', 'transaction/check-auto-sign', body));
+      ({ autoSignCredentialsExist } = await this.callOreIdApi(requestType.Post, 'transaction/check-auto-sign', body));
     } catch (error) {
       autoSignCredentialsExist = false;
     }
@@ -306,7 +311,7 @@ export default class OreId {
       body.user_password = userPassword;
     }
 
-    const { signed_transaction: signedTransaction, transaction_id: transactionId } = await this.callOreIdApi('post', signEndpoint, body);
+    const { signed_transaction: signedTransaction, transaction_id: transactionId } = await this.callOreIdApi(requestType.Post, signEndpoint, body);
 
     return { signedTransaction, transactionId };
   }
@@ -488,7 +493,7 @@ export default class OreId {
     }
 
     const custodialNewAccountEndpoint = 'custodial/new-user';
-    const data = await this.callOreIdApi('post', custodialNewAccountEndpoint, body);
+    const data = await this.callOreIdApi(requestType.Post, custodialNewAccountEndpoint, body);
 
     return data;
   }
@@ -507,7 +512,7 @@ export default class OreId {
     const body = { account, chain_account: chainAccount, chain_network: chainNetwork, to_type: toType, user_password: userPassword };
 
     const custodialMigrateEndpoint = 'custodial/migrate-account';
-    const { account: newAccount } = await this.callOreIdApi('post', custodialMigrateEndpoint, body);
+    const { account: newAccount } = await this.callOreIdApi(requestType.Post, custodialMigrateEndpoint, body);
 
     return { account: newAccount };
   }
@@ -1048,7 +1053,7 @@ export default class OreId {
 
   // Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
   async getNewAppAccessToken() {
-    const responseJson = await this.callOreIdApi('get', 'app-token');
+    const responseJson = await this.callOreIdApi(requestType.Get, 'app-token');
     const { appAccessToken } = responseJson;
     this.appAccessToken = appAccessToken;
   }
@@ -1057,7 +1062,7 @@ export default class OreId {
   async getUserInfoFromApi(account) {
     if (!isNullOrEmpty(account)) {
       const queryParams = { account };
-      const userInfo = await this.callOreIdApi('get', 'account/user', queryParams);
+      const userInfo = await this.callOreIdApi(requestType.Get, 'account/user', queryParams);
       this.localState.saveUser(userInfo);
 
       return userInfo;
@@ -1072,7 +1077,7 @@ export default class OreId {
       throw new Error('Missing a required parameter: configType');
     }
     const queryParams = { type: configType };
-    const { values } = await this.callOreIdApi('get', 'services/config', queryParams) || {};
+    const { values } = await this.callOreIdApi(requestType.Get, 'services/config', queryParams) || {};
     if (Helpers.isNullOrEmpty(values)) {
       throw new Error(`Not able to retrieve config values for ${configType}`);
     }
@@ -1106,12 +1111,12 @@ export default class OreId {
 
     // if failed, error will be thrown
     // TODO: make this a post request on the api
-    await this.callOreIdApi('get', 'account/add-permission', queryParams);
+    await this.callOreIdApi(requestType.Get, 'account/add-permission', queryParams);
   }
 
   // Helper function to call api endpoint and inject api-key
   // here params can be query params in case of a GET request or body params in case of POST request
-  async callOreIdApi(requestType, endpoint, params = {}) {
+  async callOreIdApi(requestMethod, endpoint, params = {}) {
     let urlString;
     let response;
     let data;
@@ -1124,7 +1129,7 @@ export default class OreId {
     }
 
     try {
-      if (requestType.toUpperCase() === 'GET') {
+      if (requestMethod === requestType.Get) {
         if (!isNullOrEmpty(params)) {
           urlString = Object.keys(params).map((key) => `${key}=${params[key]}`).join('&');
         }
@@ -1134,7 +1139,7 @@ export default class OreId {
           { headers });
       }
 
-      if (requestType.toUpperCase() === 'POST') {
+      if (requestMethod === requestType.Post) {
         response = await axios.post(url,
           JSON.stringify(params),
           { headers: { 'Content-Type': 'application/json', ...headers },
