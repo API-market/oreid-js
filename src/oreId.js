@@ -323,10 +323,14 @@ export default class OreId {
 
   async signWithOreId(signOptions) {
     const autoSign = await this.checkIfTrxAutoSignable(signOptions);
-    if (autoSign) {
+    // auto sign defaults to true if the transaction is auto signable. Developer can opt out by setting preventAutoSign to true
+    const { preventAutoSign = false } = signOptions;
+
+    if (autoSign && !preventAutoSign) {
       const { signedTransaction, transactionId } = await this.autoSignTransaction(signOptions);
       return { signedTransaction, transactionId };
     }
+
     const { signCallbackUrl } = this.options;
     signOptions.callbackUrl = signCallbackUrl;
     const signUrl = await this.getOreIdSignUrl(signOptions);
