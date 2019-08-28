@@ -19,6 +19,11 @@ const PROVIDER_TYPE = {
 
 const { isNullOrEmpty } = Helpers;
 
+const requestType = {
+  Get: 'get',
+  Post: 'post'
+};
+
 export default class OreId {
   constructor(options) {
     this.options = null;
@@ -109,32 +114,27 @@ export default class OreId {
       action = 'verify';
     }
 
-    let url = `${oreIdUrl}/api/account/login-passwordless-${action}-code?provider=${provider}`;
+    const passwordlessEndpoint = `account/login-passwordless-${action}-code`;
+    const queryParams = {
+      provider
+    };
 
     if (email) {
-      url += `&email=${email}`;
+      queryParams.email = email;
     }
+
     if (phone) {
       // if user passes in +12103334444, the plus sign needs to be URL encoded
       const encodedPhone = encodeURIComponent(phone);
-
-      url += `&phone=${encodedPhone}`;
+      queryParams.phone = encodedPhone;
     }
 
     if (verify) {
-      url += `&code=${code}`;
+      queryParams.code = code;
     }
 
-    let response = {};
-    try {
-      response = await axios.get(url, {
-        headers: { 'api-key': apiKey }
-      });
-    } catch (error) {
-      response = error.response;
-    }
-
-    return response.data;
+    const data = await this.callOreIdApi(requestType.Get, passwordlessEndpoint, queryParams);
+    return data;
   }
 
   // email - localhost:8080/api/account/login-passwordless-send-code?provider=email&email=me@aikon.com
@@ -266,19 +266,29 @@ export default class OreId {
     return { loginUrl, errors: null };
   }
 
-  async signWithOreId(signOptions) {
-    const { signCallbackUrl } = this.options;
-    signOptions.callbackUrl = signCallbackUrl;
-    const signUrl = await this.getOreIdSignUrl(signOptions);
-    return { signUrl, errors: null };
+  async checkIfTrxAutoSignable(signOptions) {
+    let autoSignCredentialsExist = false;
+    const { account, chainAccount, chainNetwork, transaction } = signOptions;
+    const { contract, action, permission } = Helpers.getTransactionData(transaction);
+
+    const body = {
+      account,
+      chain_account: chainAccount,
+      chain_network: chainNetwork,
+      contract,
+      action,
+      permission
+    };
+
+    try {
+      ({ autoSignCredentialsExist } = await this.callOreIdApi(requestType.Post, 'transaction/can-auto-sign', body));
+    } catch (error) {
+      autoSignCredentialsExist = false;
+    }
+    return autoSignCredentialsExist;
   }
 
-  async custodialSignWithOreId(signOptions) {
-    const { apiKey, oreIdUrl, serviceKey } = this.options;
-    if (!serviceKey) {
-      throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/new-user.');
-    }
-
+  async callSignTransaction(signEndpoint, signOptions, autoSign = false) {
     const { account, allowChainAccountSelection, broadcast, chainAccount, chainNetwork, returnSignedTransaction, transaction, userPassword } = signOptions;
     const encodedTransaction = Helpers.base64Encode(transaction);
     const body = {
@@ -292,18 +302,49 @@ export default class OreId {
       user_password: userPassword
     };
 
-    const url = `${oreIdUrl}/api/custodial/sign`;
-    const response = await axios.post(url,
-      JSON.stringify(body),
-      { headers: { 'Content-Type': 'application/json', 'api-key': apiKey, 'service-key': serviceKey },
-        body
-      });
-    const { error } = response;
-    if (error) {
-      throw new Error(error);
+    if (autoSign) {
+      body.auto_sign = autoSign;
     }
-    const { data } = response;
-    const { signed_transaction: signedTransaction, transaction_id: transactionId } = data;
+
+    if (userPassword) {
+      body.user_password = userPassword;
+    }
+
+    const { signed_transaction: signedTransaction, transaction_id: transactionId } = await this.callOreIdApi(requestType.Post, signEndpoint, body);
+
+    return { signedTransaction, transactionId };
+  }
+
+  async autoSignTransaction(signOptions) {
+    const signEndpoint = 'transaction/sign';
+    const { signedTransaction, transactionId } = await this.callSignTransaction(signEndpoint, signOptions, true);
+    return { signedTransaction, transactionId };
+  }
+
+  async signWithOreId(signOptions) {
+    const autoSign = await this.checkIfTrxAutoSignable(signOptions);
+    // auto sign defaults to true if the transaction is auto signable. Developer can opt out by setting preventAutoSign to true
+    const { preventAutoSign = false } = signOptions;
+
+    if (autoSign && !preventAutoSign) {
+      const { signedTransaction, transactionId } = await this.autoSignTransaction(signOptions);
+      return { signedTransaction, transactionId };
+    }
+
+    const { signCallbackUrl } = this.options;
+    signOptions.callbackUrl = signCallbackUrl;
+    const signUrl = await this.getOreIdSignUrl(signOptions);
+    return { signUrl, errors: null };
+  }
+
+  async custodialSignWithOreId(signOptions) {
+    const { serviceKey } = this.options;
+    if (!serviceKey) {
+      throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/new-user.');
+    }
+
+    const custodialSignEndpoint = 'custodial/sign';
+    const { signedTransaction, transactionId } = await this.callSignTransaction(custodialSignEndpoint, signOptions);
     return { signedTransaction, transactionId };
   }
 
@@ -447,24 +488,17 @@ export default class OreId {
   // create a new user account that is managed by your app
   // this requires you to provide a wallet password (aka userPassword) on behalf of the user
   async custodialNewAccount(accountOptions) {
-    const { apiKey, oreIdUrl, serviceKey } = this.options;
+    const { serviceKey } = this.options;
     const { accountType, email, name, picture, phone, userName, userPassword } = accountOptions;
     const body = { account_type: accountType, email, name, picture, phone, user_name: userName, user_password: userPassword };
     if (!serviceKey) {
       throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/new-user.');
     }
 
-    const url = `${oreIdUrl}/api/custodial/new-user`;
-    const response = await axios.post(url,
-      JSON.stringify(body),
-      { headers: { 'Content-Type': 'application/json', 'api-key': apiKey, 'service-key': serviceKey },
-        body
-      });
-    const { error } = response;
-    if (error) {
-      throw new Error(error);
-    }
-    return response.data;
+    const custodialNewAccountEndpoint = 'custodial/new-user';
+    const data = await this.callOreIdApi(requestType.Post, custodialNewAccountEndpoint, body);
+
+    return data;
   }
 
   // Call the migrate-account api
@@ -480,18 +514,9 @@ export default class OreId {
     const { account, chainAccount, chainNetwork, toType, userPassword } = migrateOptions;
     const body = { account, chain_account: chainAccount, chain_network: chainNetwork, to_type: toType, user_password: userPassword };
 
-    const url = `${oreIdUrl}/api/custodial/migrate-account`;
-    const response = await axios.post(url,
-      JSON.stringify(body),
-      { headers: { 'Content-Type': 'application/json', 'api-key': apiKey, 'service-key': serviceKey },
-        body
-      });
-    const { error } = response;
-    if (error) {
-      throw new Error(error);
-    }
-    const { data } = response;
-    const { account: newAccount } = data;
+    const custodialMigrateEndpoint = 'custodial/migrate-account';
+    const { account: newAccount } = await this.callOreIdApi(requestType.Post, custodialMigrateEndpoint, body);
+
     return { account: newAccount };
   }
 
@@ -1031,7 +1056,7 @@ export default class OreId {
 
   // Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
   async getNewAppAccessToken() {
-    const responseJson = await this.callOreIdApi('app-token');
+    const responseJson = await this.callOreIdApi(requestType.Get, 'app-token');
     const { appAccessToken } = responseJson;
     this.appAccessToken = appAccessToken;
   }
@@ -1039,7 +1064,8 @@ export default class OreId {
   // Get the user info from ORE ID for the given user account
   async getUserInfoFromApi(account) {
     if (!isNullOrEmpty(account)) {
-      const userInfo = await this.callOreIdApi(`account/user?account=${account}`);
+      const queryParams = { account };
+      const userInfo = await this.callOreIdApi(requestType.Get, 'account/user', queryParams);
       this.localState.saveUser(userInfo);
 
       return userInfo;
@@ -1053,7 +1079,8 @@ export default class OreId {
     if (!configType) {
       throw new Error('Missing a required parameter: configType');
     }
-    const { values } = await this.callOreIdApi(`services/config?type=${configType}`) || {};
+    const queryParams = { type: configType };
+    const { values } = await this.callOreIdApi(requestType.Get, 'services/config', queryParams) || {};
     if (Helpers.isNullOrEmpty(values)) {
       throw new Error(`Not able to retrieve config values for ${configType}`);
     }
@@ -1066,33 +1093,81 @@ export default class OreId {
   // chainAccount = name of the account on the chain - 12/13-digit string on EOS and Ethereum Address on ETH - it may be the same as the account
   // chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin", 'ore_main', 'eos_test', etc.
   async addPermission(account, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider) {
-    let optionalParams = provider ? `&wallet-type=${provider}` : '';
-    optionalParams += parentPermission ? `&parent-permission=${parentPermission}` : '';
-    await this.callOreIdApi(`account/add-permission?account=${account}&chain-account=${chainAccount}&chain-network=${chainNetwork}&permission=${permission}&public-key=${publicKey}${optionalParams}`);
+    const optionalParams = {};
+
+    if (provider) {
+      optionalParams['wallet-type'] = provider;
+    }
+
+    if (parentPermission) {
+      optionalParams['parent-permission'] = parentPermission;
+    }
+
+    const queryParams = {
+      account,
+      'chain-account': chainAccount,
+      'chain-network': chainNetwork,
+      'public-key': publicKey,
+      permission,
+      ...optionalParams
+    };
+
     // if failed, error will be thrown
+    // TODO: make this a post request on the api
+    await this.callOreIdApi(requestType.Get, 'account/add-permission', queryParams);
   }
 
   // Helper function to call api endpoint and inject api-key
-  async callOreIdApi(endpointAndParams) {
-    const { apiKey, oreIdUrl } = this.options;
-    const url = `${oreIdUrl}/api/${endpointAndParams}`;
+  // here params can be query params in case of a GET request or body params in case of POST request
+  async callOreIdApi(requestMethod, endpoint, params = {}) {
+    let urlString;
+    let response;
+    let data;
+    const { apiKey, serviceKey, oreIdUrl } = this.options;
+    const url = `${oreIdUrl}/api/${endpoint}`;
 
-    const response = await axios.get(url, {
-      headers: { 'api-key': apiKey }
-    });
-    const { error } = response;
-    if (error) {
-      throw new Error(error);
+    const headers = { 'api-key': apiKey };
+    if (serviceKey) {
+      headers['service-key'] = serviceKey;
     }
 
-    return response.data;
+    try {
+      if (requestMethod === requestType.Get) {
+        if (!isNullOrEmpty(params)) {
+          urlString = Object.keys(params).map((key) => `${key}=${params[key]}`).join('&');
+        }
+
+        const urlWithParams = urlString ? `${url}?${urlString}` : url;
+        response = await axios.get(urlWithParams,
+          { headers });
+      }
+
+      if (requestMethod === requestType.Post) {
+        response = await axios.post(url,
+          JSON.stringify(params),
+          { headers: { 'Content-Type': 'application/json', ...headers },
+            body: params
+          });
+      }
+    } catch (error) {
+      ({ data } = error.response);
+      const { message } = data;
+      const errorCodes = this.getErrorCodesFromParams(data);
+      // oreid apis pass back errorCode/errorMessages
+      // also handle when a standard error message is thrown
+      const errorString = errorCodes || message;
+      throw new Error(errorString);
+    }
+
+    ({ data } = response);
+    return data;
   }
 
   //  Params is a javascript object representing the parameters parsed from an URL string
   getErrorCodesFromParams(params) {
     let errorCodes;
-    const errorString = params.error_code;
-    const errorMessage = params.error_message;
+    const errorString = params.error_code || params.errorCode;
+    const errorMessage = params.error_message || params.errorMessage;
     if (errorString) {
       errorCodes = errorString.split(/[/?/$&]/);
     }
