@@ -281,7 +281,7 @@ export default class OreId {
     };
 
     try {
-      ({ autoSignCredentialsExist } = await this.callOreIdApi(requestType.Post, 'transaction/check-auto-sign', body));
+      ({ autoSignCredentialsExist } = await this.callOreIdApi(requestType.Post, 'transaction/can-auto-sign', body));
     } catch (error) {
       autoSignCredentialsExist = false;
     }
