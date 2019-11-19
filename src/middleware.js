@@ -61,7 +61,7 @@ export function signCallbackHandler(oreId) {
     }
 
     oreId.errors = null;
-    const { signedTransaction, state, transactionId, errors } = oreId.handleSignResponse(body);
+    const { signedTransaction, signatures, state, transactionId, errors } = oreId.handleSignResponse(body);
 
     if (errors) {
       oreId.errors = errors;
@@ -72,6 +72,10 @@ export function signCallbackHandler(oreId) {
     if (signedTransaction) {
       req.signedTransaction = signedTransaction;
       req.appId = oreId.appId;
+    }
+
+    if (signatures) {
+      req.signatures = signatures;
     }
 
     if (transactionId) req.transactionId = transactionId;
