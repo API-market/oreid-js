@@ -289,12 +289,7 @@ export default class OreId {
   }
 
   async callSignTransaction(signEndpoint, signOptions, autoSign = false) {
-    const { account, allowChainAccountSelection, broadcast, chainAccount, chainNetwork, returnSignedTransaction, transaction, userPassword, signatureOnly, signatures: _signatures } = signOptions;
-    const encodedTransaction = Helpers.base64Encode(transaction);
-    let encodedSignatures = {};
-    if (!isNullOrEmpty(_signatures)) {
-      encodedSignatures = Helpers.base64Encode(_signatures);
-    }
+    const { account, allowChainAccountSelection, broadcast, chainAccount, chainNetwork, returnSignedTransaction, signedTransaction: signedTransactionParam, transactionParam, userPassword, signatureOnly } = signOptions;
     const body = {
       account,
       allow_chain_account_selection: allowChainAccountSelection,
@@ -302,11 +297,17 @@ export default class OreId {
       chain_account: chainAccount,
       chain_network: chainNetwork,
       return_signed_transaction: returnSignedTransaction,
-      transaction: encodedTransaction,
       user_password: userPassword,
-      signature_only: signatureOnly,
-      signatures: encodedSignatures
+      signature_only: signatureOnly
     };
+
+    if (transactionParam) {
+      body.transaction = Helpers.base64Encode(transactionParam);
+    }
+
+    if (signedTransactionParam) {
+      body.signed_transaction = Helpers.base64Encode(signedTransactionParam);
+    }
 
     if (autoSign) {
       body.auto_sign = autoSign;
@@ -1004,11 +1005,11 @@ export default class OreId {
   // Returns a fully formed url to call the sign endpoint
   // chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin', 'ore_main', 'eos_test', etc.
   async getOreIdSignUrl(signOptions) {
-    const { account, allowChainAccountSelection, broadcast, callbackUrl, chainNetwork, provider, returnSignedTransaction, state, transaction, userPassword, signatureOnly, signatures } = signOptions;
+    const { account, allowChainAccountSelection, broadcast, callbackUrl, chainNetwork, provider, returnSignedTransaction, signatureOnly, signedTransaction, state, transaction, userPassword } = signOptions;
     let { chainAccount } = signOptions;
     const { oreIdUrl } = this.options;
 
-    if (!account || !callbackUrl || !transaction) {
+    if (!account || !callbackUrl || (!transaction && !signedTransaction)) {
       throw new Error('Missing a required parameter');
     }
 
@@ -1019,20 +1020,17 @@ export default class OreId {
 
     const appAccessToken = await this.getAccessToken();
     const encodedTransaction = Helpers.base64Encode(transaction);
-
+    const encodedSignedTransaction = Helpers.base64Encode(signedTransaction);
     let optionalParams = state ? `&state=${state}` : '';
+    optionalParams += !isNullOrEmpty(transaction) ? `&transaction=${encodedTransaction}` : '';
+    optionalParams += !isNullOrEmpty(signedTransaction) ? `&signed_transaction=${encodedSignedTransaction}` : '';
     optionalParams += !isNullOrEmpty(allowChainAccountSelection) ? `&allow_chain_account_selection=${allowChainAccountSelection}` : '';
     optionalParams += !isNullOrEmpty(returnSignedTransaction) ? `&return_signed_transaction=${returnSignedTransaction}` : '';
     optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : '';
     optionalParams += !isNullOrEmpty(signatureOnly) ? `&signature_only=${signatureOnly}` : '';
 
-    if (!isNullOrEmpty(signatures)) {
-      const encodedSignatures = Helpers.base64Encode(signatures);
-      optionalParams += !isNullOrEmpty(signatures) ? `&signatures=${encodedSignatures}` : '';
-    }
-
     // prettier-ignore
-    return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}&transaction=${encodedTransaction}${optionalParams}`;
+    return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}${optionalParams}`;
   }
 
   // Extracts the response parameters on the /auth callback URL string
