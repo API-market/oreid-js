@@ -327,15 +327,15 @@ export default class OreId {
       body.user_password = userPassword;
     }
 
-    const { signed_transaction: signedTransaction, signatures, transaction_id: transactionId } = await this.callOreIdApi(requestType.Post, signEndpoint, body);
+    const { signed_transaction: signedTransaction, transaction_id: transactionId } = await this.callOreIdApi(requestType.Post, signEndpoint, body);
 
-    return { signedTransaction, signatures, transactionId };
+    return { signedTransaction, transactionId };
   }
 
   async autoSignTransaction(signOptions) {
     const signEndpoint = 'transaction/sign';
-    const { signedTransaction, signatures, transactionId } = await this.callSignTransaction(signEndpoint, signOptions, true);
-    return { signedTransaction, signatures, transactionId };
+    const { signedTransaction, transactionId } = await this.callSignTransaction(signEndpoint, signOptions, true);
+    return { signedTransaction, transactionId };
   }
 
   async signWithOreId(signOptions) {
@@ -344,8 +344,8 @@ export default class OreId {
     const { preventAutoSign = false } = signOptions;
 
     if (autoSign && !preventAutoSign) {
-      const { signedTransaction, signatures, transactionId } = await this.autoSignTransaction(signOptions);
-      return { signedTransaction, signatures, transactionId };
+      const { signedTransaction, transactionId } = await this.autoSignTransaction(signOptions);
+      return { signedTransaction, transactionId };
     }
 
     const { signCallbackUrl } = this.options;
@@ -361,8 +361,8 @@ export default class OreId {
     }
 
     const custodialSignEndpoint = 'custodial/sign';
-    const { signedTransaction, signatures, transactionId } = await this.callSignTransaction(custodialSignEndpoint, signOptions);
-    return { signedTransaction, signatures, transactionId };
+    const { signedTransaction, transactionId } = await this.callSignTransaction(custodialSignEndpoint, signOptions);
+    return { signedTransaction, transactionId };
   }
 
   // OreId does not support signString
@@ -1064,18 +1064,16 @@ export default class OreId {
   // Extracts the response parameters on the /sign callback URL string
   handleSignResponse(callbackUrlString) {
     let signedTransaction;
-    let signatures;
     const params = Helpers.urlParamsToArray(callbackUrlString);
-    const { signed_transaction: encodedTransaction, signatures: encodedSignatures, state, transaction_id: transactionId } = params;
+    const { signed_transaction: encodedTransaction, state, transaction_id: transactionId } = params;
     const errors = this.getErrorCodesFromParams(params);
 
     if (!errors) {
       // Decode base64 parameters
       signedTransaction = Helpers.base64DecodeSafe(encodedTransaction);
-      signatures = Helpers.base64DecodeSafe(encodedSignatures);
     }
     this.setIsBusy(false);
-    return { signedTransaction, signatures, state, transactionId, errors };
+    return { signedTransaction, state, transactionId, errors };
   }
 
   // Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
