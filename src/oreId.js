@@ -289,9 +289,12 @@ export default class OreId {
   }
 
   async callSignTransaction(signEndpoint, signOptions, autoSign = false) {
-    const { account, allowChainAccountSelection, broadcast, chainAccount, chainNetwork, returnSignedTransaction, transaction, userPassword, signOnly, signatures: _signatures } = signOptions;
+    const { account, allowChainAccountSelection, broadcast, chainAccount, chainNetwork, returnSignedTransaction, transaction, userPassword, signatureOnly, signatures: _signatures } = signOptions;
     const encodedTransaction = Helpers.base64Encode(transaction);
-    const encodedSignatures = Helpers.base64Encode(_signatures);
+    let encodedSignatures = {};
+    if (!isNullOrEmpty(_signatures)) {
+      encodedSignatures = Helpers.base64Encode(_signatures);
+    }
     const body = {
       account,
       allow_chain_account_selection: allowChainAccountSelection,
@@ -301,7 +304,7 @@ export default class OreId {
       return_signed_transaction: returnSignedTransaction,
       transaction: encodedTransaction,
       user_password: userPassword,
-      sign_only: signOnly,
+      signature_only: signatureOnly,
       signatures: encodedSignatures
     };
 
@@ -1001,7 +1004,7 @@ export default class OreId {
   // Returns a fully formed url to call the sign endpoint
   // chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin', 'ore_main', 'eos_test', etc.
   async getOreIdSignUrl(signOptions) {
-    const { account, allowChainAccountSelection, broadcast, callbackUrl, chainNetwork, provider, returnSignedTransaction, state, transaction, userPassword } = signOptions;
+    const { account, allowChainAccountSelection, broadcast, callbackUrl, chainNetwork, provider, returnSignedTransaction, state, transaction, userPassword, signatureOnly, signatures } = signOptions;
     let { chainAccount } = signOptions;
     const { oreIdUrl } = this.options;
 
@@ -1016,10 +1019,17 @@ export default class OreId {
 
     const appAccessToken = await this.getAccessToken();
     const encodedTransaction = Helpers.base64Encode(transaction);
+
     let optionalParams = state ? `&state=${state}` : '';
     optionalParams += !isNullOrEmpty(allowChainAccountSelection) ? `&allow_chain_account_selection=${allowChainAccountSelection}` : '';
     optionalParams += !isNullOrEmpty(returnSignedTransaction) ? `&return_signed_transaction=${returnSignedTransaction}` : '';
     optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : '';
+    optionalParams += !isNullOrEmpty(signatureOnly) ? `&signature_only=${signatureOnly}` : '';
+
+    if (!isNullOrEmpty(signatures)) {
+      const encodedSignatures = Helpers.base64Encode(signatures);
+      optionalParams += !isNullOrEmpty(signatures) ? `&signatures=${encodedSignatures}` : '';
+    }
 
     // prettier-ignore
     return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}&transaction=${encodedTransaction}${optionalParams}`;
