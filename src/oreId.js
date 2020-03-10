@@ -268,16 +268,14 @@ export default class OreId {
 
   async checkIfTrxAutoSignable(signOptions) {
     let autoSignCredentialsExist = false;
-    const { account, chainAccount, chainNetwork, transaction } = signOptions;
-    const { contract, action, permission } = Helpers.getTransactionData(transaction);
+    const { account, chainAccount, chainNetwork, transaction, signedTransaction } = signOptions;
 
     const body = {
       account,
       chain_account: chainAccount,
       chain_network: chainNetwork,
-      contract,
-      action,
-      permission
+      transaction: transaction ? Helpers.base64Encode(transaction) : null,
+      signed_transaction: signedTransaction ? Helpers.base64Encode(signedTransaction) : null
     };
 
     try {
@@ -289,7 +287,7 @@ export default class OreId {
   }
 
   async callSignTransaction(signEndpoint, signOptions, autoSign = false) {
-    const { account, allowChainAccountSelection, broadcast, chainAccount, chainNetwork, expireSeconds, returnSignedTransaction, signedTransaction: signedTransactionParam, transactionParam, userPassword, signatureOnly } = signOptions;
+    const { account, allowChainAccountSelection, broadcast, chainAccount, chainNetwork, expireSeconds, returnSignedTransaction, signedTransaction: signedTransactionParam, transaction: transactionParam, userPassword, signatureOnly } = signOptions;
     const body = {
       account,
       broadcast,
