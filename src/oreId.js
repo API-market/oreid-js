@@ -250,7 +250,7 @@ export default class OreId {
   }
 
   async loginWithOreId(loginOptions) {
-    const { code, email, phone, provider, state, linkToAccount } = loginOptions;
+    const { code, email, phone, provider, state, linkToAccount, newAccountPassword } = loginOptions;
     const { authCallbackUrl, backgroundColor } = this.options;
     const args = {
       code,
@@ -260,7 +260,8 @@ export default class OreId {
       backgroundColor,
       callbackUrl: authCallbackUrl,
       state,
-      linkToAccount
+      linkToAccount,
+      newAccountPassword
     };
     const loginUrl = await this.getOreIdAuthUrl(args);
     return { loginUrl, errors: null };
@@ -972,21 +973,21 @@ export default class OreId {
   }
 
   // Gets a single-use token to access the service
-  async getAccessToken() {
-    await this.getNewAppAccessToken(); // call api
+  async getAccessToken({ newAccountPassword }) {
+    await this.getNewAppAccessToken({ newAccountPassword }); // call api
     return this.appAccessToken;
   }
 
   // Returns a fully formed url to call the auth endpoint
   async getOreIdAuthUrl(args) {
-    const { code, email, phone, provider, callbackUrl, backgroundColor, state, linkToAccount } = args;
+    const { code, email, phone, provider, callbackUrl, backgroundColor, state, linkToAccount, newAccountPassword } = args;
     const { oreIdUrl } = this.options;
 
     if (!provider || !callbackUrl) {
       throw new Error('Missing a required parameter');
     }
 
-    const appAccessToken = await this.getAccessToken();
+    const appAccessToken = await this.getAccessToken({ newAccountPassword });
 
     // optional params
     const encodedStateParam = state ? `&state=${state}` : '';
@@ -1075,8 +1076,8 @@ export default class OreId {
   }
 
   // Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
-  async getNewAppAccessToken() {
-    const responseJson = await this.callOreIdApi(requestType.Get, 'app-token');
+  async getNewAppAccessToken({ newAccountPassword }) {
+    const responseJson = await this.callOreIdApi(requestType.Post, 'app-token', { newAccountPassword });
     const { appAccessToken } = responseJson;
     this.appAccessToken = appAccessToken;
   }
