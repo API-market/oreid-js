@@ -973,7 +973,7 @@ export default class OreId {
   }
 
   // Gets a single-use token to access the service
-  async getAccessToken({ newAccountPassword }) {
+  async getAccessToken({ newAccountPassword } = {}) {
     await this.getNewAppAccessToken({ newAccountPassword }); // call api
     return this.appAccessToken;
   }
