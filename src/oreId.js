@@ -250,7 +250,7 @@ export default class OreId {
   }
 
   async loginWithOreId(loginOptions) {
-    const { code, email, phone, provider, state, linkToAccount, newAccountPassword } = loginOptions;
+    const { code, email, phone, provider, state, linkToAccount, newAccountPassword, processId } = loginOptions;
     const { authCallbackUrl, backgroundColor } = this.options;
     const args = {
       code,
@@ -261,7 +261,8 @@ export default class OreId {
       callbackUrl: authCallbackUrl,
       state,
       linkToAccount,
-      newAccountPassword
+      newAccountPassword,
+      processId
     };
     const loginUrl = await this.getOreIdAuthUrl(args);
     return { loginUrl, errors: null };
@@ -973,25 +974,26 @@ export default class OreId {
   }
 
   // Gets a single-use token to access the service
-  async getAccessToken({ newAccountPassword } = {}) {
-    await this.getNewAppAccessToken({ newAccountPassword }); // call api
+  async getAccessToken({ newAccountPassword, processId } = {}) {
+    await this.getNewAppAccessToken({ newAccountPassword, processId }); // call api
     return this.appAccessToken;
   }
 
   // Returns a fully formed url to call the auth endpoint
   async getOreIdAuthUrl(args) {
-    const { code, email, phone, provider, callbackUrl, backgroundColor, state, linkToAccount, newAccountPassword } = args;
+    const { code, email, phone, provider, callbackUrl, backgroundColor, state, linkToAccount, newAccountPassword, processId } = args;
     const { oreIdUrl } = this.options;
 
     if (!provider || !callbackUrl) {
       throw new Error('Missing a required parameter');
     }
 
-    const appAccessToken = await this.getAccessToken({ newAccountPassword });
+    const appAccessToken = await this.getAccessToken({ newAccountPassword, processId });
 
     // optional params
     const encodedStateParam = state ? `&state=${state}` : '';
     const linkToAccountParam = linkToAccount ? `&link_to_account=${linkToAccount}` : '';
+    const processIdParam = processId ? `&process_id=${processId}` : '';
     // handle passwordless params
     const codeParam = code ? `&code=${code}` : '';
     const emailParam = email ? `&email=${email}` : '';
@@ -1007,14 +1009,29 @@ export default class OreId {
     return (
       `${oreIdUrl}/auth#app_access_token=${appAccessToken}&provider=${provider}` +
       `${codeParam}${emailParam}${phoneParam}` +
-      `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(backgroundColor)}${linkToAccountParam}${encodedStateParam}`
+      `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(backgroundColor)}${linkToAccountParam}${encodedStateParam}${processIdParam}`
     );
   }
 
   // Returns a fully formed url to call the sign endpoint
   // chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin', 'ore_main', 'eos_test', etc.
   async getOreIdSignUrl(signOptions) {
-    const { account, allowChainAccountSelection, broadcast, callbackUrl, chainNetwork, expireSeconds, provider, returnSignedTransaction, signatureOnly, signedTransaction, state, transaction, userPassword } = signOptions;
+    const {
+      account,
+      allowChainAccountSelection,
+      broadcast,
+      callbackUrl,
+      chainNetwork,
+      expireSeconds,
+      provider,
+      returnSignedTransaction,
+      signatureOnly,
+      signedTransaction,
+      state,
+      transaction,
+      userPassword,
+      processId
+    } = signOptions;
     let { chainAccount } = signOptions;
     const { oreIdUrl } = this.options;
 
@@ -1038,6 +1055,7 @@ export default class OreId {
     optionalParams += !isNullOrEmpty(returnSignedTransaction) ? `&return_signed_transaction=${returnSignedTransaction}` : '';
     optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : '';
     optionalParams += !isNullOrEmpty(signatureOnly) ? `&signature_only=${signatureOnly}` : '';
+    optionalParams += !isNullOrEmpty(processId) ? `&process_id=${processId}` : '';
 
     // prettier-ignore
     return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}${optionalParams}`;
@@ -1076,8 +1094,8 @@ export default class OreId {
   }
 
   // Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
-  async getNewAppAccessToken({ newAccountPassword }) {
-    const responseJson = await this.callOreIdApi(requestType.Post, 'app-token', { newAccountPassword });
+  async getNewAppAccessToken({ newAccountPassword, processId }) {
+    const responseJson = await this.callOreIdApi(requestType.Post, 'app-token', { newAccountPassword }, processId);
     const { appAccessToken } = responseJson;
     this.appAccessToken = appAccessToken;
   }
@@ -1140,7 +1158,7 @@ export default class OreId {
 
   // Helper function to call api endpoint and inject api-key
   // here params can be query params in case of a GET request or body params in case of POST request
-  async callOreIdApi(requestMethod, endpoint, params = {}) {
+  async callOreIdApi(requestMethod, endpoint, params = {}, processId) {
     let urlString;
     let response;
     let data;
@@ -1150,6 +1168,9 @@ export default class OreId {
     const headers = { 'api-key': apiKey };
     if (serviceKey) {
       headers['service-key'] = serviceKey;
+    }
+    if (processId) {
+      headers['process-id'] = processId;
     }
 
     try {
