@@ -269,6 +269,10 @@ export default class OreId {
   }
 
   async checkIfTrxAutoSignable(signOptions) {
+    const { serviceKey } = this.options;
+    if (!serviceKey) {
+      throw new Error('Missing serviceKey in oreId config options - required to call auto-sign api endpoints.');
+    }
     let autoSignCredentialsExist = false;
     const { account, chainAccount, chainNetwork, transaction, signedTransaction } = signOptions;
 
@@ -280,11 +284,8 @@ export default class OreId {
       signed_transaction: signedTransaction ? Helpers.base64Encode(signedTransaction) : null
     };
 
-    try {
-      ({ autoSignCredentialsExist } = await this.callOreIdApi(requestType.Post, 'transaction/can-auto-sign', body));
-    } catch (error) {
-      autoSignCredentialsExist = false;
-    }
+    ({ autoSignCredentialsExist } = await this.callOreIdApi(requestType.Post, 'transaction/can-auto-sign', body));
+
     return autoSignCredentialsExist;
   }
 
