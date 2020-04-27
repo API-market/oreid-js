@@ -102,7 +102,7 @@ export default class OreId {
   // send code - params: loginType and email|phone)
   // verify code - params: loginType, email|phone, and code to check
   async callPasswordlessApi(options, verify = false) {
-    const { provider, phone, email, code } = options;
+    const { provider, phone, email, code, processId } = options;
     const { apiKey, oreIdUrl } = this.options;
 
     if (!provider || !(phone || email) || (verify && !code)) {
@@ -133,7 +133,7 @@ export default class OreId {
       queryParams.code = code;
     }
 
-    const data = await this.callOreIdApi(requestType.Get, passwordlessEndpoint, queryParams);
+    const data = await this.callOreIdApi(requestType.Get, passwordlessEndpoint, queryParams, processId);
     return data;
   }
 
@@ -249,7 +249,7 @@ export default class OreId {
     return false;
   }
 
-  async loginWithOreId(loginOptions) {
+  async loginWithOreId(loginOptions = {}) {
     const { code, email, phone, provider, state, linkToAccount, newAccountPassword, processId } = loginOptions;
     const { authCallbackUrl, backgroundColor } = this.options;
     const args = {
@@ -274,7 +274,7 @@ export default class OreId {
       throw new Error('Missing serviceKey in oreId config options - required to call auto-sign api endpoints.');
     }
     let autoSignCredentialsExist = false;
-    const { account, chainAccount, chainNetwork, transaction, signedTransaction } = signOptions;
+    const { account, chainAccount, chainNetwork, processId, transaction, signedTransaction } = signOptions;
 
     const body = {
       account,
@@ -284,13 +284,13 @@ export default class OreId {
       signed_transaction: signedTransaction ? Helpers.base64Encode(signedTransaction) : null
     };
 
-    ({ autoSignCredentialsExist } = await this.callOreIdApi(requestType.Post, 'transaction/can-auto-sign', body));
+    ({ autoSignCredentialsExist } = await this.callOreIdApi(requestType.Post, 'transaction/can-auto-sign', body, processId));
 
     return autoSignCredentialsExist;
   }
 
-  async callSignTransaction(signEndpoint, signOptions, autoSign = false) {
-    const { account, allowChainAccountSelection, broadcast, chainAccount, chainNetwork, expireSeconds, returnSignedTransaction, signedTransaction: signedTransactionParam, transaction: transactionParam, userPassword, signatureOnly } = signOptions;
+  async callSignTransaction(signEndpoint, signOptions = {}, autoSign = false) {
+    const { account, allowChainAccountSelection, broadcast, chainAccount, chainNetwork, expireSeconds, returnSignedTransaction, processId, signedTransaction: signedTransactionParam, transaction: transactionParam, userPassword, signatureOnly } = signOptions;
     const body = {
       account,
       broadcast,
@@ -328,7 +328,7 @@ export default class OreId {
       body.user_password = userPassword;
     }
 
-    const { signed_transaction: signedTransaction, transaction_id: transactionId } = await this.callOreIdApi(requestType.Post, signEndpoint, body);
+    const { signed_transaction: signedTransaction, transaction_id: transactionId } = await this.callOreIdApi(requestType.Post, signEndpoint, body, processId);
 
     return { signedTransaction, transactionId };
   }
@@ -339,7 +339,7 @@ export default class OreId {
     return { signedTransaction, transactionId };
   }
 
-  async signWithOreId(signOptions) {
+  async signWithOreId(signOptions = {}) {
     const autoSign = await this.checkIfTrxAutoSignable(signOptions);
     // auto sign defaults to true if the transaction is auto signable. Developer can opt out by setting preventAutoSign to true
     const { preventAutoSign = false } = signOptions;
@@ -355,7 +355,7 @@ export default class OreId {
     return { signUrl, errors: null };
   }
 
-  async custodialSignWithOreId(signOptions) {
+  async custodialSignWithOreId(signOptions = {}) {
     const { serviceKey } = this.options;
     if (!serviceKey) {
       throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/new-user.');
@@ -507,14 +507,14 @@ export default class OreId {
   // this requires you to provide a wallet password (aka userPassword) on behalf of the user
   async custodialNewAccount(accountOptions) {
     const { serviceKey } = this.options;
-    const { accountType, email, name, picture, phone, userName, userPassword } = accountOptions;
+    const { accountType, email, name, picture, phone, userName, userPassword, processId } = accountOptions;
     const body = { account_type: accountType, email, name, picture, phone, user_name: userName, user_password: userPassword };
     if (!serviceKey) {
       throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/new-user.');
     }
 
     const custodialNewAccountEndpoint = 'custodial/new-user';
-    const data = await this.callOreIdApi(requestType.Post, custodialNewAccountEndpoint, body);
+    const data = await this.callOreIdApi(requestType.Post, custodialNewAccountEndpoint, body, processId);
 
     return data;
   }
@@ -529,11 +529,11 @@ export default class OreId {
       throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/migrate-account.');
     }
 
-    const { account, chainAccount, chainNetwork, toType, userPassword } = migrateOptions;
+    const { account, chainAccount, chainNetwork, processId, toType, userPassword } = migrateOptions;
     const body = { account, chain_account: chainAccount, chain_network: chainNetwork, to_type: toType, user_password: userPassword };
 
     const custodialMigrateEndpoint = 'custodial/migrate-account';
-    const { account: newAccount } = await this.callOreIdApi(requestType.Post, custodialMigrateEndpoint, body);
+    const { account: newAccount } = await this.callOreIdApi(requestType.Post, custodialMigrateEndpoint, body, processId);
 
     return { account: newAccount };
   }
@@ -946,7 +946,7 @@ export default class OreId {
 
   // load user from local storage and call api
   // to get latest info, pass refresh = true
-  async getUser(accountName = null, refresh = false) {
+  async getUser(accountName = null, refresh = false, processId = null) {
     // return the cached user if we have it and matches the accountName
     if (!refresh) {
       const cachedUser = this.localState.user();
@@ -963,15 +963,15 @@ export default class OreId {
 
     // stores user in the local state, we must await for return below to work
     // this function does nothing if accoutName is null
-    await this.getUserInfoFromApi(accountName);
+    await this.getUserInfoFromApi(accountName, processId);
 
     return this.localState.user();
   }
 
   // Loads settings value from the server
   // e.g. configType='chains' returns valid chain types and addresses
-  async getConfig(configType) {
-    return this.getConfigFromApi(configType);
+  async getConfig(configType, processId = null) {
+    return this.getConfigFromApi(configType, processId);
   }
 
   // Gets a single-use token to access the service
@@ -995,6 +995,7 @@ export default class OreId {
     const encodedStateParam = state ? `&state=${state}` : '';
     const linkToAccountParam = linkToAccount ? `&link_to_account=${linkToAccount}` : '';
     const processIdParam = processId ? `&process_id=${processId}` : '';
+
     // handle passwordless params
     const codeParam = code ? `&code=${code}` : '';
     const emailParam = email ? `&email=${email}` : '';
@@ -1024,14 +1025,14 @@ export default class OreId {
       callbackUrl,
       chainNetwork,
       expireSeconds,
+      processId,
       provider,
       returnSignedTransaction,
       signatureOnly,
       signedTransaction,
       state,
       transaction,
-      userPassword,
-      processId
+      userPassword
     } = signOptions;
     let { chainAccount } = signOptions;
     const { oreIdUrl } = this.options;
@@ -1045,7 +1046,7 @@ export default class OreId {
       chainAccount = account;
     }
 
-    const appAccessToken = await this.getAccessToken();
+    const appAccessToken = await this.getAccessToken({ processId });
     const encodedTransaction = Helpers.base64Encode(transaction);
     const encodedSignedTransaction = Helpers.base64Encode(signedTransaction);
     let optionalParams = state ? `&state=${state}` : '';
@@ -1068,12 +1069,13 @@ export default class OreId {
     // (if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
     // NOTE: accessToken and idToken are not usually returned from the ORE ID service - they are included here for future support
     const params = Helpers.urlParamsToArray(callbackUrlString);
-    const { accessToken, account, idToken, state } = params;
+    const { accessToken, account, idToken, process_id: processId, state } = params;
     const errors = this.getErrorCodesFromParams(params);
     const response = { account };
     if (accessToken) response.accessToken = accessToken;
     if (idToken) response.idToken = idToken;
     if (errors) response.errors = errors;
+    if (processId) response.processId = processId;
     if (state) response.state = state;
     this.setIsBusy(false);
     return response;
@@ -1083,7 +1085,7 @@ export default class OreId {
   handleSignResponse(callbackUrlString) {
     let signedTransaction;
     const params = Helpers.urlParamsToArray(callbackUrlString);
-    const { signed_transaction: encodedTransaction, state, transaction_id: transactionId } = params;
+    const { signed_transaction: encodedTransaction, process_id: processId, state, transaction_id: transactionId } = params;
     const errors = this.getErrorCodesFromParams(params);
 
     if (!errors) {
@@ -1091,7 +1093,7 @@ export default class OreId {
       signedTransaction = Helpers.base64DecodeSafe(encodedTransaction);
     }
     this.setIsBusy(false);
-    return { signedTransaction, state, transactionId, errors };
+    return { signedTransaction, processId, state, transactionId, errors };
   }
 
   // Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
@@ -1102,10 +1104,10 @@ export default class OreId {
   }
 
   // Get the user info from ORE ID for the given user account
-  async getUserInfoFromApi(account) {
+  async getUserInfoFromApi(account, processId = null) {
     if (!isNullOrEmpty(account)) {
       const queryParams = { account };
-      const userInfo = await this.callOreIdApi(requestType.Get, 'account/user', queryParams);
+      const userInfo = await this.callOreIdApi(requestType.Get, 'account/user', queryParams, processId);
       this.localState.saveUser(userInfo);
 
       return userInfo;
@@ -1115,12 +1117,12 @@ export default class OreId {
   }
 
   // Get the config (setting) values of a specific type
-  async getConfigFromApi(configType) {
+  async getConfigFromApi(configType, processId = null) {
     if (!configType) {
       throw new Error('Missing a required parameter: configType');
     }
     const queryParams = { type: configType };
-    const { values } = await this.callOreIdApi(requestType.Get, 'services/config', queryParams) || {};
+    const { values } = await this.callOreIdApi(requestType.Get, 'services/config', queryParams, processId) || {};
     if (Helpers.isNullOrEmpty(values)) {
       throw new Error(`Not able to retrieve config values for ${configType}`);
     }
@@ -1132,7 +1134,7 @@ export default class OreId {
   // This feature allows your app to hold private keys locally (for certain actions enabled by the permission) while having the associated public key in the user's account
   // chainAccount = name of the account on the chain - 12/13-digit string on EOS and Ethereum Address on ETH - it may be the same as the account
   // chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin", 'ore_main', 'eos_test', etc.
-  async addPermission(account, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider) {
+  async addPermission(account, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider, processId = null) {
     const optionalParams = {};
 
     if (provider) {
@@ -1154,12 +1156,13 @@ export default class OreId {
 
     // if failed, error will be thrown
     // TODO: make this a post request on the api
-    await this.callOreIdApi(requestType.Get, 'account/add-permission', queryParams);
+    await this.callOreIdApi(requestType.Get, 'account/add-permission', queryParams, processId);
   }
 
   // Helper function to call api endpoint and inject api-key
   // here params can be query params in case of a GET request or body params in case of POST request
-  async callOreIdApi(requestMethod, endpoint, params = {}, processId) {
+  // processId (optional) - can be used to associate multiple calls together into a single process flow
+  async callOreIdApi(requestMethod, endpoint, params = {}, processId = null) {
     let urlString;
     let response;
     let data;
@@ -1167,10 +1170,10 @@ export default class OreId {
     const url = `${oreIdUrl}/api/${endpoint}`;
 
     const headers = { 'api-key': apiKey };
-    if (serviceKey) {
+    if (!isNullOrEmpty(serviceKey)) {
       headers['service-key'] = serviceKey;
     }
-    if (processId) {
+    if (!isNullOrEmpty(processId)) {
       headers['process-id'] = processId;
     }
 
@@ -1271,5 +1274,9 @@ export default class OreId {
     if (type.toLowerCase() === PROVIDER_TYPE.ual) {
       return ualProviderAttributes[provider];
     }
+  }
+
+  generateProcessId() {
+    return Helpers.createGuid();
   }
 }
