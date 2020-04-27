@@ -1044,7 +1044,7 @@ export default class OreId {
       chainAccount = account;
     }
 
-    const appAccessToken = await this.getAccessToken();
+    const appAccessToken = await this.getAccessToken({ processId });
     const encodedTransaction = Helpers.base64Encode(transaction);
     const encodedSignedTransaction = Helpers.base64Encode(signedTransaction);
     let optionalParams = state ? `&state=${state}` : '';
