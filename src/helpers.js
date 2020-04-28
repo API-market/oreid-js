@@ -2,6 +2,7 @@
     helper functions
  */
 import jwtdecode from 'jwt-decode';
+import { v4 as uuidv4 } from 'uuid';
 
 const Base64 = require('js-base64').Base64;
 
@@ -173,5 +174,9 @@ export default class Helpers {
       transactionDetails.data = transaction.data;
     }
     return transactionDetails;
+  }
+
+  static createGuid() {
+    return uuidv4();
   }
 }

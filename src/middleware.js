@@ -25,7 +25,7 @@ export function authCallbackHandler(oreId) {
     oreId.errors = null;
 
     const response = oreId.handleAuthResponse(req.originalUrl);
-    const { accessToken, account, errors, idToken, state } = response;
+    const { accessToken, account, errors, idToken, processId, state } = response;
 
     if (errors) {
       oreId.errors = errors;
@@ -35,13 +35,14 @@ export function authCallbackHandler(oreId) {
 
     // Add data to request object
     req.appId = oreId.appId;
-    if (accessToken) req.accessToken = accessToken;
-    if (idToken) req.idToken = idToken;
-    if (state) req.state = state;
+    if (accessToken) { req.accessToken = accessToken; }
+    if (idToken) { req.idToken = idToken; }
+    if (processId) { req.processId = processId; }
+    if (state) { req.state = state; }
 
     // attach user data to request object
     if (account) {
-      const user = await oreId.getUserInfoFromApi(account); // get user from server and also save in local cookie (or state)
+      const user = await oreId.getUserInfoFromApi(account, processId); // get user from server and also save in local cookie (or state)
       req.user = user;
     }
 
@@ -61,7 +62,7 @@ export function signCallbackHandler(oreId) {
     }
 
     oreId.errors = null;
-    const { signedTransaction, state, transactionId, errors } = oreId.handleSignResponse(body);
+    const { signedTransaction, state, processId, transactionId, errors } = oreId.handleSignResponse(body);
 
     if (errors) {
       oreId.errors = errors;
@@ -69,17 +70,17 @@ export function signCallbackHandler(oreId) {
       return next(error);
     }
 
+    if (processId) { req.processId = processId; }
+
     if (signedTransaction) {
       req.signedTransaction = signedTransaction;
       req.appId = oreId.appId;
     }
 
-    if (transactionId) req.transactionId = transactionId;
+    if (transactionId) { req.transactionId = transactionId; }
 
     // Add state to request object
-    if (state) {
-      req.state = state;
-    }
+    if (state) { req.state = state; }
 
     return next();
   });
