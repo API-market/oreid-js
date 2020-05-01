@@ -340,11 +340,19 @@ export default class OreId {
   }
 
   async signWithOreId(signOptions = {}) {
-    const autoSign = await this.checkIfTrxAutoSignable(signOptions);
+    let canAutoSign = false;
+
+    try {
+      canAutoSign = await this.checkIfTrxAutoSignable(signOptions);
+    } catch (error) {
+      // do nothing - this will leave canAutoSign = false
+      // checkIfTrxAutoSignable will throw if a serviceKey isn't provided - most callers won't have a serviceKey and cant autosign
+    }
+
     // auto sign defaults to true if the transaction is auto signable. Developer can opt out by setting preventAutoSign to true
     const { preventAutoSign = false } = signOptions;
 
-    if (autoSign && !preventAutoSign) {
+    if (canAutoSign && !preventAutoSign) {
       const { signedTransaction, transactionId } = await this.autoSignTransaction(signOptions);
       return { signedTransaction, transactionId };
     }
