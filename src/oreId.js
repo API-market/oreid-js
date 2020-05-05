@@ -274,6 +274,7 @@ export default class OreId {
       throw new Error('Missing serviceKey in oreId config options - required to call auto-sign api endpoints.');
     }
     let autoSignCredentialsExist = false;
+    let processIdReturned = null;
     const { account, chainAccount, chainNetwork, processId, transaction, signedTransaction } = signOptions;
 
     const body = {
@@ -284,7 +285,7 @@ export default class OreId {
       signed_transaction: signedTransaction ? Helpers.base64Encode(signedTransaction) : null
     };
 
-    ({ autoSignCredentialsExist } = await this.callOreIdApi(requestType.Post, 'transaction/can-auto-sign', body, processId));
+    ({ autoSignCredentialsExist, process_id: processIdReturned } = await this.callOreIdApi(requestType.Post, 'transaction/can-auto-sign', body, processId));
 
     return autoSignCredentialsExist;
   }
@@ -328,15 +329,15 @@ export default class OreId {
       body.user_password = userPassword;
     }
 
-    const { signed_transaction: signedTransaction, transaction_id: transactionId } = await this.callOreIdApi(requestType.Post, signEndpoint, body, processId);
+    const { signed_transaction: signedTransaction, transaction_id: transactionId, process_id: processIdReturned } = await this.callOreIdApi(requestType.Post, signEndpoint, body, processId);
 
-    return { signedTransaction, transactionId };
+    return { processId: processIdReturned, signedTransaction, transactionId };
   }
 
   async autoSignTransaction(signOptions) {
     const signEndpoint = 'transaction/sign';
-    const { signedTransaction, transactionId } = await this.callSignTransaction(signEndpoint, signOptions, true);
-    return { signedTransaction, transactionId };
+    const { processId, signedTransaction, transactionId } = await this.callSignTransaction(signEndpoint, signOptions, true);
+    return { processId, signedTransaction, transactionId };
   }
 
   async signWithOreId(signOptions = {}) {
@@ -353,8 +354,8 @@ export default class OreId {
     const { preventAutoSign = false } = signOptions;
 
     if (canAutoSign && !preventAutoSign) {
-      const { signedTransaction, transactionId } = await this.autoSignTransaction(signOptions);
-      return { signedTransaction, transactionId };
+      const { processId, signedTransaction, transactionId } = await this.autoSignTransaction(signOptions);
+      return { processId, signedTransaction, transactionId };
     }
 
     const { signCallbackUrl } = this.options;
@@ -370,8 +371,8 @@ export default class OreId {
     }
 
     const custodialSignEndpoint = 'custodial/sign';
-    const { signedTransaction, transactionId } = await this.callSignTransaction(custodialSignEndpoint, signOptions);
-    return { signedTransaction, transactionId };
+    const { processId, signedTransaction, transactionId } = await this.callSignTransaction(custodialSignEndpoint, signOptions);
+    return { processId, signedTransaction, transactionId };
   }
 
   // OreId does not support signString
@@ -541,9 +542,9 @@ export default class OreId {
     const body = { account, chain_account: chainAccount, chain_network: chainNetwork, to_type: toType, user_password: userPassword };
 
     const custodialMigrateEndpoint = 'custodial/migrate-account';
-    const { account: newAccount } = await this.callOreIdApi(requestType.Post, custodialMigrateEndpoint, body, processId);
+    const { account: newAccount, process_id: processIdReturned } = await this.callOreIdApi(requestType.Post, custodialMigrateEndpoint, body, processId);
 
-    return { account: newAccount };
+    return { account: newAccount, processId: processIdReturned };
   }
 
   async loginWithNonOreIdProvider(loginOptions) {
@@ -911,7 +912,8 @@ export default class OreId {
       if (skipThisPermission !== true) {
         // let publicKey = p.required_auth.keys[0].key; //TODO: Handle multiple keys and weights
         const publicKey = p.publicKey;
-        await this.addPermission(oreAccount, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider);
+        // if call is successful, nothing is returned in response (except processId)
+        const response = await this.addPermission(oreAccount, chainAccount, chainNetwork, publicKey, parentPermission, permission, provider);
       }
     });
 
@@ -1106,8 +1108,8 @@ export default class OreId {
 
   // Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
   async getNewAppAccessToken({ newAccountPassword, processId }) {
-    const responseJson = await this.callOreIdApi(requestType.Post, 'app-token', { newAccountPassword }, processId);
-    const { appAccessToken } = responseJson;
+    const response = await this.callOreIdApi(requestType.Post, 'app-token', { newAccountPassword }, processId);
+    const { appAccessToken, processId: processIdReturned } = response;
     this.appAccessToken = appAccessToken;
   }
 
@@ -1115,10 +1117,10 @@ export default class OreId {
   async getUserInfoFromApi(account, processId = null) {
     if (!isNullOrEmpty(account)) {
       const queryParams = { account };
-      const userInfo = await this.callOreIdApi(requestType.Get, 'account/user', queryParams, processId);
-      this.localState.saveUser(userInfo);
-
-      return userInfo;
+      const response = await this.callOreIdApi(requestType.Get, 'account/user', queryParams, processId);
+      const { data, processId: processIdReturned } = this.extractProcessIdFromData(response);
+      this.localState.saveUser(data);
+      return data;
     }
 
     return null;
@@ -1130,7 +1132,7 @@ export default class OreId {
       throw new Error('Missing a required parameter: configType');
     }
     const queryParams = { type: configType };
-    const { values } = await this.callOreIdApi(requestType.Get, 'services/config', queryParams, processId) || {};
+    const { values, processId: processIdReturned } = await this.callOreIdApi(requestType.Get, 'services/config', queryParams, processId) || {};
     if (Helpers.isNullOrEmpty(values)) {
       throw new Error(`Not able to retrieve config values for ${configType}`);
     }
@@ -1164,7 +1166,8 @@ export default class OreId {
 
     // if failed, error will be thrown
     // TODO: make this a post request on the api
-    await this.callOreIdApi(requestType.Get, 'account/add-permission', queryParams, processId);
+    const response = await this.callOreIdApi(requestType.Get, 'account/add-permission', queryParams, processId);
+    return response;
   }
 
   // Helper function to call api endpoint and inject api-key
@@ -1285,6 +1288,19 @@ export default class OreId {
   }
 
   generateProcessId() {
-    return Helpers.createGuid();
+    const guid = Helpers.createGuid();
+    // get the last 12 digits
+    const processId = guid.slice(-12);
+    return processId;
+  }
+
+  /** remove processId from data */
+  extractProcessIdFromData(data) {
+    let processId;
+    if (data.processId) {
+      processId = data.processId;
+      delete data.processId;
+    }
+    return { data, processId };
   }
 }
