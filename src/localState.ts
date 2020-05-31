@@ -1,21 +1,28 @@
 import Helpers from './helpers'
 import StorageHandler from './storage'
+import { OreIdOptions, User } from './types'
 
 // avoid Helpers.isNullOrEmpty, use isNullOrEmpty()
 const { isNullOrEmpty } = Helpers
 
 export default class LocalState {
-  constructor(options) {
+  constructor(options: OreIdOptions) {
     this.options = options
     this.cachedUser = null
     this.storage = new StorageHandler()
   }
 
+  options: OreIdOptions
+
+  storage: StorageHandler
+
+  cachedUser: User
+
   userKey() {
     return `oreid.${this.options.appId}.user`
   }
 
-  saveUser(user) {
+  saveUser(user: User) {
     this.cachedUser = user
 
     if (!isNullOrEmpty(this.cachedUser)) {
