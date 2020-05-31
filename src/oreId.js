@@ -187,23 +187,21 @@ export default class OreId {
     const { provider } = signOptions
 
     if (providersNotImplemented.includes(provider)) {
-      return
+      return null
     }
 
     if (this.isCustodial(provider)) {
-      this.custodialSignWithOreId(signOptions)
-      return
+      return this.custodialSignWithOreId(signOptions)
     }
 
     if (this.isUALProvider(provider) || this.isTransitProvider(provider)) {
       // this flag is added to test external signing with the PIN window in OreId service
       if (!signOptions.signExternalWithOreId) {
-        this.signWithNonOreIdProvider(signOptions)
-        return
+        return this.signWithNonOreIdProvider(signOptions)
       }
     }
 
-    this.signWithOreId(signOptions)
+    return this.signWithOreId(signOptions)
   }
 
   // connect to wallet and discover keys
