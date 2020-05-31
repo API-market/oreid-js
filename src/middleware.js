@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 /*
     Usage Example:
     import {asyncHandler, authCallbackHandler, signCallbackHandler} from './middleware';
@@ -11,6 +10,8 @@
     Process the response from the /auth endpoint
     attach user to HTTP request
 */
+
+/* eslint-disable no-param-reassign */
 // Generic async handler for Express Middleware
 export const asyncHandler = fn => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next)

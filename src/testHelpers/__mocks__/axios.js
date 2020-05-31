@@ -1,4 +1,4 @@
-import demoChainNetworks from './chainNetworks.json';
+import demoChainNetworks from './chainNetworks.json'
 
 // If we want full integration tests we can erase this file and make a real
 // API call everytime the tests are run.
@@ -10,21 +10,22 @@ const axios = {
         return {
           data: {
             values: {
-              chains: demoChainNetworks
-            }
-          }
-        };
+              chains: demoChainNetworks,
+            },
+          },
+        }
       }
 
       if (url.includes('app-token')) {
         return {
           data: {
-            appAccessToken: '12345667'
-          }
-        };
+            appAccessToken: '12345667',
+          },
+        }
       }
     }
-  })
-};
+    return null
+  }),
+}
 
-export default axios;
+export default axios
