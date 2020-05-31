@@ -13,7 +13,7 @@ import Cookie from 'js-cookie'
 import Helpers from './helpers'
 
 class CookieStorage {
-  getItem(key: string) {
+  getItem(key: string): string {
     return Cookie.get(key)
   }
 
@@ -56,7 +56,7 @@ class LocalStorage {
     }
   }
 
-  setItem(key: string, value: string) {
+  setItem(key: string, value: string, options?: any) {
     if (this.storage) {
       this.storage.setItem(key, value)
     }
@@ -72,7 +72,7 @@ class DummyStorage {
     // empty
   }
 
-  setItem(key: any, value: any, options: any) {
+  setItem(key: any, value: any, options?: any) {
     // empty
   }
 }
@@ -156,7 +156,7 @@ class StorageHandler {
     }
   }
 
-  ssetItem(key: any, value: any, options: any): string | void {
+  setItem(key: any, value: string | object, options?: any): string | void {
     try {
       return this.storage.setItem(key, value, options)
     } catch (e) {
