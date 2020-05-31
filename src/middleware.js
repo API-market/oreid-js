@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /*
     Usage Example:
     import {asyncHandler, authCallbackHandler, signCallbackHandler} from './middleware';
@@ -11,48 +12,56 @@
     attach user to HTTP request
 */
 // Generic async handler for Express Middleware
-export const asyncHandler = (fn) => (req, res, next) => {
-  Promise.resolve(fn(req, res, next)).catch(next);
-};
+export const asyncHandler = fn => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next)
+}
 
 export function authCallbackHandler(oreId) {
   return asyncHandler(async (req, res, next) => {
-    const { query } = req;
+    const { query } = req
     if (!query) {
-      return {};
+      return {}
     }
 
-    oreId.errors = null;
+    oreId.errors = null
 
-    const response = oreId.handleAuthResponse(req.originalUrl);
-    const { accessToken, account, errors, idToken, processId, state } = response;
+    const response = oreId.handleAuthResponse(req.originalUrl)
+    const { accessToken, account, errors, idToken, processId, state } = response
 
     if (errors) {
-      oreId.errors = errors;
-      const error = new Error(`Errors Processing auth callback: ${errors.join(', ')}`);
-      return next(error);
+      oreId.errors = errors
+      const error = new Error(`Errors Processing auth callback: ${errors.join(', ')}`)
+      return next(error)
     }
 
     // Add data to request object
-    req.appId = oreId.appId;
-    if (accessToken) { req.accessToken = accessToken; }
-    if (idToken) { req.idToken = idToken; }
-    if (processId) { req.processId = processId; }
-    if (state) { req.state = state; }
+    req.appId = oreId.appId
+    if (accessToken) {
+      req.accessToken = accessToken
+    }
+    if (idToken) {
+      req.idToken = idToken
+    }
+    if (processId) {
+      req.processId = processId
+    }
+    if (state) {
+      req.state = state
+    }
 
     // attach user data to request object
     if (account) {
-      const user = await oreId.getUserInfoFromApi(account, processId); // get user from server and also save in local cookie (or state)
+      const user = await oreId.getUserInfoFromApi(account, processId) // get user from server and also save in local cookie (or state)
       // remove processId from user results and attach to request object instead
       if (user.processId) {
-        req.processId = user.processId;
-        delete user.processId;
+        req.processId = user.processId
+        delete user.processId
       }
-      req.user = user;
+      req.user = user
     }
 
-    return next();
-  });
+    return next()
+  })
 }
 
 /*
@@ -61,32 +70,38 @@ export function authCallbackHandler(oreId) {
 */
 export function signCallbackHandler(oreId) {
   return asyncHandler(async (req, res, next) => {
-    const { body } = req;
+    const { body } = req
     if (!body) {
-      return {};
+      return {}
     }
 
-    oreId.errors = null;
-    const { signedTransaction, state, processId, transactionId, errors } = oreId.handleSignResponse(body);
+    oreId.errors = null
+    const { signedTransaction, state, processId, transactionId, errors } = oreId.handleSignResponse(body)
 
     if (errors) {
-      oreId.errors = errors;
-      const error = new Error(`Errors Processing sign callback: ${errors.join(', ')}`);
-      return next(error);
+      oreId.errors = errors
+      const error = new Error(`Errors Processing sign callback: ${errors.join(', ')}`)
+      return next(error)
     }
 
-    if (processId) { req.processId = processId; }
+    if (processId) {
+      req.processId = processId
+    }
 
     if (signedTransaction) {
-      req.signedTransaction = signedTransaction;
-      req.appId = oreId.appId;
+      req.signedTransaction = signedTransaction
+      req.appId = oreId.appId
     }
 
-    if (transactionId) { req.transactionId = transactionId; }
+    if (transactionId) {
+      req.transactionId = transactionId
+    }
 
     // Add state to request object
-    if (state) { req.state = state; }
+    if (state) {
+      req.state = state
+    }
 
-    return next();
-  });
+    return next()
+  })
 }
