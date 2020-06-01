@@ -1,7 +1,7 @@
+/* eslint-disable jest/no-mocks-import */
 import OreId from './oreId'
-
 import demoChainNetworks from './testHelpers/__mocks__/chainNetworks.json'
-import { OreIdOptions } from './types'
+import { OreIdOptions, AuthProvider } from './types'
 
 describe('OreId', () => {
   let oreId: OreId
@@ -23,7 +23,7 @@ describe('OreId', () => {
  --> Missing required parameter - apiKey. You can get an apiKey when you register your app with ORE ID.
  --> Missing required parameter - oreIdUrl. Refer to the docs to get this value.`
       expect(() => {
-        oreId = new OreId({})
+        oreId = new OreId(null)
       }).toThrow(Error(error))
     })
 
@@ -72,7 +72,7 @@ describe('OreId', () => {
       code: '12345',
       email: 'test@test.com',
       phone: '+1555555555',
-      provider: 'google',
+      provider: AuthProvider.Google,
       state: 'CA',
     }
 
@@ -84,7 +84,7 @@ describe('OreId', () => {
       try {
         await oreId.login({
           ...loginOptions,
-          provider: '',
+          provider: null,
         })
       } catch (error) {
         expect(error.message).toBe('Missing a required parameter')
@@ -95,7 +95,7 @@ describe('OreId', () => {
       try {
         await oreId.login({
           ...loginOptions,
-          provider: 'metro',
+          provider: null,
         })
       } catch (error) {
         expect(error.message).toBe('Not Implemented')
