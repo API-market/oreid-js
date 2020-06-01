@@ -1,11 +1,4 @@
-import {
-  WalletProvider,
-  MakeWalletProviderFn,
-  WalletAccessContext,
-  Wallet,
-  DiscoveryOptions,
-  AccountInfo,
-} from 'eos-transit/lib'
+import { WalletProvider, MakeWalletProviderFn, WalletAccessContext, Wallet, DiscoveryOptions } from 'eos-transit/lib'
 
 /** Raw data extracted from OAuth IDToken */
 export type IdToken = {
@@ -56,13 +49,15 @@ export type PublicKey = string
 export type PermissionName = string
 export type Color = string
 
-// TODO: type this. Likley should be Authenticator from EOSIO universal-authenticator-library
+// Transit
+
 export type TransitWalletProviderFactory = MakeWalletProviderFn
 export type TransitWalletProvider = WalletProvider
 export type TransitWalletAccessContext = WalletAccessContext
 export type TransitWallet = Wallet
 export type TransitDiscoveryOptions = DiscoveryOptions
-export type TransitAccountInfo = AccountInfo
+// Not sure what this type is - perhaps what is returned from the wallet after login?
+export type TransitAccountInfo = any
 
 export type TransitProviderIds =
   | 'ledger'
@@ -91,6 +86,8 @@ export type TransitProviderAttributes = {
   }
 }
 
+// UAL
+
 export type UalProviderAttributes = {
   requiresLogin: boolean
   supportsSignArbitrary: boolean
@@ -102,7 +99,10 @@ export type UalProviderAttributes = {
   }
 }
 
+// TODO: type this. Likley should be Authenticator from EOSIO universal-authenticator-library
 export type UalProvider = any
+
+// ORE ID Types
 
 export type User = {
   accountName: AccountName
@@ -217,6 +217,8 @@ export type SettingChainNetwork = {
   dfuseNetwork?: string
 }
 
+// oreid-js
+
 export type LoginOptions = {
   provider: AuthProvider
   chainAccount?: ChainAccount
@@ -235,11 +237,6 @@ export type DiscoverOptions = {
   chainNetwork?: ChainNetwork
   oreAccount?: ChainAccount
   discoveryPathIndexList?: number[]
-}
-
-export type GetOreIdAuthUrlParams = LoginOptions & {
-  callbackUrl: string
-  backgroundColor: string
 }
 
 export type SignOptions = {
@@ -262,7 +259,41 @@ export type SignOptions = {
   signExternalWithOreId?: boolean
 }
 
+export type AuthResponse = {
+  account: AccountName
+  accessToken?: string
+  idToken?: string
+  errors?: string[]
+  processId?: ProcessId
+  state?: string
+}
+
+export type SignResponse = {
+  signedTransaction?: string
+  transactionId: string
+  errors?: string[]
+  processId?: ProcessId
+  state?: string
+}
+
 // API params
+
+export type CustodialMigrateAccountParams = {
+  account: AccountName
+  chainAccount: ChainAccount
+  chainNetwork: ChainNetwork
+  processId: ProcessId
+  toType: AccountType
+  userPassword: string
+}
+
+export type CustodialMigrateAccountApiBodyParams = {
+  account: AccountName
+  chain_account: ChainAccount
+  chain_network: ChainNetwork
+  to_type: AccountType
+  user_password: string
+}
 
 export type CustodialNewAccountParams = {
   accountType: AccountType
@@ -285,21 +316,14 @@ export type CustodialNewAccountApiBodyParams = {
   user_password?: string
 }
 
-export type CustodialMigrateAccountParams = {
-  account: AccountName
-  chainAccount: ChainAccount
-  chainNetwork: ChainNetwork
-  processId: ProcessId
-  toType: AccountType
-  userPassword: string
+export type GetAccessTokenParams = {
+  newAccountPassword?: string
+  processId?: ProcessId
 }
 
-export type CustodialMigrateAccountApiBodyParams = {
-  account: AccountName
-  chain_account: ChainAccount
-  chain_network: ChainNetwork
-  to_type: AccountType
-  user_password: string
+export type GetNewAppAccessTokenParams = {
+  newAccountPassword: string
+  processId: ProcessId
 }
 
 export type PasswordlessApiParams = {
@@ -325,34 +349,20 @@ export type SignTransactionApiBodyParams = {
   user_password?: string
 }
 
-export type SignArbitraryParams = {
+export type SignWithOreIdReturn = {
+  processId?: ProcessId
+  signedTransaction?: string
+  transactionId?: string
+  signUrl?: string
+  errors?: string
+}
+
+export type SignStringParams = {
   provider: AuthProvider
   chainAccount?: ChainAccount
   chainNetwork: ChainNetwork
   string: string
   message: string
-}
-
-export type GetNewAppAccessTokenParams = {
-  newAccountPassword: string
-  processId: ProcessId
-}
-
-export type AuthResponse = {
-  account: AccountName
-  accessToken?: string
-  idToken?: string
-  errors?: string[]
-  processId?: ProcessId
-  state?: string
-}
-
-export type SignResponse = {
-  signedTransaction?: string
-  transactionId: string
-  errors?: string[]
-  processId?: ProcessId
-  state?: string
 }
 
 export enum RequestType {
@@ -399,20 +409,12 @@ export type ConnectToUalProviderParams = {
   provider: AuthProvider
 }
 
+export type GetOreIdAuthUrlParams = LoginOptions & {
+  callbackUrl: string
+  backgroundColor: string
+}
+
 export type SetupTransitWalletParams = {
   chainNetwork?: ChainNetwork
   provider: AuthProvider
-}
-
-export type GetAccessTokenParams = {
-  newAccountPassword?: string
-  processId?: ProcessId
-}
-
-export type SignWithOreIdReturn = {
-  processId?: ProcessId
-  signedTransaction?: string
-  transactionId?: string
-  signUrl?: string
-  errors?: string
 }
