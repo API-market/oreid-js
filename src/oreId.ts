@@ -32,7 +32,7 @@ import {
   SignTransactionApiBodyParams,
   TransitProviderAttributes,
   AuthProvider,
-  SignArbitraryParams,
+  SignStringParams,
   TransitWallet,
   AccountName,
   PermissionName,
@@ -450,15 +450,15 @@ export default class OreId {
   }
 
   // OreId does not support signString
-  async signString(signOptions: SignArbitraryParams) {
+  async signString(signOptions: SignStringParams) {
     const { provider } = signOptions
     if (!this.canSignString(provider)) {
       throw Error(`The specific provider ${provider} does not support signString`)
     }
 
     return this.isUALProvider(provider)
-      ? this.signArbitraryWithUALProvider(signOptions)
-      : this.signArbitraryWithTransitProvider(signOptions)
+      ? this.signStringWithUALProvider(signOptions)
+      : this.signStringWithTransitProvider(signOptions)
   }
 
   canSignString(provider: AuthProvider) {
@@ -508,7 +508,7 @@ export default class OreId {
     return { pathIndexList: [] }
   }
 
-  async signArbitraryWithUALProvider({ provider, chainNetwork, string, chainAccount, message }: SignArbitraryParams) {
+  async signStringWithUALProvider({ provider, chainNetwork, string, chainAccount, message }: SignStringParams) {
     const { user } = await this.connectToUALProvider({ provider, chainNetwork, chainAccount })
     try {
       this.setIsBusy(true)
@@ -523,7 +523,7 @@ export default class OreId {
     }
   }
 
-  async signArbitraryWithTransitProvider({ provider, chainNetwork, string, message }: SignArbitraryParams) {
+  async signStringWithTransitProvider({ provider, chainNetwork, string, message }: SignStringParams) {
     const { transitWallet } = await this.connectToTransitProvider({ provider, chainNetwork })
     try {
       this.setIsBusy(true)
@@ -782,7 +782,10 @@ export default class OreId {
       // don't get stuck in a loop, let the transaction fail so the user will figure it out
       return
     }
-    if (chainAccount && info.name !== chainAccount) {
+
+    const { accountName: transitAccountName } = transitWallet?.auth || {}
+
+    if (chainAccount && transitAccountName !== chainAccount) {
       // keep trying until the user logs in with the correct wallet
       // in scatter, it will ask you to choose an account if you logout and log back in
       // we could also call discover and login to the matching account and that would avoid a step
@@ -848,7 +851,7 @@ export default class OreId {
     chainNetwork = ChainNetwork.EosMain,
     chainAccount = null,
   }: ConnectToTransitProviderParams) {
-    let response
+    let response: any
 
     try {
       const transitWallet: TransitWallet = await this.setupTransitWallet({ provider, chainNetwork })
@@ -866,7 +869,7 @@ export default class OreId {
       // If connecting also performs login
       // return login results or throw error
       if (transitWallet.connected) {
-        this.updatePermissionsOnLogin(transitWallet, provider)
+        await this.updatePermissionsOnLogin(transitWallet, provider)
 
         if (transitWallet.authenticated) {
           const { accountName, permission, publicKey } = transitWallet.auth
