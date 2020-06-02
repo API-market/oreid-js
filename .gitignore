@@ -8,3 +8,4 @@ example/package-lock.json
 example/dist
 .DS_Store
 dist/
+dist.browser/

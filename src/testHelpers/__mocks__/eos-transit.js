@@ -1,6 +1,6 @@
 // This might be better mocked out as a class so we can make changes to state like
 // `connected`, `authenticated`, etc.
-const initWallet = jest.fn().mockImplementation((context) => {
+const initWallet = jest.fn().mockImplementation(context => {
   if (context.id === 'scatter') {
     return {
       accountInfo: '',
@@ -16,17 +16,17 @@ const initWallet = jest.fn().mockImplementation((context) => {
           chainId: '5fff1dae8dc8e2fc4d5b23b2c7665c97f9e9d8edf2b6485a86ba311c25639191',
           host: 'api-kylin.eosasia.one',
           port: '443',
-          protocol: 'https'
+          protocol: 'https',
         },
         initWallet: jest.fn(),
-        addWalletProvider: jest.fn()
+        addWalletProvider: jest.fn(),
       },
       disconnect: jest.fn(),
       discover: jest.fn(),
       eosApi: {
         contracts: new Map([]),
         cachedAbis: new Map([]),
-        rpc: jest.fn()
+        rpc: jest.fn(),
       },
       errorMessage: '',
       fetchAccountInfo: jest.fn(),
@@ -37,17 +37,18 @@ const initWallet = jest.fn().mockImplementation((context) => {
       provider: {
         id: 'scatter',
         meta: {},
-        signatureProvider: {}
+        signatureProvider: {},
       },
       signArbitrary: jest.fn(),
       subscribe: jest.fn(),
       terminate: jest.fn(),
-      _instanceId: '0eb15d9f-f954-469e-ba56-1i416ed9d6d8'
-    };
+      _instanceId: '0eb15d9f-f954-469e-ba56-1i416ed9d6d8',
+    }
   }
-});
+  return null
+})
 
-const initAccessContext = jest.fn().mockImplementation((context) => {
+const initAccessContext = jest.fn().mockImplementation(context => {
   if (context) {
     return {
       addWalletProvider: jest.fn(),
@@ -57,7 +58,7 @@ const initAccessContext = jest.fn().mockImplementation((context) => {
       disconnectAll: jest.fn(),
       eosRpc: {
         endpoint: 'https://api-kylin.eosasia.one:443',
-        fetchBuiltin: jest.fn()
+        fetchBuiltin: jest.fn(),
       },
       getActiveWallets: jest.fn(),
       getWalletProviders: jest.fn().mockReturnValue(context.walletProviders),
@@ -68,14 +69,15 @@ const initAccessContext = jest.fn().mockImplementation((context) => {
         host: 'api-kylin.eosasia.one',
         port: '443',
         protocol: 'https',
-        chainId: '5fff1dae8dc8e2fc4d5b23b2c7665c97f9e9d8edf2b6485a86ba311c25639191'
+        chainId: '5fff1dae8dc8e2fc4d5b23b2c7665c97f9e9d8edf2b6485a86ba311c25639191',
       },
       subscribe: jest.fn(),
-      terminateAll: jest.fn()
-    };
+      terminateAll: jest.fn(),
+    }
   }
-});
+  return null
+})
 
 export {
-  initAccessContext // eslint-disable-line import/prefer-default-export
-};
+  initAccessContext, // eslint-disable-line import/prefer-default-export
+}

@@ -1,4 +1,8 @@
-export const transitProviderAttributes = {
+import { TransitProviderAttributes, UalProviderAttributes } from './types'
+
+export const transitProviderAttributesData: {
+  [key: string]: TransitProviderAttributes
+} = {
   ledger: {
     providerId: 'ledger',
     requiresLogin: true,
@@ -10,8 +14,9 @@ export const transitProviderAttributes = {
       login: 'This wallet doesn’t require you to login',
       sign: 'Connect and unlock your Ledger with your PIN code. Launch the EOS app on the device.',
       discover: 'Connect and unlock your Ledger with your PIN code. Launch the EOS app on the device.',
-      versionsRequired: 'You need to have recent versions of your browser, Ledger firmware, and the Ledger EOS app. Click here for more details.'
-    }
+      versionsRequired:
+        'You need to have recent versions of your browser, Ledger firmware, and the Ledger EOS app. Click here for more details.',
+    },
   },
   lynx: {
     providerId: 'EOS Lynx',
@@ -23,8 +28,8 @@ export const transitProviderAttributes = {
       login: 'EOS Lynx requires logging in through the EOS Lynx app.',
       sign: '',
       discover: '',
-      versionsRequired: ''
-    }
+      versionsRequired: '',
+    },
   },
   meetone: {
     providerId: 'meetone_provider',
@@ -36,8 +41,8 @@ export const transitProviderAttributes = {
       login: 'This wallet doesn’t require you to login',
       sign: '',
       discover: '',
-      versionsRequired: ''
-    }
+      versionsRequired: '',
+    },
   },
   metro: {
     providerId: 'metro',
@@ -49,8 +54,8 @@ export const transitProviderAttributes = {
       login: 'This wallet doesn’t require you to login',
       sign: '',
       discover: '',
-      versionsRequired: ''
-    }
+      versionsRequired: '',
+    },
   },
   scatter: {
     providerId: 'scatter',
@@ -62,8 +67,8 @@ export const transitProviderAttributes = {
       login: 'Scatter requires logging in through the Scatter app.',
       sign: '',
       discover: '',
-      versionsRequired: ''
-    }
+      versionsRequired: '',
+    },
   },
   tokenpocket: {
     providerId: 'TokenPocket',
@@ -75,8 +80,8 @@ export const transitProviderAttributes = {
       login: 'This wallet doesn’t require you to login',
       sign: '',
       discover: '',
-      versionsRequired: ''
-    }
+      versionsRequired: '',
+    },
   },
   portis: {
     providerId: 'PortisProvider',
@@ -88,8 +93,8 @@ export const transitProviderAttributes = {
       login: 'Portis requires logging in through the Portis app.',
       sign: '',
       discover: '',
-      versionsRequired: ''
-    }
+      versionsRequired: '',
+    },
   },
   whalevault: {
     providerId: 'whalevault',
@@ -101,8 +106,8 @@ export const transitProviderAttributes = {
       login: 'Whalevault requires logging in through the Whalevault app.',
       sign: '',
       discover: '',
-      versionsRequired: ''
-    }
+      versionsRequired: '',
+    },
   },
   simpleos: {
     providerId: 'simpleos',
@@ -114,8 +119,8 @@ export const transitProviderAttributes = {
       login: 'Simpleos requires logging in through the Simpleos app.',
       sign: '',
       discover: '',
-      versionsRequired: ''
-    }
+      versionsRequired: '',
+    },
   },
   keycat: {
     providerId: 'Keycat',
@@ -127,12 +132,14 @@ export const transitProviderAttributes = {
       login: 'Keycat requires logging in through the Keycat app.',
       sign: '',
       discover: '',
-      versionsRequired: ''
-    }
-  }
-};
+      versionsRequired: '',
+    },
+  },
+}
 
-export const ualProviderAttributes = {
+export const ualProviderAttributesData: {
+  [key: string]: UalProviderAttributes
+} = {
   scatter: {
     requiresLogin: true,
     supportsSignArbitrary: true,
@@ -140,8 +147,8 @@ export const ualProviderAttributes = {
       login: 'Scatter requires logging in through the Scatter app.',
       sign: '',
       discover: '',
-      versionsRequired: ''
-    }
+      versionsRequired: '',
+    },
   },
   ledger: {
     requiresLogin: true,
@@ -150,8 +157,9 @@ export const ualProviderAttributes = {
       login: 'This wallet doesn’t require you to login',
       sign: 'Connect and unlock your Ledger with your PIN code. Launch the EOS app on the device.',
       discover: 'Connect and unlock your Ledger with your PIN code. Launch the EOS app on the device.',
-      versionsRequired: 'You need to have recent versions of your browser, Ledger firmware, and the Ledger EOS app. Click here for more details.'
-    }
+      versionsRequired:
+        'You need to have recent versions of your browser, Ledger firmware, and the Ledger EOS app. Click here for more details.',
+    },
   },
   lynx: {
     requiresLogin: false,
@@ -160,8 +168,8 @@ export const ualProviderAttributes = {
       login: 'This wallet doesn’t require you to login',
       sign: '',
       discover: '',
-      versionsRequired: ''
-    }
+      versionsRequired: '',
+    },
   },
   meetone: {
     requiresLogin: false,
@@ -170,8 +178,8 @@ export const ualProviderAttributes = {
       login: 'This wallet doesn’t require you to login',
       sign: '',
       discover: '',
-      versionsRequired: ''
-    }
+      versionsRequired: '',
+    },
   },
   tokenpocket: {
     requiresLogin: false,
@@ -180,14 +188,12 @@ export const ualProviderAttributes = {
       login: 'This wallet doesn’t require you to login',
       sign: '',
       discover: '',
-      versionsRequired: ''
-    }
-  }
-};
+      versionsRequired: '',
+    },
+  },
+}
 
-export const providersNotImplemented = [
-  'metro'
-];
+export const providersNotImplemented = ['metro']
 
-export const supportedTransitProviders = Object.keys(transitProviderAttributes);
-export const supportedUALProviders = Object.keys(ualProviderAttributes);
+export const supportedTransitProviders = Object.keys(transitProviderAttributesData)
+export const supportedUALProviders = Object.keys(ualProviderAttributesData)
