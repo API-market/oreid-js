@@ -25,7 +25,7 @@
     "@babel/runtime": "^7.5.4",
     "axios": "^0.19.0",
     "dotenv": "^8.0.0",
-    "eos-transit": "^4.0.0",
+    "eos-transit": "^4.0.5",
     "js-base64": "^2.5.1",
     "js-cookie": "^2.2.0",
     "jwt-decode": "^2.2.0",

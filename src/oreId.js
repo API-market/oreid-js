@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { initAccessContext } from 'eos-transit';
+import { isAString } from 'aikon-js'
 
 import Helpers from './helpers';
 import LocalState from './localState';
@@ -1032,7 +1033,8 @@ export default class OreId {
       signedTransaction,
       state,
       transaction,
-      userPassword
+      userPassword,
+      multiSigChainAccounts,
     } = signOptions;
     let { chainAccount } = signOptions;
     const { oreIdUrl } = this.options;
@@ -1058,6 +1060,7 @@ export default class OreId {
     optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : '';
     optionalParams += !isNullOrEmpty(signatureOnly) ? `&signature_only=${signatureOnly}` : '';
     optionalParams += !isNullOrEmpty(processId) ? `&process_id=${processId}` : '';
+    optionalParams += (!isNullOrEmpty(multiSigChainAccounts) && isAString(multiSigChainAccounts)) ? `&multisig_chain_accounts=${multiSigChainAccounts}` : '';
 
     // prettier-ignore
     return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}${optionalParams}`;
