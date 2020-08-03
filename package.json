@@ -1,7 +1,7 @@
 {
-  "name": "eos-auth",
-  "version": "2.5.0",
-  "description": "Add user authentication and wallet access to any EOS dApp",
+  "name": "oreid-js",
+  "version": "2.5.1",
+  "description": "Add user authentication and signing to any blockchain app",
   "author": "AIKON",
   "license": "MIT",
   "main": "./dist/index.js",
@@ -18,7 +18,7 @@
     "lint-fix": "./node_modules/.bin/eslint src --fix",
     "minify-browser": "jsmin -o dist.browser/browser.min.js dist.browser/browser.js",
     "prepare": "npm run build",
-    "prepublishOnly": "npm test && npm run lint",
+    "prepublishOnly": "npm run lint",
     "test": "jest --runInBand --coverage --detectOpenHandles"
   },
   "repository": {
