@@ -11,7 +11,7 @@ oreid-js is a javascript helper library for interacting with the Aikon ORE ID se
 Install npm package:
 
 ```
-npm install eos-auth
+npm install oreid-js
 ```
 
 # Usage
@@ -28,7 +28,7 @@ let authUrl = await oreId.getOreIdAuthUrl({ provider, callbackUrl, backgroundCol
 let authResults = oreId.handleAuthResponse(authCallbackResults);
 
 //Request that the user sign a transaction by setting the user's browser to this URL
-let signUrl = await oreId.getOreIdSignUrl({ account, transaction, signCallbackUrl, chain, state, broadcast, returnSignedTransaction });
+let signUrl = await oreId.getOreIdSignUrl({ account, transaction, signCallbackUrl, chainNetwork, ... });
 //...then handle the callback results of the Sign flow
 let signResults = oreId.handleSignResponse(signedCallbackResults);
 
@@ -48,9 +48,33 @@ app.use('/authcallback', authCallbackHandler(oreId) );
 
 Check out the Express Server example for a complete example.
 
-# Using EOS Transit and/or UAL
+# For Ethereum chains
 
-eos-auth makes it easy for you to add many popular EOS wallets to your app. It integrates [EOS Transit](https://github.com/eosnewyork/eos-transit) and [UAL](https://github.com/EOSIO/universal-authenticator-library) so that you can use any wallet they support. eos-auth is the easiest way to use EOS Transit or UAL with your app.
+We support Ethereum and related test networks. Just use one of the following for chainNetwork parameter in the sign request. For example...
+  - 'eth_main' - Etherem Main network
+  - 'eth_ropsten' - Etherem Ropsten test network
+
+# For Algorand chains
+
+We support Algorand and related test networks. Just use one of the following for chainNetwork parameter in the sign request. For example...
+  - 'algo_main' - Algorand Main network
+  - 'algo_test' - Algorand test network
+  - 'algo_beta' - Algorand Beta test network (future features)
+
+NOTE: Algorand chains require an API Key (to be added to OreId options). You can get a free key by signing-up [here](https://www.purestake.com/technology/algorand-api/)
+
+# For EOS chains
+
+We support EOS, ORE, and other EOSIO-based chains. Just use one of the following for chainNetwork parameter in the sign request. For example...
+  - 'eos_main' - Eos Main network
+  - 'eos_kylin' - Eos Kylin test network
+  - 'eos_jungle' - Eos Jungle test network
+  - 'ore_main' - ORE Main network
+  - 'ore_test' - ORE test network
+
+## Using EOS Transit and/or UAL
+
+oreid-js makes it easy for you to add many popular EOS wallets to your app. It integrates [EOS Transit](https://github.com/eosnewyork/eos-transit) and [UAL](https://github.com/EOSIO/universal-authenticator-library) so that you can use any wallet they support. oreid-js is the easiest way to use EOS Transit or UAL with your app.
 
 EOS Transit
 ```javascript
