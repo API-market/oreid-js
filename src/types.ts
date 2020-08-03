@@ -138,10 +138,15 @@ export enum ChainPlatformType {
   ethereum = 'ethereum',
   ore = 'ore',
 }
+
 export enum ChainNetwork {
+  AlgoMain = 'algo_main',
+  AlgoBeta = 'algo_beta',
+  AlgoTest = 'algo_test',
   EosMain = 'eos_main',
   EosKylin = 'eos_kylin',
   EosJugle = 'eos_jungle',
+  EthMain = 'eth_main',
   EthRopstein = 'eth_ropsten',
   OreMain = 'ore_main',
   OreTest = 'ore_test',
