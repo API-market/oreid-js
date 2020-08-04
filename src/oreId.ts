@@ -349,12 +349,13 @@ export default class OreId {
       chainAccount,
       chainNetwork,
       expireSeconds,
-      returnSignedTransaction,
+      multiSigChainAccounts,
       processId,
+      returnSignedTransaction,
+      signatureOnly,
       signedTransaction: signedTransactionParam,
       transaction: transactionParam,
       userPassword,
-      signatureOnly,
     } = signOptions
     const body: SignTransactionApiBodyParams = {
       account,
@@ -375,6 +376,10 @@ export default class OreId {
 
     if (expireSeconds) {
       body.expire_seconds = expireSeconds
+    }
+
+    if (multiSigChainAccounts) {
+      body.multisig_chain_accounts = multiSigChainAccounts
     }
 
     if (returnSignedTransaction) {
@@ -1238,13 +1243,13 @@ export default class OreId {
       ? `&allow_chain_account_selection=${allowChainAccountSelection}`
       : ''
     optionalParams += !isNullOrEmpty(expireSeconds) ? `&expire_seconds=${expireSeconds}` : ''
+    optionalParams += !isNullOrEmpty(multiSigChainAccounts) ? `&multisig_chain_accounts=${multiSigChainAccounts}` : ''
+    optionalParams += !isNullOrEmpty(processId) ? `&process_id=${processId}` : ''
     optionalParams += !isNullOrEmpty(returnSignedTransaction)
       ? `&return_signed_transaction=${returnSignedTransaction}`
       : ''
-    optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : ''
     optionalParams += !isNullOrEmpty(signatureOnly) ? `&signature_only=${signatureOnly}` : ''
-    optionalParams += !isNullOrEmpty(processId) ? `&process_id=${processId}` : ''
-    optionalParams += !isNullOrEmpty(multiSigChainAccounts) ? `&multisig_chain_accounts=${multiSigChainAccounts}` : ''
+    optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : ''
 
     // prettier-ignore
     return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}${optionalParams}`
