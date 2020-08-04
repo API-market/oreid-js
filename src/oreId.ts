@@ -1206,6 +1206,7 @@ export default class OreId {
       callbackUrl,
       chainNetwork,
       expireSeconds,
+      multiSigChainAccounts,
       processId,
       provider,
       returnSignedTransaction,
@@ -1243,6 +1244,7 @@ export default class OreId {
     optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : ''
     optionalParams += !isNullOrEmpty(signatureOnly) ? `&signature_only=${signatureOnly}` : ''
     optionalParams += !isNullOrEmpty(processId) ? `&process_id=${processId}` : ''
+    optionalParams += !isNullOrEmpty(multiSigChainAccounts) ? `&multisig_chain_accounts=${multiSigChainAccounts}` : ''
 
     // prettier-ignore
     return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}${optionalParams}`
