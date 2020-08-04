@@ -251,6 +251,8 @@ export type SignOptions = {
   chainAccount: ChainAccount
   chainNetwork: ChainNetwork
   expireSeconds?: number
+  /** Comma seperated string of accounts - for which OREID should add signatures */
+  multiSigChainAccounts?: string
   returnSignedTransaction?: boolean
   processId: ProcessId
   signedTransaction?: string
