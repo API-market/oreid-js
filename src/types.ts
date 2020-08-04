@@ -349,6 +349,7 @@ export type SignTransactionApiBodyParams = {
   chain_account: ChainAccount
   chain_network: ChainNetwork
   expire_seconds?: number
+  multisig_chain_accounts?: string
   return_signed_transaction?: boolean
   signature_only?: boolean
   signed_transaction?: string
