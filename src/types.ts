@@ -111,7 +111,7 @@ export type User = {
   name: string
   username: string
   permissions: UserPermission[]
-  processId: ProcessId
+  processId?: ProcessId
 }
 
 export type UserPermission = {
@@ -254,14 +254,14 @@ export type SignOptions = {
   /** Comma seperated string of accounts - for which OREID should add signatures */
   multiSigChainAccounts?: string
   returnSignedTransaction?: boolean
-  processId: ProcessId
+  processId?: ProcessId
   signedTransaction?: string
   transaction?: string
   userPassword?: string
   signatureOnly?: boolean
   state?: string
   provider: AuthProvider
-  callbackUrl: string
+  callbackUrl?: string
   preventAutoSign?: boolean
   signExternalWithOreId?: boolean
 }
@@ -289,7 +289,7 @@ export type CustodialMigrateAccountParams = {
   account: AccountName
   chainAccount: ChainAccount
   chainNetwork: ChainNetwork
-  processId: ProcessId
+  processId?: ProcessId
   toType: AccountType
   userPassword: string
 }
@@ -330,7 +330,7 @@ export type GetAccessTokenParams = {
 
 export type GetNewAppAccessTokenParams = {
   newAccountPassword: string
-  processId: ProcessId
+  processId?: ProcessId
 }
 
 export type PasswordlessApiParams = {
@@ -398,7 +398,7 @@ export type AddPermissionParams = {
   account: AccountName
   chainAccount: ChainAccount
   chainNetwork: ChainNetwork
-  processId: ProcessId
+  processId?: ProcessId
   publicKey: PublicKey
   parentPermission: PermissionName
   permission: PermissionName
