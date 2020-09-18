@@ -579,9 +579,11 @@ export default class OreId {
       // EOS - use eosJS to sign (eosApi.transact)
       if (providerAttributes.chainType === ChainPlatformType.eos) {
         signedTransaction = await this.signTransactionWithTransitAndEosSDK(signOptions, transitWallet)
-      } else {
+      } else if (providerAttributes.chainType === ChainPlatformType.algorand) {
         // Other chains - use sign function on walletProvider
         signedTransaction = await this.signTransactionWithTransitAndAlgorandSDK(signOptions, transitWallet)
+      } else {
+        throw new Error(`signWithTransitProvider doesnt support chain type: ${providerAttributes.chainType}`)
       }
     } finally {
       this.setIsBusy(false)
