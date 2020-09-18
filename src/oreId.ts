@@ -2,8 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 import axios from 'axios'
-import { initAccessContext } from 'eos-transit'
-
+import { initAccessContext, WalletProvider, Wallet } from 'eos-transit'
+import { encode as AlgorandEncodeObject } from './algorandUtils'
 import Helpers from './helpers'
 import LocalState from './localState'
 import {
@@ -56,6 +56,8 @@ import {
   AddPermissionParams,
   DiscoverOptions,
   SignWithOreIdReturn,
+  SignatureProviderArgs,
+  ChainPlatformType,
 } from './types'
 
 const { isNullOrEmpty } = Helpers
@@ -562,29 +564,59 @@ export default class OreId {
   }
 
   async signWithTransitProvider(signOptions: SignOptions) {
-    const { broadcast, chainNetwork, chainAccount, transaction, provider } = signOptions
+    let signedTransaction
+    const { broadcast, chainNetwork, chainAccount, expireSeconds, transaction, provider } = signOptions
     // connect to wallet
-    let response = await this.connectToTransitProvider({ provider, chainNetwork, chainAccount })
-    const { transitWallet } = response
+    const { transitWallet } = await this.connectToTransitProvider({ provider, chainNetwork, chainAccount })
 
     try {
       // sign with transit wallet
       this.setIsBusy(true)
-      response = await transitWallet.eosApi.transact(
-        {
-          actions: [transaction],
-        },
-        {
-          broadcast,
-          blocksBehind: 3,
-          expireSeconds: 60,
-        },
-      )
+      const providerAttributes = this.getWalletProviderInfo(
+        provider,
+        ExternalWalletProvider.Transit,
+      ) as TransitProviderAttributes
+      // EOS - use eosJS to sign (eosApi.transact)
+      if (providerAttributes.chainType === ChainPlatformType.eos) {
+        signedTransaction = await this.signTransactionWithTransitAndEosSDK(signOptions, transitWallet)
+      } else {
+        // Other chains - use sign function on walletProvider
+        signedTransaction = await this.signTransactionWithTransitAndAlgorandSDK(signOptions, transitWallet)
+      }
     } finally {
       this.setIsBusy(false)
     }
 
-    return { signedTransaction: response }
+    return { signedTransaction }
+  }
+
+  private async signTransactionWithTransitAndEosSDK(signOptions: SignOptions, transitWallet: Wallet) {
+    const { broadcast, expireSeconds, transaction } = signOptions
+    const { signatures, serializedTransaction } = await transitWallet.eosApi.transact(
+      {
+        actions: [transaction],
+      },
+      {
+        broadcast,
+        blocksBehind: 3,
+        expireSeconds: expireSeconds || 60,
+      },
+    )
+    return { signatures, serializedTransaction }
+  }
+
+  private async signTransactionWithTransitAndAlgorandSDK(signOptions: SignOptions, transitWallet: Wallet) {
+    const { chainNetwork, transaction } = signOptions
+    // Other chains - use sign function on walletProvider
+    const NETWORK_CONFIG = await this.getNetworkConfig(chainNetwork)
+    const signParams: SignatureProviderArgs = {
+      chainId: NETWORK_CONFIG.chainId, // Chain transaction is for
+      requiredKeys: null, // not used by Algorand signatureProvider
+      serializedTransaction: AlgorandEncodeObject(transaction), // Transaction to sign
+      abis: null, // not used by Algorand signatureProvider
+    }
+    const { signatures, serializedTransaction } = await transitWallet.provider.signatureProvider.sign(signParams)
+    return { signatures, serializedTransaction }
   }
 
   // create a new user account that is managed by your app
@@ -855,7 +887,7 @@ export default class OreId {
     provider,
     chainNetwork = ChainNetwork.EosMain,
     chainAccount = null,
-  }: ConnectToTransitProviderParams) {
+  }: ConnectToTransitProviderParams): Promise<{ transitWallet: TransitWallet }> {
     let response: any
 
     try {
@@ -1248,7 +1280,9 @@ export default class OreId {
     optionalParams += !isNullOrEmpty(returnSignedTransaction)
       ? `&return_signed_transaction=${returnSignedTransaction}`
       : ''
+    optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : ''
     optionalParams += !isNullOrEmpty(signatureOnly) ? `&signature_only=${signatureOnly}` : ''
+    optionalParams += !isNullOrEmpty(processId) ? `&process_id=${processId}` : ''
     optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : ''
 
     // prettier-ignore
