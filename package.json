@@ -1,6 +1,6 @@
 {
   "name": "oreid-js",
-  "version": "2.5.3",
+  "version": "2.5.4",
   "description": "Add user authentication and signing to any blockchain app",
   "author": "AIKON",
   "license": "MIT",
@@ -30,6 +30,7 @@
   },
   "homepage": "https://github.com/api-market/oreid-js#readme",
   "dependencies": {
+    "@msgpack/msgpack": "^2.0.0",
     "@types/js-cookie": "^2.2.6",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/jwt-decode": "^2.2.1",
