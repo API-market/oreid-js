@@ -1,9 +1,24 @@
-import { TransitProviderAttributes, UalProviderAttributes } from './types'
+import { ChainPlatformType, TransitProviderAttributes, UalProviderAttributes } from './types'
 
 export const transitProviderAttributesData: {
   [key: string]: TransitProviderAttributes
 } = {
+  algosigner: {
+    chainType: ChainPlatformType.algorand,
+    providerId: 'algosigner',
+    requiresLogin: false,
+    supportsDiscovery: true,
+    supportsSignArbitrary: false,
+    requiresLogoutLoginToDiscover: false,
+    helpText: {
+      login: 'This wallet doesn’t require you to login.',
+      sign: '',
+      discover: '',
+      versionsRequired: '',
+    },
+  },
   ledger: {
+    chainType: ChainPlatformType.eos,
     providerId: 'ledger',
     requiresLogin: true,
     supportsDiscovery: true,
@@ -19,6 +34,7 @@ export const transitProviderAttributesData: {
     },
   },
   lynx: {
+    chainType: ChainPlatformType.eos,
     providerId: 'EOS Lynx',
     requiresLogin: true,
     supportsDiscovery: false,
@@ -32,6 +48,7 @@ export const transitProviderAttributesData: {
     },
   },
   meetone: {
+    chainType: ChainPlatformType.eos,
     providerId: 'meetone_provider',
     requiresLogin: false,
     supportsDiscovery: false,
@@ -45,6 +62,7 @@ export const transitProviderAttributesData: {
     },
   },
   metro: {
+    chainType: ChainPlatformType.eos,
     providerId: 'metro',
     requiresLogin: false,
     supportsDiscovery: false,
@@ -58,6 +76,7 @@ export const transitProviderAttributesData: {
     },
   },
   scatter: {
+    chainType: ChainPlatformType.eos,
     providerId: 'scatter',
     requiresLogin: true,
     supportsDiscovery: false,
@@ -71,6 +90,7 @@ export const transitProviderAttributesData: {
     },
   },
   tokenpocket: {
+    chainType: ChainPlatformType.eos,
     providerId: 'TokenPocket',
     requiresLogin: true,
     supportsDiscovery: false,
@@ -84,6 +104,7 @@ export const transitProviderAttributesData: {
     },
   },
   portis: {
+    chainType: ChainPlatformType.eos,
     providerId: 'PortisProvider',
     requiresLogin: true,
     supportsDiscovery: false,
@@ -97,6 +118,7 @@ export const transitProviderAttributesData: {
     },
   },
   whalevault: {
+    chainType: ChainPlatformType.eos,
     providerId: 'whalevault',
     requiresLogin: true,
     supportsDiscovery: false,
@@ -110,6 +132,7 @@ export const transitProviderAttributesData: {
     },
   },
   simpleos: {
+    chainType: ChainPlatformType.eos,
     providerId: 'simpleos',
     requiresLogin: true,
     supportsDiscovery: false,
@@ -123,6 +146,7 @@ export const transitProviderAttributesData: {
     },
   },
   keycat: {
+    chainType: ChainPlatformType.eos,
     providerId: 'Keycat',
     requiresLogin: true,
     supportsDiscovery: false,
@@ -141,6 +165,7 @@ export const ualProviderAttributesData: {
   [key: string]: UalProviderAttributes
 } = {
   scatter: {
+    chainType: ChainPlatformType.eos,
     requiresLogin: true,
     supportsSignArbitrary: true,
     helpText: {
@@ -151,6 +176,7 @@ export const ualProviderAttributesData: {
     },
   },
   ledger: {
+    chainType: ChainPlatformType.eos,
     requiresLogin: true,
     supportsSignArbitrary: false,
     helpText: {
@@ -162,6 +188,7 @@ export const ualProviderAttributesData: {
     },
   },
   lynx: {
+    chainType: ChainPlatformType.eos,
     requiresLogin: false,
     supportsSignArbitrary: true,
     helpText: {
@@ -172,6 +199,7 @@ export const ualProviderAttributesData: {
     },
   },
   meetone: {
+    chainType: ChainPlatformType.eos,
     requiresLogin: false,
     supportsSignArbitrary: true,
     helpText: {
@@ -182,6 +210,7 @@ export const ualProviderAttributesData: {
     },
   },
   tokenpocket: {
+    chainType: ChainPlatformType.eos,
     requiresLogin: false,
     supportsSignArbitrary: true,
     helpText: {

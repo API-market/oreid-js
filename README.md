@@ -101,14 +101,15 @@ let oreId = new OreId({ ..., ualWalletProviders });
 
 | Providers/Authenticators   | EOS Transit   | UAL  |
 | -------------------------- |---------------|------|
-| Scatter                    |  ✅           |  ✅  |
-| Ledger                     |  ✅           |  ✅  |
-| Lynx                       |  ✅           |  ✅  |
-| Token Pocket               |  ✅           |  ✅  |
-| Meet One                   |  ✅           |  ✅  |
-| Keycat                     |  ✅           |  ❌  |
-| Whalevault                 |  ✅           |  ❌  |
-| Portis                     |  ✅           |  ❌  |
+| EOS - Keycat               |  ✅           |  ❌  |
+| EOS - Ledger               |  ✅           |  ✅  |
+| EOS - Lynx                 |  ✅           |  ✅  |
+| EOS - Meet One             |  ✅           |  ✅  |
+| EOS - Portis               |  ✅           |  ❌  |
+| EOS - Scatter              |  ✅           |  ✅  |
+| EOS - Token Pocket         |  ✅           |  ✅  |
+| EOS - Whalevault           |  ✅           |  ❌  |
+| Algorand - AlgoSigner      |  ✅           |  ❌  |
 
 Check out the Express Server example for a complete example.
 

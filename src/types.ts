@@ -1,5 +1,41 @@
 import { WalletProvider, MakeWalletProviderFn, WalletAccessContext, Wallet, DiscoveryOptions } from 'eos-transit/lib'
 
+// EOSJS Types
+
+/** Arguments for `push_transaction` */
+export interface PushTransactionArgs {
+  signatures: string[]
+  serializedTransaction: Uint8Array
+}
+
+/** Structure for the raw form of ABIs */
+export interface BinaryAbi {
+  /** account which has deployed the ABI */
+  accountName: string
+  /** abi in binary form */
+  abi: Uint8Array
+}
+
+/** Arguments to `sign` */
+export interface SignatureProviderArgs {
+  /** Chain transaction is for */
+  chainId: string
+  /** Public keys associated with the private keys needed to sign the transaction */
+  requiredKeys: string[]
+  /** Transaction to sign */
+  serializedTransaction: Uint8Array
+  /** ABIs for all contracts with actions included in `serializedTransaction` */
+  abis: BinaryAbi[]
+}
+
+/** Signs transactions */
+export interface SignatureProvider {
+  /** Public keys associated with the private keys that the `SignatureProvider` holds */
+  getAvailableKeys: () => Promise<string[]>
+  /** Sign a transaction */
+  sign: (args: SignatureProviderArgs) => Promise<PushTransactionArgs>
+}
+
 /** Raw data extracted from OAuth IDToken */
 export type IdToken = {
   sub: string
@@ -60,6 +96,7 @@ export type TransitDiscoveryOptions = DiscoveryOptions
 export type TransitAccountInfo = any
 
 export type TransitProviderIds =
+  | 'algosigner'
   | 'ledger'
   | 'EOS Lynx'
   | 'meetone_provider'
@@ -72,6 +109,7 @@ export type TransitProviderIds =
   | 'Keycat'
 
 export type TransitProviderAttributes = {
+  chainType: ChainPlatformType
   providerId: TransitProviderIds
   requiresLogin: boolean
   supportsDiscovery: boolean
@@ -89,6 +127,7 @@ export type TransitProviderAttributes = {
 // UAL
 
 export type UalProviderAttributes = {
+  chainType: ChainPlatformType
   requiresLogin: boolean
   supportsSignArbitrary: boolean
   helpText: {
@@ -134,6 +173,7 @@ export type WalletPermission = {
 
 /** Flavor of chain network */
 export enum ChainPlatformType {
+  algorand = 'algorand',
   eos = 'eos',
   ethereum = 'ethereum',
   ore = 'ore',
@@ -184,6 +224,7 @@ export enum ExternalWalletProvider {
 }
 
 export enum ExternalWalletType {
+  AlgoSigner = 'algosigner',
   Keycat = 'keycat',
   Ledger = 'ledger',
   Lynx = 'lynx',
