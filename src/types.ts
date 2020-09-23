@@ -1,5 +1,13 @@
-import { WalletProvider, MakeWalletProviderFn, WalletAccessContext, Wallet, DiscoveryOptions } from 'eos-transit/lib'
-
+import {
+  DiscoveryAccount,
+  DiscoverContinueCallback,
+  DiscoveryOptions,
+  KeyLookupCallback,
+  WalletProvider,
+  MakeWalletProviderFn,
+  WalletAccessContext,
+  Wallet,
+} from 'eos-transit/lib'
 // EOSJS Types
 
 /** Arguments for `push_transaction` */
@@ -86,57 +94,26 @@ export type PermissionName = string
 export type Color = string
 
 // Transit
-
+export type TransitDiscoveryAccount = DiscoveryAccount
+export type TransitDiscoverContinueCallback = DiscoverContinueCallback
+export type TransitDiscoverKeyLookupCallback = KeyLookupCallback
+export type TransitDiscoveryOptions = DiscoveryOptions
 export type TransitWalletProviderFactory = MakeWalletProviderFn
 export type TransitWalletProvider = WalletProvider
 export type TransitWalletAccessContext = WalletAccessContext
 export type TransitWallet = Wallet
-export type TransitDiscoveryOptions = DiscoveryOptions
+// The DiscoveryData type is missing 'note' field in the Transit Library - replicating the type here and adding note
+export type TransitDiscoveryData = {
+  keyToAccountMap: DiscoveryAccount[]
+  keys?: {
+    index: number
+    key: string
+    note?: string
+  }[]
+}
+
 // Not sure what this type is - perhaps what is returned from the wallet after login?
 export type TransitAccountInfo = any
-
-export type TransitProviderIds =
-  | 'algosigner'
-  | 'ledger'
-  | 'EOS Lynx'
-  | 'meetone_provider'
-  | 'metro'
-  | 'scatter'
-  | 'TokenPocket'
-  | 'PortisProvider'
-  | 'whalevault'
-  | 'simpleos'
-  | 'Keycat'
-
-export type TransitProviderAttributes = {
-  chainType: ChainPlatformType
-  providerId: TransitProviderIds
-  requiresLogin: boolean
-  supportsDiscovery: boolean
-  supportsSignArbitrary: boolean
-  requiresLogoutLoginToDiscover: boolean
-  defaultDiscoveryPathIndexList?: number[]
-  helpText: {
-    login: string
-    sign: string
-    discover: string
-    versionsRequired: string
-  }
-}
-
-// UAL
-
-export type UalProviderAttributes = {
-  chainType: ChainPlatformType
-  requiresLogin: boolean
-  supportsSignArbitrary: boolean
-  helpText: {
-    login: string
-    sign: string
-    discover: string
-    versionsRequired: string
-  }
-}
 
 // TODO: type this. Likley should be Authenticator from EOSIO universal-authenticator-library
 export type UalProvider = any
@@ -202,7 +179,7 @@ export enum AccountType {
   VirtualNested = 'nested',
 }
 
-export enum AuthProvider {
+export enum OreIdProvider {
   Custodial = 'custodial',
   Apple = 'apple',
   Email = 'email',
@@ -218,11 +195,6 @@ export enum AuthProvider {
   Twitter = 'twitter',
 }
 
-export enum ExternalWalletProvider {
-  Ual = 'ual',
-  Transit = 'transit',
-}
-
 export enum ExternalWalletType {
   AlgoSigner = 'algosigner',
   Keycat = 'keycat',
@@ -235,6 +207,41 @@ export enum ExternalWalletType {
   SimpleEos = 'simpleos',
   TokenPocket = 'tokenpocket',
   WhaleVault = 'whalevault',
+}
+
+/** All auth providers - including OreId login types (eg 'Facebook') and wallets (eg 'Scatter') */
+export enum AuthProvider {
+  // ORE ID Providers
+  Custodial = 'custodial',
+  Apple = 'apple',
+  Email = 'email',
+  Facebook = 'facebook',
+  Github = 'github',
+  Google = 'google',
+  Instagram = 'instagram',
+  Kakao = 'kakao',
+  Line = 'line',
+  LinkedIn = 'linkedin',
+  Phone = 'phone',
+  Twitch = 'twitch',
+  Twitter = 'twitter',
+  // ExternalWalletType
+  AlgoSigner = 'algosigner',
+  Keycat = 'keycat',
+  Ledger = 'ledger',
+  Lynx = 'lynx',
+  Meetone = 'meetone',
+  Metro = 'metro',
+  Portis = 'portis',
+  Scatter = 'scatter',
+  SimpleEos = 'simpleos',
+  TokenPocket = 'tokenpocket',
+  WhaleVault = 'whalevault',
+}
+
+export enum ExternalWalletInterface {
+  Ual = 'ual',
+  Transit = 'transit',
 }
 
 /** type returned by oreid sevice config endpoint for chains */
