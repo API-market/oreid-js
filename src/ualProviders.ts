@@ -72,12 +72,12 @@ export const ualProviderAttributesData: UalProviderAttributes[] = [
 
 /** Get provider-specific settings and metadata */
 export function getUALProviderAttributes(provider: AuthProvider): UalProviderAttributes {
-  return ualProviderAttributesData.find(tp => tp.providerName === provider.toString())
+  return ualProviderAttributesData.find(up => up.providerName === provider.toString())
 }
 
 /** Get provider-specific settings and metadata by the UAL provider name */
 export function getUALProviderAttributesByUALName(providerName: string): UalProviderAttributes {
-  return ualProviderAttributesData.find(tp => tp.providerUALName === providerName)
+  return ualProviderAttributesData.find(up => up.providerName === providerName)
 }
 
 export const supportedUALProviders: AuthProvider[] = ualProviderAttributesData.map(tp => tp.providerName)
