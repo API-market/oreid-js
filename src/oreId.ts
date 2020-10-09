@@ -1445,12 +1445,18 @@ export default class OreId {
         })
       }
     } catch (error) {
-      ;({ data } = error.response)
+      // Browser thre an error during CORS preflight post - See https://github.com/axios/axios/issues/1143
+      if (error?.message.toLowerCase() === 'network error') {
+        throw new Error(
+          'Browser threw a Network Error. This is likely because of CORS error. Make sure that you are not sending an api-key in the header of the request.',
+        )
+      }
+      ;({ data = {} } = error?.response || {})
       const { message } = data
       const errorCodes = this.getErrorCodesFromParams(data)
       // oreid apis pass back errorCode/errorMessages
       // also handle when a standard error message is thrown
-      const errorString = errorCodes || message
+      const errorString = errorCodes || message || 'unknown error'
       throw new Error(errorString)
     }
 
@@ -1537,7 +1543,7 @@ export default class OreId {
   /** remove processId from data */
   extractProcessIdFromData(data: any) {
     let processId
-    if (data.processId) {
+    if (data?.processId) {
       processId = data.processId
       delete data.processId
     }
