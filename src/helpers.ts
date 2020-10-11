@@ -10,8 +10,6 @@ const { Base64 } = require('js-base64')
 
 const TRACING = false // enable when debugging to see detailed outputs
 
-export const isInBrowser = typeof window !== 'undefined'
-
 // split a string or array at a given index position
 export const splitAt = (index: number, dropChars: number) => (x: string) => [
   x.slice(0, index),
@@ -23,6 +21,8 @@ const replaceAll = (inString: string, search: string, replacement: string) => {
 }
 
 export default class Helpers {
+  static isInBrowser = typeof window !== 'undefined'
+
   static isNullOrEmpty(obj: any) {
     if (obj === undefined) {
       return true

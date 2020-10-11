@@ -4,7 +4,7 @@
 import axios from 'axios'
 import { initAccessContext, WalletProvider, Wallet } from 'eos-transit'
 import { encode as AlgorandEncodeObject } from './algorandUtils'
-import Helpers, { isInBrowser } from './helpers'
+import Helpers from './helpers'
 import LocalState from './localState'
 import { providersNotImplemented } from './constants'
 import {
@@ -97,7 +97,7 @@ export default class OreId {
   // If we're running in the browser, we must use a proxy server to talk to OREID api
   // Unless, we are running the demo app, in which case CORS is disabled by OREID server
   get requiresProxyServer() {
-    return isInBrowser && !this.isDemoApp
+    return Helpers.isInBrowser && !this.isDemoApp
   }
 
   /** compare id of EosTransitProviders and UALProviders and throw if any duplicates exist */
