@@ -1,8 +1,16 @@
 module.exports = {
   transform: {
-    '^.+\\.(js|jsx)$': 'babel-jest',
+    '^.+\\.(js|jsx|ts|tsx)$': 'ts-jest',
   },
   transformIgnorePatterns: ['/node_modules/(?!eos-transit).+\\.js$'],
-  moduleFileExtensions: ['web.js', 'js', 'json', 'web.jsx', 'jsx', 'node'],
+  moduleFileExtensions: ['web.js', 'js', 'json', 'web.jsx', 'jsx', 'ts', 'tsx', 'node'],
   modulePaths: ['<rootDir>/src/'],
+  testMatch: ['<rootDir>/src/**/?(*.)(spec|test).(js|jsx|ts|tsx)'],
+  globals: {
+    'ts-jest': {
+      diagnostics: {
+        warnOnly: true,
+      },
+    },
+  },
 }
