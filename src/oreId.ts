@@ -1541,8 +1541,8 @@ export default class OreId {
     let data
     const { apiKey, serviceKey, oreIdUrl } = this.options
     // if running in browser, we dont call the api directly, we use a proxy server (unless we're running a demo app)
-    // calls to the proxy server must start with '/' (not an host like http://server)
-    const oreIdUrlBase = this.requiresProxyServer ? '' : oreIdUrl
+    // calls to the proxy server must start with '/' (not an host like http://server) and we'll prepend 'oreid' to it e.g. /oreid/api/xxx to make it easier to do proxy server routing
+    const oreIdUrlBase = this.requiresProxyServer ? '/oreid' : oreIdUrl
     const url = `${oreIdUrlBase}/api/${endpoint}`
 
     const headers: { [key: string]: any } = { 'api-key': apiKey }
