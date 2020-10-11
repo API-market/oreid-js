@@ -15,7 +15,12 @@ const axios = {
           },
         }
       }
-
+    }
+    return null
+  }),
+  post: jest.fn().mockImplementation((url, options, { headers }) => {
+    // DEMO API_KEY used for oreid.test.js
+    if (headers['api-key'] === 'demo_k_97b33a2f8c984fb5b119567ca19e4a49') {
       if (url.includes('app-token')) {
         return {
           data: {
