@@ -13,7 +13,10 @@ const TRACING = false // enable when debugging to see detailed outputs
 export const isInBrowser = typeof window !== 'undefined'
 
 // split a string or array at a given index position
-const splitAt = (index: number, dropChars: number) => (x: string) => [x.slice(0, index), x.slice(index + dropChars)]
+export const splitAt = (index: number, dropChars: number) => (x: string) => [
+  x.slice(0, index),
+  x.slice(index + dropChars),
+]
 
 const replaceAll = (inString: string, search: string, replacement: string) => {
   return inString.replace(new RegExp(search, 'g'), replacement)
@@ -123,6 +126,7 @@ export default class Helpers {
       if (unescape) {
         jsonString = decodeURI(jsonString)
       }
+      // eslint-disable-next-line quotes
       doubleQuotes = replaceAll(jsonString, "'", '"')
       doubleQuotes = replaceAll(doubleQuotes, '`', '"')
       const o = JSON.parse(doubleQuotes)
@@ -177,5 +181,24 @@ export default class Helpers {
 
   static createGuid() {
     return uuidv4()
+  }
+
+  /** Typescript Typeguard to verify that the value is in the enumType specified  */
+  static isInEnum<T>(enumType: T, value: any): value is T[keyof T] {
+    return Object.values(enumType).includes(value as T[keyof T])
+  }
+
+  /** Typescript Typeguard helper to ensure that a string value can be assigned to an Enum type
+   *  If a value can't be matched to a valid option in the enum, returns null (or throws if throwIfInvalid = true) */
+  static toEnumValue<T>(e: T, value: any, throwIfInvalid = false): T[keyof T] {
+    if (this.isNullOrEmpty(value)) return null
+    if (this.isInEnum<T>(e, value)) {
+      return value
+    }
+    const errMsg = `Value ${JSON.stringify(value)} is not a valid member of enum ${JSON.stringify(e)}.`
+    if (throwIfInvalid) {
+      throw new Error(errMsg)
+    }
+    return null
   }
 }
