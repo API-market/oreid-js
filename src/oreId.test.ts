@@ -74,7 +74,7 @@ describe('OreId', () => {
       email: 'test@test.com',
       phone: '+1555555555',
       provider: AuthProvider.Google,
-      state: 'CA',
+      state: 'abc',
     }
 
     beforeEach(() => {
@@ -108,8 +108,15 @@ describe('OreId', () => {
       expect(result).toEqual({
         errors: null,
         loginUrl:
-          'https://service.oreid.io/auth#app_access_token=12345667&provider=google&code=12345&email=test@test.com&phone=%2B1555555555&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=CA',
+          'https://service.oreid.io/auth#app_access_token=12345667&provider=google&code=12345&email=test@test.com&phone=%2B1555555555&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&hmac=LCfH3K7eJGreR0UEZoXNrsueB48tqnx1yApXggoFz3E=',
       })
+    })
+
+    it('Creates an HMAC', () => {
+      const loginUrl =
+        'https://service.oreid.io/auth#app_access_token=12345667&provider=google&code=12345&email=test@test.com&phone=%2B1555555555&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc'
+      const hmac = generateHmac('demo_k_97b33a2f8c984fb5b119567ca19e4a49', loginUrl)
+      expect(hmac).toEqual('LCfH3K7eJGreR0UEZoXNrsueB48tqnx1yApXggoFz3E=')
     })
 
     // describe('Logins with transit', () => {

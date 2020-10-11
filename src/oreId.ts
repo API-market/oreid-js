@@ -62,6 +62,7 @@ import {
   ChainPlatformType,
   TransitDiscoveryOptions,
 } from './types'
+import { appendHmacToUrl } from './hmac'
 
 const { isNullOrEmpty } = Helpers
 
@@ -1248,7 +1249,7 @@ export default class OreId {
   // TODO add validation of newer options
   /**  Validates startup options */
   validateOptions(options: OreIdOptions) {
-    const { appId, apiKey, oreIdUrl, serviceKey } = options
+    const { appId, apiKey, oreIdUrl, serviceKey } = options || {}
     let errorMessage = ''
     // set options now since this.requiresProxyServer needs it set
     this.options = options
@@ -1350,13 +1351,15 @@ export default class OreId {
       phoneParam = `&phone=${encodedPhone}`
     }
 
-    return (
+    const url =
       `${oreIdUrl}/auth#app_access_token=${appAccessToken}&provider=${provider}` +
       `${codeParam}${emailParam}${phoneParam}` +
       `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(
         backgroundColor,
       )}${linkToAccountParam}${encodedStateParam}${processIdParam}`
-    )
+
+    // append an hmac to the end of the url - if we're using a proxy server, we'll get the hmac from it (since it has the secret)
+    return appendHmacToUrl(this.requiresProxyServer, this.options?.apiKey, url)
   }
 
   // Returns a fully formed url to call the sign endpoint
@@ -1412,7 +1415,9 @@ export default class OreId {
     optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : ''
 
     // prettier-ignore
-    return `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}${optionalParams}`
+    const url = `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}${optionalParams}`
+    // append an hmac to the end of the url - if we're using a proxy server, we'll get the hmac from it (since it has the secret)
+    return appendHmacToUrl(this.requiresProxyServer, this.options?.apiKey, url)
   }
 
   // Extracts the response parameters on the /auth callback URL string

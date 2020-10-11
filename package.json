@@ -18,7 +18,7 @@
     "lint-fix": "./node_modules/.bin/eslint src --fix",
     "minify-browser": "jsmin -o dist.browser/browser.min.js dist.browser/browser.js",
     "prepare": "npm run build",
-    "prepublishOnly": "npm run lint",
+    "prepublishOnly": "npm run lint && npm run test",
     "test": "jest --runInBand --coverage --detectOpenHandles"
   },
   "repository": {
@@ -31,10 +31,12 @@
   "homepage": "https://github.com/api-market/oreid-js#readme",
   "dependencies": {
     "@msgpack/msgpack": "^2.0.0",
+    "@types/create-hmac": "^1.1.0",
     "@types/js-cookie": "^2.2.6",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/jwt-decode": "^2.2.1",
     "axios": "^0.19.2",
+    "create-hmac": "^1.1.7",
     "dotenv": "^8.2.0",
     "eos-transit": "^4.0.7",
     "js-base64": "^2.5.2",
