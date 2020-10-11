@@ -10,6 +10,8 @@ const { Base64 } = require('js-base64')
 
 const TRACING = false // enable when debugging to see detailed outputs
 
+export const isInBrowser = typeof window !== 'undefined'
+
 // split a string or array at a given index position
 const splitAt = (index: number, dropChars: number) => (x: string) => [x.slice(0, index), x.slice(index + dropChars)]
 

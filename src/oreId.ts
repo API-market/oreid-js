@@ -4,7 +4,7 @@
 import axios from 'axios'
 import { initAccessContext, WalletProvider, Wallet } from 'eos-transit'
 import { encode as AlgorandEncodeObject } from './algorandUtils'
-import Helpers from './helpers'
+import Helpers, { isInBrowser } from './helpers'
 import LocalState from './localState'
 import {
   transitProviderAttributesData,
@@ -85,6 +85,17 @@ export default class OreId {
   transitAccessContexts: { [key: string]: TransitWalletAccessContext }
 
   cachedChainNetworks: SettingChainNetwork[] = []
+
+  /** whether the current appId is a demo app */
+  get isDemoApp() {
+    return this.options?.appId.toLowerCase().startsWith('demo') || false
+  }
+
+  // If we're running in the browser, we must use a proxy server to talk to OREID api
+  // Unless, we are running the demo app, in which case CORS is disabled by OREID server
+  get requiresProxyServer() {
+    return isInBrowser && !this.isDemoApp
+  }
 
   /** compare id of EosTransitProviders and UALProviders and throw if any duplicates exist */
   async assertNoDuplicateProviders() {
@@ -1130,16 +1141,24 @@ export default class OreId {
   // TODO add validation of newer options
   /**  Validates startup options */
   validateOptions(options: OreIdOptions) {
-    const { appId, apiKey, oreIdUrl } = options
+    const { appId, apiKey, oreIdUrl, serviceKey } = options
     let errorMessage = ''
+    // set options now since this.requiresProxyServer needs it set
+    this.options = options
 
     if (!appId) {
       errorMessage +=
         '\n --> Missing required parameter - appId. You can get an appId when you register your app with ORE ID.'
     }
-    if (!apiKey) {
+    // api-key will be injected by the proxy server - so isn't required here
+    if (!this.requiresProxyServer && !apiKey) {
       errorMessage +=
         '\n --> Missing required parameter - apiKey. You can get an apiKey when you register your app with ORE ID.'
+    }
+    // api-key and service-key not allowed if this is being instantiated in the browser
+    if (this.requiresProxyServer && (apiKey || serviceKey)) {
+      errorMessage +=
+        '\n --> You cant include the apiKey (or serviceKey) when creating an instance of OreId that runs in the browser. This is to prevent your keys from being visible in the browser. If this app runs solely in the browser (like a Create React App), you need to set-up a proxy server to protect your keys. Refer to https://github.com/TeamAikon/ore-id-docs. Note: You wont get this error when using the appId and apiKey for a demo app.'
     }
     if (!oreIdUrl) {
       errorMessage += '\n --> Missing required parameter - oreIdUrl. Refer to the docs to get this value.'
@@ -1147,8 +1166,6 @@ export default class OreId {
     if (errorMessage !== '') {
       throw new Error(`Options are missing or invalid. ${errorMessage}`)
     }
-
-    this.options = options
   }
 
   // load user from local storage and call api
@@ -1416,7 +1433,10 @@ export default class OreId {
     let response
     let data
     const { apiKey, serviceKey, oreIdUrl } = this.options
-    const url = `${oreIdUrl}/api/${endpoint}`
+    // if running in browser, we dont call the api directly, we use a proxy server (unless we're running a demo app)
+    // calls to the proxy server must be start with '/' (not an host like http://server)
+    const oreIdUrlBase = this.requiresProxyServer ? '' : oreIdUrl
+    const url = `${oreIdUrlBase}/api/${endpoint}`
 
     const headers: { [key: string]: any } = { 'api-key': apiKey }
     if (!isNullOrEmpty(serviceKey)) {
