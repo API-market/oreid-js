@@ -54,7 +54,7 @@ export function authCallbackHandler(oreId) {
     if (account) {
       const user = await oreId.getUserInfoFromApi(account, processId) // get user from server and also save in local cookie (or state)
       // remove processId from user results and attach to request object instead
-      if (user.processId) {
+      if (user?.processId) {
         req.processId = user.processId
         delete user.processId
       }

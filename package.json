@@ -1,6 +1,6 @@
 {
   "name": "oreid-js",
-  "version": "2.6.1",
+  "version": "2.7.0",
   "description": "Add user authentication and signing to any blockchain app",
   "author": "AIKON",
   "license": "MIT",

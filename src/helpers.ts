@@ -21,6 +21,8 @@ const replaceAll = (inString: string, search: string, replacement: string) => {
 }
 
 export default class Helpers {
+  static isInBrowser = typeof window !== 'undefined'
+
   static isNullOrEmpty(obj: any) {
     if (obj === undefined) {
       return true
