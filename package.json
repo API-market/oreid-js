@@ -1,6 +1,6 @@
 {
   "name": "oreid-js",
-  "version": "2.7.2",
+  "version": "2.7.3",
   "description": "Add user authentication and signing to any blockchain app",
   "author": "AIKON",
   "license": "MIT",
@@ -32,6 +32,7 @@
   "dependencies": {
     "@msgpack/msgpack": "^2.0.0",
     "@types/create-hmac": "^1.1.0",
+    "@types/express": "^4.17.8",
     "@types/js-cookie": "^2.2.6",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/jwt-decode": "^2.2.1",
@@ -39,6 +40,8 @@
     "create-hmac": "^1.1.7",
     "dotenv": "^8.2.0",
     "eos-transit": "^4.0.7",
+    "express": "^4.17.1",
+    "http-proxy-middleware": "^1.0.6",
     "js-base64": "^2.5.2",
     "js-cookie": "^2.2.1",
     "jsonwebtoken": "^8.5.1",
