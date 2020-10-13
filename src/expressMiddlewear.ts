@@ -1,49 +1,55 @@
-const { createProxyMiddleware } = require('http-proxy-middleware')
-const express = require('express')
-const crypto = require('crypto')
-const { isNullOrUndefined } = require('util')
+import express, { Express, Request, Response, NextFunction } from 'express'
+import { createProxyMiddleware } from 'http-proxy-middleware'
+import { isNullOrUndefined } from 'util'
+import { generateHmac } from './hmac'
+
+export type ExpressMiddlewearOptions = {
+  OREID_URL: string
+  OREID_API_KEY: string
+  OREID_SERVICE_KEY: string
+  ALGORAND_API_KEY: string
+}
 
 /* eslint-disable no-param-reassign */
 
-/** Generates an HMAC using the full reqest url and returns a HTTP response */
-export function generateAndReturnHmac(req, res) {
-  const { targetUrl } = req.body
-  const hmac = crypto
-    .createHmac('sha256', process.env.OREID_API_KEY)
-    .update(targetUrl)
-    .digest('base64')
-  res.set('Content-Type', 'application/json')
-  res.send(JSON.stringify({ hmac }))
+/** Returns middleware that generates an HMAC using the full reqest url and returns a HTTP response */
+export function addHmacGenerateMiddlewear(options: ExpressMiddlewearOptions) {
+  return (req: Request, res: Response) => {
+    const { targetUrl } = req.body
+    const hmac = generateHmac(options.OREID_API_KEY, targetUrl)
+    res.set('Content-Type', 'application/json')
+    res.send(JSON.stringify({ hmac }))
+  }
 }
 
 /** Returns middleware that adds Algorand api key to header */
-function addAlgorandApiKeysMiddleware(options) {
+function addAlgorandApiKeysMiddleware(options: ExpressMiddlewearOptions) {
   // validate options
   if (isNullOrUndefined(options.ALGORAND_API_KEY)) {
     throw new Error(
       'You must provide ALGORAND_API_KEY either in the .env in the root directory of this project or pass it in via the options parameter. See https://github.com/TeamAikon/ore-id-docs',
     )
   }
-  return (req, res, next) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     req.headers['x-api-key'] = options.ALGORAND_API_KEY
     next()
   }
 }
 
 // Appends Oreid api key(s) to header
-function addOreidApiKeysMiddleware(options) {
-  return (req, res, next) => {
+function addOreidApiKeysMiddleware(options: ExpressMiddlewearOptions) {
+  return (req: Request, res: Response, next: NextFunction) => {
     // inject api-key and service-key(s) to header of request
-    if (process.env.OREID_API_KEY) req.headers['api-key'] = options.OREID_API_KEY
-    if (process.env.OREID_SERVICE_KEY) req.headers['service-key'] = options.OREID_SERVICE_KEY
+    if (options.OREID_API_KEY) req.headers['api-key'] = options.OREID_API_KEY
+    if (options.OREID_SERVICE_KEY) req.headers['service-key'] = options.OREID_SERVICE_KEY
     next()
   }
 }
 
 /** Returns middleware that adds Configure OREID Proxy */
-function oreidProxyMiddleware() {
+function oreidProxyMiddleware(options: ExpressMiddlewearOptions) {
   return createProxyMiddleware({
-    target: process.env.REACT_APP_OREID_URL,
+    target: options.OREID_URL,
     changeOrigin: true,
     // remove base path in incoming url
     pathRewrite: { '^/oreid': '' },
@@ -77,7 +83,7 @@ export function algorandProxyMiddleware() {
  *  Secrets must be in an .env or provided in oreIdSecrets and/or algorandSecrets parameters
  *  options = { OREID_URL: 'https:oreidservice', OREID_API_KEY: 'myApiKey', OREID_SERVICE_KEY: 'myServerKey', ALGORAND_API_KEY : 'myAlgorandPureStakeApiKey' }
  * */
-export function addOreidExpressMiddleware(app, options) {
+export function addOreidExpressMiddleware(app: Express, options: ExpressMiddlewearOptions) {
   // if options not passed-in, construct it from .env values
   if (isNullOrUndefined(options)) {
     options = {
@@ -98,10 +104,13 @@ export function addOreidExpressMiddleware(app, options) {
   }
   // ------- ORE ID API
   // use the apiKey to generate an hmac for a provided url
-  app.use('/oreid/hmac', express.json(), generateAndReturnHmac)
+  app.use('/oreid/hmac', express.json(), addHmacGenerateMiddlewear(options))
   // proxy all other requests to OREID_URL server
-  app.use('/oreid', addOreidApiKeysMiddleware(options), oreidProxyMiddleware())
+  app.use('/oreid', addOreidApiKeysMiddleware(options), oreidProxyMiddleware(options))
   // ------ Algorand API
   // proxy /algorand/xxx requests to Algorand API (purestake.io)
-  app.use('/algorand', addAlgorandApiKeysMiddleware(options), algorandProxyMiddleware())
+  // only enabled if ALGORAND_API_KEY is provided
+  if (options.ALGORAND_API_KEY) {
+    app.use('/algorand', addAlgorandApiKeysMiddleware(options), algorandProxyMiddleware())
+  }
 }
