@@ -6,37 +6,57 @@
     app.use('/signcallback', asyncHandler(signCallbackHandler(oreId)));
 */
 
-/*
-    Process the response from the /auth endpoint
-    attach user to HTTP request
-*/
+import { Request, Response, NextFunction } from 'express'
+import OreId from './oreId'
+import { ProcessId, User } from './types'
+
+// Typescript type extends request with custom params
+declare module 'express-serve-static-core' {
+  interface Request {
+    appId?: string
+    accessToken?: string
+    idToken?: string
+    processId?: ProcessId
+    state?: string
+    signedTransaction?: string
+    transactionId?: string
+    user?: User
+  }
+  interface Response {
+    myField?: string
+  }
+}
+
+type AsyncHandlerFunc = (req: Request, res: Response, next: NextFunction) => any
 
 /* eslint-disable no-param-reassign */
-// Generic async handler for Express Middleware
-export const asyncHandler = fn => (req, res, next) => {
+/** Generic async handler for Express Middleware */
+export const asyncHandler = (fn: AsyncHandlerFunc) => (req: Request, res: Response, next: NextFunction) => {
   Promise.resolve(fn(req, res, next)).catch(next)
 }
 
-export function authCallbackHandler(oreId) {
-  return asyncHandler(async (req, res, next) => {
+/** Process the response from the /auth endpoint
+ *  Attach user to HTTP request */
+export function authCallbackHandler(oreId: OreId) {
+  return asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const { query } = req
     if (!query) {
       return {}
     }
 
-    oreId.errors = null
+    // oreId.errors = null
 
     const response = oreId.handleAuthResponse(req.originalUrl)
     const { accessToken, account, errors, idToken, processId, state } = response
 
     if (errors) {
-      oreId.errors = errors
+      // oreId.errors = errors
       const error = new Error(`Errors Processing auth callback: ${errors.join(', ')}`)
       return next(error)
     }
 
     // Add data to request object
-    req.appId = oreId.appId
+    req.appId = oreId.options.appId
     if (accessToken) {
       req.accessToken = accessToken
     }
@@ -65,22 +85,20 @@ export function authCallbackHandler(oreId) {
   })
 }
 
-/*
-    Process the response from the /sign endpoint
-    attach signedTransaction to HTTP request
-*/
-export function signCallbackHandler(oreId) {
-  return asyncHandler(async (req, res, next) => {
+/** Process the response from the /sign endpoint
+ * Attach signedTransaction to HTTP request */
+export function signCallbackHandler(oreId: OreId) {
+  return asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const { body } = req
     if (!body) {
       return {}
     }
 
-    oreId.errors = null
+    // oreId.errors = null
     const { signedTransaction, state, processId, transactionId, errors } = oreId.handleSignResponse(body)
 
     if (errors) {
-      oreId.errors = errors
+      // oreId.errors = errors
       const error = new Error(`Errors Processing sign callback: ${errors.join(', ')}`)
       return next(error)
     }
@@ -91,7 +109,7 @@ export function signCallbackHandler(oreId) {
 
     if (signedTransaction) {
       req.signedTransaction = signedTransaction
-      req.appId = oreId.appId
+      req.appId = oreId.options.appId
     }
 
     if (transactionId) {
