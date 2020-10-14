@@ -22,7 +22,7 @@ export async function appendHmacToUrl(useProxyServer: boolean, apiKey: string, u
   let hmac: string
   if (useProxyServer) {
     // get an hmac from the proxy server endpoint (since it has the secret apiKey)
-    const response = await Axios.post('/oreid/hmac', JSON.stringify({ targetUrl: url }), {
+    const response = await Axios.post('/oreid/hmac', JSON.stringify({ data: url }), {
       headers: { 'Content-Type': 'application/json' },
     })
     hmac = response?.data?.hmac
