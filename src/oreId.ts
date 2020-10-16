@@ -6,7 +6,7 @@ import { initAccessContext, WalletProvider, Wallet } from 'eos-transit'
 import { encode as AlgorandEncodeObject } from './algorandUtils'
 import Helpers from './helpers'
 import LocalState from './localState'
-import { providersNotImplemented } from './constants'
+import { defaultOreIdServiceUrl, providersNotImplemented, version } from './constants'
 import {
   getTransitProviderAttributes,
   getTransitProviderAttributesByProviderId,
@@ -1254,6 +1254,9 @@ export default class OreId {
     // set options now since this.requiresProxyServer needs it set
     this.options = options
 
+    // Apply default options
+    this.options.oreIdUrl = oreIdUrl || defaultOreIdServiceUrl
+
     if (!appId) {
       errorMessage +=
         '\n --> Missing required parameter - appId. You can get an appId when you register your app with ORE ID.'
@@ -1267,9 +1270,6 @@ export default class OreId {
     if (this.requiresProxyServer && (apiKey || serviceKey)) {
       errorMessage +=
         '\n --> You cant include the apiKey (or serviceKey) when creating an instance of OreId that runs in the browser. This is to prevent your keys from being visible in the browser. If this app runs solely in the browser (like a Create React App), you need to set-up a proxy server to protect your keys. Refer to https://github.com/TeamAikon/ore-id-docs. Note: You wont get this error when using the appId and apiKey for a demo app.'
-    }
-    if (!oreIdUrl) {
-      errorMessage += '\n --> Missing required parameter - oreIdUrl. Refer to the docs to get this value.'
     }
     if (errorMessage !== '') {
       throw new Error(`Options are missing or invalid. ${errorMessage}`)
@@ -1557,6 +1557,8 @@ export default class OreId {
     if (!isNullOrEmpty(processId)) {
       headers['process-id'] = processId
     }
+    // add sdk version to request header
+    headers['sdk-version'] = `oreidjs/${version}`
 
     try {
       if (requestMethod === RequestType.Get) {
