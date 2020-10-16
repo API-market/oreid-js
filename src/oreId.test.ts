@@ -3,6 +3,7 @@ import OreId from './oreId'
 import demoChainNetworks from './testHelpers/__mocks__/chainNetworks.json'
 import { OreIdOptions, AuthProvider } from './types'
 import { generateHmac } from './hmac'
+import { defaultOreIdServiceUrl } from './constants'
 
 describe('OreId', () => {
   let oreId: OreId
@@ -10,7 +11,7 @@ describe('OreId', () => {
     appName: 'testrunner',
     appId: 'demo_0097ed83e0a54e679ca46d082ee0e33a',
     apiKey: 'demo_k_97b33a2f8c984fb5b119567ca19e4a49',
-    oreIdUrl: 'https://service.oreid.io',
+    oreIdUrl: defaultOreIdServiceUrl,
   }
 
   beforeEach(() => {
