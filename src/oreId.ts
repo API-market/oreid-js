@@ -62,7 +62,6 @@ import {
   ChainPlatformType,
   TransitDiscoveryOptions,
 } from './types'
-import { appendHmacToUrl } from './hmac'
 
 const { isNullOrEmpty } = Helpers
 
@@ -1332,8 +1331,6 @@ export default class OreId {
       throw new Error('Missing a required parameter')
     }
 
-    const appAccessToken = await this.getAccessToken({ newAccountPassword, processId })
-
     // optional params
     const encodedStateParam = state ? `&state=${state}` : ''
     const linkToAccountParam = linkToAccount ? `&link_to_account=${linkToAccount}` : ''
@@ -1352,14 +1349,13 @@ export default class OreId {
     }
 
     const url =
-      `${oreIdUrl}/auth#app_access_token=${appAccessToken}&provider=${provider}` +
+      `${oreIdUrl}/auth#provider=${provider}` +
       `${codeParam}${emailParam}${phoneParam}` +
       `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(
         backgroundColor,
       )}${linkToAccountParam}${encodedStateParam}${processIdParam}`
 
-    // append an hmac to the end of the url - if we're using a proxy server, we'll get the hmac from it (since it has the secret)
-    return appendHmacToUrl(this.requiresProxyServer, this.options?.apiKey, url)
+    return await this.prepareURL(url)
   }
 
   // Returns a fully formed url to call the sign endpoint
@@ -1394,7 +1390,6 @@ export default class OreId {
       chainAccount = account
     }
 
-    const appAccessToken = await this.getAccessToken({ processId })
     const encodedTransaction = Helpers.base64Encode(transaction)
     const encodedSignedTransaction = Helpers.base64Encode(signedTransaction)
     let optionalParams = state ? `&state=${state}` : ''
@@ -1415,9 +1410,8 @@ export default class OreId {
     optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : ''
 
     // prettier-ignore
-    const url = `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}${optionalParams}`
-    // append an hmac to the end of the url - if we're using a proxy server, we'll get the hmac from it (since it has the secret)
-    return appendHmacToUrl(this.requiresProxyServer, this.options?.apiKey, url)
+    const url = `${oreIdUrl}/sign#account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}${optionalParams}`
+    return await this.prepareURL(url)
   }
 
   // Extracts the response parameters on the /auth callback URL string
@@ -1674,5 +1668,13 @@ export default class OreId {
       delete data.processId
     }
     return { data, processId }
+  }
+
+  /** This function will call /oreid/prepare-url to get the URL string with HMAC attached to it. */
+  async prepareURL(urlString: string): Promise<string> {
+    // append an hmac to the end of the url - if we're using a proxy server, we'll get the hmac from it (since it has the secret)
+    const response = await axios.post('/oreid/prepare-url', { urlString })
+    const { urlString: url } = response.data
+    return url
   }
 }
