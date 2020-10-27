@@ -3,6 +3,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware'
 import { isNullOrUndefined } from 'util'
 import { generateHmac } from './hmac'
 import { defaultOreIdServiceUrl } from './constants'
+import Axios from 'axios'
 
 export type ExpressMiddlewearOptions = {
   oreidUrl?: string
@@ -97,13 +98,48 @@ export function addOreidExpressMiddleware(app: Express, options: ExpressMiddlewe
 
   // ------- ORE ID API
   // use the apiKey to generate an hmac for a provided url
-  app.use('/oreid/hmac', express.json(), addHmacGenerateMiddlewear(options))
+  app.use('/oreid/prepare-url', express.json(), generateHmacURLWithAccessToken(options))
+  //app.use('/oreid/hmac', express.json(), addHmacGenerateMiddlewear(options))
   // proxy all other requests to OREID_URL server
-  app.use('/oreid', addOreidApiKeysMiddleware(options), oreidProxyMiddleware(options))
+  const apiKeysMiddleware = addOreidApiKeysMiddleware(options)
+  app.use('/oreid/account/user', apiKeysMiddleware, oreidProxyMiddleware(options))
+  app.use('/oreid/services/config', apiKeysMiddleware, oreidProxyMiddleware(options))
+  app.use('/oreid/account/add-permission', apiKeysMiddleware, oreidProxyMiddleware(options))
+  app.use('/oreid/transaction/can-auto-sign', apiKeysMiddleware, oreidProxyMiddleware(options))
+  app.use('/oreid', (_req, _res, next) =>
+    next(new Error("This API endpoint can't be called directly within the browser.")),
+  )
   // ------ Algorand API
   // proxy /algorand/xxx requests to Algorand API (purestake.io)
   // only enabled if ALGORAND_API_KEY is provided
   if (options.algorandApiKey) {
     app.use('/algorand', addAlgorandApiKeysMiddleware(options), algorandProxyMiddleware())
+  }
+}
+
+const generateHmacURLWithAccessToken = (options: ExpressMiddlewearOptions) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const { oreidUrl, apiKey, serviceKey } = options
+
+    let urlString = `${oreidUrl}/api/app-token`
+    const headers = {
+      'api-key': apiKey,
+    }
+    try {
+      const response = await Axios.post(urlString, null, {
+        headers: { 'Content-Type': 'application/json', ...headers },
+      })
+      debugger
+      const { appAccessToken } = response.data
+
+      const receivedUrl = req.body.urlString
+      if (!receivedUrl) next(new Error('HMAC Error: Received empty URL-String.'))
+      const url = `${receivedUrl}&app_access_token=${appAccessToken}`
+      const hmac = generateHmac(options.apiKey, url)
+      res.send({ urlString: `${url}&hmac=${hmac}` })
+    } catch (e) {
+      // this error should also be logged to rollbar as this is oreid-service api endpoint fail. Which is internal error.
+      res.emit('error', new Error(`HMAC Error: Could not generate App Access Token. ${e}`)) // maybe show the original error message
+    }
   }
 }
