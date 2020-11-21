@@ -281,6 +281,7 @@ export type LoginOptions = {
   phone?: string
   state?: string
   linkToAccount?: boolean
+  currentAccountPassword?: string
   newAccountPassword?: string
   processId?: ProcessId
 }
@@ -372,12 +373,12 @@ export type CustodialNewAccountApiBodyParams = {
 }
 
 export type GetAccessTokenParams = {
-  newAccountPassword?: string
+  appAccessTokenMetadata?: AppAccessTokenMetadata
   processId?: ProcessId
 }
 
 export type GetNewAppAccessTokenParams = {
-  newAccountPassword: string
+  appAccessTokenMetadata?: AppAccessTokenMetadata
   processId?: ProcessId
 }
 
@@ -473,4 +474,13 @@ export type GetOreIdAuthUrlParams = LoginOptions & {
 export type SetupTransitWalletParams = {
   chainNetwork?: ChainNetwork
   provider: AuthProvider
+}
+
+export type AppAccessTokenMetadata = {
+  newAccountPassword?: string
+  currentAccountPassword?: string
+  secrets?: {
+    type: string
+    value: string
+  }[]
 }
