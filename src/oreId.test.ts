@@ -21,8 +21,7 @@ describe('OreId', () => {
   describe('Errors without the required params', () => {
     it('Throws the correct message with no params', () => {
       const error = `Options are missing or invalid. 
- --> Missing required parameter - appId. You can get an appId when you register your app with ORE ID.
- --> Missing required parameter - oreIdUrl. Refer to the docs to get this value.`
+ --> Missing required parameter - appId. You can get an appId when you register your app with ORE ID.`
       expect(() => {
         oreId = new OreId(null)
       }).toThrow(Error(error))
@@ -31,7 +30,7 @@ describe('OreId', () => {
     it('Throws an error without an appId', () => {
       const appIdError = `Options are missing or invalid. 
  --> Missing required parameter - appId. You can get an appId when you register your app with ORE ID.
- --> You cant include the apiKey (or serviceKey) when creating an instance of OreId that runs in the browser. This is to prevent your keys from being visible in the browser. If this app runs solely in the browser (like a Create React App), you need to set-up a proxy server to protect your keys. Refer to https://github.com/TeamAikon/ore-id-docs. Note: You wont get this error when using the appId and apiKey for a demo app.`
+ --> You cant include the apiKey (or serviceKey) when creating an instance of OreId that runs in the browser. This is to prevent your keys from being visible in the browser. If this app runs solely in the browser (like a Create React App), you need to set-up a proxy server to protect your keys. Refer to https://github.com/TeamAikon/ore-id-docs. Note: You wont get this error when using the appId and apiKey for a demo app (appId starts with demo_).`
       expect(() => {
         oreId = new OreId({ ...options, appId: '' })
       }).toThrowError(Error(appIdError))
@@ -43,14 +42,6 @@ describe('OreId', () => {
       expect(() => {
         oreId = new OreId({ ...options, apiKey: '' })
       }).toThrowError(Error(apiKeyError))
-    })
-
-    it('Throws an error with a oreIdUrl', () => {
-      const oreIdUrlError = `Options are missing or invalid. 
- --> Missing required parameter - oreIdUrl. Refer to the docs to get this value.`
-      expect(() => {
-        oreId = new OreId({ ...options, oreIdUrl: '' })
-      }).toThrowError(Error(oreIdUrlError))
     })
   })
 
@@ -109,15 +100,15 @@ describe('OreId', () => {
       expect(result).toEqual({
         errors: null,
         loginUrl:
-          'https://service.oreid.io/auth#app_access_token=12345667&provider=google&code=12345&email=test@test.com&phone=%2B1555555555&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&hmac=LCfH3K7eJGreR0UEZoXNrsueB48tqnx1yApXggoFz3E=',
+          'https://service.oreid.io/auth#provider=google&code=12345&email=test@test.com&phone=%2B1555555555&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&app_access_token=12345667&hmac=LIuhxTG3o6ZZPaqD2CA+NIZ9oi5Lg11lKJNPUsN+Yto=',
       })
     })
 
     it('Creates an HMAC', () => {
       const loginUrl =
-        'https://service.oreid.io/auth#app_access_token=12345667&provider=google&code=12345&email=test@test.com&phone=%2B1555555555&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc'
+        'https://service.oreid.io/auth#provider=google&code=12345&email=test@test.com&phone=%2B1555555555&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&app_access_token=12345667'
       const hmac = generateHmac('demo_k_97b33a2f8c984fb5b119567ca19e4a49', loginUrl)
-      expect(hmac).toEqual('LCfH3K7eJGreR0UEZoXNrsueB48tqnx1yApXggoFz3E=')
+      expect(hmac).toEqual('LIuhxTG3o6ZZPaqD2CA+NIZ9oi5Lg11lKJNPUsN+Yto=')
     })
 
     // describe('Logins with transit', () => {
