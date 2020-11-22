@@ -350,17 +350,7 @@ export default class OreId {
   }
 
   async loginWithOreId(loginOptions: LoginOptions): Promise<{ loginUrl: string; errors: string }> {
-    const {
-      code,
-      email,
-      phone,
-      provider,
-      state,
-      linkToAccount,
-      currentAccountPassword,
-      newAccountPassword,
-      processId,
-    } = loginOptions || {}
+    const { code, email, phone, provider, state, linkToAccount, processId } = loginOptions || {}
     const { authCallbackUrl, backgroundColor } = this.options
     const args = {
       code,
@@ -371,8 +361,6 @@ export default class OreId {
       callbackUrl: authCallbackUrl,
       state,
       linkToAccount,
-      currentAccountPassword,
-      newAccountPassword,
       processId,
     }
     const loginUrl = await this.getOreIdAuthUrl(args)
@@ -1326,19 +1314,7 @@ export default class OreId {
 
   // Returns a fully formed url to call the auth endpoint
   async getOreIdAuthUrl(args: GetOreIdAuthUrlParams) {
-    const {
-      code,
-      email,
-      phone,
-      provider,
-      callbackUrl,
-      backgroundColor,
-      state,
-      linkToAccount,
-      currentAccountPassword,
-      newAccountPassword,
-      processId,
-    } = args
+    const { code, email, phone, provider, callbackUrl, backgroundColor, state, linkToAccount, processId } = args
     const { oreIdUrl } = this.options
 
     if (!provider || !callbackUrl) {
@@ -1369,12 +1345,7 @@ export default class OreId {
         backgroundColor,
       )}${linkToAccountParam}${encodedStateParam}${processIdParam}`
 
-    // collect appAccessTokenMetadata options
-    const appAccessTokenMetadata: AppAccessTokenMetadata = {}
-    if (currentAccountPassword) appAccessTokenMetadata.currentAccountPassword = currentAccountPassword
-    if (newAccountPassword) appAccessTokenMetadata.newAccountPassword = newAccountPassword
-
-    return this.addAccessTokenAndHmacToUrl(url, appAccessTokenMetadata)
+    return this.addAccessTokenAndHmacToUrl(url, null)
   }
 
   // Returns a fully formed url to call the sign endpoint

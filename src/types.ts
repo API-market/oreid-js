@@ -281,8 +281,6 @@ export type LoginOptions = {
   phone?: string
   state?: string
   linkToAccount?: boolean
-  currentAccountPassword?: string
-  newAccountPassword?: string
   processId?: ProcessId
 }
 
@@ -330,6 +328,16 @@ export type SignResponse = {
   errors?: string[]
   processId?: ProcessId
   state?: string
+}
+
+// Todo: implement passwordReset flow/url
+export type passwordResetOptions = {
+  provider: AuthProvider
+  chainAccount?: ChainAccount
+  chainNetwork?: ChainNetwork
+  state?: string
+  currentAccountPassword?: string // if the user's current password is known, it can be passed in to appAccessToken request
+  processId?: ProcessId
 }
 
 // API params
