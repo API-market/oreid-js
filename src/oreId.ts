@@ -7,6 +7,7 @@ import { encode as AlgorandEncodeObject } from './algorandUtils'
 import Helpers from './helpers'
 import LocalState from './localState'
 import { defaultOreIdServiceUrl, providersNotImplemented, version } from './constants'
+import { generateHmac } from './hmac'
 import {
   getTransitProviderAttributes,
   getTransitProviderAttributesByProviderId,
@@ -25,6 +26,7 @@ import {
   TransitWalletAccessContext,
   OreIdOptions,
   AppAccessToken,
+  AppAccessTokenMetadata,
   ChainNetwork,
   SettingChainNetwork,
   PasswordlessApiParams,
@@ -62,7 +64,6 @@ import {
   ChainPlatformType,
   TransitDiscoveryOptions,
 } from './types'
-import { appendHmacToUrl } from './hmac'
 
 const { isNullOrEmpty } = Helpers
 
@@ -349,7 +350,7 @@ export default class OreId {
   }
 
   async loginWithOreId(loginOptions: LoginOptions): Promise<{ loginUrl: string; errors: string }> {
-    const { code, email, phone, provider, state, linkToAccount, newAccountPassword, processId } = loginOptions || {}
+    const { code, email, phone, provider, state, linkToAccount, processId } = loginOptions || {}
     const { authCallbackUrl, backgroundColor } = this.options
     const args = {
       code,
@@ -360,7 +361,6 @@ export default class OreId {
       callbackUrl: authCallbackUrl,
       state,
       linkToAccount,
-      newAccountPassword,
       processId,
     }
     const loginUrl = await this.getOreIdAuthUrl(args)
@@ -1255,7 +1255,7 @@ export default class OreId {
     this.options = options
 
     // Apply default options
-    this.options.oreIdUrl = oreIdUrl || defaultOreIdServiceUrl
+    if (options) this.options.oreIdUrl = oreIdUrl || defaultOreIdServiceUrl
 
     if (!appId) {
       errorMessage +=
@@ -1269,7 +1269,7 @@ export default class OreId {
     // api-key and service-key not allowed if this is being instantiated in the browser
     if (this.requiresProxyServer && (apiKey || serviceKey)) {
       errorMessage +=
-        '\n --> You cant include the apiKey (or serviceKey) when creating an instance of OreId that runs in the browser. This is to prevent your keys from being visible in the browser. If this app runs solely in the browser (like a Create React App), you need to set-up a proxy server to protect your keys. Refer to https://github.com/TeamAikon/ore-id-docs. Note: You wont get this error when using the appId and apiKey for a demo app.'
+        '\n --> You cant include the apiKey (or serviceKey) when creating an instance of OreId that runs in the browser. This is to prevent your keys from being visible in the browser. If this app runs solely in the browser (like a Create React App), you need to set-up a proxy server to protect your keys. Refer to https://github.com/TeamAikon/ore-id-docs. Note: You wont get this error when using the appId and apiKey for a demo app (appId starts with demo_).'
     }
     if (errorMessage !== '') {
       throw new Error(`Options are missing or invalid. ${errorMessage}`)
@@ -1307,32 +1307,19 @@ export default class OreId {
   }
 
   // Gets a single-use token to access the service
-  async getAccessToken({ newAccountPassword, processId }: GetAccessTokenParams = {}) {
-    await this.getNewAppAccessToken({ newAccountPassword, processId }) // call api
+  async getAccessToken({ appAccessTokenMetadata, processId }: GetAccessTokenParams = {}) {
+    await this.getNewAppAccessToken({ appAccessTokenMetadata, processId }) // call api
     return this.appAccessToken
   }
 
   // Returns a fully formed url to call the auth endpoint
   async getOreIdAuthUrl(args: GetOreIdAuthUrlParams) {
-    const {
-      code,
-      email,
-      phone,
-      provider,
-      callbackUrl,
-      backgroundColor,
-      state,
-      linkToAccount,
-      newAccountPassword,
-      processId,
-    } = args
+    const { code, email, phone, provider, callbackUrl, backgroundColor, state, linkToAccount, processId } = args
     const { oreIdUrl } = this.options
 
     if (!provider || !callbackUrl) {
       throw new Error('Missing a required parameter')
     }
-
-    const appAccessToken = await this.getAccessToken({ newAccountPassword, processId })
 
     // optional params
     const encodedStateParam = state ? `&state=${state}` : ''
@@ -1352,14 +1339,13 @@ export default class OreId {
     }
 
     const url =
-      `${oreIdUrl}/auth#app_access_token=${appAccessToken}&provider=${provider}` +
+      `${oreIdUrl}/auth#provider=${provider}` +
       `${codeParam}${emailParam}${phoneParam}` +
       `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(
         backgroundColor,
       )}${linkToAccountParam}${encodedStateParam}${processIdParam}`
 
-    // append an hmac to the end of the url - if we're using a proxy server, we'll get the hmac from it (since it has the secret)
-    return appendHmacToUrl(this.requiresProxyServer, this.options?.apiKey, url)
+    return this.addAccessTokenAndHmacToUrl(url, null)
   }
 
   // Returns a fully formed url to call the sign endpoint
@@ -1394,7 +1380,6 @@ export default class OreId {
       chainAccount = account
     }
 
-    const appAccessToken = await this.getAccessToken({ processId })
     const encodedTransaction = Helpers.base64Encode(transaction)
     const encodedSignedTransaction = Helpers.base64Encode(signedTransaction)
     let optionalParams = state ? `&state=${state}` : ''
@@ -1415,9 +1400,8 @@ export default class OreId {
     optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : ''
 
     // prettier-ignore
-    const url = `${oreIdUrl}/sign#app_access_token=${appAccessToken}&account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}${optionalParams}`
-    // append an hmac to the end of the url - if we're using a proxy server, we'll get the hmac from it (since it has the secret)
-    return appendHmacToUrl(this.requiresProxyServer, this.options?.apiKey, url)
+    const url = `${oreIdUrl}/sign#account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}${optionalParams}`
+    return this.addAccessTokenAndHmacToUrl(url, null)
   }
 
   // Extracts the response parameters on the /auth callback URL string
@@ -1459,8 +1443,8 @@ export default class OreId {
   }
 
   // Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken
-  async getNewAppAccessToken({ newAccountPassword, processId }: GetNewAppAccessTokenParams) {
-    const response = await this.callOreIdApi(RequestType.Post, ApiEndpoint.AppToken, { newAccountPassword }, processId)
+  async getNewAppAccessToken({ appAccessTokenMetadata, processId }: GetNewAppAccessTokenParams) {
+    const response = await this.callOreIdApi(RequestType.Post, ApiEndpoint.AppToken, appAccessTokenMetadata, processId)
     const { appAccessToken, processId: processIdReturned } = response
     this.appAccessToken = appAccessToken
   }
@@ -1474,7 +1458,6 @@ export default class OreId {
       this.localState.saveUser(data)
       return data
     }
-
     return null
   }
 
@@ -1674,5 +1657,23 @@ export default class OreId {
       delete data.processId
     }
     return { data, processId }
+  }
+
+  /** Add an app access token and hmac signature to the url
+   *  If running in browser, calls proxy server at /oreid/prepare-url to do both (since they require teh apiKey secret) */
+  async addAccessTokenAndHmacToUrl(urlString: string, appAccessTokenMetadata: AppAccessTokenMetadata): Promise<string> {
+    // running in browser
+    if (this.requiresProxyServer) {
+      // retrieve and append an app-access-token and a matching hmac signature to the end of the url
+      // calling the proxy server is required to protect the secrets needed to get the access token and to generate the hmac
+      const response = await axios.post('/oreid/prepare-url', { appAccessTokenMetadata, urlString })
+      return response?.data?.urlString
+    }
+    // running on server
+    const appAccessToken = await this.getAccessToken({ appAccessTokenMetadata })
+    const urlWithAccessToken = `${urlString}&app_access_token=${appAccessToken}`
+    // generate hmac on full url
+    const hmac = generateHmac(this.options.apiKey, urlWithAccessToken)
+    return `${urlWithAccessToken}&hmac=${hmac}`
   }
 }

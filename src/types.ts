@@ -281,7 +281,6 @@ export type LoginOptions = {
   phone?: string
   state?: string
   linkToAccount?: boolean
-  newAccountPassword?: string
   processId?: ProcessId
 }
 
@@ -331,6 +330,16 @@ export type SignResponse = {
   state?: string
 }
 
+// Todo: implement passwordReset flow/url
+export type passwordResetOptions = {
+  provider: AuthProvider
+  chainAccount?: ChainAccount
+  chainNetwork?: ChainNetwork
+  state?: string
+  currentAccountPassword?: string // if the user's current password is known, it can be passed in to appAccessToken request
+  processId?: ProcessId
+}
+
 // API params
 
 export type CustodialMigrateAccountParams = {
@@ -372,12 +381,12 @@ export type CustodialNewAccountApiBodyParams = {
 }
 
 export type GetAccessTokenParams = {
-  newAccountPassword?: string
+  appAccessTokenMetadata?: AppAccessTokenMetadata
   processId?: ProcessId
 }
 
 export type GetNewAppAccessTokenParams = {
-  newAccountPassword: string
+  appAccessTokenMetadata?: AppAccessTokenMetadata
   processId?: ProcessId
 }
 
@@ -473,4 +482,13 @@ export type GetOreIdAuthUrlParams = LoginOptions & {
 export type SetupTransitWalletParams = {
   chainNetwork?: ChainNetwork
   provider: AuthProvider
+}
+
+export type AppAccessTokenMetadata = {
+  newAccountPassword?: string
+  currentAccountPassword?: string
+  secrets?: {
+    type: string
+    value: string
+  }[]
 }
