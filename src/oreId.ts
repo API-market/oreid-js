@@ -93,7 +93,7 @@ export default class OreId {
 
   /** whether the current appId is a demo app */
   get isDemoApp() {
-    return this.options?.appId.toLowerCase().startsWith('demo') || false
+    return this.options?.appId?.toLowerCase().startsWith('demo') || false
   }
 
   // If we're running in the browser, we must use a proxy server to talk to OREID api
@@ -1544,6 +1544,7 @@ export default class OreId {
     headers['sdk-version'] = `oreidjs/${version}`
 
     try {
+      // GET
       if (requestMethod === RequestType.Get) {
         if (!isNullOrEmpty(params)) {
           urlString = Object.keys(params)
@@ -1554,9 +1555,10 @@ export default class OreId {
         const urlWithParams = urlString ? `${url}?${urlString}` : url
         response = await axios.get(urlWithParams, { headers })
       }
-
+      // POST
       if (requestMethod === RequestType.Post) {
-        response = await axios.post(url, JSON.stringify(params), {
+        const body = !isNullOrEmpty(params) ? JSON.stringify(params) : null
+        response = await axios.post(url, body, {
           headers: { 'Content-Type': 'application/json', ...headers },
           // body: params,
         })
