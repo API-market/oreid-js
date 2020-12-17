@@ -1676,6 +1676,7 @@ export default class OreId {
     const urlWithAccessToken = `${urlString}&app_access_token=${appAccessToken}`
     // generate hmac on full url
     const hmac = generateHmac(this.options.apiKey, urlWithAccessToken)
-    return `${urlWithAccessToken}&hmac=${hmac}`
+    const urlEncodedHmac = encodeURIComponent(hmac)
+    return `${urlWithAccessToken}&hmac=${urlEncodedHmac}`
   }
 }

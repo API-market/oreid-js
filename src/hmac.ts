@@ -30,9 +30,10 @@ export async function appendHmacToUrl(useProxyServer: boolean, apiKey: string, u
     hmac = generateHmac(apiKey, url)
   }
 
+  const urlEncodedHmac = encodeURIComponent(hmac)
   // correct hmac already in place
-  if (url.includes(`&hmac=${hmac}`)) {
+  if (url.includes(`&hmac=${urlEncodedHmac}`)) {
     return url
   }
-  return `${url}&hmac=${hmac}`
+  return `${url}&hmac=${urlEncodedHmac}`
 }

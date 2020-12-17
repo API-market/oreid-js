@@ -89,7 +89,8 @@ export function addAccessTokenAndHmacToUrl(options: ExpressMiddlewareOptions) {
       const urlWithAccessToken = `${urlToModify}&app_access_token=${appAccessToken}`
       // generate hmac on full url
       const hmac = generateHmac(apiKey, urlWithAccessToken)
-      res.send({ urlString: `${urlWithAccessToken}&hmac=${hmac}` })
+      const urlEncodedHmac = encodeURIComponent(hmac)
+      res.send({ urlString: `${urlWithAccessToken}&hmac=${urlEncodedHmac}` })
     } catch (e) {
       res.emit('error', new Error(`oreid/prepare-url: Problem in addAccessTokenAndHmacToUrl: ${JSON.stringify(e)}`))
     }
