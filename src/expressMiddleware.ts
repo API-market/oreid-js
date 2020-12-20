@@ -83,8 +83,12 @@ export function addAccessTokenAndHmacToUrl(options: ExpressMiddlewareOptions) {
     try {
       // get a new app-access-token
       const response = await Axios.post(appTokenApiEndpoint, null, {
-        headers: { 'Content-Type': 'application/json', headers: { 'api-key': apiKey } },
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': apiKey,
+        },
       })
+
       const { appAccessToken } = response.data
       const urlWithAccessToken = `${urlToModify}&app_access_token=${appAccessToken}`
       // generate hmac on full url
@@ -141,10 +145,7 @@ export function addOreidExpressMiddleware(app: Express, options: ExpressMiddlewa
 
   // proxy all other requests to OREID_URL server
   const apiKeysMiddleware = addOreidApiKeysMiddleware(options)
-  app.use('/oreid/account/user', apiKeysMiddleware, oreidProxyMiddleware(options))
-  app.use('/oreid/services/config', apiKeysMiddleware, oreidProxyMiddleware(options))
-  app.use('/oreid/account/add-permission', apiKeysMiddleware, oreidProxyMiddleware(options))
-  app.use('/oreid/transaction/can-auto-sign', apiKeysMiddleware, oreidProxyMiddleware(options))
+  app.use('/oreid/api', apiKeysMiddleware, oreidProxyMiddleware(options))
   app.use('/oreid', (_req, _res, next) =>
     next(new Error('This API endpoint cant be called directly within the browser.')),
   )
