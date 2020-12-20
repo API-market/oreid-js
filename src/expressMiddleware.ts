@@ -123,7 +123,7 @@ export function algorandProxyMiddleware() {
   })
 }
 
-/** Adds api routes for /oreid, /oreid/hmac, /algorand, etc.
+/** Adds api routes for /oreid/prepare-url, /oreid/api, /algorand, etc.
  *  Also injects apikeys/secrets into request headers
  *  Secrets must be provided in options paramters e.g. ...
  *  options = { apiKey: 'myApiKey', serviceKey: 'myServiceKey', algorandApiKey : 'myAlgorandPureStakeApiKey' }
