@@ -1,9 +1,9 @@
 /* eslint-disable jest/no-mocks-import */
-import OreId from './oreId'
-import demoChainNetworks from './testHelpers/__mocks__/chainNetworks.json'
-import { OreIdOptions, AuthProvider } from './types'
-import { generateHmac } from './hmac'
-import { defaultOreIdServiceUrl } from './constants'
+import OreId from '../src/oreId'
+import demoChainNetworks from '../src/testHelpers/__mocks__/chainNetworks.json'
+import { OreIdOptions, AuthProvider } from '../src/types'
+import { generateHmac } from '../src/hmac'
+import { defaultOreIdServiceUrl } from '../src/constants'
 
 describe('OreId', () => {
   let oreId: OreId
