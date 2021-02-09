@@ -15,6 +15,7 @@ declare module 'express-serve-static-core' {
   interface Request {
     appId?: string
     accessToken?: string
+    chainAccount?: string
     idToken?: string
     processId?: ProcessId
     state?: string
@@ -114,6 +115,41 @@ export function signCallbackHandler(oreId: OreId) {
 
     if (transactionId) {
       req.transactionId = transactionId
+    }
+
+    // Add state to request object
+    if (state) {
+      req.state = state
+    }
+
+    return next()
+  })
+}
+
+/** Process the response from the /new-account endpoint
+ * Attach newly created account name to HTTP request */
+export function newAccountCallbackHandler(oreId: OreId) {
+  return asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const { body } = req
+    if (!body) {
+      return {}
+    }
+
+    // oreId.errors = null
+    const { chainAccount, state, processId, errors } = oreId.handleNewAccountResponse(body)
+
+    if (errors) {
+      const error = new Error(`Errors Processing new account callback: ${errors.join(', ')}`)
+      return next(error)
+    }
+
+    if (processId) {
+      req.processId = processId
+    }
+
+    if (chainAccount) {
+      req.chainAccount = chainAccount
+      req.appId = oreId.options.appId
     }
 
     // Add state to request object

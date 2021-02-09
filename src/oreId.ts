@@ -63,6 +63,9 @@ import {
   SignatureProviderArgs,
   ChainPlatformType,
   TransitDiscoveryOptions,
+  NewAccountOptions,
+  NewAccountResponse,
+  GetOreIdNewAccountUrlParams,
 } from './types'
 
 const { isNullOrEmpty } = Helpers
@@ -276,6 +279,19 @@ export default class OreId {
     return result
   }
 
+  /** Request OREID to create a new blockchain account in an existing user's wallet
+   *  This is an advanced feature - it most cases, blockchain accounts will be created automatically upon first login
+   */
+  async newAccount(newAccountOptions: NewAccountOptions) {
+    const { provider } = newAccountOptions
+
+    if (providersNotImplemented.includes(provider)) {
+      throw new Error('Not Implemented')
+    }
+
+    return this.newAccountWithOreId(newAccountOptions)
+  }
+
   async login(loginOptions: LoginOptions) {
     const { provider } = loginOptions
 
@@ -367,6 +383,24 @@ export default class OreId {
     return { loginUrl, errors: null }
   }
 
+  async newAccountWithOreId(newAccountOptions: NewAccountOptions): Promise<{ newAccountUrl: string; errors: string }> {
+    const { account, accountType, chainNetwork, accountOptions, provider, state, processId } = newAccountOptions || {}
+    const { newAccountCallbackUrl, backgroundColor } = this.options
+    const args = {
+      account,
+      accountType,
+      backgroundColor,
+      chainNetwork,
+      accountOptions,
+      provider,
+      callbackUrl: newAccountCallbackUrl,
+      state,
+      processId,
+    }
+    const newAccountUrl = await this.getOreIdNewAccountUrl(args)
+    return { newAccountUrl, errors: null }
+  }
+
   async checkIfTrxAutoSignable(signOptions: SignOptions) {
     const { serviceKey } = this.options
     if (!serviceKey) {
@@ -403,9 +437,11 @@ export default class OreId {
       expireSeconds,
       multiSigChainAccounts,
       processId,
+      provider,
       returnSignedTransaction,
       signatureOnly,
       signedTransaction: signedTransactionParam,
+      state: stateParam,
       transaction: transactionParam,
       userPassword,
     } = signOptions
@@ -434,12 +470,20 @@ export default class OreId {
       body.multisig_chain_accounts = multiSigChainAccounts
     }
 
+    if (provider) {
+      body.provider = provider
+    }
+
     if (returnSignedTransaction) {
       body.return_signed_transaction = returnSignedTransaction
     }
 
     if (signedTransactionParam) {
       body.signed_transaction = Helpers.base64Encode(signedTransactionParam)
+    }
+
+    if (stateParam) {
+      body.transaction = Helpers.base64Encode(stateParam)
     }
 
     if (transactionParam) {
@@ -1312,6 +1356,47 @@ export default class OreId {
     return this.appAccessToken
   }
 
+  // Returns a fully formed url to call the new-account endpoint
+  async getOreIdNewAccountUrl(args: GetOreIdNewAccountUrlParams) {
+    const {
+      account,
+      accountType,
+      chainNetwork,
+      accountOptions,
+      provider,
+      callbackUrl,
+      backgroundColor,
+      state,
+      processId,
+    } = args
+    const { oreIdUrl } = this.options
+
+    // collect additional params embedded into appAccessToken
+    const appAccessTokenMetadata: AppAccessTokenMetadata = {
+      paramsNewAccount: {
+        account,
+        accountType,
+        chainNetwork,
+        accountOptions,
+      },
+    }
+
+    if (!account || !accountType || !chainNetwork || !provider || !callbackUrl) {
+      throw new Error('Missing a required parameter')
+    }
+
+    // optional params
+    const encodedStateParam = state ? `&state=${state}` : ''
+    const processIdParam = processId ? `&process_id=${processId}` : ''
+
+    const url =
+      `${oreIdUrl}/new-account#provider=${provider}&chain_network=${chainNetwork}` +
+      `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(
+        backgroundColor,
+      )}${encodedStateParam}${processIdParam}`
+    return this.addAccessTokenAndHmacToUrl(url, appAccessTokenMetadata)
+  }
+
   // Returns a fully formed url to call the auth endpoint
   async getOreIdAuthUrl(args: GetOreIdAuthUrlParams) {
     const { code, email, phone, provider, callbackUrl, backgroundColor, state, linkToAccount, processId } = args
@@ -1397,6 +1482,7 @@ export default class OreId {
     optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : ''
     optionalParams += !isNullOrEmpty(signatureOnly) ? `&signature_only=${signatureOnly}` : ''
     optionalParams += !isNullOrEmpty(processId) ? `&process_id=${processId}` : ''
+    optionalParams += !isNullOrEmpty(provider) ? `&provider=${provider}` : ''
     optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : ''
 
     // prettier-ignore
@@ -1420,6 +1506,15 @@ export default class OreId {
     if (state) response.state = state
     this.setIsBusy(false)
     return response
+  }
+
+  // Extracts the response parameters on the /new-account callback URL string
+  handleNewAccountResponse(callbackUrlString: string): NewAccountResponse {
+    const params = Helpers.urlParamsToArray(callbackUrlString)
+    const { chain_account: chainAccount, process_id: processId, state } = params
+    const errors = this.getErrorCodesFromParams(params)
+    this.setIsBusy(false)
+    return { chainAccount, processId, state, errors }
   }
 
   // Extracts the response parameters on the /sign callback URL string

@@ -71,6 +71,7 @@ export type OreIdOptions = {
   apiKey: string
   appName: string
   authCallbackUrl?: string
+  newAccountCallbackUrl?: string
   signCallbackUrl?: string
   backgroundColor?: Color
   oreIdUrl: string
@@ -272,6 +273,17 @@ export type SettingChainNetwork = {
 
 // oreid-js
 
+/** For rediecting to new-account endpoint - to create a chainAccount in an existing wallet */
+export type NewAccountOptions = {
+  account: AccountName // existing wallet account name (ore account)
+  accountType: AccountType
+  chainNetwork?: ChainNetwork
+  accountOptions: CreateOnChainAccountsOptions
+  provider: AuthProvider
+  state?: string
+  processId?: ProcessId
+}
+
 export type LoginOptions = {
   provider: AuthProvider
   chainAccount?: ChainAccount
@@ -302,12 +314,12 @@ export type SignOptions = {
   multiSigChainAccounts?: string
   returnSignedTransaction?: boolean
   processId?: ProcessId
+  provider: AuthProvider
   signedTransaction?: string
   transaction?: string
   userPassword?: string
   signatureOnly?: boolean
   state?: string
-  provider: AuthProvider
   callbackUrl?: string
   preventAutoSign?: boolean
   signExternalWithOreId?: boolean
@@ -317,6 +329,13 @@ export type AuthResponse = {
   account: AccountName
   accessToken?: string
   idToken?: string
+  errors?: string[]
+  processId?: ProcessId
+  state?: string
+}
+
+export type NewAccountResponse = {
+  chainAccount?: string
   errors?: string[]
   processId?: ProcessId
   state?: string
@@ -407,6 +426,7 @@ export type SignTransactionApiBodyParams = {
   chain_network: ChainNetwork
   expire_seconds?: number
   multisig_chain_accounts?: string
+  provider?: AuthProvider
   return_signed_transaction?: boolean
   signature_only?: boolean
   signed_transaction?: string
@@ -474,6 +494,11 @@ export type ConnectToUalProviderParams = {
   provider: AuthProvider
 }
 
+export type GetOreIdNewAccountUrlParams = NewAccountOptions & {
+  callbackUrl: string
+  backgroundColor: string
+}
+
 export type GetOreIdAuthUrlParams = LoginOptions & {
   callbackUrl: string
   backgroundColor: string
@@ -485,10 +510,35 @@ export type SetupTransitWalletParams = {
 }
 
 export type AppAccessTokenMetadata = {
+  paramsNewAccount?: NewAccountAppTokenParams
   newAccountPassword?: string
   currentAccountPassword?: string
   secrets?: {
     type: string
     value: string
   }[]
+}
+
+/** params for calling new-account service web endpoint (sent via AppAccessToken request) */
+export type NewAccountAppTokenParams = {
+  account: AccountName // wallet account (ore account name)
+  accountType: AccountType
+  chainNetwork?: ChainNetwork // chainNetwork to create new account on
+  accountOptions: CreateOnChainAccountsOptions
+}
+
+export type CreateOnChainAccountsOptions = {
+  keys?: {
+    publicKeys: {
+      owner?: PublicKey
+      active: PublicKey
+    }
+  }
+  multisigOptions?: AlgorandMultiSigOptions // || future multisig option types
+}
+
+export type AlgorandMultiSigOptions = {
+  version: number
+  threshold: number
+  addrs: string[]
 }
