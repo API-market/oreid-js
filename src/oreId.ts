@@ -443,6 +443,7 @@ export default class OreId {
       signedTransaction: signedTransactionParam,
       state: stateParam,
       transaction: transactionParam,
+      transactionRecordId,
       userPassword,
     } = signOptions
     const body: SignTransactionApiBodyParams = {
@@ -488,6 +489,10 @@ export default class OreId {
 
     if (transactionParam) {
       body.transaction = Helpers.base64Encode(transactionParam)
+    }
+
+    if (transactionRecordId) {
+      body.transaction_record_id = transactionRecordId
     }
 
     if (userPassword) {
@@ -1451,6 +1456,7 @@ export default class OreId {
       signedTransaction,
       state,
       transaction,
+      transactionRecordId,
       userPassword,
     } = signOptions
     let { chainAccount } = signOptions
@@ -1479,6 +1485,7 @@ export default class OreId {
     optionalParams += !isNullOrEmpty(returnSignedTransaction)
       ? `&return_signed_transaction=${returnSignedTransaction}`
       : ''
+    optionalParams += !isNullOrEmpty(transactionRecordId) ? `&transaction_record_id=${transactionRecordId}` : ''
     optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : ''
     optionalParams += !isNullOrEmpty(signatureOnly) ? `&signature_only=${signatureOnly}` : ''
     optionalParams += !isNullOrEmpty(processId) ? `&process_id=${processId}` : ''
