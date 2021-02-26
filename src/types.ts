@@ -323,6 +323,7 @@ export type SignOptions = {
   callbackUrl?: string
   preventAutoSign?: boolean
   signExternalWithOreId?: boolean
+  transactionRecordId?: string
 }
 
 export type AuthResponse = {
@@ -431,6 +432,7 @@ export type SignTransactionApiBodyParams = {
   signature_only?: boolean
   signed_transaction?: string
   transaction?: string
+  transaction_record_id?: string
   user_password?: string
 }
 
