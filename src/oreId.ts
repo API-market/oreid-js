@@ -201,16 +201,27 @@ export default class OreId {
     }
 
     const networkConfig = await this.getNetworkConfig(chainNetwork)
-
-    // create context
+    const isNotEosNetwork = await this.isNotEosNetwork(chainNetwork)
     const walletContext = initAccessContext({
       appName: appName || 'missing appName',
       network: networkConfig,
       walletProviders: eosTransitWalletProviders,
+      isNotEosNetwork, // Tells eos-transit to not use EOS specific rpc calls
     })
     // cache for future use
     this.transitAccessContexts[chainNetwork] = walletContext
     return walletContext
+  }
+
+  async getChainNetworkSettings(chainNetwork: ChainNetwork) {
+    const networks = await this.chainNetworks()
+    return networks.find(n => n.network === chainNetwork)
+  }
+
+  /** Returns true if network is an EOS sisterchain */
+  async isNotEosNetwork(chainNetwork: ChainNetwork) {
+    const networkSetting = await this.getChainNetworkSettings(chainNetwork)
+    return networkSetting.type !== (ChainPlatformType.eos || ChainPlatformType.ore)
   }
 
   // Two paths
