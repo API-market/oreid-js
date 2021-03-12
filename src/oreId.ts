@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 import axios from 'axios'
-import { initAccessContext, WalletProvider, Wallet } from 'eos-transit'
+import { initAccessContext, WalletProvider, Wallet } from '@aikon/eos-transit'
 import { encode as AlgorandEncodeObject } from './algorandUtils'
 import Helpers from './helpers'
 import LocalState from './localState'
