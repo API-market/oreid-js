@@ -218,10 +218,10 @@ export default class OreId {
     return networks.find(n => n.network === chainNetwork)
   }
 
-  /** Returns true if network is an EOS sisterchain */
+  /** Returns true if network is NOT an EOS sisterchain */
   async isNotEosNetwork(chainNetwork: ChainNetwork) {
     const networkSetting = await this.getChainNetworkSettings(chainNetwork)
-    return networkSetting.type !== (ChainPlatformType.eos || ChainPlatformType.ore)
+    return !(networkSetting.type === ChainPlatformType.eos || networkSetting.type === ChainPlatformType.ore)
   }
 
   // Two paths
