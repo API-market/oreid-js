@@ -96,6 +96,9 @@ let oreId = new OreId({ ..., ualWalletProviders });
 
 **NOTE:** You can use both UAL and Transit together however you can't pass in duplicate providers. Using `ual-scatter` and `eos-transit-scatter-provider` at the same time will result in an error.
 
+**NOTE:** This project uses a forked version of Eos-Transit library to support non-Eos blockchains (package: @aikon/eos-transit).
+
+<br><br>
 
 ### Current Support
 
