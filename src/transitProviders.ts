@@ -24,6 +24,7 @@ export type TransitProviderAttributes = {
     versionsRequired: string
   }
   discoveryKeyLookupFunc?: TransitDiscoverKeyLookupCallback
+  logoUrl: string
 }
 
 /** Function used within transit provider to transform a wallet's public key to a full account strucutre */
@@ -65,6 +66,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       versionsRequired: '',
     },
     discoveryKeyLookupFunc: AlgorandDiscoveryKeyLookupFunc,
+    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
   },
   {
     providerName: AuthProvider.Ledger,
@@ -83,6 +85,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       versionsRequired:
         'You need to have recent versions of your browser, Ledger firmware, and the Ledger EOS app. Click here for more details.',
     },
+    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
   },
   {
     providerName: AuthProvider.Lynx,
@@ -99,6 +102,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
   },
   {
     providerName: AuthProvider.Meetone,
@@ -115,6 +119,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
   },
   {
     providerName: AuthProvider.Metro,
@@ -131,6 +136,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
   },
   {
     providerName: AuthProvider.Scatter,
@@ -147,6 +153,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
   },
   {
     providerName: AuthProvider.TokenPocket,
@@ -163,6 +170,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
   },
   {
     providerName: AuthProvider.Portis,
@@ -179,6 +187,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
   },
   {
     providerName: AuthProvider.WhaleVault,
@@ -195,6 +204,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
   },
   {
     providerName: AuthProvider.SimpleEos,
@@ -211,6 +221,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
   },
   {
     providerName: AuthProvider.Keycat,
@@ -227,6 +238,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
   },
 ]
 
@@ -238,6 +250,11 @@ export function getTransitProviderAttributes(provider: AuthProvider): TransitPro
 /** Get provider-specific settings and metadata */
 export function getTransitProviderAttributesByProviderId(providerId: string): TransitProviderAttributes {
   return transitProviderAttributesData.find(tp => tp.providerId === providerId)
+}
+
+/** Get the list of provider attributes for a given chain */
+export function getTransitProviderAttributesByChain(chain: ChainPlatformType): TransitProviderAttributes[] {
+  return transitProviderAttributesData.filter(p => p.chainType === chain)
 }
 
 export const supportedTransitProviders: AuthProvider[] = transitProviderAttributesData.map(tp => tp.providerName)
