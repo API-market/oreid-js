@@ -1402,6 +1402,43 @@ export default class OreId {
     return this.addAccessTokenAndHmacToUrl(url, appAccessTokenMetadata)
   }
 
+   // Returns a fully formed url to call the auth endpoint
+   async getRecoverPasswordUrl(args: any) {
+    const { code, email, phone, provider, callbackUrl, backgroundColor, state, chainAccount, actionType, processId } = args
+    const { oreIdUrl } = this.options
+
+    if (!provider || !callbackUrl) {
+      throw new Error('Missing a required parameter')
+    }
+
+    // optional params
+    const encodedStateParam = state ? `&state=${state}` : ''
+    const processIdParam = processId ? `&process_id=${processId}` : ''
+    const actionTypeParam = actionType ? `action_type=${actionType}` : ''
+
+    // handle passwordless params
+    const codeParam = code ? `&code=${code}` : ''
+    const emailParam = email ? `&email=${email}` : ''
+    let phoneParam = ''
+
+    if (phone) {
+      // if user passes in +12103334444, the plus sign needs to be URL encoded
+      const encodedPhone = encodeURIComponent(phone)
+
+      phoneParam = `&phone=${encodedPhone}`
+    }
+
+    const url =
+      `${oreIdUrl}/auth#provider=${provider}` +
+      `&chain_account=${chainAccount}` +
+      `${codeParam}${emailParam}${phoneParam}` +
+      `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(
+        backgroundColor,
+      )}${actionTypeParam}${encodedStateParam}${processIdParam}`
+
+    return this.addAccessTokenAndHmacToUrl(url, null)
+  }
+
   // Returns a fully formed url to call the auth endpoint
   async getOreIdAuthUrl(args: GetOreIdAuthUrlParams) {
     const { code, email, phone, provider, callbackUrl, backgroundColor, state, linkToAccount, processId } = args
