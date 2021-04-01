@@ -181,7 +181,7 @@ export enum AccountType {
 }
 
 export enum RecoverAccountAction {
-  RepublicRecover = 'republic',
+  Republic = 'republic',
 }
 
 export enum OreIdProvider {
