@@ -180,6 +180,10 @@ export enum AccountType {
   VirtualNested = 'nested',
 }
 
+export enum RecoverAccountAction {
+  RepublicRecover = 'republic',
+}
+
 export enum OreIdProvider {
   Custodial = 'custodial',
   Apple = 'apple',
@@ -498,12 +502,19 @@ export type ConnectToUalProviderParams = {
 
 export type GetOreIdNewAccountUrlParams = NewAccountOptions & {
   callbackUrl: string
-  backgroundColor: string
+  backgroundColor?: string
 }
 
 export type GetOreIdAuthUrlParams = LoginOptions & {
   callbackUrl: string
-  backgroundColor: string
+  backgroundColor?: string
+}
+
+export type GetOreIdRecoverAccountUrlParams = LoginOptions & {
+  account: AccountName
+  backgroundColor?: string
+  callbackUrl: string
+  recoverAction: RecoverAccountAction
 }
 
 export type SetupTransitWalletParams = {
