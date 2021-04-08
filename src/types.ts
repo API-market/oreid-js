@@ -7,7 +7,7 @@ import {
   MakeWalletProviderFn,
   WalletAccessContext,
   Wallet,
-} from 'eos-transit/lib'
+} from '@aikon/eos-transit/lib'
 // EOSJS Types
 
 /** Arguments for `push_transaction` */
@@ -178,6 +178,10 @@ export enum AccountType {
   Pending = 'pending',
   VirtualLiquid = 'liquid',
   VirtualNested = 'nested',
+}
+
+export enum RecoverAccountAction {
+  Republic = 'republic',
 }
 
 export enum OreIdProvider {
@@ -498,12 +502,20 @@ export type ConnectToUalProviderParams = {
 
 export type GetOreIdNewAccountUrlParams = NewAccountOptions & {
   callbackUrl: string
-  backgroundColor: string
+  backgroundColor?: string
 }
 
 export type GetOreIdAuthUrlParams = LoginOptions & {
   callbackUrl: string
-  backgroundColor: string
+  backgroundColor?: string
+}
+
+export type GetOreIdRecoverAccountUrlParams = LoginOptions & {
+  account: AccountName
+  backgroundColor?: string
+  callbackUrl: string
+  recoverAction: RecoverAccountAction
+  overrideAppAccessToken: AppAccessToken
 }
 
 export type SetupTransitWalletParams = {

@@ -24,6 +24,7 @@ export type TransitProviderAttributes = {
     versionsRequired: string
   }
   discoveryKeyLookupFunc?: TransitDiscoverKeyLookupCallback
+  logoUrl: string
 }
 
 /** Function used within transit provider to transform a wallet's public key to a full account strucutre */
@@ -65,6 +66,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       versionsRequired: '',
     },
     discoveryKeyLookupFunc: AlgorandDiscoveryKeyLookupFunc,
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-algosigner-logo.png',
   },
   {
     providerName: AuthProvider.Ledger,
@@ -83,6 +85,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       versionsRequired:
         'You need to have recent versions of your browser, Ledger firmware, and the Ledger EOS app. Click here for more details.',
     },
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-ledger-logo.png',
   },
   {
     providerName: AuthProvider.Lynx,
@@ -99,6 +102,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-lynx-logo.png',
   },
   {
     providerName: AuthProvider.Meetone,
@@ -115,6 +119,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-meetone-logo.png',
   },
   {
     providerName: AuthProvider.Metro,
@@ -131,6 +136,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-generic-logo.png',
   },
   {
     providerName: AuthProvider.Scatter,
@@ -147,6 +153,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-scatter-logo.png',
   },
   {
     providerName: AuthProvider.TokenPocket,
@@ -163,6 +170,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-generic-logo.png',
   },
   {
     providerName: AuthProvider.Portis,
@@ -179,6 +187,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-portis-logo.png',
   },
   {
     providerName: AuthProvider.WhaleVault,
@@ -195,6 +204,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-whalevault-logo.png',
   },
   {
     providerName: AuthProvider.SimpleEos,
@@ -211,6 +221,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-simpleos-logo.png',
   },
   {
     providerName: AuthProvider.Keycat,
@@ -227,6 +238,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-keycat-logo.png',
   },
 ]
 
@@ -238,6 +250,11 @@ export function getTransitProviderAttributes(provider: AuthProvider): TransitPro
 /** Get provider-specific settings and metadata */
 export function getTransitProviderAttributesByProviderId(providerId: string): TransitProviderAttributes {
   return transitProviderAttributesData.find(tp => tp.providerId === providerId)
+}
+
+/** Get the list of provider attributes for a given chain */
+export function getTransitProviderAttributesByChain(chain: ChainPlatformType): TransitProviderAttributes[] {
+  return transitProviderAttributesData.filter(p => p.chainType === chain)
 }
 
 export const supportedTransitProviders: AuthProvider[] = transitProviderAttributesData.map(tp => tp.providerName)

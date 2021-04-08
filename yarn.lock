@@ -2,6 +2,15 @@
 # yarn lockfile v1
 
 
+"@aikon/eos-transit@^4.0.7":
+  version "4.0.7"
+  resolved "https://registry.yarnpkg.com/@aikon/eos-transit/-/eos-transit-4.0.7.tgz#1efa16f6813fa3dfd833038292dc98e6c6c7d4a8"
+  integrity sha512-+DSH3ZwRbFsm1Jo4j+Xd6WX5ojvLOAy/90mZbIso276BWbv43qwyQ8BkNOl+OUaULfO5meH846P64v7Ixj78Ag==
+  dependencies:
+    "@types/uuid" "^7.0.3"
+    eosjs "^20.0.0"
+    uuid "^3.3.2"
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4":
   version "7.10.4"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.10.4.tgz#168da1a36e90da68ae8d49c0f1b48c7c6249213a"
@@ -663,7 +672,6 @@
   version "13.13.47"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-13.13.47.tgz#6eca42c3462821309b26edbc2eff0db1e37ab9bc"
   integrity sha512-R6851wTjN1YJza8ZIeX6puNBSi/ZULHVh4WVleA7q256l+cP2EtXnKbO455fTs2ytQk3dL9qkU+Wh8l/uROdKg==
-
 "@types/normalize-package-data@^2.4.0":
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.0.tgz#e486d0d97396d79beedd0a6e33f4534ff6b4973e"
@@ -1689,15 +1697,6 @@ end-of-stream@^1.1.0:
   integrity sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==
   dependencies:
     once "^1.4.0"
-
-eos-transit@^4.0.7:
-  version "4.0.7"
-  resolved "https://registry.yarnpkg.com/eos-transit/-/eos-transit-4.0.7.tgz#ae1478b25629af1fd1f2f57cbc52a79bfa3dc47d"
-  integrity sha512-QQukVxonq9Jw2WRFejXG0YeHhPg/gIOn3wNT74qXNtrkO01Ml96bCOq2P2cPd/O1y7pXwUxFSBmtSFyYtqWXdw==
-  dependencies:
-    "@types/uuid" "^7.0.3"
-    eosjs "^20.0.0"
-    uuid "^3.3.2"
 
 eosjs-ecc@4.0.7:
   version "4.0.7"
