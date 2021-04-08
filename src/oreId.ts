@@ -66,6 +66,7 @@ import {
   NewAccountOptions,
   NewAccountResponse,
   GetOreIdNewAccountUrlParams,
+  GetOreIdRecoverAccountUrlParams,
 } from './types'
 
 const { isNullOrEmpty } = Helpers
@@ -119,7 +120,16 @@ export default class OreId {
     const { ualProviders, eosTransitWalletProviders } = this.options
     // All installed TransitProviders
     this.transitProvidersInstalled = (eosTransitWalletProviders || [])
-      .map(makeWalletProvider => makeWalletProvider(null)) // instantiate the provider with null network so we can get the id
+      .map(makeWalletProvider => {
+        try {
+          // if there is an error while initiating a provider dont break the whole process.
+          return makeWalletProvider(null)
+        } catch (e) {
+          console.log(`Couldn't initiate a wallet provider. ${e}`)
+          return null
+        }
+      }) // instantiate the provider with null network so we can get the id
+      .filter(walletProvider => walletProvider && true)
       .map(walletProvider => {
         return getTransitProviderAttributesByProviderId(walletProvider.id).providerName
       })
@@ -1508,6 +1518,55 @@ export default class OreId {
     return this.addAccessTokenAndHmacToUrl(url, null)
   }
 
+  // Returns a fully formed url to call the auth endpoint
+  async getRecoverAccountUrl(args: GetOreIdRecoverAccountUrlParams) {
+    const {
+      account,
+      code,
+      email,
+      phone,
+      provider,
+      callbackUrl,
+      backgroundColor,
+      state,
+      recoverAction,
+      processId,
+      overrideAppAccessToken,
+    } = args
+    const { oreIdUrl } = this.options
+
+    if (!provider || !callbackUrl) {
+      throw new Error('Missing a required parameter')
+    }
+
+    // optional params
+    const encodedStateParam = state ? `&state=${state}` : ''
+    const processIdParam = processId ? `&process_id=${processId}` : ''
+    const actionTypeParam = recoverAction ? `&recover_action=${recoverAction}` : ''
+
+    // handle passwordless params
+    const codeParam = code ? `&code=${code}` : ''
+    const emailParam = email ? `&email=${email}` : ''
+    let phoneParam = ''
+
+    if (phone) {
+      // if user passes in +12103334444, the plus sign needs to be URL encoded
+      const encodedPhone = encodeURIComponent(phone)
+
+      phoneParam = `&phone=${encodedPhone}`
+    }
+
+    const url =
+      `${oreIdUrl}/recover-account#provider=${provider}` +
+      `&account=${account}` +
+      `${codeParam}${emailParam}${phoneParam}` +
+      `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(
+        backgroundColor,
+      )}${actionTypeParam}${encodedStateParam}${processIdParam}`
+
+    return this.addAccessTokenAndHmacToUrl(url, null, overrideAppAccessToken)
+  }
+
   // Extracts the response parameters on the /auth callback URL string
   handleAuthResponse(callbackUrlString: string): AuthResponse {
     // Parses error codes and returns an errors array
@@ -1776,7 +1835,11 @@ export default class OreId {
 
   /** Add an app access token and hmac signature to the url
    *  If running in browser, calls proxy server at /oreid/prepare-url to do both (since they require teh apiKey secret) */
-  async addAccessTokenAndHmacToUrl(urlString: string, appAccessTokenMetadata: AppAccessTokenMetadata): Promise<string> {
+  async addAccessTokenAndHmacToUrl(
+    urlString: string,
+    appAccessTokenMetadata: AppAccessTokenMetadata,
+    overrideAppAccessToken?: AppAccessToken,
+  ): Promise<string> {
     // running in browser
     if (this.requiresProxyServer) {
       // retrieve and append an app-access-token and a matching hmac signature to the end of the url
@@ -1785,7 +1848,7 @@ export default class OreId {
       return response?.data?.urlString
     }
     // running on server
-    const appAccessToken = await this.getAccessToken({ appAccessTokenMetadata })
+    const appAccessToken = overrideAppAccessToken || (await this.getAccessToken({ appAccessTokenMetadata }))
     const urlWithAccessToken = `${urlString}&app_access_token=${appAccessToken}`
     // generate hmac on full url
     const hmac = generateHmac(this.options.apiKey, urlWithAccessToken)
