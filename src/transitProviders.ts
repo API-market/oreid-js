@@ -66,7 +66,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       versionsRequired: '',
     },
     discoveryKeyLookupFunc: AlgorandDiscoveryKeyLookupFunc,
-    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-algosigner-logo.png',
   },
   {
     providerName: AuthProvider.Ledger,
@@ -85,7 +85,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       versionsRequired:
         'You need to have recent versions of your browser, Ledger firmware, and the Ledger EOS app. Click here for more details.',
     },
-    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-ledger-logo.png',
   },
   {
     providerName: AuthProvider.Lynx,
@@ -102,7 +102,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
-    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-lynx-logo.png',
   },
   {
     providerName: AuthProvider.Meetone,
@@ -119,7 +119,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
-    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-meetone-logo.png',
   },
   {
     providerName: AuthProvider.Metro,
@@ -136,7 +136,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
-    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-generic-logo.png',
   },
   {
     providerName: AuthProvider.Scatter,
@@ -153,7 +153,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
-    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-scatter-logo.png',
   },
   {
     providerName: AuthProvider.TokenPocket,
@@ -170,7 +170,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
-    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-generic-logo.png',
   },
   {
     providerName: AuthProvider.Portis,
@@ -187,7 +187,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
-    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-portis-logo.png',
   },
   {
     providerName: AuthProvider.WhaleVault,
@@ -204,7 +204,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
-    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-whalevault-logo.png',
   },
   {
     providerName: AuthProvider.SimpleEos,
@@ -221,7 +221,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
-    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-simpleos-logo.png',
   },
   {
     providerName: AuthProvider.Keycat,
@@ -238,7 +238,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
-    logoUrl: 'https://avatars.githubusercontent.com/u/45081189?s=400&v=4',
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-keycat-logo.png',
   },
 ]
 
