@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 import axios from 'axios'
-import { initAccessContext, WalletProvider, Wallet } from 'eos-transit'
+import { initAccessContext, WalletProvider, Wallet } from '@aikon/eos-transit'
 import { encode as AlgorandEncodeObject } from './algorandUtils'
 import Helpers from './helpers'
 import LocalState from './localState'
@@ -211,16 +211,27 @@ export default class OreId {
     }
 
     const networkConfig = await this.getNetworkConfig(chainNetwork)
-
-    // create context
+    const isNotEosNetwork = await this.isNotEosNetwork(chainNetwork)
     const walletContext = initAccessContext({
       appName: appName || 'missing appName',
       network: networkConfig,
       walletProviders: eosTransitWalletProviders,
+      isNotEosNetwork, // Tells eos-transit to not use EOS specific rpc calls
     })
     // cache for future use
     this.transitAccessContexts[chainNetwork] = walletContext
     return walletContext
+  }
+
+  async getChainNetworkSettings(chainNetwork: ChainNetwork) {
+    const networks = await this.chainNetworks()
+    return networks.find(n => n.network === chainNetwork)
+  }
+
+  /** Returns true if network is NOT an EOS sisterchain */
+  async isNotEosNetwork(chainNetwork: ChainNetwork) {
+    const networkSetting = await this.getChainNetworkSettings(chainNetwork)
+    return !(networkSetting.type === ChainPlatformType.eos || networkSetting.type === ChainPlatformType.ore)
   }
 
   // Two paths

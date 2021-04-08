@@ -39,7 +39,7 @@
     "axios": "^0.21.1",
     "create-hmac": "^1.1.7",
     "dotenv": "^8.2.0",
-    "eos-transit": "^4.0.7",
+    "@aikon/eos-transit": "^4.0.7",
     "express": "^4.17.1",
     "http-proxy-middleware": "^1.0.6",
     "js-base64": "^2.5.2",
@@ -52,6 +52,7 @@
   "devDependencies": {
     "@types/jest": "^26.0.14",
     "@types/node": "^13.13.25",
+    "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^2.14.0",
     "@typescript-eslint/parser": "^2.14.0",
     "@vercel/ncc": "^0.27.0",

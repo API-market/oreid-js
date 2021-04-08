@@ -7,7 +7,7 @@ import {
   MakeWalletProviderFn,
   WalletAccessContext,
   Wallet,
-} from 'eos-transit/lib'
+} from '@aikon/eos-transit/lib'
 // EOSJS Types
 
 /** Arguments for `push_transaction` */
