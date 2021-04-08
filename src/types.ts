@@ -515,6 +515,7 @@ export type GetOreIdRecoverAccountUrlParams = LoginOptions & {
   backgroundColor?: string
   callbackUrl: string
   recoverAction: RecoverAccountAction
+  overrideAppAccessToken: AppAccessToken
 }
 
 export type SetupTransitWalletParams = {
