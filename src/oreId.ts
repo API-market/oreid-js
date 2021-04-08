@@ -120,7 +120,16 @@ export default class OreId {
     const { ualProviders, eosTransitWalletProviders } = this.options
     // All installed TransitProviders
     this.transitProvidersInstalled = (eosTransitWalletProviders || [])
-      .map(makeWalletProvider => makeWalletProvider(null)) // instantiate the provider with null network so we can get the id
+      .map(makeWalletProvider => {
+        try {
+          // if there is an error while initiating a provider dont break the whole process.
+          return makeWalletProvider(null)
+        } catch (e) {
+          console.log(`Couldn't initiate a wallet provider. ${e}`)
+          return null
+        }
+      }) // instantiate the provider with null network so we can get the id
+      .filter(walletProvider => walletProvider && true)
       .map(walletProvider => {
         return getTransitProviderAttributesByProviderId(walletProvider.id).providerName
       })
