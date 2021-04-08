@@ -1511,6 +1511,7 @@ export default class OreId {
       state,
       recoverAction,
       processId,
+      overrideAppAccessToken,
     } = args
     const { oreIdUrl } = this.options
 
@@ -1543,7 +1544,7 @@ export default class OreId {
         backgroundColor,
       )}${actionTypeParam}${encodedStateParam}${processIdParam}`
 
-    return this.addAccessTokenAndHmacToUrl(url, null)
+    return this.addAccessTokenAndHmacToUrl(url, null, overrideAppAccessToken)
   }
 
   // Extracts the response parameters on the /auth callback URL string
@@ -1814,7 +1815,11 @@ export default class OreId {
 
   /** Add an app access token and hmac signature to the url
    *  If running in browser, calls proxy server at /oreid/prepare-url to do both (since they require teh apiKey secret) */
-  async addAccessTokenAndHmacToUrl(urlString: string, appAccessTokenMetadata: AppAccessTokenMetadata): Promise<string> {
+  async addAccessTokenAndHmacToUrl(
+    urlString: string,
+    appAccessTokenMetadata: AppAccessTokenMetadata,
+    overrideAppAccessToken?: AppAccessToken,
+  ): Promise<string> {
     // running in browser
     if (this.requiresProxyServer) {
       // retrieve and append an app-access-token and a matching hmac signature to the end of the url
@@ -1823,7 +1828,7 @@ export default class OreId {
       return response?.data?.urlString
     }
     // running on server
-    const appAccessToken = await this.getAccessToken({ appAccessTokenMetadata })
+    const appAccessToken = overrideAppAccessToken || (await this.getAccessToken({ appAccessTokenMetadata }))
     const urlWithAccessToken = `${urlString}&app_access_token=${appAccessToken}`
     // generate hmac on full url
     const hmac = generateHmac(this.options.apiKey, urlWithAccessToken)
