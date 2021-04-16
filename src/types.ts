@@ -164,6 +164,8 @@ export enum ChainNetwork {
   EosMain = 'eos_main',
   EosKylin = 'eos_kylin',
   EosJugle = 'eos_jungle',
+  TelosMain = 'telos_main',
+  TelosTest = 'telos_test',
   EthMain = 'eth_main',
   EthRopstein = 'eth_ropsten',
   OreMain = 'ore_main',
