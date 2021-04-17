@@ -1,3 +1,4 @@
+import { Request, Response } from 'express'
 import {
   DiscoveryAccount,
   DiscoverContinueCallback,
@@ -558,3 +559,22 @@ export type AlgorandMultiSigOptions = {
   threshold: number
   addrs: string[]
 }
+
+type ParamsForRequest = {
+  appId?: string
+  accessToken?: string
+  chainAccount?: string
+  idToken?: string
+  processId?: ProcessId
+  state?: string
+  signedTransaction?: string
+  transactionId?: string
+  user?: User
+}
+
+type ParamsForResponse = {
+  myField?: string
+}
+
+export type RequestWithParams = Request & ParamsForRequest
+export type ResponseWithParams = Response & ParamsForResponse

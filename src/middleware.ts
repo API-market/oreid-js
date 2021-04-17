@@ -6,40 +6,26 @@
     app.use('/signcallback', asyncHandler(signCallbackHandler(oreId)));
 */
 
-import { Request, Response, NextFunction } from 'express'
+import { NextFunction } from 'express'
 import OreId from './oreId'
-import { ProcessId, User } from './types'
+import { RequestWithParams, ResponseWithParams } from './types'
 
-// Typescript type extends request with custom params
-declare module 'express-serve-static-core' {
-  interface Request {
-    appId?: string
-    accessToken?: string
-    chainAccount?: string
-    idToken?: string
-    processId?: ProcessId
-    state?: string
-    signedTransaction?: string
-    transactionId?: string
-    user?: User
-  }
-  interface Response {
-    myField?: string
-  }
-}
-
-type AsyncHandlerFunc = (req: Request, res: Response, next: NextFunction) => any
+type AsyncHandlerFunc = (req: RequestWithParams, res: ResponseWithParams, next: NextFunction) => any
 
 /* eslint-disable no-param-reassign */
 /** Generic async handler for Express Middleware */
-export const asyncHandler = (fn: AsyncHandlerFunc) => (req: Request, res: Response, next: NextFunction) => {
+export const asyncHandler = (fn: AsyncHandlerFunc) => (
+  req: RequestWithParams,
+  res: ResponseWithParams,
+  next: NextFunction,
+) => {
   Promise.resolve(fn(req, res, next)).catch(next)
 }
 
 /** Process the response from the /auth endpoint
  *  Attach user to HTTP request */
 export function authCallbackHandler(oreId: OreId) {
-  return asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  return asyncHandler(async (req: RequestWithParams, res: ResponseWithParams, next: NextFunction) => {
     const { query } = req
     if (!query) {
       return {}
@@ -89,7 +75,7 @@ export function authCallbackHandler(oreId: OreId) {
 /** Process the response from the /sign endpoint
  * Attach signedTransaction to HTTP request */
 export function signCallbackHandler(oreId: OreId) {
-  return asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  return asyncHandler(async (req: RequestWithParams, res: ResponseWithParams, next: NextFunction) => {
     const { body } = req
     if (!body) {
       return {}
@@ -129,7 +115,7 @@ export function signCallbackHandler(oreId: OreId) {
 /** Process the response from the /new-account endpoint
  * Attach newly created account name to HTTP request */
 export function newAccountCallbackHandler(oreId: OreId) {
-  return asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  return asyncHandler(async (req: RequestWithParams, res: ResponseWithParams, next: NextFunction) => {
     const { body } = req
     if (!body) {
       return {}
