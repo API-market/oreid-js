@@ -1,7 +1,9 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable prefer-const */
 
-const msgpack = require('@msgpack/msgpack')
+// NOTE: @msgpack/msgpack/dist is required due to packaging error in msgpack that causes build errors (for mjs files) in other projects 
+// See: https://github.com/msgpack/msgpack-javascript/issues/169
+import msgpack from '@msgpack/msgpack/dist'
 
 // This funciton copied from algoSdk - https://github.com/algorand/js-algorand-sdk/blob/dcec38cc7926de7f54328ce28e76290ffea9fe41/src/encoding/encoding.js#L24
 /**
@@ -10,7 +12,7 @@ const msgpack = require('@msgpack/msgpack')
  * @param obj
  * @returns {{firstEmptyKey: string, containsEmpty: boolean}} {true, empty key} if contains empty, {false, undefined} otherwise
  */
-function containsEmpty(obj: any) {
+function containsEmpty(obj: any): { firstEmptyKey: string; containsEmpty: boolean } {
   // eslint-disable-next-line no-restricted-syntax
   for (let key in obj) {
     if (obj.hasOwnProperty(key)) {
