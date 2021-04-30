@@ -168,7 +168,7 @@ export enum ChainNetwork {
   TelosMain = 'telos_main',
   TelosTest = 'telos_test',
   EthMain = 'eth_main',
-  EthRopstein = 'eth_ropsten',
+  EthRopsten = 'eth_ropsten',
   OreMain = 'ore_main',
   OreTest = 'ore_test',
   DappKylin1 = 'kylin-dsp-1.liquidapps.io',
