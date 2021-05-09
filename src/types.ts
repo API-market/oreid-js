@@ -245,6 +245,8 @@ export enum AuthProvider {
   SimpleEos = 'simpleos',
   TokenPocket = 'tokenpocket',
   WhaleVault = 'whalevault',
+  // placeholder for signing - meaning non an external wallet
+  OreId = 'oreid',
 }
 
 export enum ExternalWalletInterface {

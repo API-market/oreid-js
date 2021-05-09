@@ -541,6 +541,11 @@ export default class OreId {
 
   async signWithOreId(signOptions: SignOptions): Promise<SignWithOreIdReturn> {
     let canAutoSign = false
+    // to use ORE ID to sign, we dont need to specify a login provider
+    // if OreId was specified, this just means dont use an external wallet, so we remove that here
+    if (signOptions?.provider === AuthProvider.OreId) {
+      signOptions.provider = null
+    }
 
     try {
       canAutoSign = await this.checkIfTrxAutoSignable(signOptions)
