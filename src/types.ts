@@ -287,7 +287,7 @@ export type NewAccountOptions = {
   account: AccountName // existing wallet account name (ore account)
   accountType: AccountType
   chainNetwork?: ChainNetwork
-  accountOptions: CreateOnChainAccountsOptions
+  accountOptions?: CreateOnChainAccountsOptions
   provider: AuthProvider
   state?: string
   processId?: ProcessId
@@ -303,6 +303,8 @@ export type LoginOptions = {
   state?: string
   linkToAccount?: boolean
   processId?: ProcessId
+  returnAccessToken?: boolean
+  returnIdToken?: boolean
 }
 
 export type DiscoverOptions = {
@@ -520,7 +522,7 @@ export type GetOreIdRecoverAccountUrlParams = LoginOptions & {
   backgroundColor?: string
   callbackUrl: string
   recoverAction: RecoverAccountAction
-  overrideAppAccessToken: AppAccessToken
+  overrideAppAccessToken?: AppAccessToken
 }
 
 export type SetupTransitWalletParams = {

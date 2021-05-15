@@ -387,7 +387,8 @@ export default class OreId {
   }
 
   async loginWithOreId(loginOptions: LoginOptions): Promise<{ loginUrl: string; errors: string }> {
-    const { code, email, phone, provider, state, linkToAccount, processId } = loginOptions || {}
+    const { code, email, phone, provider, state, linkToAccount, processId, returnAccessToken, returnIdToken } =
+      loginOptions || {}
     const { authCallbackUrl, backgroundColor } = this.options
     const args = {
       code,
@@ -399,6 +400,8 @@ export default class OreId {
       state,
       linkToAccount,
       processId,
+      returnAccessToken,
+      returnIdToken,
     }
     const loginUrl = await this.getOreIdAuthUrl(args)
     return { loginUrl, errors: null }
@@ -1430,7 +1433,19 @@ export default class OreId {
 
   // Returns a fully formed url to call the auth endpoint
   async getOreIdAuthUrl(args: GetOreIdAuthUrlParams) {
-    const { code, email, phone, provider, callbackUrl, backgroundColor, state, linkToAccount, processId } = args
+    const {
+      code,
+      email,
+      phone,
+      provider,
+      callbackUrl,
+      backgroundColor,
+      state,
+      linkToAccount,
+      processId,
+      returnAccessToken,
+      returnIdToken,
+    } = args
     const { oreIdUrl } = this.options
 
     if (!provider || !callbackUrl) {
@@ -1446,20 +1461,21 @@ export default class OreId {
     const codeParam = code ? `&code=${code}` : ''
     const emailParam = email ? `&email=${email}` : ''
     let phoneParam = ''
-
     if (phone) {
       // if user passes in +12103334444, the plus sign needs to be URL encoded
       const encodedPhone = encodeURIComponent(phone)
-
       phoneParam = `&phone=${encodedPhone}`
     }
+
+    const returnAccessTokenParam = returnAccessToken ? `&return_access_token=${returnAccessToken}` : ''
+    const returnIdTokenParam = returnIdToken ? `&return_id_token=${returnIdToken}` : ''
 
     const url =
       `${oreIdUrl}/auth#provider=${provider}` +
       `${codeParam}${emailParam}${phoneParam}` +
       `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(
         backgroundColor,
-      )}${linkToAccountParam}${encodedStateParam}${processIdParam}`
+      )}${linkToAccountParam}${encodedStateParam}${processIdParam}${returnAccessTokenParam}${returnIdTokenParam}`
 
     return this.addAccessTokenAndHmacToUrl(url, null)
   }
@@ -1578,7 +1594,7 @@ export default class OreId {
     // (if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
     // NOTE: accessToken and idToken are not usually returned from the ORE ID service - they are included here for future support
     const params = Helpers.urlParamsToArray(callbackUrlString)
-    const { accessToken, account, idToken, process_id: processId, state } = params
+    const { access_token: accessToken, account, id_token: idToken, process_id: processId, state } = params
     const errors = this.getErrorCodesFromParams(params)
     const response: any = { account }
     if (accessToken) response.accessToken = accessToken
