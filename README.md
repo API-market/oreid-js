@@ -24,11 +24,13 @@ let oreId = new OreId({ appId, apiKey, oreIdUrl });
 
 //Start the OAuth flow by setting the user's browser to this URL
 let authUrl = await oreId.getOreIdAuthUrl({ provider, callbackUrl, backgroundColor });
+
 //...then handle the callback results of the Auth flow
 let authResults = oreId.handleAuthResponse(authCallbackResults);
 
 //Request that the user sign a transaction by setting the user's browser to this URL
 let signUrl = await oreId.getOreIdSignUrl({ account, transaction, signCallbackUrl, chainNetwork, ... });
+
 //...then handle the callback results of the Sign flow
 let signResults = oreId.handleSignResponse(signedCallbackResults);
 
