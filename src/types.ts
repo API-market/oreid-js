@@ -69,7 +69,8 @@ export type JWTToken = {
 
 export type OreIdOptions = {
   appId: string
-  apiKey: string
+  /** appKey is required to call the oreid API */
+  apiKey?: string
   appName: string
   authCallbackUrl?: string
   newAccountCallbackUrl?: string
