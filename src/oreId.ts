@@ -1879,7 +1879,7 @@ export default class OreId {
     }
 
     // generate hmac on full url
-    const hmac = generateHmac(this.options.apiKey, completeUrl)
+    const hmac = generateHmac(this.options.appId, completeUrl)
     const urlEncodedHmac = encodeURIComponent(hmac)
     return `${completeUrl}&hmac=${urlEncodedHmac}`
   }
