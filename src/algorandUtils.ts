@@ -1,9 +1,7 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable prefer-const */
 
-// NOTE: @msgpack/msgpack/dist is required due to packaging error in msgpack that causes build errors (for mjs files) in other projects 
-// See: https://github.com/msgpack/msgpack-javascript/issues/169
-import msgpack from '@msgpack/msgpack/dist'
+import { encode as msgPackEncode } from '@msgpack/msgpack'
 
 // This funciton copied from algoSdk - https://github.com/algorand/js-algorand-sdk/blob/dcec38cc7926de7f54328ce28e76290ffea9fe41/src/encoding/encoding.js#L24
 /**
@@ -42,5 +40,5 @@ export function encode(obj: any) {
 
   // enable the canonical option
   const options = { sortKeys: true }
-  return msgpack.encode(obj, options)
+  return msgPackEncode(obj, options)
 }
