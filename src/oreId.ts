@@ -1595,9 +1595,14 @@ export default class OreId {
     // Parses error codes and returns an errors array
     // (if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
     // NOTE: accessToken and idToken are not usually returned from the ORE ID service - they are included here for future support
-    const params = Helpers.urlParamsToArray(callbackUrlString)
-    const { access_token: accessToken, account, id_token: idToken, process_id: processId, state } = params
-    const errors = this.getErrorCodesFromParams(params)
+    const {
+      access_token: accessToken,
+      account,
+      id_token: idToken,
+      process_id: processId,
+      state,
+      errors,
+    } = Helpers.extractDataFromCallbackUrl(callbackUrlString)
     const response: any = { account }
     if (accessToken) response.accessToken = accessToken
     if (idToken) response.idToken = idToken
@@ -1610,9 +1615,9 @@ export default class OreId {
 
   // Extracts the response parameters on the /new-account callback URL string
   handleNewAccountResponse(callbackUrlString: string): NewAccountResponse {
-    const params = Helpers.urlParamsToArray(callbackUrlString)
-    const { chain_account: chainAccount, process_id: processId, state } = params
-    const errors = this.getErrorCodesFromParams(params)
+    const { chain_account: chainAccount, process_id: processId, state, errors } = Helpers.extractDataFromCallbackUrl(
+      callbackUrlString,
+    )
     this.setIsBusy(false)
     return { chainAccount, processId, state, errors }
   }
@@ -1620,14 +1625,13 @@ export default class OreId {
   // Extracts the response parameters on the /sign callback URL string
   handleSignResponse(callbackUrlString: string): SignResponse {
     let signedTransaction
-    const params = Helpers.urlParamsToArray(callbackUrlString)
     const {
       signed_transaction: encodedTransaction,
       process_id: processId,
       state,
       transaction_id: transactionId,
-    } = params
-    const errors = this.getErrorCodesFromParams(params)
+      errors,
+    } = Helpers.extractDataFromCallbackUrl(callbackUrlString)
 
     if (!errors) {
       // Decode base64 parameters
