@@ -201,4 +201,28 @@ export default class Helpers {
     }
     return null
   }
+
+  static getErrorCodesFromParams(params: any) {
+    let errorCodes: string[]
+    const errorString = params.error_code || params.errorCode
+    const errorMessage = params.error_message || params.errorMessage
+    if (errorString) {
+      errorCodes = errorString.split(/[/?/$&]/)
+    }
+    if (errorCodes || errorMessage) {
+      errorCodes = errorCodes || []
+      errorCodes.push(errorMessage)
+    }
+    return errorCodes
+  }
+
+  static extractDataFromCallbackUrl(url: string) {
+    let params: { [key: string]: any } = {}
+    if (url) {
+      params = this.urlParamsToArray(url)
+      const errors = this.getErrorCodesFromParams(params)
+      return { ...params, errors }
+    }
+    return params
+  }
 }
