@@ -1339,11 +1339,13 @@ export default class OreId {
       errorMessage +=
         '\n --> Missing required parameter - appId. You can get an appId when you register your app with ORE ID.'
     }
+
     // api-key will be injected by the proxy server - so isn't required here
-    if (!this.requiresProxyServer && !apiKey) {
-      errorMessage +=
-        '\n --> Missing required parameter - apiKey. You can get an apiKey when you register your app with ORE ID.'
-    }
+    // if (!this.requiresProxyServer && !apiKey) {
+    //   errorMessage +=
+    //     '\n --> Missing required parameter - apiKey. You can get an apiKey when you register your app with ORE ID.'
+    // }
+
     // api-key and service-key not allowed if this is being instantiated in the browser
     if (this.requiresProxyServer && (apiKey || serviceKey)) {
       errorMessage +=
@@ -1861,6 +1863,7 @@ export default class OreId {
     appAccessTokenMetadata: AppAccessTokenMetadata,
     overrideAppAccessToken?: AppAccessToken,
   ): Promise<string> {
+    const { appId } = this.options
     // running in browser
     if (this.requiresProxyServer) {
       // retrieve and append an app-access-token and a matching hmac signature to the end of the url
@@ -1868,12 +1871,16 @@ export default class OreId {
       const response = await axios.post('/oreid/prepare-url', { appAccessTokenMetadata, urlString })
       return response?.data?.urlString
     }
+    let completeUrl = `${urlString}&app_id=${appId}`
     // running on server
-    const appAccessToken = overrideAppAccessToken || (await this.getAccessToken({ appAccessTokenMetadata }))
-    const urlWithAccessToken = `${urlString}&app_access_token=${appAccessToken}`
+    if (!isNullOrEmpty(appAccessTokenMetadata)) {
+      const appAccessToken = overrideAppAccessToken || (await this.getAccessToken({ appAccessTokenMetadata }))
+      completeUrl = `${completeUrl}&app_access_token=${appAccessToken}`
+    }
+
     // generate hmac on full url
-    const hmac = generateHmac(this.options.apiKey, urlWithAccessToken)
+    const hmac = generateHmac(this.options.appId, completeUrl)
     const urlEncodedHmac = encodeURIComponent(hmac)
-    return `${urlWithAccessToken}&hmac=${urlEncodedHmac}`
+    return `${completeUrl}&hmac=${urlEncodedHmac}`
   }
 }
