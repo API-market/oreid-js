@@ -53,7 +53,7 @@ describe('OreId', () => {
       expect(result).toEqual({
         errors: null,
         newAccountUrl:
-          'https://service.oreid.io/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&app_access_token=12345667&hmac=KUmPu4kDRmf13a6IW3EbshZP5j%2BCy71nmGxGoJnJZCg%3D',
+          'https://service.oreid.io/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&app_access_token=12345667&hmac=P10z%2B1YPZhqupla8eM7F%2BA7Trnet3o7sYvt%2BvJzB1DQ%3D',
       })
     })
 
