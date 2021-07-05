@@ -255,13 +255,12 @@ export default class OreId {
     }
 
     if (email) {
-      queryParams.email = email
+      queryParams.email = encodeURIComponent(email)
     }
 
     if (phone) {
       // if user passes in +12103334444, the plus sign needs to be URL encoded
-      const encodedPhone = encodeURIComponent(phone)
-      queryParams.phone = encodedPhone
+      queryParams.phone = encodeURIComponent(phone)
     }
 
     if (verify) {
@@ -1461,13 +1460,8 @@ export default class OreId {
 
     // handle passwordless params
     const codeParam = code ? `&code=${code}` : ''
-    const emailParam = email ? `&email=${email}` : ''
-    let phoneParam = ''
-    if (phone) {
-      // if user passes in +12103334444, the plus sign needs to be URL encoded
-      const encodedPhone = encodeURIComponent(phone)
-      phoneParam = `&phone=${encodedPhone}`
-    }
+    const emailParam = email ? `&email=${encodeURIComponent(email)}` : ''
+    const phoneParam = phone ? `&phone=${encodeURIComponent(phone)}` : '' // if user passes in +12103334444, the plus sign needs to be URL encoded
 
     const returnAccessTokenParam = returnAccessToken ? `&return_access_token=${returnAccessToken}` : ''
     const returnIdTokenParam = returnIdToken ? `&return_id_token=${returnIdToken}` : ''
@@ -1569,15 +1563,8 @@ export default class OreId {
 
     // handle passwordless params
     const codeParam = code ? `&code=${code}` : ''
-    const emailParam = email ? `&email=${email}` : ''
-    let phoneParam = ''
-
-    if (phone) {
-      // if user passes in +12103334444, the plus sign needs to be URL encoded
-      const encodedPhone = encodeURIComponent(phone)
-
-      phoneParam = `&phone=${encodedPhone}`
-    }
+    const emailParam = email ? `&email=${encodeURIComponent(email)}` : ''
+    const phoneParam = phone ? `&phone=${encodeURIComponent(phone)}` : '' // if user passes in +12103334444, the plus sign needs to be URL encoded
 
     const url =
       `${oreIdUrl}/recover-account#provider=${provider}` +
