@@ -35,14 +35,6 @@ describe('OreId', () => {
         oreId = new OreId({ ...options, appId: '' })
       }).toThrowError(Error(appIdError))
     })
-
-    it('Throws an error without an apiKey', () => {
-      const apiKeyError = `Options are missing or invalid. 
- --> Missing required parameter - apiKey. You can get an apiKey when you register your app with ORE ID.`
-      expect(() => {
-        oreId = new OreId({ ...options, apiKey: '' })
-      }).toThrowError(Error(apiKeyError))
-    })
   })
 
   it('Doesnt error when it has the required values', () => {
@@ -100,7 +92,7 @@ describe('OreId', () => {
       expect(result).toEqual({
         errors: null,
         loginUrl:
-          'https://service.oreid.io/auth#provider=google&code=12345&email=test@test.com&phone=%2B1555555555&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&app_access_token=12345667&hmac=LIuhxTG3o6ZZPaqD2CA%2BNIZ9oi5Lg11lKJNPUsN%2BYto%3D',
+          'https://service.oreid.io/auth#provider=google&code=12345&email=test%40test.com&phone=%2B1555555555&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&hmac=j1faPFT4zDNMssG4Gh13qDpz8n2QcQqBD0SuAGeoyy4%3D',
       })
     })
 
