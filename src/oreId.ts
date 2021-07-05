@@ -1859,15 +1859,20 @@ export default class OreId {
       return response?.data?.urlString
     }
     let completeUrl = `${urlString}&app_id=${appId}`
-    // running on server
+
+    // if we need app token metadata, then we generate and add an appAccessToken
     if (!isNullOrEmpty(appAccessTokenMetadata)) {
       const appAccessToken = overrideAppAccessToken || (await this.getAccessToken({ appAccessTokenMetadata }))
       completeUrl = `${completeUrl}&app_access_token=${appAccessToken}`
     }
 
-    // generate hmac on full url
-    const hmac = generateHmac(this.options.appId, completeUrl)
-    const urlEncodedHmac = encodeURIComponent(hmac)
-    return `${completeUrl}&hmac=${urlEncodedHmac}`
+    let hmacParam = ''
+    // An hmac is no longer required - however, if we have an apiKey, we can generate one
+    if (this.options?.apiKey) {
+      const hmac = generateHmac(this.options.apiKey, completeUrl)
+      const urlEncodedHmac = encodeURIComponent(hmac)
+      hmacParam = `&hmac=${urlEncodedHmac}`
+    }
+    return `${completeUrl}${hmacParam}`
   }
 }
