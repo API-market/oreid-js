@@ -9,4 +9,5 @@ example/dist
 .DS_Store
 dist/
 dist.browser/
+dist.webwidget/
 coverage/
