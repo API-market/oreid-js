@@ -752,6 +752,9 @@ export default class OreId {
       } else if (chainType === ChainPlatformType.algorand) {
         // Other chains - use sign function on walletProvider
         signedTransaction = await this.signTransactionWithTransitAndAlgorandSDK(signOptions, transitWallet)
+      } else if (chainType === ChainPlatformType.ethereum) {
+        // Ethereum - use sign function on ethereum walletProvider
+        signedTransaction = await this.signTransactionWithTransitAndEthereumSDK(signOptions, transitWallet)
       } else {
         throw new Error(`signWithTransitProvider doesnt support chain type: ${chainType}`)
       }
@@ -791,6 +794,22 @@ export default class OreId {
       requiredKeys: null, // not used by Algorand signatureProvider
       serializedTransaction: msgPackEncode(transaction), // Transaction to sign
       abis: null, // not used by Algorand signatureProvider
+    }
+    const { signatures, serializedTransaction } = await transitWallet.provider.signatureProvider.sign(signParams)
+    return { signatures, serializedTransaction }
+  }
+
+  /** sign transaction using ethereum web3 SDK */
+  private async signTransactionWithTransitAndEthereumSDK(signOptions: SignOptions, transitWallet: Wallet) {
+    const { chainNetwork, transaction } = signOptions
+    // Other chains - use sign function on walletProvider
+    const networkConfig = await this.getNetworkConfig(chainNetwork)
+
+    const signParams: SignatureProviderArgs = {
+      chainId: networkConfig.chainId, // Chain transaction is for
+      requiredKeys: null, // not used by Ethereum signatureProvider
+      serializedTransaction: msgPackEncode(transaction), // Transaction to sign
+      abis: null, // not used by Ethereum signatureProvider
     }
     const { signatures, serializedTransaction } = await transitWallet.provider.signatureProvider.sign(signParams)
     return { signatures, serializedTransaction }
