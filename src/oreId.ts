@@ -1088,13 +1088,9 @@ export default class OreId {
       return
     }
     const { accountName, permission, publicKey } = transitWallet.auth
-    // Throw if account is missing some info
+    // abort silently if account is missing some info - some chains/wallets (e.g. ethereum) dont provide the public key, so we can't add the perm here
     if (!accountName || !permission || !publicKey) {
-      throw new Error(
-        `Cant updatePermissionsForAccount - wallet account is missing accountName, permission, or publicKey. Wallet Account: ${JSON.stringify(
-          transitWallet.auth,
-        )}`,
-      )
+      return
     }
     const permissions: WalletPermission[] = [{ name: permission, publicKey }] // todo: add parent permission when available
     // Get the chainNetwork from the transitWallet - in case the wallet provider switches networks somehow
