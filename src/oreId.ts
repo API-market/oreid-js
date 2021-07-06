@@ -3,7 +3,7 @@
 /* eslint-disable no-console */
 import axios from 'axios'
 import { initAccessContext, WalletProvider, Wallet } from '@aikon/eos-transit'
-import { encode as AlgorandEncodeObject } from './algorandUtils'
+import { msgPackEncode } from './chainUtils'
 import Helpers from './helpers'
 import LocalState from './localState'
 import { defaultOreIdServiceUrl, providersNotImplemented, version } from './constants'
@@ -789,7 +789,7 @@ export default class OreId {
     const signParams: SignatureProviderArgs = {
       chainId: networkConfig.chainId, // Chain transaction is for
       requiredKeys: null, // not used by Algorand signatureProvider
-      serializedTransaction: AlgorandEncodeObject(transaction), // Transaction to sign
+      serializedTransaction: msgPackEncode(transaction), // Transaction to sign
       abis: null, // not used by Algorand signatureProvider
     }
     const { signatures, serializedTransaction } = await transitWallet.provider.signatureProvider.sign(signParams)
