@@ -59,7 +59,7 @@ import {
   RequestType,
   AddPermissionParams,
   DiscoverOptions,
-  SignWithOreIdReturn,
+  SignWithOreIdResult,
   SignatureProviderArgs,
   ChainPlatformType,
   TransitDiscoveryOptions,
@@ -67,7 +67,10 @@ import {
   NewAccountResponse,
   GetOreIdNewAccountUrlParams,
   GetOreIdRecoverAccountUrlParams,
-} from './types'
+  NewAccountWithOreIdResult,
+  LoginWithOreIdResult,
+  GetRecoverAccountUrlResult,
+} from './models'
 
 const { isNullOrEmpty } = Helpers
 
@@ -327,7 +330,7 @@ export default class OreId {
   }
 
   /** Sign transaction with key(s) in wallet - connect to wallet first */
-  async sign(signOptions: SignOptions) {
+  async sign(signOptions: SignOptions): Promise<SignWithOreIdResult> {
     // handle sign transaction based on provider type
     const { provider } = signOptions
 
@@ -385,7 +388,7 @@ export default class OreId {
     throw new Error(`Auth provider ${provider} is not a valid option`)
   }
 
-  async loginWithOreId(loginOptions: LoginOptions): Promise<{ loginUrl: string; errors: string }> {
+  async loginWithOreId(loginOptions: LoginOptions): Promise<LoginWithOreIdResult> {
     const { code, email, phone, provider, state, linkToAccount, processId, returnAccessToken, returnIdToken } =
       loginOptions || {}
     const { authCallbackUrl, backgroundColor } = this.options
@@ -406,7 +409,7 @@ export default class OreId {
     return { loginUrl, errors: null }
   }
 
-  async newAccountWithOreId(newAccountOptions: NewAccountOptions): Promise<{ newAccountUrl: string; errors: string }> {
+  async newAccountWithOreId(newAccountOptions: NewAccountOptions): Promise<NewAccountWithOreIdResult> {
     const { account, accountType, chainNetwork, accountOptions, provider, state, processId } = newAccountOptions || {}
     const { newAccountCallbackUrl, backgroundColor } = this.options
     const args = {
@@ -541,7 +544,7 @@ export default class OreId {
     return { processId, signedTransaction, transactionId }
   }
 
-  async signWithOreId(signOptions: SignOptions): Promise<SignWithOreIdReturn> {
+  async signWithOreId(signOptions: SignOptions): Promise<SignWithOreIdResult> {
     let canAutoSign = false
     // to use ORE ID to sign, we dont need to specify a login provider
     // if OreId was specified, this just means dont use an external wallet, so we remove that here
@@ -1536,7 +1539,7 @@ export default class OreId {
   }
 
   // Returns a fully formed url to call the auth endpoint
-  async getRecoverAccountUrl(args: GetOreIdRecoverAccountUrlParams) {
+  async getRecoverAccountUrl(args: GetOreIdRecoverAccountUrlParams): Promise<GetRecoverAccountUrlResult> {
     const {
       account,
       code,
