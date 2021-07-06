@@ -245,6 +245,7 @@ export enum AuthProvider {
   Scatter = 'scatter',
   SimpleEos = 'simpleos',
   TokenPocket = 'tokenpocket',
+  Web3 = 'web3',
   WhaleVault = 'whalevault',
   // placeholder for signing - meaning non an external wallet
   OreId = 'oreid',
