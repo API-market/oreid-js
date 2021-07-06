@@ -67,6 +67,8 @@ import {
   NewAccountResponse,
   GetOreIdNewAccountUrlParams,
   GetOreIdRecoverAccountUrlParams,
+  ConvertOauthTokensParams,
+  ConvertOauthTokensApiBodyParams,
 } from './types'
 
 const { isNullOrEmpty } = Helpers
@@ -846,6 +848,25 @@ export default class OreId {
     )
 
     return { account: newAccount, processId: processIdReturned }
+  }
+
+  /** Call the account/convert-oauth api
+   * Converts OAuth tokens from some 3rd-party source to OREID Oauth tokens
+   * The third-party (e.g. Auth0 or Google) must be registered in the AppRegistration.oauthSettings */
+  async convertOauthTokens(oauthOptions: ConvertOauthTokensParams) {
+    const body: ConvertOauthTokensApiBodyParams = {
+      access_token: oauthOptions?.accessToken,
+      id_token: oauthOptions?.idToken,
+    }
+
+    const { accessToken, idToken, processId: processIdReturned } = await this.callOreIdApi(
+      RequestType.Post,
+      ApiEndpoint.ConvertOauthTokens,
+      body,
+      oauthOptions?.processId,
+    )
+
+    return { accessToken, idToken, processId: processIdReturned }
   }
 
   /** Login using the wallet provider */

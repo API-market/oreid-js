@@ -374,6 +374,17 @@ export type passwordResetOptions = {
 
 // API params
 
+export type ConvertOauthTokensParams = {
+  accessToken: string
+  idToken: string
+  processId?: ProcessId
+}
+
+export type ConvertOauthTokensApiBodyParams = {
+  access_token: string
+  id_token: string
+}
+
 export type CustodialMigrateAccountParams = {
   account: AccountName
   chainAccount: ChainAccount
@@ -473,6 +484,7 @@ export enum ApiEndpoint {
   AddPermission = 'account/add-permission',
   AppToken = 'app-token',
   CanAutoSign = 'transaction/can-auto-sign',
+  ConvertOauthTokens = 'account/convert-oauth',
   CustodialMigrateAccount = 'custodial/migrate-account',
   CustodialNewAccount = 'custodial/new-user',
   CustodialSign = 'custodial/sign',
