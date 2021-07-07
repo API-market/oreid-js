@@ -802,10 +802,11 @@ export default class OreId {
    * this requires a wallet password (userPassword) on behalf of the user */
   async custodialNewAccount(accountOptions: CustodialNewAccountParams) {
     const { serviceKey } = this.options
-    const { accountType, email, name, picture, phone, userName, userPassword, processId } = accountOptions
+    const { accountType, email, idToken, name, picture, phone, userName, userPassword, processId } = accountOptions
     const body: CustodialNewAccountApiBodyParams = {
       account_type: accountType,
       email,
+      id_token: idToken,
       name,
       phone,
       picture,
