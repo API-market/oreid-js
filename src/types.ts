@@ -405,6 +405,7 @@ export type CustodialMigrateAccountApiBodyParams = {
 export type CustodialNewAccountParams = {
   accountType: AccountType
   email?: string
+  idToken?: string
   name?: string
   picture?: string
   phone?: string
@@ -416,6 +417,7 @@ export type CustodialNewAccountParams = {
 export type CustodialNewAccountApiBodyParams = {
   account_type: AccountType
   email?: string
+  id_token?: string
   name?: string
   picture?: string
   phone?: string
