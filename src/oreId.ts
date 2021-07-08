@@ -3,6 +3,7 @@
 /* eslint-disable no-console */
 import axios from 'axios'
 import { initAccessContext, WalletProvider, Wallet } from '@aikon/eos-transit'
+import { Helpers as sharedHelpers, Models as sharedModels } from 'aikon-oreid-shared/dist'
 import { encode as AlgorandEncodeObject } from './algorandUtils'
 import Helpers from './helpers'
 import LocalState from './localState'
@@ -1747,40 +1748,45 @@ export default class OreId {
     // add sdk version to request header
     headers['sdk-version'] = `oreidjs/${version}`
 
-    try {
-      // GET
-      if (requestMethod === RequestType.Get) {
-        if (!isNullOrEmpty(params)) {
-          urlString = Object.keys(params)
-            .map(key => `${key}=${params[key]}`)
-            .join('&')
-        }
+    const resp = await sharedHelpers.fetchServiceStatus(`${oreIdUrl}/${ApiEndpoint.OreIdServiceStatus}`)
+    if (resp.status === sharedModels.HttpStatusCode.OK_200) {
+      try {
+        // GET
+        if (requestMethod === RequestType.Get) {
+          if (!isNullOrEmpty(params)) {
+            urlString = Object.keys(params)
+              .map(key => `${key}=${params[key]}`)
+              .join('&')
+          }
 
-        const urlWithParams = urlString ? `${url}?${urlString}` : url
-        response = await axios.get(urlWithParams, { headers })
+          const urlWithParams = urlString ? `${url}?${urlString}` : url
+          response = await axios.get(urlWithParams, { headers })
+        }
+        // POST
+        if (requestMethod === RequestType.Post) {
+          const body = !isNullOrEmpty(params) ? JSON.stringify(params) : null
+          response = await axios.post(url, body, {
+            headers: { 'Content-Type': 'application/json', ...headers },
+            // body: params,
+          })
+        }
+      } catch (error) {
+        // Browser thre an error during CORS preflight post - See https://github.com/axios/axios/issues/1143
+        if (error?.message.toLowerCase() === 'network error') {
+          throw new Error(
+            'Browser threw a Network Error. This is likely because of CORS error. Make sure that you are not sending an api-key in the header of the request.',
+          )
+        }
+        ;({ data = {} } = error?.response || {})
+        const { message } = data
+        const errorCodes = this.getErrorCodesFromParams(data)
+        // oreid apis pass back errorCode/errorMessages
+        // also handle when a standard error message is thrown
+        const errorString = errorCodes || message || 'unknown error'
+        throw new Error(errorString)
       }
-      // POST
-      if (requestMethod === RequestType.Post) {
-        const body = !isNullOrEmpty(params) ? JSON.stringify(params) : null
-        response = await axios.post(url, body, {
-          headers: { 'Content-Type': 'application/json', ...headers },
-          // body: params,
-        })
-      }
-    } catch (error) {
-      // Browser thre an error during CORS preflight post - See https://github.com/axios/axios/issues/1143
-      if (error?.message.toLowerCase() === 'network error') {
-        throw new Error(
-          'Browser threw a Network Error. This is likely because of CORS error. Make sure that you are not sending an api-key in the header of the request.',
-        )
-      }
-      ;({ data = {} } = error?.response || {})
-      const { message } = data
-      const errorCodes = this.getErrorCodesFromParams(data)
-      // oreid apis pass back errorCode/errorMessages
-      // also handle when a standard error message is thrown
-      const errorString = errorCodes || message || 'unknown error'
-      throw new Error(errorString)
+    } else {
+      throw new Error(`OredId service is unavailable right now. Reason reported: ${resp.reason}`)
     }
 
     ;({ data } = response)
