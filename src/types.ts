@@ -495,6 +495,7 @@ export enum ApiEndpoint {
   TransactionSign = 'transaction/sign',
   GetUser = 'account/user',
   GetConfig = 'services/config',
+  OreIdServiceStatus = 'status',
 }
 
 // Function Params
