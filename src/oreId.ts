@@ -1749,44 +1749,42 @@ export default class OreId {
     headers['sdk-version'] = `oreidjs/${version}`
 
     const resp = await sharedHelpers.fetchServiceStatus(`${oreIdUrl}/${ApiEndpoint.OreIdServiceStatus}`)
-    if (resp.status === sharedModels.HttpStatusCode.OK_200) {
-      try {
-        // GET
-        if (requestMethod === RequestType.Get) {
-          if (!isNullOrEmpty(params)) {
-            urlString = Object.keys(params)
-              .map(key => `${key}=${params[key]}`)
-              .join('&')
-          }
-
-          const urlWithParams = urlString ? `${url}?${urlString}` : url
-          response = await axios.get(urlWithParams, { headers })
-        }
-        // POST
-        if (requestMethod === RequestType.Post) {
-          const body = !isNullOrEmpty(params) ? JSON.stringify(params) : null
-          response = await axios.post(url, body, {
-            headers: { 'Content-Type': 'application/json', ...headers },
-            // body: params,
-          })
-        }
-      } catch (error) {
-        // Browser thre an error during CORS preflight post - See https://github.com/axios/axios/issues/1143
-        if (error?.message.toLowerCase() === 'network error') {
-          throw new Error(
-            'Browser threw a Network Error. This is likely because of CORS error. Make sure that you are not sending an api-key in the header of the request.',
-          )
-        }
-        ;({ data = {} } = error?.response || {})
-        const { message } = data
-        const errorCodes = this.getErrorCodesFromParams(data)
-        // oreid apis pass back errorCode/errorMessages
-        // also handle when a standard error message is thrown
-        const errorString = errorCodes || message || 'unknown error'
-        throw new Error(errorString)
-      }
-    } else {
+    if (resp.status !== sharedModels.HttpStatusCode.OK_200)
       throw new Error(`OredId service is unavailable right now. Reason reported: ${resp.reason}`)
+    try {
+      // GET
+      if (requestMethod === RequestType.Get) {
+        if (!isNullOrEmpty(params)) {
+          urlString = Object.keys(params)
+            .map(key => `${key}=${params[key]}`)
+            .join('&')
+        }
+
+        const urlWithParams = urlString ? `${url}?${urlString}` : url
+        response = await axios.get(urlWithParams, { headers })
+      }
+      // POST
+      if (requestMethod === RequestType.Post) {
+        const body = !isNullOrEmpty(params) ? JSON.stringify(params) : null
+        response = await axios.post(url, body, {
+          headers: { 'Content-Type': 'application/json', ...headers },
+          // body: params,
+        })
+      }
+    } catch (error) {
+      // Browser thre an error during CORS preflight post - See https://github.com/axios/axios/issues/1143
+      if (error?.message.toLowerCase() === 'network error') {
+        throw new Error(
+          'Browser threw a Network Error. This is likely because of CORS error. Make sure that you are not sending an api-key in the header of the request.',
+        )
+      }
+      ;({ data = {} } = error?.response || {})
+      const { message } = data
+      const errorCodes = this.getErrorCodesFromParams(data)
+      // oreid apis pass back errorCode/errorMessages
+      // also handle when a standard error message is thrown
+      const errorString = errorCodes || message || 'unknown error'
+      throw new Error(errorString)
     }
 
     ;({ data } = response)
