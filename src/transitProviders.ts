@@ -83,7 +83,6 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       discover: '',
       versionsRequired: '',
     },
-    discoveryKeyLookupFunc: AlgorandDiscoveryKeyLookupFunc,
     logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-web3-logo.png',
   },
   {
