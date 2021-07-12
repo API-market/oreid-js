@@ -73,7 +73,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
     chainType: ChainPlatformType.ethereum,
     providerId: 'web3',
     requiresLogin: false,
-    supportsDiscovery: false,
+    supportsDiscovery: true,
     supportsSignArbitrary: true,
     requiresLogoutLoginToDiscover: false,
     requiresDiscoverToLogin: false,
