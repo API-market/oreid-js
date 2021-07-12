@@ -985,7 +985,7 @@ export default class OreId {
           return response
         }
       } catch (error) {
-        console.log(`Failed to connect to ${provider} wallet:`, error)
+        console.log(`connectToUALProvider: Failed to connect to ${provider}: ${error?.message}`, error)
         throw error
       }
     } else {
@@ -1114,8 +1114,8 @@ export default class OreId {
       await this.waitWhileWalletIsBusy(transitWallet, provider)
       return transitWallet
     } catch (error) {
-      console.log(`Failed to connect to ${provider}`, error)
-      throw new Error(`Failed to connect to ${provider}`)
+      console.log(`setupTransitWallet: Failed to connect to ${provider} wallet: ${error?.message}`, error)
+      throw error
     }
   }
 
@@ -1186,7 +1186,8 @@ export default class OreId {
         throw new Error(errorString)
       }
     } catch (error) {
-      console.log(`Failed to connect to ${provider} wallet:`, error)
+      const errMsg = `connectToTransitProvider: Failed to connect to ${provider} on ${chainNetwork}: ${error?.message}`
+      console.log(errMsg, error)
       throw error
     } finally {
       this.setIsBusy(false)
