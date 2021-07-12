@@ -215,6 +215,7 @@ export enum ExternalWalletType {
   Scatter = 'scatter',
   SimpleEos = 'simpleos',
   TokenPocket = 'tokenpocket',
+  Web3 = 'web3',
   WhaleVault = 'whalevault',
 }
 
