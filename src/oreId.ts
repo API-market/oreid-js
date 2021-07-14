@@ -332,6 +332,7 @@ export default class OreId {
   async sign(signOptions: SignOptions) {
     // handle sign transaction based on provider type
     const { provider } = signOptions
+    this.assertValidSignOptions(signOptions)
 
     if (providersNotImplemented.includes(provider)) {
       return null
@@ -349,6 +350,18 @@ export default class OreId {
     }
 
     return this.signWithOreId(signOptions)
+  }
+
+  /** ensure all required parameters are provided */
+  assertValidSignOptions(signOptions: SignOptions) {
+    const { provider, account, chainNetwork } = signOptions
+    let missingFields = ''
+    if (!provider) missingFields += 'provider, '
+    if (!account) missingFields += 'account, '
+    if (!chainNetwork) missingFields += 'chainNetwork, '
+    if (missingFields) {
+      throw new Error(`Missing parameter(s): ${missingFields}`)
+    }
   }
 
   /** Discovers keys in a wallet provider.
@@ -587,14 +600,42 @@ export default class OreId {
 
   /** Sign an arbitrary string (instead of a transaction) */
   async signString(signOptions: SignStringParams) {
-    const { provider } = signOptions
+    const { account, provider, chainNetwork } = signOptions
     if (!this.canSignString(provider)) {
       throw Error(`The specific provider ${provider} does not support signString`)
     }
+    const signResults = this.hasUALProvider(provider)
+      ? await this.signStringWithUALProvider(signOptions)
+      : await this.signStringWithTransitProvider(signOptions)
+    await this.callDiscoverAfterSign({ account, provider, chainNetwork })
+    return signResults
+  }
 
-    return this.hasUALProvider(provider)
-      ? this.signStringWithUALProvider(signOptions)
-      : this.signStringWithTransitProvider(signOptions)
+  /** ensure all required parameters are provided */
+  assertValidSignStringParams(signOptions: SignStringParams) {
+    const { provider, account, chainNetwork, string } = signOptions
+    let missingFields = ''
+    if (!provider) missingFields += 'provider, '
+    if (!account) missingFields += 'account, '
+    if (!chainNetwork) missingFields += 'chainNetwork, '
+    if (!string) missingFields += 'string, '
+    if (missingFields) {
+      throw new Error(`Missing parameter(s): ${missingFields}`)
+    }
+  }
+
+  /** Call discover after signing so we capture and save the account
+   *  Note: This is needed for Ethereum since we dont know a public key until we sign with an account
+   */
+  async callDiscoverAfterSign(signOptions: SignOptions) {
+    console.log('callDiscoverAfterSign signOptions:', signOptions)
+    const { provider, chainNetwork, account } = signOptions
+    const discoverOptions: DiscoverOptions = {
+      provider,
+      chainNetwork,
+      oreAccount: account,
+    }
+    await this.discover(discoverOptions)
   }
 
   // Supported features by provider
@@ -783,6 +824,7 @@ export default class OreId {
         expireSeconds: expireSeconds || 60,
       },
     )
+    await this.callDiscoverAfterSign(signOptions)
     return { signatures, serializedTransaction }
   }
 
@@ -798,6 +840,7 @@ export default class OreId {
       abis: null, // not used by Algorand signatureProvider
     }
     const { signatures, serializedTransaction } = await transitWallet.provider.signatureProvider.sign(signParams)
+    await this.callDiscoverAfterSign(signOptions)
     return { signatures, serializedTransaction }
   }
 
@@ -814,6 +857,7 @@ export default class OreId {
       abis: null, // not used by Ethereum signatureProvider
     }
     const { signatures, serializedTransaction } = await transitWallet.provider.signatureProvider.sign(signParams)
+    await this.callDiscoverAfterSign(signOptions)
     return { signatures, serializedTransaction }
   }
 
@@ -1239,37 +1283,32 @@ export default class OreId {
 
     try {
       const transitWallet = await this.setupTransitWallet({ provider, chainNetwork })
-
       this.setIsBusy(true)
       const discoveryData = await transitWallet.discover(
         this.discoverOptionsForProvider(provider, discoveryPathIndexList),
       )
-
       // this data looks like this: keyToAccountMap[accounts[{account,permission}]] - e.g. keyToAccountMap[accounts[{'myaccount':'owner','myaccount':'active'}]]
       const credentials = discoveryData.keyToAccountMap
-
-      for (let i = 0; i < credentials.length; i += 1) {
-        const credential = credentials[i]
-
-        const { accounts = [] } = credential
-        if (accounts.length > 0) {
+      // for each entry in the array, add permission to ore account if not already present
+      await Helpers.asyncForEach(credentials, async credential => {
+        const { accounts = [], key: publicKey } = credential
+        // ethereum may not have a public key - dont save if missing
+        if (accounts.length > 0 && !!publicKey) {
           const { account, authorization } = accounts[0]
           const permissions: WalletPermission[] = [
             {
               account,
-              publicKey: credential.key,
+              publicKey,
               name: authorization,
               parent: null,
             },
           ]
           // Get the chainNetwork from the transitWallet - in case the wallet provider switches networks somehow
-          // eslint-disable-next-line no-await-in-loop
           const transitChainNetwork = await this.getChainNetworkFromTransitWallet(transitWallet)
-          // eslint-disable-next-line no-await-in-loop
           await this.addWalletPermissionsToOreIdAccount(account, transitChainNetwork, permissions, oreAccount, provider)
           accountsAndPermissions = accountsAndPermissions.concat(permissions)
         }
-      }
+      })
     } finally {
       this.setIsBusy(false)
     }
