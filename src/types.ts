@@ -215,6 +215,7 @@ export enum ExternalWalletType {
   Scatter = 'scatter',
   SimpleEos = 'simpleos',
   TokenPocket = 'tokenpocket',
+  Web3 = 'web3',
   WhaleVault = 'whalevault',
 }
 
@@ -245,6 +246,7 @@ export enum AuthProvider {
   Scatter = 'scatter',
   SimpleEos = 'simpleos',
   TokenPocket = 'tokenpocket',
+  Web3 = 'web3',
   WhaleVault = 'whalevault',
   // placeholder for signing - meaning non an external wallet
   OreId = 'oreid',
@@ -319,7 +321,7 @@ export type SignOptions = {
   account: AccountName
   allowChainAccountSelection?: boolean
   broadcast?: boolean
-  chainAccount: ChainAccount
+  chainAccount?: ChainAccount // chainAccount not required for Ethereum - it can be defined by the account that signed the transaction
   chainNetwork: ChainNetwork
   expireSeconds?: number
   /** Comma seperated string of accounts - for which OREID should add signatures */
@@ -470,6 +472,7 @@ export type SignWithOreIdReturn = {
 }
 
 export type SignStringParams = {
+  account: AccountName
   provider: AuthProvider
   chainAccount?: ChainAccount
   chainNetwork: ChainNetwork
