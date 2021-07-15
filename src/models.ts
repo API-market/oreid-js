@@ -292,6 +292,8 @@ export type NewAccountOptions = {
   provider: AuthProvider
   state?: string
   processId?: ProcessId
+  accessToken?: string
+  idToken?: string
 }
 
 export type LoginOptions = {
@@ -336,6 +338,8 @@ export type SignOptions = {
   preventAutoSign?: boolean
   signExternalWithOreId?: boolean
   transactionRecordId?: string
+  accessToken?: string
+  idToken?: string
 }
 
 export type AuthResponse = {

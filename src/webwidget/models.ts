@@ -19,4 +19,5 @@ export type WebWidgetProps = {
   onSuccess: (response: any) => {} // TODO: type this as much as possible
   // errors is a comma-delimited string of error codes and/or an error message
   onError: ({ success, errors }: { success: boolean; errors: string }) => {}
+  timeout: number
 }

@@ -1406,6 +1406,8 @@ export default class OreId {
       backgroundColor,
       state,
       processId,
+      accessToken,
+      idToken,
     } = args
     const { oreIdUrl } = this.options
 
@@ -1426,6 +1428,8 @@ export default class OreId {
     // optional params
     const encodedStateParam = state ? `&state=${state}` : ''
     const processIdParam = processId ? `&process_id=${processId}` : ''
+    const accessTokenParam = !isNullOrEmpty(accessToken) ? `&oauth_access_token=${accessToken}` : ''
+    const idTokenParam = !isNullOrEmpty(idToken) ? `&oauth_id_token=${idToken}` : ''
 
     const url =
       `${oreIdUrl}/new-account#provider=${provider}&chain_network=${chainNetwork}` +
@@ -1499,6 +1503,8 @@ export default class OreId {
       transaction,
       transactionRecordId,
       userPassword,
+      accessToken,
+      idToken,
     } = signOptions
     let { chainAccount } = signOptions
     const { oreIdUrl } = this.options
@@ -1532,6 +1538,8 @@ export default class OreId {
     optionalParams += !isNullOrEmpty(processId) ? `&process_id=${processId}` : ''
     optionalParams += !isNullOrEmpty(provider) ? `&provider=${provider}` : ''
     optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : ''
+    optionalParams += !isNullOrEmpty(accessToken) ? `&oauth_access_token=${accessToken}` : ''
+    optionalParams += !isNullOrEmpty(idToken) ? `&oauth_id_token=${idToken}` : ''
 
     // prettier-ignore
     const url = `${oreIdUrl}/sign#account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}${optionalParams}`
