@@ -8,7 +8,7 @@
 
 import { NextFunction } from 'express'
 import OreId from './oreId'
-import { RequestWithParams, ResponseWithParams } from './types'
+import { RequestWithParams, ResponseWithParams } from './models'
 
 type AsyncHandlerFunc = (req: RequestWithParams, res: ResponseWithParams, next: NextFunction) => any
 
