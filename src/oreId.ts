@@ -59,7 +59,7 @@ import {
   RequestType,
   AddPermissionParams,
   DiscoverOptions,
-  SignWithOreIdReturn,
+  SignWithOreIdResult,
   SignatureProviderArgs,
   ChainPlatformType,
   TransitDiscoveryOptions,
@@ -67,7 +67,10 @@ import {
   NewAccountResponse,
   GetOreIdNewAccountUrlParams,
   GetOreIdRecoverAccountUrlParams,
-} from './types'
+  NewAccountWithOreIdResult,
+  LoginWithOreIdResult,
+  GetRecoverAccountUrlResult,
+} from './models'
 
 const { isNullOrEmpty } = Helpers
 
@@ -255,13 +258,12 @@ export default class OreId {
     }
 
     if (email) {
-      queryParams.email = email
+      queryParams.email = encodeURIComponent(email)
     }
 
     if (phone) {
       // if user passes in +12103334444, the plus sign needs to be URL encoded
-      const encodedPhone = encodeURIComponent(phone)
-      queryParams.phone = encodedPhone
+      queryParams.phone = encodeURIComponent(phone)
     }
 
     if (verify) {
@@ -328,7 +330,7 @@ export default class OreId {
   }
 
   /** Sign transaction with key(s) in wallet - connect to wallet first */
-  async sign(signOptions: SignOptions) {
+  async sign(signOptions: SignOptions): Promise<SignWithOreIdResult> {
     // handle sign transaction based on provider type
     const { provider } = signOptions
 
@@ -386,7 +388,7 @@ export default class OreId {
     throw new Error(`Auth provider ${provider} is not a valid option`)
   }
 
-  async loginWithOreId(loginOptions: LoginOptions): Promise<{ loginUrl: string; errors: string }> {
+  async loginWithOreId(loginOptions: LoginOptions): Promise<LoginWithOreIdResult> {
     const { code, email, phone, provider, state, linkToAccount, processId, returnAccessToken, returnIdToken } =
       loginOptions || {}
     const { authCallbackUrl, backgroundColor } = this.options
@@ -407,7 +409,7 @@ export default class OreId {
     return { loginUrl, errors: null }
   }
 
-  async newAccountWithOreId(newAccountOptions: NewAccountOptions): Promise<{ newAccountUrl: string; errors: string }> {
+  async newAccountWithOreId(newAccountOptions: NewAccountOptions): Promise<NewAccountWithOreIdResult> {
     const { account, accountType, chainNetwork, accountOptions, provider, state, processId } = newAccountOptions || {}
     const { newAccountCallbackUrl, backgroundColor } = this.options
     const args = {
@@ -542,7 +544,7 @@ export default class OreId {
     return { processId, signedTransaction, transactionId }
   }
 
-  async signWithOreId(signOptions: SignOptions): Promise<SignWithOreIdReturn> {
+  async signWithOreId(signOptions: SignOptions): Promise<SignWithOreIdResult> {
     let canAutoSign = false
     // to use ORE ID to sign, we dont need to specify a login provider
     // if OreId was specified, this just means dont use an external wallet, so we remove that here
@@ -1404,6 +1406,8 @@ export default class OreId {
       backgroundColor,
       state,
       processId,
+      accessToken,
+      idToken,
     } = args
     const { oreIdUrl } = this.options
 
@@ -1424,6 +1428,8 @@ export default class OreId {
     // optional params
     const encodedStateParam = state ? `&state=${state}` : ''
     const processIdParam = processId ? `&process_id=${processId}` : ''
+    const accessTokenParam = !isNullOrEmpty(accessToken) ? `&oauth_access_token=${accessToken}` : ''
+    const idTokenParam = !isNullOrEmpty(idToken) ? `&oauth_id_token=${idToken}` : ''
 
     const url =
       `${oreIdUrl}/new-account#provider=${provider}&chain_network=${chainNetwork}` +
@@ -1461,13 +1467,8 @@ export default class OreId {
 
     // handle passwordless params
     const codeParam = code ? `&code=${code}` : ''
-    const emailParam = email ? `&email=${email}` : ''
-    let phoneParam = ''
-    if (phone) {
-      // if user passes in +12103334444, the plus sign needs to be URL encoded
-      const encodedPhone = encodeURIComponent(phone)
-      phoneParam = `&phone=${encodedPhone}`
-    }
+    const emailParam = email ? `&email=${encodeURIComponent(email)}` : ''
+    const phoneParam = phone ? `&phone=${encodeURIComponent(phone)}` : '' // if user passes in +12103334444, the plus sign needs to be URL encoded
 
     const returnAccessTokenParam = returnAccessToken ? `&return_access_token=${returnAccessToken}` : ''
     const returnIdTokenParam = returnIdToken ? `&return_id_token=${returnIdToken}` : ''
@@ -1502,6 +1503,8 @@ export default class OreId {
       transaction,
       transactionRecordId,
       userPassword,
+      accessToken,
+      idToken,
     } = signOptions
     let { chainAccount } = signOptions
     const { oreIdUrl } = this.options
@@ -1535,6 +1538,8 @@ export default class OreId {
     optionalParams += !isNullOrEmpty(processId) ? `&process_id=${processId}` : ''
     optionalParams += !isNullOrEmpty(provider) ? `&provider=${provider}` : ''
     optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : ''
+    optionalParams += !isNullOrEmpty(accessToken) ? `&oauth_access_token=${accessToken}` : ''
+    optionalParams += !isNullOrEmpty(idToken) ? `&oauth_id_token=${idToken}` : ''
 
     // prettier-ignore
     const url = `${oreIdUrl}/sign#account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}${optionalParams}`
@@ -1542,7 +1547,7 @@ export default class OreId {
   }
 
   // Returns a fully formed url to call the auth endpoint
-  async getRecoverAccountUrl(args: GetOreIdRecoverAccountUrlParams) {
+  async getRecoverAccountUrl(args: GetOreIdRecoverAccountUrlParams): Promise<GetRecoverAccountUrlResult> {
     const {
       account,
       code,
@@ -1569,15 +1574,8 @@ export default class OreId {
 
     // handle passwordless params
     const codeParam = code ? `&code=${code}` : ''
-    const emailParam = email ? `&email=${email}` : ''
-    let phoneParam = ''
-
-    if (phone) {
-      // if user passes in +12103334444, the plus sign needs to be URL encoded
-      const encodedPhone = encodeURIComponent(phone)
-
-      phoneParam = `&phone=${encodedPhone}`
-    }
+    const emailParam = email ? `&email=${encodeURIComponent(email)}` : ''
+    const phoneParam = phone ? `&phone=${encodeURIComponent(phone)}` : '' // if user passes in +12103334444, the plus sign needs to be URL encoded
 
     const url =
       `${oreIdUrl}/recover-account#provider=${provider}` +
@@ -1876,15 +1874,20 @@ export default class OreId {
       return response?.data?.urlString
     }
     let completeUrl = `${urlString}&app_id=${appId}`
-    // running on server
+
+    // if we need app token metadata, then we generate and add an appAccessToken
     if (!isNullOrEmpty(appAccessTokenMetadata)) {
       const appAccessToken = overrideAppAccessToken || (await this.getAccessToken({ appAccessTokenMetadata }))
       completeUrl = `${completeUrl}&app_access_token=${appAccessToken}`
     }
 
-    // generate hmac on full url
-    const hmac = generateHmac(this.options.appId, completeUrl)
-    const urlEncodedHmac = encodeURIComponent(hmac)
-    return `${completeUrl}&hmac=${urlEncodedHmac}`
+    let hmacParam = ''
+    // An hmac is no longer required - however, if we have an apiKey, we can generate one
+    if (this.options?.apiKey) {
+      const hmac = generateHmac(this.options.apiKey, completeUrl)
+      const urlEncodedHmac = encodeURIComponent(hmac)
+      hmacParam = `&hmac=${urlEncodedHmac}`
+    }
+    return `${completeUrl}${hmacParam}`
   }
 }

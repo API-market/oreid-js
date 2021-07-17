@@ -2,7 +2,7 @@ import OreId from './oreId'
 import { asyncHandler, authCallbackHandler, signCallbackHandler } from './middleware'
 import { appendHmacToUrl, generateHmac } from './hmac'
 import { getTransitProviderAttributesByChain } from './transitProviders'
-import WebWidget from './webwidget'
+import * as WebWidget from './webwidget'
 
 import Helpers from './helpers'
 
@@ -18,4 +18,4 @@ export {
   WebWidget,
 }
 
-export * from './types'
+export * from './models'

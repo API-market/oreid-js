@@ -292,6 +292,8 @@ export type NewAccountOptions = {
   provider: AuthProvider
   state?: string
   processId?: ProcessId
+  accessToken?: string
+  idToken?: string
 }
 
 export type LoginOptions = {
@@ -336,6 +338,8 @@ export type SignOptions = {
   preventAutoSign?: boolean
   signExternalWithOreId?: boolean
   transactionRecordId?: string
+  accessToken?: string
+  idToken?: string
 }
 
 export type AuthResponse = {
@@ -448,7 +452,19 @@ export type SignTransactionApiBodyParams = {
   user_password?: string
 }
 
-export type SignWithOreIdReturn = {
+export type GetRecoverAccountUrlResult = string
+
+export type LoginWithOreIdResult = {
+  loginUrl: string
+  errors?: string
+}
+
+export type NewAccountWithOreIdResult = {
+  newAccountUrl: string
+  errors?: string
+}
+
+export type SignWithOreIdResult = {
   processId?: ProcessId
   signedTransaction?: string
   transactionId?: string

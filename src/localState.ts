@@ -1,6 +1,6 @@
 import Helpers from './helpers'
 import StorageHandler from './storage'
-import { OreIdOptions, User } from './types'
+import { OreIdOptions, User } from './models'
 
 // avoid Helpers.isNullOrEmpty, use isNullOrEmpty()
 const { isNullOrEmpty } = Helpers
