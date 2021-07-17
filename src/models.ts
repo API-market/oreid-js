@@ -215,6 +215,7 @@ export enum ExternalWalletType {
   Scatter = 'scatter',
   SimpleEos = 'simpleos',
   TokenPocket = 'tokenpocket',
+  Web3 = 'web3',
   WhaleVault = 'whalevault',
 }
 
@@ -245,6 +246,7 @@ export enum AuthProvider {
   Scatter = 'scatter',
   SimpleEos = 'simpleos',
   TokenPocket = 'tokenpocket',
+  Web3 = 'web3',
   WhaleVault = 'whalevault',
   // placeholder for signing - meaning non an external wallet
   OreId = 'oreid',
@@ -321,7 +323,7 @@ export type SignOptions = {
   account: AccountName
   allowChainAccountSelection?: boolean
   broadcast?: boolean
-  chainAccount: ChainAccount
+  chainAccount?: ChainAccount // chainAccount not required for Ethereum - it can be defined by the account that signed the transaction
   chainNetwork: ChainNetwork
   expireSeconds?: number
   /** Comma seperated string of accounts - for which OREID should add signatures */
@@ -378,6 +380,17 @@ export type passwordResetOptions = {
 
 // API params
 
+export type ConvertOauthTokensParams = {
+  accessToken: string
+  idToken: string
+  processId?: ProcessId
+}
+
+export type ConvertOauthTokensApiBodyParams = {
+  access_token: string
+  id_token: string
+}
+
 export type CustodialMigrateAccountParams = {
   account: AccountName
   chainAccount: ChainAccount
@@ -398,6 +411,7 @@ export type CustodialMigrateAccountApiBodyParams = {
 export type CustodialNewAccountParams = {
   accountType: AccountType
   email?: string
+  idToken?: string
   name?: string
   picture?: string
   phone?: string
@@ -409,6 +423,7 @@ export type CustodialNewAccountParams = {
 export type CustodialNewAccountApiBodyParams = {
   account_type: AccountType
   email?: string
+  id_token?: string
   name?: string
   picture?: string
   phone?: string
@@ -473,6 +488,7 @@ export type SignWithOreIdResult = {
 }
 
 export type SignStringParams = {
+  account: AccountName
   provider: AuthProvider
   chainAccount?: ChainAccount
   chainNetwork: ChainNetwork
@@ -489,6 +505,7 @@ export enum ApiEndpoint {
   AddPermission = 'account/add-permission',
   AppToken = 'app-token',
   CanAutoSign = 'transaction/can-auto-sign',
+  ConvertOauthTokens = 'account/convert-oauth',
   CustodialMigrateAccount = 'custodial/migrate-account',
   CustodialNewAccount = 'custodial/new-user',
   CustodialSign = 'custodial/sign',
