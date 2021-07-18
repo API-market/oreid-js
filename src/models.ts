@@ -431,7 +431,7 @@ export type CustodialNewAccountApiBodyParams = {
   user_password?: string
 }
 
-export type GetAccessTokenParams = {
+export type GetAppAccessTokenParams = {
   appAccessTokenMetadata?: AppAccessTokenMetadata
   processId?: ProcessId
 }
@@ -612,6 +612,11 @@ type ParamsForRequest = {
 
 type ParamsForResponse = {
   myField?: string
+}
+
+/** helper type to index a JSON object */
+export interface Lookup {
+  [key: string]: any
 }
 
 export type RequestWithParams = Request & ParamsForRequest
