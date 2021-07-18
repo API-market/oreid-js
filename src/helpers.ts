@@ -241,6 +241,7 @@ export default class Helpers {
    *  e.g. function(token, 'appId') => value for claim https://oreid.io/appId */
   static getClaimFromJwtTokenBySearchString(decodedToken: JWTToken, searchString: string) {
     let value: string
+    if (!this.isAnObject(decodedToken)) return null
     // loop through items in token to find matching string
     Object.keys(decodedToken).forEach(item => {
       if (item.includes(searchString)) {
