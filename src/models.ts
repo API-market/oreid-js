@@ -341,7 +341,6 @@ export type SignOptions = {
   signExternalWithOreId?: boolean
   transactionRecordId?: string
   accessToken?: string
-  idToken?: string
 }
 
 export type AuthResponse = {
