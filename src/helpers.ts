@@ -4,7 +4,7 @@
 // import jwtdecode from 'jwt-decode'
 import { v4 as uuidv4 } from 'uuid'
 import jwt from 'jsonwebtoken'
-import { JWTToken } from './models'
+import { JWTToken, Lookup } from './models'
 
 const { Base64 } = require('js-base64')
 
@@ -42,6 +42,7 @@ export default class Helpers {
   // log data
   static log(message: string, data?: any) {
     if (TRACING) {
+      // eslint-disable-next-line no-console
       console.log(message, data)
     }
   }
@@ -138,6 +139,7 @@ export default class Helpers {
         return o
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error)
     }
 
@@ -233,5 +235,18 @@ export default class Helpers {
       // eslint-disable-next-line no-await-in-loop
       await callback(array[index], index, array)
     }
+  }
+
+  /** Return a value in a custom claim in a JWT token by using a partial claim name
+   *  e.g. function(token, 'appId') => value for claim https://oreid.io/appId */
+  static getClaimFromJwtTokenBySearchString(decodedToken: JWTToken, searchString: string) {
+    let value: string
+    // loop through items in token to find matching string
+    Object.keys(decodedToken).forEach(item => {
+      if (item.includes(searchString)) {
+        value = (decodedToken as Lookup)[item]
+      }
+    })
+    return value
   }
 }
