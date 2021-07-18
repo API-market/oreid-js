@@ -8,55 +8,66 @@ const { isNullOrEmpty } = Helpers
 export default class LocalState {
   constructor(options: OreIdOptions) {
     this.options = options
+    this.cachedaccessToken = null
     this.cachedUser = null
     this.storage = new StorageHandler()
   }
+
+  cachedaccessToken: string
+
+  cachedUser: User
 
   options: OreIdOptions
 
   storage: StorageHandler
 
-  cachedUser: User
+  accessTokenKey() {
+    return `oreid.${this.options.appId}.accessToken`
+  }
 
   userKey() {
     return `oreid.${this.options.appId}.user`
   }
 
-  saveUser(user: User) {
-    this.cachedUser = user
-
-    if (!isNullOrEmpty(this.cachedUser)) {
-      const serialized = JSON.stringify(this.cachedUser)
-      this.storage.setItem(this.userKey(), serialized)
-    }
+  get accessToken(): string {
+    if (!this.cachedaccessToken) this.loadAccessToken()
+    return this.cachedaccessToken
   }
 
-  accountName() {
-    if (this.user()) {
-      return this.user().accountName
-    }
-
-    return null
+  loadAccessToken() {
+    this.cachedaccessToken = this.storage.getItem(this.accessTokenKey())
   }
 
-  user() {
-    if (!this.cachedUser) {
-      this.loadUser()
-    }
+  saveAccessToken(accessToken: string) {
+    this.cachedaccessToken = accessToken
+    this.storage.setItem(this.accessTokenKey(), accessToken)
+  }
 
+  get user() {
+    if (!this.cachedUser) this.loadUser()
     return this.cachedUser
   }
 
   loadUser() {
     this.cachedUser = null
     const serialized = this.storage.getItem(this.userKey())
+    if (!isNullOrEmpty(serialized)) this.cachedUser = JSON.parse(serialized)
+  }
 
-    if (!isNullOrEmpty(serialized)) {
-      this.cachedUser = JSON.parse(serialized)
-    }
+  saveUser(user: User) {
+    this.cachedUser = user
+    this.storage.setItem(this.userKey(), JSON.stringify(this.cachedUser))
+  }
+
+  accountName() {
+    if (this.user) return this.user.accountName
+    return null
   }
 
   clear() {
+    this.cachedaccessToken = null
+    this.cachedUser = null
+    this.storage.removeItem(this.accessTokenKey())
     this.storage.removeItem(this.userKey())
   }
 }
