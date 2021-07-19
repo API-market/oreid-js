@@ -965,7 +965,7 @@ export default class OreId {
     return { accessToken, idToken, processId: processIdReturned }
   }
 
-  /** Call the account/new-user-with-token api
+  /** Call the account/login-user-with-token api
    * Converts OAuth idToken from some 3rd-party source to OREID Oauth accessTokens
    * The third-party (e.g. Auth0 or Google) must be registered in the AppRegistration.oauthSettings */
   async loginWithIdToken(oauthOptions: NewUserWithTokenParams) {
@@ -975,12 +975,11 @@ export default class OreId {
 
     const { accessToken, error, message, processId: processIdReturned } = await this.callOreIdApi(
       RequestType.Post,
-      ApiEndpoint.NewUserWithToken,
+      ApiEndpoint.LoginUserWithToken,
       body,
       null, // an api key is NOT required to call this api endpoint
       oauthOptions?.processId,
     )
-
     return { accessToken, error, message, processId: processIdReturned }
   }
 

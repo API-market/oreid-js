@@ -519,7 +519,7 @@ export enum ApiEndpoint {
   CustodialMigrateAccount = 'custodial/migrate-account',
   CustodialNewAccount = 'custodial/new-user',
   CustodialSign = 'custodial/sign',
-  NewUserWithToken = 'account/new-user-with-token',
+  LoginUserWithToken = 'account/login-user-with-token',
   PasswordLessSendCode = 'account/login-passwordless-send-code',
   PasswordLessVerifyCode = 'account/login-passwordless-verify-code',
   TransactionSign = 'transaction/sign',
