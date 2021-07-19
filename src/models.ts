@@ -215,6 +215,7 @@ export enum ExternalWalletType {
   Scatter = 'scatter',
   SimpleEos = 'simpleos',
   TokenPocket = 'tokenpocket',
+  Web3 = 'web3',
   WhaleVault = 'whalevault',
 }
 
@@ -245,6 +246,7 @@ export enum AuthProvider {
   Scatter = 'scatter',
   SimpleEos = 'simpleos',
   TokenPocket = 'tokenpocket',
+  Web3 = 'web3',
   WhaleVault = 'whalevault',
   // placeholder for signing - meaning non an external wallet
   OreId = 'oreid',
@@ -292,6 +294,8 @@ export type NewAccountOptions = {
   provider: AuthProvider
   state?: string
   processId?: ProcessId
+  accessToken?: string
+  idToken?: string
 }
 
 export type LoginOptions = {
@@ -319,7 +323,7 @@ export type SignOptions = {
   account: AccountName
   allowChainAccountSelection?: boolean
   broadcast?: boolean
-  chainAccount: ChainAccount
+  chainAccount?: ChainAccount // chainAccount not required for Ethereum - it can be defined by the account that signed the transaction
   chainNetwork: ChainNetwork
   expireSeconds?: number
   /** Comma seperated string of accounts - for which OREID should add signatures */
@@ -336,6 +340,7 @@ export type SignOptions = {
   preventAutoSign?: boolean
   signExternalWithOreId?: boolean
   transactionRecordId?: string
+  accessToken?: string
 }
 
 export type AuthResponse = {
@@ -425,7 +430,7 @@ export type CustodialNewAccountApiBodyParams = {
   user_password?: string
 }
 
-export type GetAccessTokenParams = {
+export type GetAppAccessTokenParams = {
   appAccessTokenMetadata?: AppAccessTokenMetadata
   processId?: ProcessId
 }
@@ -461,7 +466,19 @@ export type SignTransactionApiBodyParams = {
   user_password?: string
 }
 
-export type SignWithOreIdReturn = {
+export type GetRecoverAccountUrlResult = string
+
+export type LoginWithOreIdResult = {
+  loginUrl: string
+  errors?: string
+}
+
+export type NewAccountWithOreIdResult = {
+  newAccountUrl: string
+  errors?: string
+}
+
+export type SignWithOreIdResult = {
   processId?: ProcessId
   signedTransaction?: string
   transactionId?: string
@@ -470,6 +487,7 @@ export type SignWithOreIdReturn = {
 }
 
 export type SignStringParams = {
+  account: AccountName
   provider: AuthProvider
   chainAccount?: ChainAccount
   chainNetwork: ChainNetwork
@@ -593,6 +611,11 @@ type ParamsForRequest = {
 
 type ParamsForResponse = {
   myField?: string
+}
+
+/** helper type to index a JSON object */
+export interface Lookup {
+  [key: string]: any
 }
 
 export type RequestWithParams = Request & ParamsForRequest

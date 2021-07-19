@@ -5,7 +5,7 @@ import {
   TransitDiscoverKeyLookupCallback,
   TransitDiscoveryAccount,
   TransitDiscoverContinueCallback,
-} from './types'
+} from './models'
 
 export type TransitProviderAttributes = {
   providerName: AuthProvider
@@ -49,6 +49,14 @@ const AlgorandDiscoveryKeyLookupFunc: TransitDiscoverKeyLookupCallback = (
   callback(accountInfoArray)
 }
 
+/** Pass-through function used within eos-transit host - if not provided, wallet will try to use EOS to transform keys */
+const NonEosDiscoveryKeyLookupFunc: TransitDiscoverKeyLookupCallback = (
+  discoveryData: TransitDiscoveryData,
+  callback: TransitDiscoverContinueCallback,
+) => {
+  callback(discoveryData.keyToAccountMap)
+}
+
 export const transitProviderAttributesData: TransitProviderAttributes[] = [
   {
     providerName: AuthProvider.AlgoSigner,
@@ -67,6 +75,24 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
     },
     discoveryKeyLookupFunc: AlgorandDiscoveryKeyLookupFunc,
     logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-algosigner-logo.png',
+  },
+  {
+    providerName: AuthProvider.Web3,
+    chainType: ChainPlatformType.ethereum,
+    providerId: 'web3',
+    requiresLogin: false,
+    supportsDiscovery: true,
+    supportsSignArbitrary: true,
+    requiresLogoutLoginToDiscover: false,
+    requiresDiscoverToLogin: false,
+    helpText: {
+      login: 'This wallet doesn’t require you to login.',
+      sign: '',
+      discover: '',
+      versionsRequired: '',
+    },
+    discoveryKeyLookupFunc: NonEosDiscoveryKeyLookupFunc,
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-web3-logo.png',
   },
   {
     providerName: AuthProvider.Ledger,

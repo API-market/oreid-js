@@ -4,7 +4,7 @@
 // import jwtdecode from 'jwt-decode'
 import { v4 as uuidv4 } from 'uuid'
 import jwt from 'jsonwebtoken'
-import { JWTToken } from './types'
+import { JWTToken, Lookup } from './models'
 
 const { Base64 } = require('js-base64')
 
@@ -42,6 +42,7 @@ export default class Helpers {
   // log data
   static log(message: string, data?: any) {
     if (TRACING) {
+      // eslint-disable-next-line no-console
       console.log(message, data)
     }
   }
@@ -138,6 +139,7 @@ export default class Helpers {
         return o
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error)
     }
 
@@ -200,5 +202,52 @@ export default class Helpers {
       throw new Error(errMsg)
     }
     return null
+  }
+
+  static getErrorCodesFromParams(params: any) {
+    let errorCodes: string[]
+    const errorString = params.error_code || params.errorCode
+    const errorMessage = params.error_message || params.errorMessage
+    if (errorString) {
+      errorCodes = errorString.split(/[/?/$&]/)
+    }
+    if (errorCodes || errorMessage) {
+      errorCodes = errorCodes || []
+      errorCodes.push(errorMessage)
+    }
+    return errorCodes
+  }
+
+  static extractDataFromCallbackUrl(url: string) {
+    let params: { [key: string]: any } = {}
+    if (url) {
+      params = this.urlParamsToArray(url)
+      const errors = this.getErrorCodesFromParams(params)
+      return { ...params, errors }
+    }
+    return params
+  }
+
+  /** Call the callback once for each item in the array and await for each to finish in turn */
+  static async asyncForEach(array: any[], callback: (item: any, index: number, array: any[]) => Promise<any>) {
+    for (let index = 0; index < array.length; index += 1) {
+      // eslint-disable-next-line @typescript-eslint/semi
+      // eslint-disable-next-line no-await-in-loop
+      await callback(array[index], index, array)
+    }
+  }
+
+  /** Return a value in a custom claim in a JWT token by using a partial claim name
+   *  e.g. function(token, 'appId') => value for claim https://oreid.io/appId */
+  static getClaimFromJwtTokenBySearchString(decodedToken: JWTToken, searchString: string) {
+    let value: string
+    if (!this.isAnObject(decodedToken)) return null
+    // loop through items in token to find matching string
+    Object.keys(decodedToken).forEach(item => {
+      if (item.includes(searchString)) {
+        value = (decodedToken as Lookup)[item]
+      }
+    })
+    return value
   }
 }
