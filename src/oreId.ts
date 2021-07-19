@@ -439,7 +439,7 @@ export default class OreId {
       state,
       linkToAccount,
       processId,
-      returnAccessToken: returnAccessToken || true, // if returnAccessToken not specified, default to true
+      returnAccessToken: isNullOrEmpty(returnAccessToken) ? true : returnAccessToken, // if returnAccessToken not specified, default to true
       returnIdToken,
     }
     if (idToken) {
