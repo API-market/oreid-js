@@ -300,6 +300,7 @@ export type NewAccountOptions = {
 
 export type LoginOptions = {
   provider: AuthProvider
+  idToken: string
   chainAccount?: ChainAccount
   chainNetwork?: ChainNetwork
   code?: string
@@ -440,6 +441,15 @@ export type GetNewAppAccessTokenParams = {
   processId?: ProcessId
 }
 
+export type NewUserWithTokenParams = {
+  idToken: string
+  processId?: ProcessId
+}
+
+export type NewUserWithTokenApiBodyParams = {
+  id_token: string
+}
+
 export type PasswordlessApiParams = {
   provider: AuthProvider
   phone?: string
@@ -469,7 +479,8 @@ export type SignTransactionApiBodyParams = {
 export type GetRecoverAccountUrlResult = string
 
 export type LoginWithOreIdResult = {
-  loginUrl: string
+  accessToken?: string
+  loginUrl?: string
   errors?: string
 }
 
@@ -508,6 +519,7 @@ export enum ApiEndpoint {
   CustodialMigrateAccount = 'custodial/migrate-account',
   CustodialNewAccount = 'custodial/new-user',
   CustodialSign = 'custodial/sign',
+  NewUserWithToken = 'account/new-user-with-token',
   PasswordLessSendCode = 'account/login-passwordless-send-code',
   PasswordLessVerifyCode = 'account/login-passwordless-verify-code',
   TransactionSign = 'transaction/sign',
