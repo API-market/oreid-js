@@ -6,7 +6,7 @@ import { initAccessContext, WalletProvider, Wallet } from '@aikon/eos-transit'
 import { msgPackEncode } from './chainUtils'
 import Helpers from './helpers'
 import LocalState from './localState'
-import { defaultOreIdServiceUrl, providersNotImplemented, version } from './constants'
+import { defaultOreIdServiceUrl, providersNotImplemented, publicApiEndpoints, version } from './constants'
 import { generateHmac } from './hmac'
 import {
   getTransitProviderAttributes,
@@ -73,6 +73,8 @@ import {
   LoginWithOreIdResult,
   GetRecoverAccountUrlResult,
   JWTToken,
+  NewUserWithTokenParams,
+  NewUserWithTokenApiBodyParams,
 } from './models'
 
 const { isNullOrEmpty } = Helpers
@@ -423,12 +425,13 @@ export default class OreId {
 
   /** Returns a loginUrl to redirect the user's browser to login using ORE ID */
   async loginWithOreId(loginOptions: LoginOptions): Promise<LoginWithOreIdResult> {
-    const { code, email, phone, provider, state, linkToAccount, processId, returnAccessToken, returnIdToken } =
+    const { code, email, idToken, phone, provider, state, linkToAccount, processId, returnAccessToken, returnIdToken } =
       loginOptions || {}
     const { authCallbackUrl, backgroundColor } = this.options
     const args = {
       code,
       email,
+      idToken,
       phone,
       provider,
       backgroundColor,
@@ -438,6 +441,10 @@ export default class OreId {
       processId,
       returnAccessToken: returnAccessToken || true, // if returnAccessToken not specified, default to true
       returnIdToken,
+    }
+    if (idToken) {
+      const { accessToken, error, processId: processIdReturned } = await this.loginWithIdToken({ idToken, processId })
+      return { accessToken, errors: error }
     }
     const loginUrl = await this.getOreIdAuthUrl(args)
     return { loginUrl, errors: null }
@@ -956,6 +963,25 @@ export default class OreId {
     )
 
     return { accessToken, idToken, processId: processIdReturned }
+  }
+
+  /** Call the account/new-user-with-token api
+   * Converts OAuth idToken from some 3rd-party source to OREID Oauth accessTokens
+   * The third-party (e.g. Auth0 or Google) must be registered in the AppRegistration.oauthSettings */
+  async loginWithIdToken(oauthOptions: NewUserWithTokenParams) {
+    const body: NewUserWithTokenApiBodyParams = {
+      id_token: oauthOptions?.idToken,
+    }
+
+    const { accessToken, error, message, processId: processIdReturned } = await this.callOreIdApi(
+      RequestType.Post,
+      ApiEndpoint.NewUserWithToken,
+      body,
+      null, // an api key is NOT required to call this api endpoint
+      oauthOptions?.processId,
+    )
+
+    return { accessToken, error, message, processId: processIdReturned }
   }
 
   /** Login using the wallet provider */
@@ -1850,10 +1876,9 @@ export default class OreId {
     // calls to the proxy server must start with '/' (not an host like http://server) and we'll prepend 'oreid' to it e.g. /oreid/api/xxx to make it easier to do proxy server routing
     const oreIdUrlBase = this.requiresProxyServer ? '/oreid' : oreIdUrl
     const url = `${oreIdUrlBase}/api/${endpoint}`
-
     const accessToken = overrideAccessToken || this.getSavedAccessToken()
 
-    if (!apiKey && !accessToken) {
+    if (!apiKey && !accessToken && !publicApiEndpoints.includes(endpoint)) {
       throw new Error('OreId API request requires either apiKey or accessToken')
     }
 
