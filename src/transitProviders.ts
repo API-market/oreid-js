@@ -5,7 +5,7 @@ import {
   TransitDiscoverKeyLookupCallback,
   TransitDiscoveryAccount,
   TransitDiscoverContinueCallback,
-} from './types'
+} from './models'
 
 export type TransitProviderAttributes = {
   providerName: AuthProvider
