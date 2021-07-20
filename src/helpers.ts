@@ -52,7 +52,7 @@ export default class Helpers {
   static jwtDecodeSafe(token: string, signingCert?: string): Partial<JWTToken> {
     let decoded: JWTToken
     if (this.isNullOrEmpty(token)) {
-      return {}
+      return null
     }
     try {
       if (signingCert) {
@@ -66,22 +66,26 @@ export default class Helpers {
     return decoded
   }
 
-  static tokenHasExpired(token: string) {
-    let decoded: Partial<JWTToken>
-    try {
-      decoded = this.jwtDecodeSafe(token) || {}
-    } catch (error) {
-      return true
-    }
+  static badTokenErrorMsg = 'Access token invalid, expired, or not issued by ORE ID'
 
+  /** whether the accessToken string is a valid OREID issued token and NOT expired */
+  static isValidAccessToken(token: string) {
+    const decoded: Partial<JWTToken> = this.jwtDecodeSafe(token)
+    // if token cant be decoded, return true
+    if (!decoded) return false
+    // check if ORE ID issued this token
+    if (!decoded.iss.includes('oreid.io')) {
+      return false
+    }
+    // check if expired
     const now = Date.now().valueOf() / 1000
     if (typeof decoded.exp !== 'undefined' && decoded.exp < now) {
-      return true
+      return false
     }
     if (typeof decoded.nbf !== 'undefined' && decoded.nbf > now) {
-      return true
+      return false
     }
-    return false
+    return true
   }
 
   static urlParamsToArray(fullpathIn: string) {
