@@ -215,6 +215,7 @@ export enum ExternalWalletType {
   Scatter = 'scatter',
   SimpleEos = 'simpleos',
   TokenPocket = 'tokenpocket',
+  WalletConnect = 'walletconnect',
   Web3 = 'web3',
   WhaleVault = 'whalevault',
 }
@@ -246,6 +247,7 @@ export enum AuthProvider {
   Scatter = 'scatter',
   SimpleEos = 'simpleos',
   TokenPocket = 'tokenpocket',
+  WalletConnect = 'walletconnect',
   Web3 = 'web3',
   WhaleVault = 'whalevault',
   // placeholder for signing - meaning non an external wallet
