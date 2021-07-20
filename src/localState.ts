@@ -64,10 +64,18 @@ export default class LocalState {
     return null
   }
 
-  clear() {
+  clearAccessToken() {
     this.cachedaccessToken = null
-    this.cachedUser = null
     this.storage.removeItem(this.accessTokenKey())
+  }
+
+  clearUser() {
+    this.cachedUser = null
     this.storage.removeItem(this.userKey())
+  }
+
+  clear() {
+    this.clearUser()
+    this.clearAccessToken()
   }
 }
