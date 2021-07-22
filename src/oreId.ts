@@ -127,6 +127,8 @@ export default class OreId {
   /** If we're running in the browser, we must use a proxy server to talk to OREID api
     Unless, we are running the demo app, in which case CORS is disabled by OREID server */
   get requiresProxyServer() {
+    // if we aren't using an apiKey, we dont ever need a proxy server
+    if (!this?.options?.apiKey) return false
     return Helpers.isInBrowser && !this.isDemoApp
   }
 
@@ -787,8 +789,8 @@ export default class OreId {
 
   /** sign with a wallet via UAL or Transit */
   async signWithNonOreIdProvider(signOptions: SignOptions) {
-    const isUALProvider = this.isUALProvider(signOptions.provider)
-    return isUALProvider ? this.signWithUALProvider(signOptions) : this.signWithTransitProvider(signOptions)
+    const isTransitProvider = this.isTransitProvider(signOptions.provider)
+    return isTransitProvider ? this.signWithTransitProvider(signOptions) : this.signWithUALProvider(signOptions)
   }
 
   /** sign with a UAL wallet */
