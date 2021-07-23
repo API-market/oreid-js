@@ -118,6 +118,9 @@ export default class OreId {
    * This token is automatically set if you use handleAuthResponse()
    * This token is user-specific - call logout to clear it upon user log-out */
   set accessToken(accessToken: string) {
+    if (!Helpers.isValidAccessToken(accessToken)) {
+      throw new Error(Helpers.badTokenErrorMsg)
+    }
     this.localState.saveAccessToken(accessToken)
   }
 
@@ -1479,9 +1482,9 @@ export default class OreId {
    *  if expired, clear from local storage and throw error */
   getSavedAccessToken() {
     const { accessToken } = this.localState
-    if (Helpers.tokenHasExpired(accessToken)) {
-      this.localState.saveAccessToken(null)
-      throw new Error('Access token invalid or expired. Please login again.')
+    if (!Helpers.isValidAccessToken(accessToken)) {
+      this.localState.clearAccessToken()
+      return null
     }
     return accessToken
   }
