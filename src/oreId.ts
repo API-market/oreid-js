@@ -127,6 +127,8 @@ export default class OreId {
   /** If we're running in the browser, we must use a proxy server to talk to OREID api
     Unless, we are running the demo app, in which case CORS is disabled by OREID server */
   get requiresProxyServer() {
+    // if we aren't using an apiKey, we dont ever need a proxy server
+    if (!this?.options?.apiKey) return false
     return Helpers.isInBrowser && !this.isDemoApp
   }
 
@@ -787,8 +789,8 @@ export default class OreId {
 
   /** sign with a wallet via UAL or Transit */
   async signWithNonOreIdProvider(signOptions: SignOptions) {
-    const isUALProvider = this.isUALProvider(signOptions.provider)
-    return isUALProvider ? this.signWithUALProvider(signOptions) : this.signWithTransitProvider(signOptions)
+    const isTransitProvider = this.isTransitProvider(signOptions.provider)
+    return isTransitProvider ? this.signWithTransitProvider(signOptions) : this.signWithUALProvider(signOptions)
   }
 
   /** sign with a UAL wallet */
@@ -1081,8 +1083,9 @@ export default class OreId {
           return response
         }
       } catch (error) {
-        console.log(`connectToUALProvider: Failed to connect to ${provider}: ${error?.message}`, error)
-        throw error
+        const errMsg = `Failed to connect to ${provider} on ${chainNetwork}. ${error?.message || ''}`
+        console.log(`connectToUALProvider:${errMsg}`, error)
+        throw new Error(errMsg)
       }
     } else {
       throw Error('Provider does not match')
@@ -1198,14 +1201,9 @@ export default class OreId {
     const chainContext = await this.getOrCreateTransitAccessContext(chainNetwork)
     const transitProvider = chainContext.getWalletProviders().find(wp => wp.id === providerId)
     const transitWallet = chainContext.initWallet(transitProvider)
-    try {
-      await transitWallet.connect()
-      await this.waitWhileWalletIsBusy(transitWallet, provider)
-      return transitWallet
-    } catch (error) {
-      console.log(`setupTransitWallet: Failed to connect to ${provider} wallet: ${error?.message}`, error)
-      throw error
-    }
+    await transitWallet.connect()
+    await this.waitWhileWalletIsBusy(transitWallet, provider)
+    return transitWallet
   }
 
   /** Add the account selected in the transitWallet to the ORE account's list of account/permissions */
@@ -1276,9 +1274,9 @@ export default class OreId {
         throw new Error(errorString)
       }
     } catch (error) {
-      const errMsg = `connectToTransitProvider: Failed to connect to ${provider} on ${chainNetwork}: ${error?.message}`
-      console.log(errMsg, error)
-      throw error
+      const errMsg = `Failed to connect to ${provider} on ${chainNetwork}. ${error?.message || ''}`
+      console.log(`connectToTransitProvider:${errMsg}`, error)
+      throw new Error(errMsg)
     } finally {
       this.setIsBusy(false)
     }
