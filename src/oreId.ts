@@ -1083,8 +1083,9 @@ export default class OreId {
           return response
         }
       } catch (error) {
-        console.log(`connectToUALProvider: Failed to connect to ${provider}: ${error?.message}`, error)
-        throw error
+        const errMsg = `Failed to connect to ${provider} on ${chainNetwork}. ${error?.message || ''}`
+        console.log(`connectToUALProvider:${errMsg}`, error)
+        throw new Error(errMsg)
       }
     } else {
       throw Error('Provider does not match')
@@ -1200,14 +1201,9 @@ export default class OreId {
     const chainContext = await this.getOrCreateTransitAccessContext(chainNetwork)
     const transitProvider = chainContext.getWalletProviders().find(wp => wp.id === providerId)
     const transitWallet = chainContext.initWallet(transitProvider)
-    try {
-      await transitWallet.connect()
-      await this.waitWhileWalletIsBusy(transitWallet, provider)
-      return transitWallet
-    } catch (error) {
-      console.log(`setupTransitWallet: Failed to connect to ${provider} wallet: ${error?.message}`, error)
-      throw error
-    }
+    await transitWallet.connect()
+    await this.waitWhileWalletIsBusy(transitWallet, provider)
+    return transitWallet
   }
 
   /** Add the account selected in the transitWallet to the ORE account's list of account/permissions */
@@ -1278,9 +1274,9 @@ export default class OreId {
         throw new Error(errorString)
       }
     } catch (error) {
-      const errMsg = `connectToTransitProvider: Failed to connect to ${provider} on ${chainNetwork}: ${error?.message}`
-      console.log(errMsg, error)
-      throw error
+      const errMsg = `Failed to connect to ${provider} on ${chainNetwork}. ${error?.message || ''}`
+      console.log(`connectToTransitProvider:${errMsg}`, error)
+      throw new Error(errMsg)
     } finally {
       this.setIsBusy(false)
     }
