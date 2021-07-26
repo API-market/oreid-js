@@ -2,7 +2,7 @@ import { defaultOreIdServiceUrl } from '../constants'
 import { defaultHeight, defaultWidth } from './constants'
 import { WebWidgetProps, WebWidgetPropType } from './models'
 
-export { DappActions, WebWidgetProps } from './models'
+export { DappAction, WebWidgetProps } from './models'
 
 export const createWebWidget = () => {
   // eslint-disable-next-line global-require
