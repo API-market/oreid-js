@@ -1,9 +1,10 @@
 import { OreIdOptions } from '../models'
 
-export enum DappActions {
+export enum DappAction {
+  Auth = 'auth',
+  NewAccount = 'newAccount',
+  RecoverAccount = 'recoverAccount',
   Sign = 'sign',
-  NewAccount = 'new_account',
-  RecoverAccount = 'recover_account',
 }
 
 export enum WebWidgetPropType {
@@ -14,10 +15,10 @@ export enum WebWidgetPropType {
 
 export type WebWidgetProps = {
   oreIdOptions: OreIdOptions
-  action: DappActions
+  action: DappAction
   options: any
   onSuccess: (response: any) => {} // TODO: type this as much as possible
-  // errors is a comma-delimited string of error codes and/or an error message
-  onError: ({ success, errors }: { success: boolean; errors: string }) => {}
+  /** errors is a delimited string of error codes and/or an error message */
+  onError: ({ errors, data }: { errors?: string; data?: any }) => void
   timeout: number
 }

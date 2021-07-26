@@ -1,6 +1,6 @@
 {
   "name": "oreid-js",
-  "version": "2.12.2",
+  "version": "2.12.6",
   "description": "Add user authentication and signing to any blockchain app",
   "author": "AIKON",
   "license": "MIT",
@@ -50,7 +50,7 @@
     "semver": "^6.3.0",
     "uuid": "^7.0.3",
     "aikon-oreid-shared": "git+https://apim-npmbot:LtT3pgcj9YAxMrNN@github.com/API-market/aikon-oreid-shared.git#1.2.7",
-    "zoid": "^9.0.66"
+    "zoid": "^9.0.71"
   },
   "devDependencies": {
     "@types/jest": "^26.0.14",
