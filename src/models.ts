@@ -78,7 +78,7 @@ export type OreIdOptions = {
   backgroundColor?: Color
   oreIdUrl: string
   serviceKey?: string
-  setBusyCallback?: (isBusy: boolean) => {}
+  setBusyCallback?: (isBusy: boolean) => void
   ualProviders?: UalProvider[]
   eosTransitWalletProviders?: TransitWalletProviderFactory[]
 }
