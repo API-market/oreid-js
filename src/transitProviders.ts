@@ -247,7 +247,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
       versionsRequired: '',
     },
     discoveryKeyLookupFunc: NonEosDiscoveryKeyLookupFunc,
-    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-web3-logo.png',
+    logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-walletconnect-logo.png',
   },
   {
     providerName: AuthProvider.Web3,
