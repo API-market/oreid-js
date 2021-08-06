@@ -78,7 +78,7 @@ export type OreIdOptions = {
   backgroundColor?: Color
   oreIdUrl: string
   serviceKey?: string
-  setBusyCallback?: (isBusy: boolean) => {}
+  setBusyCallback?: (isBusy: boolean) => void
   ualProviders?: UalProvider[]
   eosTransitWalletProviders?: TransitWalletProviderFactory[]
 }
@@ -301,8 +301,8 @@ export type NewAccountOptions = {
 }
 
 export type LoginOptions = {
-  provider: AuthProvider
-  idToken: string
+  provider?: AuthProvider
+  idToken?: string
   chainAccount?: ChainAccount
   chainNetwork?: ChainNetwork
   code?: string
