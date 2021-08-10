@@ -166,14 +166,16 @@ export enum ChainNetwork {
   EosMain = 'eos_main',
   EosKylin = 'eos_kylin',
   EosJugle = 'eos_jungle',
-  TelosMain = 'telos_main',
-  TelosTest = 'telos_test',
   EthMain = 'eth_main',
   EthRopsten = 'eth_ropsten',
   OreMain = 'ore_main',
   OreTest = 'ore_test',
   DappKylin1 = 'kylin-dsp-1.liquidapps.io',
   DappKylin2 = 'kylin-dsp-2.liquidapps.io',
+  TelosMain = 'telos_main',
+  TelosTest = 'telos_test',
+  WaxMain = 'wax_main',
+  WaxTest = 'wax_test',
 }
 
 /** Physical structure of account */
