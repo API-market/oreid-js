@@ -1719,7 +1719,6 @@ export default class OreId {
   handleAuthResponse(callbackUrlString: string): AuthResponse {
     // Parses error codes and returns an errors array
     // (if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
-    // NOTE: accessToken and idToken are not usually returned from the ORE ID service - they are included here for future support
     const {
       access_token: accessToken,
       account,
