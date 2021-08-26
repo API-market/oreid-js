@@ -62,7 +62,7 @@ We support Ethereum and related test networks. Just use one of the following for
 We support Algorand and related test networks. Just use one of the following for chainNetwork parameter in the sign request. For example...
   - 'algo_main' - Algorand Main network
   - 'algo_test' - Algorand test network
-  - 'algo_beta' - Algorand Beta test network (future features)
+  - 'algo_beta' - Algorand Beta test network (upcoming features)
 
 NOTE: Algorand chains require an API Key (to be added to OreId options). You can get a free key by signing-up [here](https://www.purestake.com/technology/algorand-api/)
 
@@ -106,7 +106,7 @@ let oreId = new OreId({ ..., ualWalletProviders });
 ### Current Support
 
 | Providers/Authenticators   | EOS Transit   | UAL  |
-| -------------------------- |---------------|------|
+| -------------------------- |------------ --|------|
 | EOS - Keycat               |  ✅           |  ❌  |
 | EOS - Ledger               |  ✅           |  ✅  |
 | EOS - Lynx                 |  ✅           |  ✅  |
@@ -116,6 +116,8 @@ let oreId = new OreId({ ..., ualWalletProviders });
 | EOS - Token Pocket         |  ✅           |  ✅  |
 | EOS - Whalevault           |  ✅           |  ❌  |
 | Algorand - AlgoSigner      |  ✅           |  ❌  |
+| Ethereum - web3 (Metamask) |  ✅           |  ❌  |
+| Ethereum - walletConnect   |  ✅           |  ❌  |
 
 Check out the Express Server example for a complete example.
 
