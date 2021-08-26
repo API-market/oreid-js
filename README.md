@@ -55,6 +55,7 @@ Check out the Express Server example for a complete example.
 We support Ethereum and related test networks. Just use one of the following for chainNetwork parameter in the sign request. For example...
   - 'eth_main' - Etherem Main network
   - 'eth_ropsten' - Etherem Ropsten test network
+  - 'eth_rinkeby' - Etherem Rinkeby test network
 
 # For Algorand chains
 
