@@ -168,6 +168,7 @@ export enum ChainNetwork {
   EosJugle = 'eos_jungle',
   EthMain = 'eth_main',
   EthRopsten = 'eth_ropsten',
+  EthRinkeby = 'eth_rinkeby',
   OreMain = 'ore_main',
   OreTest = 'ore_test',
   DappKylin1 = 'kylin-dsp-1.liquidapps.io',
