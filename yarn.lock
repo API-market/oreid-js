@@ -5241,9 +5241,9 @@ write@1.0.3:
     mkdirp "^0.5.1"
 
 ws@^7.4.5:
-  version "7.5.3"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.3.tgz#160835b63c7d97bfab418fc1b8a9fced2ac01a74"
-  integrity sha512-kQ/dHIzuLrS6Je9+uv81ueZomEwH0qVYstcAQ4/Z93K8zeko9gtAbttJWzoC5ukqXY1PpoouV3+VSOqEAFt5wg==
+  version "7.5.5"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.5.tgz#8b4bc4af518cfabd0473ae4f99144287b33eb881"
+  integrity sha512-BAkMFcAzl8as1G/hArkxOxq3G7pjUqQ3gzYbLL0/5zNkph70e+lCoxBGnm6AW1+/aiNeV4fnKqZ8m4GZewmH2w==
 
 xml-name-validator@^3.0.0:
   version "3.0.0"
@@ -5305,7 +5305,7 @@ zalgo-promise@^1, zalgo-promise@^1.0.11, zalgo-promise@^1.0.3, zalgo-promise@^1.
   resolved "https://registry.yarnpkg.com/zalgo-promise/-/zalgo-promise-1.0.47.tgz#cda98035cc97f053a1ab799277102ccb54897013"
   integrity sha512-n6d/Gdv3Fl8l7h062WpWjpNYdDh5OFAg/e3UUqxdjbdUi4qdFcfYLJvaPIMrofmrgU7vEJ8ApLdg+yUeYCA9WQ==
 
-zoid@^9.0.71:
+zoid@9.0.71:
   version "9.0.71"
   resolved "https://registry.yarnpkg.com/zoid/-/zoid-9.0.71.tgz#64ea5fb0c1cf6722172e88c54d78c35294b0cc01"
   integrity sha512-wohgtumZ/5v8wSu92Dms6Er3JMhd6xF/9EXPFU0yLNJqQfzQ9GaiL/8OLrtD/+XTYzCcCqUUlrE27PKqbi1O5w==
