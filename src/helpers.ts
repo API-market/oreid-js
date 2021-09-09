@@ -209,6 +209,7 @@ export default class Helpers {
     return null
   }
 
+  /** Params is a javascript object representing the parameters parsed from an URL string */
   static getErrorCodesFromParams(params: any) {
     let errorCodes: string[]
     const errorString = params.error_code || params.errorCode
