@@ -128,6 +128,7 @@ export default class OreId {
     Unless, we are running the demo app, in which case CORS is disabled by OREID server */
   get requiresProxyServer() {
     // if we aren't using an apiKey, we dont ever need a proxy server
+    if (this?.options?.isUsingProxyServer) return true
     if (!this?.options?.apiKey) return false
     return Helpers.isInBrowser && !this.isDemoApp
   }
