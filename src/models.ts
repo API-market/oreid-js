@@ -76,6 +76,8 @@ export type OreIdOptions = {
   newAccountCallbackUrl?: string
   signCallbackUrl?: string
   backgroundColor?: Color
+  /** whether you are using a proxy server - required for api calls or auth calls without idToken */
+  isUsingProxyServer?: boolean
   oreIdUrl: string
   serviceKey?: string
   setBusyCallback?: (isBusy: boolean) => void

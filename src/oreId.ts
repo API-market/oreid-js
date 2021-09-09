@@ -128,6 +128,7 @@ export default class OreId {
     Unless, we are running the demo app, in which case CORS is disabled by OREID server */
   get requiresProxyServer() {
     // if we aren't using an apiKey, we dont ever need a proxy server
+    if (this?.options?.isUsingProxyServer) return true
     if (!this?.options?.apiKey) return false
     return Helpers.isInBrowser && !this.isDemoApp
   }
@@ -1868,7 +1869,6 @@ export default class OreId {
   ) {
     let urlString
     let response
-    let data
     const headers: { [key: string]: any } = {}
     const { apiKey, serviceKey, oreIdUrl } = this.options
     // if running in browser, we dont call the api directly, we use a proxy server (unless we're running a demo app)
@@ -1919,39 +1919,13 @@ export default class OreId {
           // body: params,
         })
       }
-    } catch (error) {
-      // Browser thre an error during CORS preflight post - See https://github.com/axios/axios/issues/1143
-      if (error?.message.toLowerCase() === 'network error') {
-        throw new Error(
-          'Browser threw a Network Error. This is likely because of CORS error. Make sure that you are not sending an api-key in the header of the request.',
-        )
-      }
-      ;({ data = {} } = error?.response || {})
-      const { message } = data
-      const errorCodes = this.getErrorCodesFromParams(data)
-      // oreid apis pass back errorCode/errorMessages
-      // also handle when a standard error message is thrown
-      const errorString = errorCodes || message || 'unknown error'
-      throw new Error(errorString)
+    } catch (networkError) {
+      const error = Helpers.getErrorFromAxiosError(networkError)
+      throw error
     }
 
-    ;({ data } = response)
+    const { data } = response
     return data
-  }
-
-  /** Params is a javascript object representing the parameters parsed from an URL string */
-  getErrorCodesFromParams(params: any) {
-    let errorCodes: string[]
-    const errorString = params.error_code || params.errorCode
-    const errorMessage = params.error_message || params.errorMessage
-    if (errorString) {
-      errorCodes = errorString.split(/[/?/$&]/)
-    }
-    if (errorCodes || errorMessage) {
-      errorCodes = errorCodes || []
-      errorCodes.push(errorMessage)
-    }
-    return errorCodes
   }
 
   /** Clears user's accessToken and user profile data */

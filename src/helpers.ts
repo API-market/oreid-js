@@ -2,6 +2,7 @@
     helper functions
  */
 // import jwtdecode from 'jwt-decode'
+import { AxiosError } from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 import jwt from 'jsonwebtoken'
 import { JWTToken, Lookup } from './models'
@@ -208,6 +209,9 @@ export default class Helpers {
     return null
   }
 
+  /** Parses comma-seperated error_codes from url response
+   * Returns: array of error code strings
+   * Note: Params is a javascript object parsed from callback URL string */
   static getErrorCodesFromParams(params: any) {
     let errorCodes: string[]
     const errorString = params.error_code || params.errorCode
@@ -253,5 +257,30 @@ export default class Helpers {
       }
     })
     return value
+  }
+
+  /** get error from inside a network request (Axios Error object) and return it */
+  static getErrorFromAxiosError(error: AxiosError) {
+    // Browser thre an error during CORS preflight post - See https://github.com/axios/axios/issues/1143
+    if (error?.message.toLowerCase() === 'network error') {
+      throw new Error(
+        'Browser threw a Network Error. This is likely because of CORS error. Make sure that you are not sending an api-key in the header of the request.',
+      )
+    }
+    if (!Helpers.isAxiosError(error)) {
+      return error
+    }
+    // extract error message from Axios Error and return new Error
+    const { data = {} } = error?.response || {}
+    const { message } = data
+    const errorCodes = this.getErrorCodesFromParams(data)
+    // oreid apis pass back errorCode/errorMessages
+    // also handle when a standard error message is thrown
+    const errorString = errorCodes || message || 'unknown error'
+    return Error(errorString)
+  }
+
+  static isAxiosError(error: any): error is AxiosError {
+    return (error as AxiosError).isAxiosError !== undefined
   }
 }
