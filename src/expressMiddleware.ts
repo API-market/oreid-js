@@ -95,8 +95,9 @@ export function addAccessTokenAndHmacToUrl(options: ExpressMiddlewareOptions) {
       const hmac = generateHmac(apiKey, urlWithAccessToken)
       const urlEncodedHmac = encodeURIComponent(hmac)
       res.send({ urlString: `${urlWithAccessToken}&hmac=${urlEncodedHmac}` })
-    } catch (e) {
-      res.emit('error', new Error(`oreid/prepare-url: Problem in addAccessTokenAndHmacToUrl: ${JSON.stringify(e)}`))
+    } catch (networkError) {
+      const error = Helpers.getErrorFromAxiosError(networkError)
+      res.emit('error', new Error(`oreid/prepare-url: Problem in addAccessTokenAndHmacToUrl: ${error.message}`))
     }
   })
 }
