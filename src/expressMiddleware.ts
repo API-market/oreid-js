@@ -82,12 +82,16 @@ export function addAccessTokenAndHmacToUrl(options: ExpressMiddlewareOptions) {
     const appTokenApiEndpoint = `${oreidUrl}/api/app-token`
     try {
       // get a new app-access-token
-      const response = await Axios.post(appTokenApiEndpoint, null, {
-        headers: {
-          'Content-Type': 'application/json',
-          'api-key': apiKey,
+      const response = await Axios.post(
+        appTokenApiEndpoint,
+        {},
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'api-key': apiKey,
+          },
         },
-      })
+      )
 
       const { appAccessToken } = response.data
       const urlWithAccessToken = `${urlToModify}&app_access_token=${appAccessToken}`
