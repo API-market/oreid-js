@@ -5,6 +5,7 @@ export enum DappAction {
   NewAccount = 'newAccount',
   RecoverAccount = 'recoverAccount',
   Sign = 'sign',
+  Logout = 'logout'
 }
 
 export enum WebWidgetPropType {
@@ -15,8 +16,10 @@ export enum WebWidgetPropType {
 
 export type WebWidgetProps = {
   oreIdOptions: OreIdOptions
-  action: DappAction
-  options: any
+  action: {
+    name: DappAction
+    params: any
+  }
   onSuccess: (response: any) => {} // TODO: type this as much as possible
   /** errors is a delimited string of error codes and/or an error message */
   onError: ({ errors, data }: { errors?: string; data?: any }) => void
