@@ -22,8 +22,7 @@ export const createWebWidget = () => {
         type: WebWidgetPropType.Object,
       },
       action: {
-        name: { type: WebWidgetPropType.String },
-        params: { type: WebWidgetPropType.Object },
+        type: WebWidgetPropType.Object,
       },
       onSuccess: {
         type: WebWidgetPropType.Function,
