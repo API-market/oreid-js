@@ -5,7 +5,7 @@ export enum DappAction {
   NewAccount = 'newAccount',
   RecoverAccount = 'recoverAccount',
   Sign = 'sign',
-  Logout = 'logout'
+  Logout = 'logout',
 }
 
 export enum WebWidgetPropType {
