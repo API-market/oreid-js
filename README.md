@@ -101,25 +101,25 @@ let oreId = new OreId({ ..., ualWalletProviders });
 
 **NOTE:** This project uses a forked version of Eos-Transit library to support non-Eos blockchains (package: @aikon/eos-transit).
 
-<br><br>
+<br>
 
 ### Current Support
-
-| Providers/Authenticators   | EOS Transit   | UAL  |
-| -------------------------- |------------ --|------|
-| EOS - Keycat               |  ✅           |  ❌  |
-| EOS - Ledger               |  ✅           |  ✅  |
-| EOS - Lynx                 |  ✅           |  ✅  |
-| EOS - Meet One             |  ✅           |  ✅  |
-| EOS - Portis               |  ✅           |  ❌  |
-| EOS - Scatter              |  ✅           |  ✅  |
-| EOS - Token Pocket         |  ✅           |  ✅  |
-| EOS - Whalevault           |  ✅           |  ❌  |
-| Algorand - AlgoSigner      |  ✅           |  ❌  |
-| Ethereum - web3 (Metamask) |  ✅           |  ❌  |
-| Ethereum - walletConnect   |  ✅           |  ❌  |
+| Providers/Authenticators   |
+| -------------------------- |
+| Algorand - AlgoSigner      |
+| Ethereum - web3 (Metamask) |
+| Ethereum - walletConnect   |
+| EOS - Keycat               |
+| EOS - Ledger               |
+| EOS - Lynx                 |
+| EOS - Meet One             |
+| EOS - Portis               |
+| EOS - Scatter              |
+| EOS - Token Pocket         |
+| EOS - Whalevault           |
 
 Check out the Express Server example for a complete example.
+<br><br>
 
 # Example projects
 
