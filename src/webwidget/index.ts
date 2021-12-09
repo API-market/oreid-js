@@ -21,6 +21,11 @@ export const createWebWidget = () => {
       oreIdOptions: {
         type: WebWidgetPropType.Object,
       },
+      // action: {
+      //   name: { type: WebWidgetPropType.String },
+      //   params: { type: WebWidgetPropType.Object },
+      // }
+      // NOTE: action is an object with these two properties - Zoid types prevent us from defined them here
       action: {
         type: WebWidgetPropType.Object,
       },
