@@ -2,13 +2,16 @@ import Helpers from './helpers'
 import { JWTToken } from './models'
 
 class AccessTokenHelper {
-  constructor(accessToken: string) {
+  constructor(accessToken: string, ignoreIssuer = false) {
+    this._ignoreIssuer = ignoreIssuer
     this.setAccessToken(accessToken)
   }
 
   _accessToken: string
 
   _decodedToken: JWTToken
+
+  _ignoreIssuer: boolean
 
   get accessToken() {
     return this._accessToken
@@ -38,15 +41,15 @@ class AccessTokenHelper {
   setAccessToken(value: string) {
     const decodedAccessToken = Helpers.jwtDecodeSafe(value) as JWTToken
     if (!decodedAccessToken) throw Error(`Can't set AccessToken - not a valid JWT string. Value provided: ${value}`)
-    AccessTokenHelper.assertIsTokenValid(decodedAccessToken)
+    AccessTokenHelper.assertIsTokenValid(decodedAccessToken, this._ignoreIssuer)
     this._decodedToken = decodedAccessToken
     this._accessToken = value
   }
 
   /** Whether token is a valid OREID issued token and NOT expired */
-  static isTokenValid(decodedToken: Partial<JWTToken>): boolean {
+  static isTokenValid(decodedToken: Partial<JWTToken>, ignoreIssuer = false): boolean {
     try {
-      AccessTokenHelper.assertIsTokenValid(decodedToken)
+      AccessTokenHelper.assertIsTokenValid(decodedToken, ignoreIssuer)
       return true
     } catch (error) {
       return false
@@ -54,10 +57,10 @@ class AccessTokenHelper {
   }
 
   /** Throws if decodedToken is NOT a valid OREID issued token */
-  static assertIsTokenValid(decodedToken: Partial<JWTToken>) {
+  static assertIsTokenValid(decodedToken: Partial<JWTToken>, ignoreIssuer = false) {
     if (!decodedToken) throw Error('AccessToken is invalid, or expired)')
     // check if ORE ID issued this token
-    if (!decodedToken.iss.includes('oreid.io')) {
+    if (!ignoreIssuer && !decodedToken.iss.includes('oreid.io')) {
       throw Error('Access token not issued by ORE ID')
     }
   }
