@@ -76,6 +76,7 @@ import {
   NewUserWithTokenParams,
   NewUserWithTokenApiBodyParams,
 } from './models'
+import AccessTokenHelper from './accessTokenHelper'
 
 const { isNullOrEmpty } = Helpers
 
@@ -103,25 +104,63 @@ export default class OreId {
 
   cachedChainNetworks: SettingChainNetwork[] = []
 
+  accessTokenHelper: AccessTokenHelper
+
   /** whether the current appId is a demo app */
   get isDemoApp() {
     return this.options?.appId?.toLowerCase().startsWith('demo') || false
   }
 
-  /** retrieve acessToken saved in local storage */
+  /** retrieve accessToken saved in local storage - is automatically deleted when token expires */
   get accessToken() {
-    return this.getSavedAccessToken()
+    if (!this.accessTokenHelper) {
+      const savedToken = this.localState?.accessToken
+      if (!savedToken) return null
+      this.accessToken = savedToken // sets accessTokenHelper
+    }
+    const hasExpired = this.clearTokenAndUserIfAccessTokenExpired()
+    if (hasExpired) return null
+    return this.accessTokenHelper?.accessToken
   }
 
-  /** set the access token in local storage
+  /** Sets the access token in local storage (and in accessTokenHelper)
    * this token will be used to call ORE ID APIs (on behalf of the user)
-   * This token is automatically set if you use handleAuthResponse()
-   * This token is user-specific - call logout to clear it upon user log-out */
+   * This token is user-specific - call logout to clear it upon user log-out
+   * For an expired token, this function will delete the accessToken (and matching user) from local storage
+   * NOTE: This function will be called automatically if you use handleAuthResponse() */
   set accessToken(accessToken: string) {
-    if (!Helpers.isValidAccessToken(accessToken)) {
-      throw new Error(Helpers.badTokenErrorMsg)
+    try {
+      // decodes and validates accessToken is a valid token
+      this.accessTokenHelper = new AccessTokenHelper(accessToken)
+    } catch (error) {
+      console.log('accessToken cant be set: ', error.message)
+      return
     }
-    this.localState.saveAccessToken(accessToken)
+    const hasExpired = this.clearTokenAndUserIfAccessTokenExpired()
+    if (!hasExpired) {
+      this.localState.saveAccessToken(accessToken)
+      // if account in accessToken account doesn't match currently cached user, clear user
+      this.clearLocalStateUserIfNotMatchingAccount(this.accessTokenHelper.accountName)
+    }
+  }
+
+  clearTokenAndUserIfAccessTokenExpired(): boolean {
+    const hasExpired = this.accessTokenHelper?.hasExpired()
+    if (!hasExpired) return false
+    // clear expired accessToken and user
+    this.localState.clearAccessToken()
+    this.localState.clearUser()
+    this.accessTokenHelper = null
+    console.log('accessToken has expired and has been cleared')
+    return true
+  }
+
+  /** if locally saved user if NOT matches account */
+  clearLocalStateUserIfNotMatchingAccount(accountName: string) {
+    const cachedUser = this.localState.user
+    if (accountName !== cachedUser?.accountName) {
+      this.localState.clearUser()
+    }
   }
 
   /** If we're running in the browser, we must use a proxy server to talk to OREID api
@@ -450,10 +489,14 @@ export default class OreId {
     }
     if (idToken) {
       const { accessToken, error, processId: processIdReturned } = await this.loginWithIdToken({ idToken, processId })
-      return { accessToken, errors: error }
+      if (!error) {
+        this.accessToken = accessToken // saves in cache and in local storage
+        this.getUserInfoFromApi()
+      }
+      return { accessToken, errors: error, processId: processIdReturned || processId }
     }
     const loginUrl = await this.getOreIdAuthUrl(args)
-    return { loginUrl, errors: null }
+    return { loginUrl, errors: null, processId }
   }
 
   async newAccountWithOreId(newAccountOptions: NewAccountOptions): Promise<NewAccountWithOreIdResult> {
@@ -527,7 +570,7 @@ export default class OreId {
       user_password: userPassword,
       signature_only: signatureOnly,
     }
-    const accessToken = signOptions?.accessToken || this.getSavedAccessToken()
+    const accessToken = signOptions?.accessToken || this.accessToken
 
     if (allowChainAccountSelection) {
       body.allow_chain_account_selection = allowChainAccountSelection
@@ -1477,17 +1520,6 @@ export default class OreId {
     }
   }
 
-  /** get Oauth accessToken from local storage
-   *  if expired, clear from local storage and throw error */
-  getSavedAccessToken() {
-    const { accessToken } = this.localState
-    if (!Helpers.isValidAccessToken(accessToken)) {
-      this.localState.clearAccessToken()
-      return null
-    }
-    return accessToken
-  }
-
   /** load user from local storage and call api
    to get latest info, pass refresh = true */
   async getUser(accountName: AccountName = null, refresh = false, processId: ProcessId = null) {
@@ -1729,13 +1761,14 @@ export default class OreId {
       errors,
     } = Helpers.extractDataFromCallbackUrl(callbackUrlString)
     const response: any = { account }
-    if (accessToken) response.accessToken = accessToken
     if (idToken) response.idToken = idToken
     if (errors) response.errors = errors
     if (processId) response.processId = processId
     if (state) response.state = state
-    // save user token(s) to local state
-    this.localState.saveAccessToken(accessToken)
+    if (accessToken) {
+      response.accessToken = accessToken
+      this.accessToken = accessToken // sets access token state
+    }
     this.setIsBusy(false)
     return response
   }
@@ -1786,7 +1819,8 @@ export default class OreId {
    */
   async getUserInfoFromApi(account?: AccountName, processId: ProcessId = null) {
     let accountParam = account
-    const accessToken = this.getSavedAccessToken()
+    // eslint-disable-next-line prefer-destructuring
+    const accessToken = this.accessToken
     // get account from access token
     if (!account && accessToken) {
       const decodedAccessToken = Helpers.jwtDecodeSafe(accessToken) as JWTToken
@@ -1875,7 +1909,7 @@ export default class OreId {
     // calls to the proxy server must start with '/' (not an host like http://server) and we'll prepend 'oreid' to it e.g. /oreid/api/xxx to make it easier to do proxy server routing
     const oreIdUrlBase = this.requiresProxyServer ? '/oreid' : oreIdUrl
     const url = `${oreIdUrlBase}/api/${endpoint}`
-    const accessToken = overrideAccessToken || this.getSavedAccessToken()
+    const accessToken = overrideAccessToken || this.accessToken
 
     if (!apiKey && !accessToken && !publicApiEndpoints.includes(endpoint)) {
       throw new Error('OreId API request requires either apiKey or accessToken')

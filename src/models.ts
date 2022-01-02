@@ -491,6 +491,7 @@ export type LoginWithOreIdResult = {
   accessToken?: string
   loginUrl?: string
   errors?: string
+  processId?: ProcessId
 }
 
 export type NewAccountWithOreIdResult = {

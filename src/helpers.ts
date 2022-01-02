@@ -48,8 +48,9 @@ export default class Helpers {
     }
   }
 
-  // if signingCert is provided, will verify that jwt is signed with the same cert (valid signature)
-  // ...otherwise, we'll just decode the jwt and not check the signature
+  /** Decodes a JWT token string and returns its body, header, and signature
+   *  If token can't be decoded (e.g. corrupted), returns null
+   *  (optional) Verifies signature if signingCert is provided - throws if invalid signture */
   static jwtDecodeSafe(token: string, signingCert?: string): Partial<JWTToken> {
     let decoded: JWTToken
     if (this.isNullOrEmpty(token)) {
@@ -65,28 +66,6 @@ export default class Helpers {
       // throw Error(`Problem decoding or validating JWT token: ${token} error:${error}`)
     }
     return decoded
-  }
-
-  static badTokenErrorMsg = 'Access token invalid, expired, or not issued by ORE ID'
-
-  /** whether the accessToken string is a valid OREID issued token and NOT expired */
-  static isValidAccessToken(token: string) {
-    const decoded: Partial<JWTToken> = this.jwtDecodeSafe(token)
-    // if token cant be decoded, return true
-    if (!decoded) return false
-    // check if ORE ID issued this token
-    if (!decoded.iss.includes('oreid.io')) {
-      return false
-    }
-    // check if expired
-    const now = Date.now().valueOf() / 1000
-    if (typeof decoded.exp !== 'undefined' && decoded.exp < now) {
-      return false
-    }
-    if (typeof decoded.nbf !== 'undefined' && decoded.nbf > now) {
-      return false
-    }
-    return true
   }
 
   static urlParamsToArray(fullpathIn: string) {
