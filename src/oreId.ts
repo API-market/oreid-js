@@ -1018,6 +1018,24 @@ export default class OreId {
    * Converts OAuth idToken from some 3rd-party source to OREID Oauth accessTokens
    * The third-party (e.g. Auth0 or Google) must be registered in the AppRegistration.oauthSettings */
   async loginWithIdToken(oauthOptions: NewUserWithTokenParams) {
+    const accessTokenHelper = new AccessTokenHelper(oauthOptions?.idToken, true)
+    if (!accessTokenHelper.decodedToken) {
+      return {
+        accessToken: null,
+        error: 'token_invalid',
+        message: 'idToken invalid or corrupt',
+        processId: oauthOptions.processId,
+      }
+    }
+    if (!AccessTokenHelper.isTokenDateValidNow(accessTokenHelper.decodedToken)) {
+      return {
+        accessToken: null,
+        error: 'token_expired',
+        message: 'idToken provided is expired',
+        processId: oauthOptions.processId,
+      }
+    }
+
     const body: NewUserWithTokenApiBodyParams = {
       id_token: oauthOptions?.idToken,
     }
