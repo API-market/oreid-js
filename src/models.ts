@@ -181,6 +181,7 @@ export enum ChainNetwork {
   TelosTest = 'telos_test',
   WaxMain = 'wax_main',
   WaxTest = 'wax_test',
+  UxMain = 'ux_main',
 }
 
 /** Physical structure of account */
