@@ -4,7 +4,7 @@
 // import jwtdecode from 'jwt-decode'
 import { AxiosError } from 'axios'
 import { v4 as uuidv4 } from 'uuid'
-import jwt from 'jsonwebtoken'
+import jwtDecode from 'jwt-decode'
 import { JWTToken, Lookup } from './models'
 
 const { Base64 } = require('js-base64')
@@ -51,17 +51,13 @@ export default class Helpers {
   /** Decodes a JWT token string and returns its body, header, and signature
    *  If token can't be decoded (e.g. corrupted), returns null
    *  (optional) Verifies signature if signingCert is provided - throws if invalid signture */
-  static jwtDecodeSafe(token: string, signingCert?: string): Partial<JWTToken> {
+  static jwtDecodeSafe(token: string): Partial<JWTToken> {
     let decoded: JWTToken
     if (this.isNullOrEmpty(token)) {
       return null
     }
     try {
-      if (signingCert) {
-        decoded = jwt.verify(token, signingCert) as JWTToken
-      } else {
-        decoded = jwt.decode(token) as JWTToken
-      }
+      decoded = jwtDecode(token) as JWTToken
     } catch (error) {
       // throw Error(`Problem decoding or validating JWT token: ${token} error:${error}`)
     }
