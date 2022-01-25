@@ -1,10 +1,8 @@
 import CryptoJS from 'crypto-js'
-// import createHmac from 'create-hmac'
 import Axios from 'axios'
 import Helpers from './helpers'
 
 export function generateHmac(secret: string, data: string) {
-  // createHmac library works in browser or Nodejs
   const hmac = CryptoJS.HmacSHA256(data, secret)
   return hmac.toString()
 }
