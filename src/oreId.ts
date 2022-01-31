@@ -1547,9 +1547,15 @@ export default class OreId {
       if (!isNullOrEmpty(cachedUser)) {
         if (!isNullOrEmpty(accountName)) {
           if (cachedUser.accountName === accountName) {
+            if (!this.accessTokenHelper && this.accessToken) {
+              this.accessTokenHelper = new AccessTokenHelper(this.accessToken)
+            }
             return cachedUser
           }
         } else {
+          if (!this.accessTokenHelper && this.accessToken) {
+            this.accessTokenHelper = new AccessTokenHelper(this.accessToken)
+          }
           return cachedUser
         }
       }
