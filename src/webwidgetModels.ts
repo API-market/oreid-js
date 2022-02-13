@@ -51,8 +51,6 @@ export enum WebWidgetAction {
 
 /** params for Logout action */
 export type WebWidgetLogoutParams = {
-  /** your OreID appId */
-  appId?: string
   /** comma seperated list of login providers e.g. 'google, facebook' or 'all' */
   providers?: string
 }
