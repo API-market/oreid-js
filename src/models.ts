@@ -643,3 +643,5 @@ export interface Lookup {
 
 export type RequestWithParams = Request & ParamsForRequest
 export type ResponseWithParams = Response & ParamsForResponse
+
+export * from './webwidgetModels'

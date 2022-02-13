@@ -1,6 +1,6 @@
 {
   "name": "oreid-js",
-  "version": "2.15.0",
+  "version": "2.16.1",
   "description": "Add user authentication and signing to any blockchain app",
   "author": "AIKON",
   "license": "MIT",
@@ -8,14 +8,12 @@
   "browser": "./dist/browser.js",
   "files": [
     "dist",
-    "dist.browser",
-    "dist.webwidget"
+    "dist.browser"
   ],
   "scripts": {
-    "build": "npm run build-server && npm run build-browser && npm run build-widget",
+    "build": "npm run build-server && npm run build-browser",
     "build-server": "rm -rf dist/* && tsc --build tsconfig.json",
     "build-browser": "rm -rf dist.browser/* && ./node_modules/.bin/ncc build -o dist.browser --minify",
-    "build-widget": "rm -rf dist.widget/* && ./node_modules/.bin/ncc build ./dist/webwidget -o ./dist.webwidget --minify",
     "lint": "./node_modules/.bin/eslint src",
     "lint-fix": "./node_modules/.bin/eslint src --fix",
     "prepare": "npm run build",
