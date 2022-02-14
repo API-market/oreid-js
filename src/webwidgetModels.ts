@@ -5,13 +5,11 @@ export const WidgetVersion = '1'
 
 /** Subset of OreIdOptions used by widget */
 export type WebWidgetOreIdOptions = {
+  accessToken?: string
   appId: string
-  /** appKey is required to call the oreid API */
-  apiKey?: string
   appName: string
   backgroundColor?: string
   oreIdUrl: string
-  serviceKey?: string
   setBusyCallback?: (isBusy: boolean) => void
   ualProviders?: any[]
   eosTransitWalletProviders?: any[]
