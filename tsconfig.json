@@ -5,11 +5,8 @@
     "alwaysStrict": true,
     "declaration": true,
     "downlevelIteration": true,
-    "lib": [
-      "es2017",
-      "dom"
-    ],
-    "module": "CommonJS",
+    "lib": ["es2017", "dom"],
+    "module": "umd",
     "esModuleInterop": true,
     "moduleResolution": "node",
     "noImplicitAny": true,
@@ -17,20 +14,9 @@
     "target": "es5",
     "baseUrl": "./",
     "paths": {
-      "*" : ["src/@customTypes/*"]
-    },
-    "resolveJsonModule": true
+      "*": ["src/@customTypes/*"]
+    }
   },
-  "exclude": [
-    "dist",
-    "dist.browser",
-    "node_modules",
-    "./src/**/?(*.)test.ts",
-    "./src/tests/*.*",
-    "./src/testHelpers",
-  ],
-  "include": [
-    "./src/**/*.js",
-    "./src/**/*.ts"
-  ]
+  "exclude": ["dist", "dist.browser", "node_modules", "./src/**/?(*.)test.ts", "./src/tests/*.*", "./src/testHelpers"],
+  "include": ["./src/**/*.js", "./src/**/*.ts"]
 }
