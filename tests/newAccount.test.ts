@@ -1,8 +1,6 @@
 /* eslint-disable jest/no-mocks-import */
-import OreId from '../src/oreId'
-import demoChainNetworks from '../src/testHelpers/__mocks__/chainNetworks.json'
+import OreId from '../src/core/oreId'
 import { OreIdOptions, AuthProvider, ChainNetwork, AccountType } from '../src/models'
-import { generateHmac } from '../src/hmac'
 import { defaultOreIdServiceUrl } from '../src/constants'
 
 describe('OreId', () => {
@@ -53,16 +51,16 @@ describe('OreId', () => {
       expect(result).toEqual({
         errors: null,
         newAccountUrl:
-          'https://service.oreid.io/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&app_access_token=12345667&hmac=P10z%2B1YPZhqupla8eM7F%2BA7Trnet3o7sYvt%2BvJzB1DQ%3D',
+          'https://service.oreid.io/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&app_access_token=12345667&hmac=3f5d33fb560f661aaea656bc78cec5f80ed3ae77adde8eec62fb7ebc9cc1d434',
       })
     })
 
-    xit('create new account with oreid', async () => {
+    it('create new account', async () => {
       const result = await oreId.newAccount(newAccountOptions)
       expect(result).toEqual({
         errors: null,
-        loginUrl:
-          'https://service.oreid.io/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&app_access_token=12345667&hmac=P10z%2B1YPZhqupla8eM7F%2BA7Trnet3o7sYvt%2BvJzB1DQ%3D',
+        newAccountUrl:
+          'https://service.oreid.io/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&app_access_token=12345667&hmac=3f5d33fb560f661aaea656bc78cec5f80ed3ae77adde8eec62fb7ebc9cc1d434',
       })
     })
   })

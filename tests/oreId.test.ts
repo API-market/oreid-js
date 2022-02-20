@@ -1,8 +1,8 @@
 /* eslint-disable jest/no-mocks-import */
-import OreId from '../src/oreId'
+import OreId from '../src/core/oreId'
 import demoChainNetworks from '../src/testHelpers/__mocks__/chainNetworks.json'
 import { OreIdOptions, AuthProvider } from '../src/models'
-import { generateHmac } from '../src/hmac'
+import { generateHmac } from '../src/utils/hmac'
 import { defaultOreIdServiceUrl } from '../src/constants'
 
 describe('OreId', () => {
@@ -66,25 +66,21 @@ describe('OreId', () => {
     })
 
     it('errors without `provider` and `callbackUrl`', async () => {
-      try {
+      await expect(async () => {
         await oreId.login({
           ...loginOptions,
           provider: null,
         })
-      } catch (error) {
-        expect(error.message).toBe('Missing a required parameter')
-      }
+      }).rejects.toThrow(Error('Missing a required parameter'))
     })
 
     it('Throws an error if the provider is not provided', async () => {
-      try {
+      await expect(async () => {
         await oreId.login({
           ...loginOptions,
           provider: null,
         })
-      } catch (error) {
-        expect(error.message).toBe('Missing a required parameter')
-      }
+      }).rejects.toThrow(Error('Missing a required parameter'))
     })
 
     it('logs in with oreid', async () => {
@@ -92,7 +88,7 @@ describe('OreId', () => {
       expect(result).toEqual({
         errors: null,
         loginUrl:
-          'https://service.oreid.io/auth#provider=google&code=12345&email=test%40test.com&phone=%2B1555555555&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&return_access_token=true&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&hmac=6X8ElQlT%2Bxcl3PGhWHEjThL6R87HL018WgYbW7hnrtc%3D',
+          'https://service.oreid.io/auth#provider=google&code=12345&email=test%40test.com&phone=%2B1555555555&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&return_access_token=true&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&hmac=e97f04950953fb1725dcf1a15871234e12fa47cec72f4d7c5a061b5bb867aed7',
       })
     })
 
@@ -100,7 +96,7 @@ describe('OreId', () => {
       const loginUrl =
         'https://service.oreid.io/auth#provider=google&code=12345&email=test@test.com&phone=%2B1555555555&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&app_access_token=12345667'
       const hmac = generateHmac('demo_k_97b33a2f8c984fb5b119567ca19e4a49', loginUrl)
-      expect(hmac).toEqual('LIuhxTG3o6ZZPaqD2CA+NIZ9oi5Lg11lKJNPUsN+Yto=')
+      expect(hmac).toEqual('2c8ba1c531b7a3a6593daa83d8203e34867da22e4b835d6528934f52c37e62da')
     })
 
     // describe('Logins with transit', () => {
