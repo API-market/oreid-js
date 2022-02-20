@@ -9,6 +9,7 @@ describe('OreId', () => {
     appName: 'testrunner',
     appId: 'demo_0097ed83e0a54e679ca46d082ee0e33a',
     apiKey: 'demo_k_97b33a2f8c984fb5b119567ca19e4a49',
+    serviceKey: 't_k8889ced3cf2b4097a2bec7f90267d172',
     oreIdUrl: defaultOreIdServiceUrl,
   }
 
