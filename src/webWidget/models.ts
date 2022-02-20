@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/indent */
+
 // IMPORTANT: These types are copied from oreid-service webwidget code
 
 /** version of widget served by server that matches these types */

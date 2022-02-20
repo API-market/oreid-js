@@ -1,6 +1,5 @@
+import { AuthProvider, ChainPlatformType } from '../common/models'
 import {
-  AuthProvider,
-  ChainPlatformType,
   TransitDiscoveryData,
   TransitDiscoverKeyLookupCallback,
   TransitDiscoveryAccount,

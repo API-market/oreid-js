@@ -7,7 +7,7 @@
 */
 
 import { NextFunction } from 'express'
-import OreId from './oreId'
+import OreId from './core/oreId'
 import { RequestWithParams, ResponseWithParams } from './models'
 
 type AsyncHandlerFunc = (req: RequestWithParams, res: ResponseWithParams, next: NextFunction) => any
@@ -59,12 +59,7 @@ export function authCallbackHandler(oreId: OreId) {
 
     // attach user data to request object
     if (account) {
-      const user = await oreId.getUserInfoFromApi(account, processId) // get user from server and also save in local cookie (or state)
-      // remove processId from user results and attach to request object instead
-      if (user?.processId) {
-        req.processId = user.processId
-        delete user.processId
-      }
+      const user = await oreId.user.getUserInfoFromApi(account, processId) // get user from server and also save in local cookie (or state)
       req.user = user
     }
 

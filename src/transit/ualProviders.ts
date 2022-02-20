@@ -1,4 +1,4 @@
-import { AuthProvider, ChainPlatformType } from './models'
+import { AuthProvider, ChainPlatformType } from '../common/models'
 
 export type UalProviderAttributes = {
   providerName: AuthProvider

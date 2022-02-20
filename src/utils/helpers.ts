@@ -5,7 +5,8 @@
 import { AxiosError } from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 import jwtDecode from 'jwt-decode'
-import { JWTToken, Lookup } from './models'
+import { JWTToken } from '../auth/models'
+import { Lookup } from '../common/models'
 
 const { Base64 } = require('js-base64')
 

@@ -1,6 +1,7 @@
 import Helpers from './helpers'
 import StorageHandler from './storage'
-import { OreIdOptions, User } from './models'
+import { OreIdOptions } from '../core/models'
+import { UserInfo } from '../user/models'
 
 // avoid Helpers.isNullOrEmpty, use isNullOrEmpty()
 const { isNullOrEmpty } = Helpers
@@ -15,7 +16,7 @@ export default class LocalState {
 
   cachedaccessToken: string
 
-  cachedUser: User
+  cachedUser: UserInfo
 
   options: OreIdOptions
 
@@ -54,7 +55,7 @@ export default class LocalState {
     if (!isNullOrEmpty(serialized)) this.cachedUser = JSON.parse(serialized)
   }
 
-  saveUser(user: User) {
+  saveUser(user: UserInfo) {
     this.cachedUser = user
     this.storage.setItem(this.userKey(), JSON.stringify(this.cachedUser))
   }

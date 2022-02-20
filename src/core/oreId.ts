@@ -2,27 +2,27 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 import axios from 'axios'
-import { initAccessContext, WalletProvider, Wallet } from '@aikon/eos-transit'
-import { msgPackEncode } from './chainUtils'
-import Helpers from './helpers'
-import LocalState from './localState'
-import { defaultOreIdServiceUrl, providersNotImplemented, publicApiEndpoints, version } from './constants'
-import { generateHmac } from './hmac'
+import { initAccessContext, Wallet } from '@aikon/eos-transit'
+import { msgPackEncode } from '../utils/chainUtils'
+import Helpers from '../utils/helpers'
+import LocalState from '../utils/localState'
+import { defaultOreIdServiceUrl, providersNotImplemented, publicApiEndpoints, version } from '../constants'
+import { generateHmac } from '../utils/hmac'
 import {
   getTransitProviderAttributes,
   getTransitProviderAttributesByProviderId,
   supportedTransitProviders,
   transitProviderAttributesData,
-} from './transitProviders'
+} from '../transit/transitProviders'
 import {
   getUALProviderAttributes,
   getUALProviderAttributesByUALName,
   supportedUALProviders,
   ualProviderAttributesData,
-} from './ualProviders'
+} from '../transit/ualProviders'
 import {
   ApiEndpoint,
-  GetNewAppAccessTokenParams,
+  GetNewAppAccessTokenApiParams,
   TransitWalletAccessContext,
   OreIdOptions,
   AppAccessToken,
@@ -59,7 +59,6 @@ import {
   Config,
   TransitAccountInfo,
   RequestType,
-  AddPermissionParams,
   DiscoverOptions,
   SignWithOreIdResult,
   SignatureProviderArgs,
@@ -75,8 +74,10 @@ import {
   JWTToken,
   NewUserWithTokenParams,
   NewUserWithTokenApiBodyParams,
-} from './models'
-import AccessTokenHelper from './accessTokenHelper'
+} from '../models'
+import AccessTokenHelper from '../auth/accessTokenHelper'
+import { User } from '../user/user'
+import { OreIdContext } from '../utils/iOreidContext'
 
 const { isNullOrEmpty } = Helpers
 
@@ -90,6 +91,8 @@ export default class OreId {
 
     this.validateOptions(options)
     this.assertNoDuplicateProviders()
+    // create an instance of the User class
+    this.user = new User({ oreIdContext: this })
   }
 
   isBusy: boolean
@@ -105,6 +108,15 @@ export default class OreId {
   cachedChainNetworks: SettingChainNetwork[] = []
 
   accessTokenHelper: AccessTokenHelper
+
+  user: User
+
+  /** compare id of EosTransitProviders and UALProviders and throw if any duplicates exist */
+  /** Names of all Transit providers installed (provided to this constructor) */
+  transitProvidersInstalled: AuthProvider[] = []
+
+  /** Names of all UALProviders installed (provided to this constructor) */
+  ualProvidersInstalled: AuthProvider[] = []
 
   /** whether the current appId is a demo app */
   get isDemoApp() {
@@ -144,6 +156,15 @@ export default class OreId {
     }
   }
 
+  /** If we're running in the browser, we must use a proxy server to talk to OREID api
+  Unless, we are running the demo app, in which case CORS is disabled by OREID server */
+  get requiresProxyServer() {
+    // if we aren't using an apiKey, we dont ever need a proxy server
+    if (this?.options?.isUsingProxyServer) return true
+    if (!this?.options?.apiKey) return false
+    return Helpers.isInBrowser && !this.isDemoApp
+  }
+
   clearTokenAndUserIfAccessTokenExpired(): boolean {
     const hasExpired = this.accessTokenHelper?.hasExpired()
     if (!hasExpired) return false
@@ -162,22 +183,6 @@ export default class OreId {
       this.localState.clearUser()
     }
   }
-
-  /** If we're running in the browser, we must use a proxy server to talk to OREID api
-    Unless, we are running the demo app, in which case CORS is disabled by OREID server */
-  get requiresProxyServer() {
-    // if we aren't using an apiKey, we dont ever need a proxy server
-    if (this?.options?.isUsingProxyServer) return true
-    if (!this?.options?.apiKey) return false
-    return Helpers.isInBrowser && !this.isDemoApp
-  }
-
-  /** compare id of EosTransitProviders and UALProviders and throw if any duplicates exist */
-  /** Names of all Transit providers installed (provided to this constructor) */
-  transitProvidersInstalled: AuthProvider[] = []
-
-  /** Names of all UALProviders installed (provided to this constructor) */
-  ualProvidersInstalled: AuthProvider[] = []
 
   /** Compare EosTransitProviders installed with UALProviders installed - throw if duplicates exist
    *  Note: This function maps both types of providers to the same AuthProvider name
@@ -441,10 +446,11 @@ export default class OreId {
     this.assertValidProvider(provider)
     this.assertProviderValidForChainNetwork(provider, chainNetwork)
     let result = null
-
+    console.log('Discover this.canDiscover(provider):', provider, this.canDiscover(provider))
     if (this.canDiscover(provider)) {
       // UAL providers dont support discover
       result = this.discoverCredentialsInTransitWallet(chainNetwork, provider, oreAccount, discoveryPathIndexList)
+      console.log('discoverCredentialsInTransitWallet result:', result)
     } else {
       // if provider doesn't support a discover function, we can use login to retrieve a single account/key instead
       const transitWallet = await this.setupTransitWallet({ provider, chainNetwork })
@@ -491,7 +497,7 @@ export default class OreId {
       const { accessToken, error, processId: processIdReturned } = await this.loginWithIdToken({ idToken, processId })
       if (!error) {
         this.accessToken = accessToken // saves in cache and in local storage
-        this.getUserInfoFromApi()
+        this.user.getUserInfoFromApi(this.accessTokenHelper?.accountName)
       }
       return { accessToken, errors: error, processId: processIdReturned || processId }
     }
@@ -1126,7 +1132,7 @@ export default class OreId {
           const user = users[0]
           const publicKeys = await user.getKeys()
           const account = await user.getAccountName()
-          const permissions = [{ name: 'active', publicKey: publicKeys[0] }]
+          const permissions: WalletPermission[] = [{ name: 'active', publicKey: publicKeys[0] }]
           const response = {
             isLoggedIn: true,
             account,
@@ -1139,7 +1145,7 @@ export default class OreId {
           // get the chainNetwork from the UALProvider since we cant tell it what network to use
           const chainNetworkFromProvider = await this.getChainNetworkByChainId(ualNetworkConfig.chainId)
           if (chainNetworkFromProvider) {
-            await this.updatePermissionsIfNecessary(account, permissions, chainNetworkFromProvider, provider)
+            await this.user.updatePermissionsIfNecessary(account, permissions, chainNetworkFromProvider, provider)
           }
 
           return response
@@ -1286,7 +1292,7 @@ export default class OreId {
     // Get the chainNetwork from the transitWallet - in case the wallet provider switches networks somehow
     const transitChainNetwork = await this.getChainNetworkFromTransitWallet(transitWallet)
     if (transitChainNetwork) {
-      await this.updatePermissionsIfNecessary(accountName, permissions, transitChainNetwork, provider, oreAccount)
+      await this.user.updatePermissionsIfNecessary(accountName, permissions, transitChainNetwork, provider, oreAccount)
     }
   }
 
@@ -1411,7 +1417,13 @@ export default class OreId {
           ]
           // Get the chainNetwork from the transitWallet - in case the wallet provider switches networks somehow
           const transitChainNetwork = await this.getChainNetworkFromTransitWallet(transitWallet)
-          await this.addWalletPermissionsToOreIdAccount(account, transitChainNetwork, permissions, oreAccount, provider)
+          await this.user.addWalletPermissionsToOreIdAccount(
+            account,
+            transitChainNetwork,
+            permissions,
+            oreAccount,
+            provider,
+          )
           accountsAndPermissions = accountsAndPermissions.concat(permissions)
         }
       })
@@ -1429,81 +1441,6 @@ export default class OreId {
         this.options.setBusyCallback(value)
       }
     }
-  }
-
-  /** Helper function to update permissions for oreAccount in OreID service
-   *  If oreAccount is not provide, we'll use the local state value for it for the logged in user
-   */
-  async updatePermissionsIfNecessary(
-    chainAccount: ChainAccount,
-    permissions: WalletPermission[],
-    chainNetwork: ChainNetwork,
-    provider: AuthProvider,
-    oreAccount: AccountName = null,
-  ) {
-    // use logged-in account if missing oreAccount param
-    const oreAcct = oreAccount || this.localState.accountName()
-
-    if (oreAcct) {
-      await this.addWalletPermissionsToOreIdAccount(chainAccount, chainNetwork, permissions, oreAcct, provider)
-    } else {
-      console.log('updatePermissionsIfNecessary: oreAccount is null')
-    }
-  }
-
-  // for each permission in the wallet, add to ORE ID (if not in user's record)
-  async addWalletPermissionsToOreIdAccount(
-    chainAccount: ChainAccount,
-    chainNetwork: ChainNetwork,
-    walletPermissions: WalletPermission[],
-    oreAccount: AccountName,
-    provider: AuthProvider,
-  ) {
-    if (isNullOrEmpty(oreAccount) || isNullOrEmpty(walletPermissions) || isNullOrEmpty(chainNetwork)) {
-      return
-    }
-
-    const theUser = await this.getUser(oreAccount, true)
-
-    await walletPermissions.map(async p => {
-      const permission = p.name
-      let parentPermission = p.parent
-      if (!parentPermission) {
-        // HACK: assume parent permission - its missing from the discover() results
-        parentPermission = 'active'
-
-        if (permission === 'owner') {
-          parentPermission = ''
-        } else if (permission === 'active') {
-          parentPermission = 'owner'
-        }
-      }
-      // filter out permission that the user already has in his record
-      const skipThisPermission = theUser.permissions.some(
-        up =>
-          (up.chainAccount === chainAccount && up.chainNetwork === chainNetwork && up.permission === permission) ||
-          permission === 'owner',
-      )
-
-      // don't add 'owner' permission and skip ones that are already stored in user's account
-      if (skipThisPermission !== true) {
-        // let publicKey = p.required_auth.keys[0].key; //TODO: Handle multiple keys and weights
-        const { publicKey } = p
-        // if call is successful, nothing is returned in response (except processId)
-        await this.addPermission(
-          oreAccount,
-          chainAccount,
-          chainNetwork,
-          publicKey,
-          parentPermission,
-          permission,
-          provider,
-        )
-      }
-    })
-
-    // reload user to get updated permissions
-    await this.getUser(oreAccount, true)
   }
 
   // TODO add validation of newer options
@@ -1536,30 +1473,6 @@ export default class OreId {
     if (errorMessage !== '') {
       throw new Error(`Options are missing or invalid. ${errorMessage}`)
     }
-  }
-
-  /** load user from local storage and call api
-   to get latest info, pass refresh = true */
-  async getUser(accountName: AccountName = null, refresh = false, processId: ProcessId = null) {
-    // return the cached user if we have it and matches the accountName
-    if (!refresh) {
-      const cachedUser = this.localState.user
-      if (!isNullOrEmpty(cachedUser)) {
-        if (!isNullOrEmpty(accountName)) {
-          if (cachedUser.accountName === accountName) {
-            return cachedUser
-          }
-        } else {
-          return cachedUser
-        }
-      }
-    }
-
-    // stores user in the local state, we must await for return below to work
-    // this function does nothing if accoutName is null
-    await this.getUserInfoFromApi(accountName, processId)
-
-    return this.localState.user
   }
 
   /** Loads settings value from the server
@@ -1820,7 +1733,7 @@ export default class OreId {
   }
 
   /** Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken */
-  async getNewAppAccessToken({ appAccessTokenMetadata, processId }: GetNewAppAccessTokenParams) {
+  async getNewAppAccessToken({ appAccessTokenMetadata, processId }: GetNewAppAccessTokenApiParams) {
     const response = await this.callOreIdApi(
       RequestType.Post,
       ApiEndpoint.AppToken,
@@ -1830,26 +1743,6 @@ export default class OreId {
     )
     const { appAccessToken, processId: processIdReturned } = response
     this.appAccessToken = appAccessToken
-  }
-
-  /** Get the user info from ORE ID for the given user account
-   *  If accessToken is provided, account param is optional (can be extracted from token)
-   */
-  async getUserInfoFromApi(account?: AccountName, processId: ProcessId = null) {
-    let accountParam = account
-    // eslint-disable-next-line prefer-destructuring
-    const accessToken = this.accessToken
-    // get account from access token
-    if (!account && accessToken) {
-      const decodedAccessToken = Helpers.jwtDecodeSafe(accessToken) as JWTToken
-      accountParam = Helpers.getClaimFromJwtTokenBySearchString(decodedAccessToken, 'https://oreid.aikon.com/account')
-    }
-    if (!accountParam) return null // throw new Error('Missing account param (or accessToken with embedded /account claim)')
-    const queryParams = { account: accountParam }
-    const response = await this.callOreIdApi(RequestType.Get, ApiEndpoint.GetUser, queryParams, null, processId)
-    const { data, processId: processIdReturned } = this.extractProcessIdFromData(response)
-    this.localState.saveUser(data)
-    return data
   }
 
   /** Get the config (setting) values of a specific type */
@@ -1864,47 +1757,6 @@ export default class OreId {
       throw new Error(`Not able to retrieve config values for ${configType}`)
     }
     return values
-  }
-
-  /**  Adds a public key to an account with a specific permission name
-    The permission name must be one defined in the App Registration record (Which defines its parent permission as well as preventing adding rougue permissions)
-    This feature allows your app to hold private keys locally (for certain actions enabled by the permission) while having the associated public key in the user's account
-    chainAccount = name of the account on the chain - 12/13-digit string on EOS and Ethereum Address on ETH - it may be the same as the account
-    chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin", 'ore_main', 'eos_test', etc. 
-  */
-  async addPermission(
-    account: AccountName,
-    chainAccount: ChainAccount,
-    chainNetwork: ChainNetwork,
-    publicKey: PublicKey,
-    parentPermission: PermissionName,
-    permission: PermissionName,
-    provider: AuthProvider,
-    processId?: ProcessId,
-  ): Promise<AddPermissionParams> {
-    const optionalParams: { [key: string]: any } = {}
-
-    if (provider) {
-      optionalParams['wallet-type'] = provider
-    }
-
-    if (parentPermission) {
-      optionalParams['parent-permission'] = parentPermission
-    }
-
-    const queryParams = {
-      account,
-      'chain-account': chainAccount,
-      'chain-network': chainNetwork,
-      'public-key': publicKey,
-      permission,
-      ...optionalParams,
-    }
-
-    // if failed, error will be thrown
-    // TODO: make this a post request on the api
-    const response = await this.callOreIdApi(RequestType.Get, ApiEndpoint.AddPermission, queryParams, null, processId)
-    return response
   }
 
   /** Helper function to call api endpoint and inject api-key
@@ -2023,23 +1875,6 @@ export default class OreId {
       return getUALProviderAttributes(provider)
     }
     return null
-  }
-
-  generateProcessId() {
-    const guid = Helpers.createGuid()
-    // get the last 12 digits
-    const processId = guid.slice(-12)
-    return processId
-  }
-
-  /** remove processId from data */
-  extractProcessIdFromData(data: any) {
-    let processId
-    if (data?.processId) {
-      processId = data.processId
-      delete data.processId
-    }
-    return { data, processId }
   }
 
   /** Add an app access token and hmac signature to the url
