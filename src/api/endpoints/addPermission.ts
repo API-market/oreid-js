@@ -1,4 +1,4 @@
-import { OreIdContext } from '../utils/iOreidContext'
+import { OreIdContext } from '../../utils/iOreidContext'
 import {
   AccountName,
   ApiEndpoint,
@@ -8,11 +8,11 @@ import {
   ProcessId,
   PublicKey,
   RequestType,
-} from '../models'
-import { assertHasApiKeyOrAccessToken, assertParamsHaveRequiredValues } from './helpers'
-import { ApiMessageResponse } from './models'
+} from '../../models'
+import { assertHasApiKeyOrAccessToken, assertParamsHaveRequiredValues } from '../helpers'
+import { ApiMessageResponse } from '../models'
 
-export type CallApiAddPermissionParams = {
+export type ApiAddPermissionParams = {
   account: AccountName
   chainAccount: ChainAccount
   chainNetwork: ChainNetwork
@@ -33,7 +33,7 @@ export type CallApiAddPermissionParams = {
  * */
 export async function callApiAddPermission(
   oreIdContext: OreIdContext,
-  params: CallApiAddPermissionParams,
+  params: ApiAddPermissionParams,
 ): Promise<ApiMessageResponse> {
   const apiName = ApiEndpoint.AddPermission
 

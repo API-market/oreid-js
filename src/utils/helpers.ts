@@ -252,7 +252,8 @@ export default class Helpers {
     const errorCodes = this.getErrorCodesFromParams(data)
     // oreid apis pass back errorCode/errorMessages
     // also handle when a standard error message is thrown
-    const errorString = errorCodes || message || 'unknown error'
+    const errorCodesList = errorCodes && errorCodes?.length > 1 ? errorCodes.join(', ') : errorCodes
+    const errorString = errorCodesList || message || 'unknown error'
     return Error(errorString)
   }
 

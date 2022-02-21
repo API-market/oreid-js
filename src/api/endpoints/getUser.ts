@@ -1,16 +1,17 @@
-import { OreIdContext } from '../utils/iOreidContext'
-import { AccountName, ApiEndpoint, ProcessId, RequestType, UserInfo } from '../models'
-import { assertHasApiKeyOrAccessToken, assertParamsHaveRequiredValues, extractProcessIdFromData } from './helpers'
+import { OreIdContext } from '../../utils/iOreidContext'
+import { AccountName, ApiEndpoint, ProcessId, RequestType, UserInfo } from '../../models'
+import { assertHasApiKeyOrAccessToken, assertParamsHaveRequiredValues, extractProcessIdFromData } from '../helpers'
 
-export type CallApiGetUserParams = {
+export type ApiGetUserParams = {
   account: AccountName
   processId?: ProcessId
 }
 
 /**
  *  Fetch user from api account/user endpoint
+ *  Returns: UserInfo for specified account
  */
-export async function callApiGetUser(oreIdContext: OreIdContext, params: CallApiGetUserParams): Promise<UserInfo> {
+export async function callApiGetUser(oreIdContext: OreIdContext, params: ApiGetUserParams): Promise<UserInfo> {
   const apiName = ApiEndpoint.GetUser
   const { account, processId } = params
   assertHasApiKeyOrAccessToken(oreIdContext, apiName)

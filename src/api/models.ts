@@ -1,5 +1,4 @@
-import { AccountName, AccountType, AuthProvider, ChainAccount, ChainNetwork, ProcessId } from '../common/models'
-import { AppAccessTokenMetadata } from '../core/models'
+import { AccountName, AccountType, ChainAccount, ChainNetwork, ProcessId } from '../common/models'
 
 export enum RequestType {
   Get = 'get',
@@ -26,20 +25,18 @@ export enum ApiEndpoint {
 export type ApiMessageResponse = {
   message?: string
   error?: string
+  processId?: string
+  success?: string
+}
+
+export type ApiResponseWithErrorCode = {
+  message?: string
+  processId?: string
+  errorCode?: string
+  errorMessage?: string
 }
 
 // API params
-
-export type ConvertOauthTokensParams = {
-  accessToken: string
-  idToken: string
-  processId?: ProcessId
-}
-
-export type ConvertOauthTokensApiBodyParams = {
-  access_token: string
-  id_token: string
-}
 
 export type CustodialMigrateAccountParams = {
   account: AccountName
@@ -56,72 +53,4 @@ export type CustodialMigrateAccountApiBodyParams = {
   chain_network: ChainNetwork
   to_type: AccountType
   user_password: string
-}
-
-export type CustodialNewAccountParams = {
-  accountType: AccountType
-  email?: string
-  idToken?: string
-  name?: string
-  picture?: string
-  phone?: string
-  userName?: string
-  userPassword?: string
-  processId?: ProcessId
-}
-
-export type CustodialNewAccountApiBodyParams = {
-  account_type: AccountType
-  email?: string
-  id_token?: string
-  name?: string
-  picture?: string
-  phone?: string
-  user_name?: string
-  user_password?: string
-}
-
-export type GetAppAccessTokenParams = {
-  appAccessTokenMetadata?: AppAccessTokenMetadata
-  processId?: ProcessId
-}
-
-export type GetNewAppAccessTokenApiParams = {
-  appAccessTokenMetadata?: AppAccessTokenMetadata
-  processId?: ProcessId
-}
-
-export type NewUserWithTokenParams = {
-  idToken: string
-  processId?: ProcessId
-}
-
-export type NewUserWithTokenApiBodyParams = {
-  id_token: string
-}
-
-export type PasswordlessApiParams = {
-  provider: AuthProvider
-  phone?: string
-  email?: string
-  code?: string
-  processId?: ProcessId
-}
-
-export type SignTransactionApiBodyParams = {
-  account: AccountName
-  allow_chain_account_selection?: boolean
-  auto_sign?: boolean
-  broadcast?: boolean
-  chain_account: ChainAccount
-  chain_network: ChainNetwork
-  expire_seconds?: number
-  multisig_chain_accounts?: string
-  provider?: AuthProvider
-  return_signed_transaction?: boolean
-  signature_only?: boolean
-  signed_transaction?: string
-  transaction?: string
-  transaction_record_id?: string
-  user_password?: string
 }

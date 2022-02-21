@@ -1,8 +1,8 @@
 import { OreIdContext } from '../utils/iOreidContext'
 import Helpers from '../utils/helpers'
 import { AccountName, AuthProvider, ChainAccount, ChainNetwork, ProcessId, UserInfo, WalletPermission } from '../models'
-import { callApiGetUser, CallApiGetUserParams } from '../api/getUser'
-import { callApiAddPermission } from '../api/addPermission'
+import { callApiGetUser, ApiGetUserParams } from '../api'
+import { callApiAddPermission } from '../api/endpoints/addPermission'
 
 const { isNullOrEmpty } = Helpers
 
@@ -42,7 +42,7 @@ export class User {
       accountAndAccessTokenMismatch = true
     }
     if (!accountParam) return null // throw new Error('Missing account param (or accessToken with embedded /account claim)')
-    const params: CallApiGetUserParams = { account: accountParam, processId }
+    const params: ApiGetUserParams = { account: accountParam, processId }
     const userInfo = await callApiGetUser(this.oreIdContext, params)
 
     // if we've retrieved an account that doesn't match the current access token, don't save the account in localStorage, just return it

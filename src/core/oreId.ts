@@ -22,40 +22,30 @@ import {
 } from '../transit/ualProviders'
 import {
   ApiEndpoint,
-  GetNewAppAccessTokenApiParams,
   TransitWalletAccessContext,
   OreIdOptions,
   AppAccessToken,
   AppAccessTokenMetadata,
   ChainNetwork,
   SettingChainNetwork,
-  PasswordlessApiParams,
   LoginOptions,
   AuthResponse,
   SignResponse,
   ProcessId,
   SignOptions,
-  SignTransactionApiBodyParams,
   AuthProvider,
   SignStringParams,
   TransitWallet,
   AccountName,
-  PermissionName,
   ChainAccount,
-  PublicKey,
   WalletPermission,
   GetOreIdAuthUrlParams,
   ExternalWalletInterface,
   ConnectToTransitProviderParams,
   ConnectToUalProviderParams,
-  ConvertOauthTokensParams,
-  ConvertOauthTokensApiBodyParams,
-  CustodialNewAccountApiBodyParams,
-  CustodialNewAccountParams,
   CustodialMigrateAccountApiBodyParams,
   CustodialMigrateAccountParams,
   SetupTransitWalletParams,
-  GetAppAccessTokenParams,
   Config,
   TransitAccountInfo,
   RequestType,
@@ -71,20 +61,36 @@ import {
   NewAccountWithOreIdResult,
   LoginWithOreIdResult,
   GetRecoverAccountUrlResult,
-  JWTToken,
-  NewUserWithTokenParams,
-  NewUserWithTokenApiBodyParams,
+  ApiMessageResponse,
 } from '../models'
 import AccessTokenHelper from '../auth/accessTokenHelper'
 import { User } from '../user/user'
-import { OreIdContext } from '../utils/iOreidContext'
+import {
+  callApiCanAutosignTransaction,
+  callApiConvertOauthTokens,
+  callApiCustodialMigrateAccount,
+  callApiCustodialNewAccount,
+  callApiCustodialSignTransaction,
+  callApiGetAppToken,
+  callApiGetConfig,
+  callApiLoginUserWithToken,
+  callApiPasswordLessSendCode,
+  callApiPasswordLessVerifyCode,
+  callApiSignTransaction,
+  ApiConvertOauthTokensParams,
+  ApiCustodialMigrateAccountParams,
+  ApiCustodialNewAccountParams,
+  ApiGetAppTokenParams,
+  ApiLoginUserWithTokenParams,
+  ApiPasswordLessSendCodeParams,
+  ApiPasswordLessVerifyCodeParams,
+} from '../api'
 
 const { isNullOrEmpty } = Helpers
 
 export default class OreId {
   constructor(options: OreIdOptions) {
     this.options = null
-    this.appAccessToken = null
     this.localState = new LocalState(options)
     this.transitAccessContexts = {}
     this.cachedChainNetworks = null
@@ -240,7 +246,7 @@ export default class OreId {
     } else {
       chainType = getTransitProviderAttributes(provider).chainType
     }
-    const networks = await this.chainNetworks()
+    const networks = await this.getChainNetworks()
     const isValid = !!networks.find(n => n.network === chainNetwork && n.type === chainType)
     if (!isValid) {
       throw Error(
@@ -251,11 +257,11 @@ export default class OreId {
 
   /** Calls getConfigFromApi() to retrieve settings for all chain networks defined by OreID service
    * and caches the result */
-  async chainNetworks() {
-    if (!this.cachedChainNetworks) {
+  private async getChainNetworks() {
+    if (isNullOrEmpty(this.cachedChainNetworks)) {
       // load the chainNetworks list from the ORE ID API
       const results = await this.getConfigFromApi(Config.Chains)
-      this.cachedChainNetworks = results.chains
+      this.cachedChainNetworks = results.chains // as SettingChainNetwork[]
     }
 
     return this.cachedChainNetworks
@@ -263,7 +269,7 @@ export default class OreId {
 
   /** Returns config for specified chain network */
   async getNetworkConfig(chainNetwork: ChainNetwork) {
-    const networks = await this.chainNetworks()
+    const networks = await this.getChainNetworks()
     const chainConfig = networks.find(n => n.network === chainNetwork)
     if (!chainConfig) {
       throw new Error(`Invalid chain network: ${chainNetwork}.`)
@@ -295,7 +301,7 @@ export default class OreId {
   }
 
   async getChainNetworkSettings(chainNetwork: ChainNetwork) {
-    const networks = await this.chainNetworks()
+    const networks = await this.getChainNetworks()
     return networks.find(n => n.network === chainNetwork)
   }
 
@@ -305,51 +311,14 @@ export default class OreId {
     return !(networkSetting.type === ChainPlatformType.eos || networkSetting.type === ChainPlatformType.ore)
   }
 
-  /** Call oreid api to either:
-    send code - params: loginType and email|phone)
-    verify code - params: loginType, email|phone, and code to check */
-  async callPasswordlessApi(params: PasswordlessApiParams, verify = false) {
-    const { provider, phone, email, code, processId } = params
-
-    if (!provider || !(phone || email) || (verify && !code)) {
-      throw new Error('Missing a required parameter')
-    }
-
-    // Choose correct endpoint - send or verify
-    let passwordlessEndpoint = ApiEndpoint.PasswordLessSendCode
-    if (verify) {
-      passwordlessEndpoint = ApiEndpoint.PasswordLessVerifyCode
-    }
-
-    const queryParams: PasswordlessApiParams = {
-      provider,
-    }
-
-    if (email) {
-      queryParams.email = encodeURIComponent(email)
-    }
-
-    if (phone) {
-      // if user passes in +12103334444, the plus sign needs to be URL encoded
-      queryParams.phone = encodeURIComponent(phone)
-    }
-
-    if (verify) {
-      queryParams.code = code
-    }
-
-    const data = await this.callOreIdApi(RequestType.Get, passwordlessEndpoint, queryParams, null, processId)
-    return data
-  }
-
   /** Call oreid api to send a password login code
-    email - localhost:8080/api/account/login-passwordless-send-code?provider=email&email=me@aikon.com
-    phone - localhost:8080/api/account/login-passwordless-send-code?provider=phone&phone=+12125551212 */
-  async passwordlessSendCodeApi(params: PasswordlessApiParams) {
+    email - api/account/login-passwordless-send-code?provider=email&email=me@aikon.com
+    phone - api/account/login-passwordless-send-code?provider=phone&phone=+12125551212 */
+  async passwordlessSendCodeApi(params: ApiPasswordLessSendCodeParams) {
     let result = {}
 
     try {
-      result = await this.callPasswordlessApi(params)
+      result = await callApiPasswordLessSendCode(this, params)
     } catch (error) {
       return { error }
     }
@@ -358,13 +327,13 @@ export default class OreId {
   }
 
   /** Call oreid api to send a password login code
-    email - localhost:8080/api/account/login-passwordless-verify-code?provider=email&email=me@aikon.com&code=473830
-    phone - localhost:8080/api/account/login-passwordless-verify-code?provider=phone&phone=12125551212&code=473830 */
-  async passwordlessVerifyCodeApi(params: PasswordlessApiParams) {
+    email - api/account/login-passwordless-verify-code?provider=email&email=me@aikon.com&code=473830
+    phone - api/account/login-passwordless-verify-code?provider=phone&phone=12125551212&code=473830 */
+  async passwordlessVerifyCodeApi(params: ApiPasswordLessVerifyCodeParams) {
     let result = {}
 
     try {
-      result = await this.callPasswordlessApi(params, true)
+      result = await callApiPasswordLessVerifyCode(this, params)
     } catch (error) {
       return { error }
     }
@@ -523,125 +492,49 @@ export default class OreId {
     return { newAccountUrl, errors: null }
   }
 
+  /**
+   * Whether the provided transaction (or signedTransaction) can be autoSigned via api (without user interaction)
+   * Requires a serviceKey with the autoSign right
+   * Returns: true if transaction provided can be signed using the signTransaction(autosign:true)
+   * */
   async checkIfTrxAutoSignable(signOptions: SignOptions) {
-    const { serviceKey } = this.options
-    if (!serviceKey) {
-      throw new Error('Missing serviceKey in oreId config options - required to call auto-sign api endpoints.')
-    }
-    let autoSignCredentialsExist = false
-    let processIdReturned = null
-    const { accessToken, account, chainAccount, chainNetwork, processId, transaction, signedTransaction } = signOptions
-    const body = {
-      account,
-      chain_account: chainAccount,
-      chain_network: chainNetwork,
-      transaction: transaction ? Helpers.base64Encode(transaction) : null,
-      signed_transaction: signedTransaction ? Helpers.base64Encode(signedTransaction) : null,
-    }
-    ;({ autoSignCredentialsExist, process_id: processIdReturned } = await this.callOreIdApi(
-      RequestType.Post,
-      ApiEndpoint.CanAutoSign,
-      body,
-      accessToken,
-      processId,
-    ))
-
-    return autoSignCredentialsExist
+    return callApiCanAutosignTransaction(this, signOptions)
   }
 
+  /** Call api to sign a transaction on behalf of the user
+   * This can only be done if autoSign is enabled OR if we are signing for a custodial user where we can provide the wallet password
+   * For autoSign param, requires a serviceKey with the autoSign right
+   * signOptions param specifies with ApiEndpoint.TransactionSig API (for autosign) or ApiEndpoint.CustodialSign
+   * Returns: stringified signedTransaction (and transactionId if available)
+   * */
   async callSignTransaction(signEndpoint: ApiEndpoint, signOptions: SignOptions, autoSign = false) {
-    const {
-      account,
-      allowChainAccountSelection,
-      broadcast,
-      chainAccount,
-      chainNetwork,
-      expireSeconds,
-      multiSigChainAccounts,
-      processId,
-      provider,
-      returnSignedTransaction,
-      signatureOnly,
-      signedTransaction: signedTransactionParam,
-      state: stateParam,
-      transaction: transactionParam,
-      transactionRecordId,
-      userPassword,
-    } = signOptions
-    const body: SignTransactionApiBodyParams = {
-      account,
-      broadcast,
-      chain_account: chainAccount,
-      chain_network: chainNetwork,
-      user_password: userPassword,
-      signature_only: signatureOnly,
+    let signResults
+    if (signEndpoint === ApiEndpoint.TransactionSign) {
+      signResults = callApiSignTransaction(this, { signOptions, autoSign })
+    } else if (signEndpoint === ApiEndpoint.CustodialSign) {
+      signResults = callApiCustodialSignTransaction(this, { signOptions, autoSign })
     }
-    const accessToken = signOptions?.accessToken || this.accessToken
-
-    if (allowChainAccountSelection) {
-      body.allow_chain_account_selection = allowChainAccountSelection
-    }
-
-    if (autoSign) {
-      body.auto_sign = autoSign
-    }
-
-    if (expireSeconds) {
-      body.expire_seconds = expireSeconds
-    }
-
-    if (multiSigChainAccounts) {
-      body.multisig_chain_accounts = multiSigChainAccounts
-    }
-
-    if (provider) {
-      body.provider = provider
-    }
-
-    if (returnSignedTransaction) {
-      body.return_signed_transaction = returnSignedTransaction
-    }
-
-    if (signedTransactionParam) {
-      body.signed_transaction = Helpers.base64Encode(signedTransactionParam)
-    }
-
-    if (stateParam) {
-      body.transaction = Helpers.base64Encode(stateParam)
-    }
-
-    if (transactionParam) {
-      body.transaction = Helpers.base64Encode(transactionParam)
-    }
-
-    if (transactionRecordId) {
-      body.transaction_record_id = transactionRecordId
-    }
-
-    if (userPassword) {
-      body.user_password = userPassword
-    }
-
-    const {
-      signed_transaction: signedTransaction,
-      transaction_id: transactionId,
-      process_id: processIdReturned,
-    } = await this.callOreIdApi(RequestType.Post, signEndpoint, body, accessToken, processId)
-
-    return { processId: processIdReturned, signedTransaction, transactionId }
+    return signResults
   }
 
+  /** Attempt to sign a transaction without user interaction
+   *  Expects user to have previously approved autoSign for transaction type and it hasn't expired
+   *  Call callApiCanAutosignTransaction() first to confirm that this transaction can be autoSigned before attempting this call
+   */
   async autoSignTransaction(signOptions: SignOptions) {
     const signEndpoint = ApiEndpoint.TransactionSign
-    const { processId, signedTransaction, transactionId } = await this.callSignTransaction(
+    const { processId, signedTransaction, transactionId, errorCode, errorMessage } = await this.callSignTransaction(
       signEndpoint,
       signOptions,
       true,
     )
+    if (errorCode || errorMessage) throw new Error(errorMessage)
     return { processId, signedTransaction, transactionId }
   }
 
-  /** Returns a url to redirect the user to to be prompted to enter wallet password to sign a transaction */
+  /** Attempts to sign a transaction using autoSign if possible
+   * If autoSign is not available, returns a url to redirect the user to to be prompted to enter wallet password to sign a transaction
+   */
   async signWithOreId(signOptions: SignOptions): Promise<SignWithOreIdResult> {
     let canAutoSign = false
     // to use ORE ID to sign, we dont need to specify a login provider
@@ -651,7 +544,8 @@ export default class OreId {
     }
 
     try {
-      canAutoSign = await this.checkIfTrxAutoSignable(signOptions)
+      const results = await this.checkIfTrxAutoSignable(signOptions)
+      canAutoSign = results.autoSignCredentialsExist
     } catch (error) {
       // do nothing - this will leave canAutoSign = false
       // checkIfTrxAutoSignable will throw if a serviceKey isn't provided - most callers won't have a serviceKey and cant autosign
@@ -677,10 +571,11 @@ export default class OreId {
       throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/new-user.')
     }
 
-    const { processId, signedTransaction, transactionId } = await this.callSignTransaction(
+    const { processId, signedTransaction, transactionId, errorCode, errorMessage } = await this.callSignTransaction(
       ApiEndpoint.CustodialSign,
       signOptions,
     )
+    if (errorCode || errorMessage) throw new Error(errorMessage)
     return { processId, signedTransaction, transactionId }
   }
 
@@ -946,84 +841,50 @@ export default class OreId {
     return { signatures, serializedTransaction }
   }
 
-  /** create a new user account that is managed by your app
-   * this requires a wallet password (userPassword) on behalf of the user */
-  async custodialNewAccount(accountOptions: CustodialNewAccountParams) {
-    const { serviceKey } = this.options
-    const { accountType, email, idToken, name, picture, phone, userName, userPassword, processId } = accountOptions
-    const body: CustodialNewAccountApiBodyParams = {
-      account_type: accountType,
-      email,
-      id_token: idToken,
-      name,
-      phone,
-      picture,
-      user_name: userName,
-      user_password: userPassword,
-    }
-    if (!serviceKey) {
-      throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/new-user.')
-    }
-
-    const data = await this.callOreIdApi(RequestType.Post, ApiEndpoint.CustodialNewAccount, body, null, processId)
-
-    return data
+  /** Create a new user account that is managed by your app
+   * Requires a wallet password (userPassword) on behalf of the user
+   * Requires an apiKey and a serviceKey with the createUser right
+   * Returns: accountName of newly created account
+   *       OR errorCode, errorMessage, and message if any problems */
+  async custodialNewAccount(accountOptions: ApiCustodialNewAccountParams) {
+    const response = await callApiCustodialNewAccount(this, accountOptions)
+    if (response?.errorCode || response?.errorMessage) throw new Error(response.errorMessage)
+    return response
   }
 
-  /** Call the migrate-account api
-   * This migrates a virtual account to a native account (on-chain)
-   * This endpoint expects the account to be a managed (custodial) account
-   * ... it requires you to provide a wallet password (userPassword) on behalf of the user */
-  async custodialMigrateAccount(migrateOptions: CustodialMigrateAccountParams) {
-    const { serviceKey } = this.options
-    if (!serviceKey) {
-      throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/migrate-account.')
-    }
-
-    const { account, chainAccount, chainNetwork, processId, toType, userPassword } = migrateOptions
-    const body: CustodialMigrateAccountApiBodyParams = {
-      account,
-      chain_account: chainAccount,
-      chain_network: chainNetwork,
-      to_type: toType,
-      user_password: userPassword,
-    }
-
-    const { account: newAccount, process_id: processIdReturned } = await this.callOreIdApi(
-      RequestType.Post,
-      ApiEndpoint.CustodialMigrateAccount,
-      body,
-      null, // an api key is always required to call this api endpoint
-      processId,
-    )
-
-    return { account: newAccount, processId: processIdReturned }
+  /** Call the custodial/migrate-user api
+   * Converts a user account to a new account type
+   * Usually used to convert a virtal account to a native account (on-chain)
+   * .. and expects the account to be a managed (custodial) account
+   * Requires a wallet password (userPassword) on behalf of the user
+   * Requires an apiKey and a serviceKey with the accountMigration right
+   * Returns: account name of migrated account
+   *       OR errorCode, errorMessage, and message if any problems */
+  async custodialMigrateAccount(migrateOptions: ApiCustodialMigrateAccountParams) {
+    const response = await callApiCustodialMigrateAccount(this, migrateOptions)
+    if (response?.errorCode || response?.errorMessage) throw new Error(response.errorMessage)
+    return response
   }
 
   /** Call the account/convert-oauth api
    * Converts OAuth tokens from some 3rd-party source to OREID Oauth tokens
-   * The third-party (e.g. Auth0 or Google) must be registered in the AppRegistration.oauthSettings */
-  async convertOauthTokens(oauthOptions: ConvertOauthTokensParams) {
-    const body: ConvertOauthTokensApiBodyParams = {
-      access_token: oauthOptions?.accessToken,
-      id_token: oauthOptions?.idToken,
-    }
-
-    const { accessToken, idToken, processId: processIdReturned } = await this.callOreIdApi(
-      RequestType.Post,
-      ApiEndpoint.ConvertOauthTokens,
-      body,
-      null, // an api key is always required to call this api endpoint
-      oauthOptions?.processId,
-    )
-
-    return { accessToken, idToken, processId: processIdReturned }
+   * The third-party (e.g. Auth0 or Google) must be registered in the AppRegistration.oauthSettings
+   * Returns: OreId issued accessToken and idToken
+   * */
+  async convertOauthTokens(oauthOptions: ApiConvertOauthTokensParams) {
+    return callApiConvertOauthTokens(this, oauthOptions)
   }
 
-  /** Call the account/login-user-with-token api
+  /** Call api account/login-user-with-token
    * Converts OAuth idToken from some 3rd-party source to OREID Oauth accessTokens
-   * The third-party (e.g. Auth0 or Google) must be registered in the AppRegistration.oauthSettings */
-  async loginWithIdToken(oauthOptions: NewUserWithTokenParams) {
+   * The third-party (e.g. Auth0 or Google) must be registered in the AppRegistration.oauthSettings
+   * If a user does not curently exist that matches the info in the incoming idToken, a new OreID user and account is created
+   * Requires a valid idToken but no accessToken or apiKey
+   * Returns: OreId issued accessToken and user's account name (if new account created, this is a new account name)
+   * */
+  async loginWithIdToken(
+    oauthOptions: ApiLoginUserWithTokenParams,
+  ): Promise<{ accessToken: string } & ApiMessageResponse> {
     const accessTokenHelper = new AccessTokenHelper(oauthOptions?.idToken, true)
     if (!accessTokenHelper.decodedToken) {
       return {
@@ -1041,19 +902,14 @@ export default class OreId {
         processId: oauthOptions.processId,
       }
     }
+    const response = await callApiLoginUserWithToken(this, oauthOptions)
 
-    const body: NewUserWithTokenApiBodyParams = {
-      id_token: oauthOptions?.idToken,
+    return {
+      accessToken: response.accessToken,
+      error: response?.errorCode,
+      message: response?.errorMessage,
+      processId: response?.processId,
     }
-
-    const { accessToken, error, message, processId: processIdReturned } = await this.callOreIdApi(
-      RequestType.Post,
-      ApiEndpoint.LoginUserWithToken,
-      body,
-      null, // an api key is NOT required to call this api endpoint
-      oauthOptions?.processId,
-    )
-    return { accessToken, error, message, processId: processIdReturned }
   }
 
   /** Login using the wallet provider */
@@ -1364,7 +1220,7 @@ export default class OreId {
   }
 
   async getChainNetworkByChainId(chainId: string) {
-    const networks = await this.chainNetworks()
+    const networks = await this.getChainNetworks()
     const chainConfig = networks.find(n => n.hosts.find(h => h.chainId === chainId))
 
     if (!isNullOrEmpty(chainConfig)) {
@@ -1379,7 +1235,7 @@ export default class OreId {
     if (!chainId) {
       return null
     }
-    const networks = await this.chainNetworks()
+    const networks = await this.getChainNetworks()
     return networks.find(net => net.hosts.find(host => host.chainId === chainId))?.network
   }
 
@@ -1482,9 +1338,8 @@ export default class OreId {
   }
 
   /** Gets a single-use token to access the service */
-  async getAppAccessToken({ appAccessTokenMetadata, processId }: GetAppAccessTokenParams = {}) {
-    await this.getNewAppAccessToken({ appAccessTokenMetadata, processId }) // call api
-    return this.appAccessToken
+  async getAppAccessToken(params?: ApiGetAppTokenParams) {
+    return callApiGetAppToken(this, params)
   }
 
   /** Returns a fully formed url to call the new-account endpoint */
@@ -1590,17 +1445,16 @@ export default class OreId {
       processId,
       provider,
       returnSignedTransaction,
-      signatureOnly,
       signedTransaction,
       state,
       transaction,
       transactionRecordId,
       userPassword,
-      accessToken,
     } = signOptions
     let { chainAccount } = signOptions
     const { oreIdUrl } = this.options
-
+    // Now always appends accessToken to signUrl
+    const { accessToken } = this
     if (!account || !callbackUrl || (!transaction && !signedTransaction)) {
       throw new Error('Missing a required parameter')
     }
@@ -1620,16 +1474,12 @@ export default class OreId {
       : ''
     optionalParams += !isNullOrEmpty(expireSeconds) ? `&expire_seconds=${expireSeconds}` : ''
     optionalParams += !isNullOrEmpty(multiSigChainAccounts) ? `&multisig_chain_accounts=${multiSigChainAccounts}` : ''
-    optionalParams += !isNullOrEmpty(processId) ? `&process_id=${processId}` : ''
+    optionalParams += !isNullOrEmpty(provider) ? `&provider=${provider}` : ''
     optionalParams += !isNullOrEmpty(returnSignedTransaction)
       ? `&return_signed_transaction=${returnSignedTransaction}`
       : ''
     optionalParams += !isNullOrEmpty(transactionRecordId) ? `&transaction_record_id=${transactionRecordId}` : ''
-    optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : ''
-    optionalParams += !isNullOrEmpty(signatureOnly) ? `&signature_only=${signatureOnly}` : ''
     optionalParams += !isNullOrEmpty(processId) ? `&process_id=${processId}` : ''
-    optionalParams += !isNullOrEmpty(provider) ? `&provider=${provider}` : ''
-    optionalParams += !isNullOrEmpty(userPassword) ? `&user_password=${userPassword}` : ''
     optionalParams += !isNullOrEmpty(accessToken) ? `&oauth_access_token=${accessToken}` : ''
 
     // prettier-ignore
@@ -1732,27 +1582,12 @@ export default class OreId {
     return { signedTransaction, processId, state, transactionId, errors }
   }
 
-  /** Calls the {oreIDUrl}/api/app-token endpoint to get the appAccessToken */
-  async getNewAppAccessToken({ appAccessTokenMetadata, processId }: GetNewAppAccessTokenApiParams) {
-    const response = await this.callOreIdApi(
-      RequestType.Post,
-      ApiEndpoint.AppToken,
-      appAccessTokenMetadata,
-      null, // an apiKey is always required to call this endpoint
-      processId,
-    )
-    const { appAccessToken, processId: processIdReturned } = response
-    this.appAccessToken = appAccessToken
-  }
-
-  /** Get the config (setting) values of a specific type */
+  /**
+   *  Call api services/config to get configuration values of a specific type
+   *  Returns: for configType:Config.Chains, returns array of SettingChainNetwork objects for all chains suported by the service
+   * */
   async getConfigFromApi(configType: Config.Chains, processId: ProcessId = null) {
-    if (!configType) {
-      throw new Error('Missing a required parameter: configType')
-    }
-    const queryParams = { type: configType }
-    const { values, processId: processIdReturned } =
-      (await this.callOreIdApi(RequestType.Get, ApiEndpoint.GetConfig, queryParams, null, processId)) || {}
+    const values = await callApiGetConfig(this, { configType })
     if (Helpers.isNullOrEmpty(values)) {
       throw new Error(`Not able to retrieve config values for ${configType}`)
     }

@@ -27,7 +27,7 @@ export type OreIdOptions = {
   backgroundColor?: Color
   /** whether you are using a proxy server - required for api calls or auth calls without idToken */
   isUsingProxyServer?: boolean
-  oreIdUrl: string
+  oreIdUrl?: string
   serviceKey?: string
   setBusyCallback?: (isBusy: boolean) => void
   ualProviders?: UalProvider[]
@@ -79,24 +79,25 @@ export type SignOptions = {
   account: AccountName
   allowChainAccountSelection?: boolean
   broadcast?: boolean
+  callbackUrl?: string
   chainAccount?: ChainAccount // chainAccount not required for Ethereum - it can be defined by the account that signed the transaction
   chainNetwork: ChainNetwork
   expireSeconds?: number
+  generateAutoSignCredential?: boolean
   /** Comma seperated string of accounts - for which OREID should add signatures */
   multiSigChainAccounts?: string
-  returnSignedTransaction?: boolean
+  preventAutoSign?: boolean
   processId?: ProcessId
   provider: AuthProvider
+  returnSignedTransaction?: boolean
   signedTransaction?: string
-  transaction?: string
-  userPassword?: string
-  signatureOnly?: boolean
-  state?: string
-  callbackUrl?: string
-  preventAutoSign?: boolean
   signExternalWithOreId?: boolean
+  state?: string
+  transaction?: string
+  transactionChainAccount?: string
   transactionRecordId?: string
-  accessToken?: string
+  userPassword?: string
+  userPasswordEncrypted?: string
 }
 
 export type AuthResponse = {

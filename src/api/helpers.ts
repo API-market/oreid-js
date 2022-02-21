@@ -1,5 +1,5 @@
 import Helpers from '../utils/helpers'
-import { JSONObject } from '../models'
+import { JSONObject, ServiceAccountUsedFor } from '../models'
 import { OreIdContext } from '../utils/iOreidContext'
 
 const { isNullOrEmpty } = Helpers
@@ -28,22 +28,22 @@ export function assertHasApiKeyOrAccessToken(oreIdContext: OreIdContext, apiName
 
 /** Check that we have an accessToken */
 export function assertHasAccessToken(oreIdContext: OreIdContext, apiName: string) {
-  if (oreIdContext.accessToken) {
+  if (!oreIdContext.accessToken) {
     throw new Error(`Missing required header for API ${apiName}: Must have a valid user accessToken`)
   }
 }
 
 /** Check that we have an apiKey */
 export function assertHasApiKey(oreIdContext: OreIdContext, apiName: string) {
-  if (oreIdContext.options?.apiKey) {
+  if (!oreIdContext.options?.apiKey) {
     throw new Error(`Missing required header for API ${apiName}: Must have a options.apiKey`)
   }
 }
 
 /** Check that an apiKey or accessToken */
-export function assertHasServiceKey(oreIdContext: OreIdContext, apiName: string) {
-  if (oreIdContext.options?.serviceKey) {
-    throw new Error(`Missing required header for API ${apiName}: Must have a options.serviceKey`)
+export function assertHasServiceKey(oreIdContext: OreIdContext, usedFor: ServiceAccountUsedFor, apiName: string) {
+  if (!oreIdContext.options?.serviceKey) {
+    throw new Error(`Missing required header for API ${apiName}: Must have a options.serviceKey with ${usedFor} right`)
   }
 }
 

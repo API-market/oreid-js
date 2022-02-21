@@ -118,30 +118,45 @@ export enum ExternalWalletInterface {
   Transit = 'transit',
 }
 
+export declare enum ServiceAccountUsedFor {
+  AccountMigration = 'accountMigration',
+  Airdrop = 'airdrop',
+  AdminAccess = 'adminAccess',
+  AutoSigning = 'autoSigning',
+  ChangePassword = 'changePassword',
+  CreateUser = 'createUser',
+  ProxySigning = 'proxySigning',
+  TokenFunding = 'tokenFunding',
+}
+
 /** type returned by oreid sevice config endpoint for chains */
 export type SettingChainNetwork = {
-  network: ChainNetwork
-  type: ChainPlatformType
-  isTestNetwork: boolean
-  createBridgeContract: ChainAccount
+  blockExplorerAccountUrl: string
+  blockExplorerTxUrl: string
+  chainCommunicationSettings: any
+  createBridgeContract: string
+  defaultTransactionSettings?: any
+  /** Url of monitor */
+  dfuseNetwork?: string
   hosts: [
     {
       host: string
       port: number
       protocol: 'https' | 'http'
       chainId?: string
+      /** fork name used to designate a major version */
       forkName?: string
-      forkType?: string
     },
   ]
-  chainCommunicationSettings: any
-  defaultTransactionSettings?: any
+  isTestNetwork: boolean
   monitorConfig?: {
     dfuseSupported: boolean
     endpoint: string
   }
-  /** Url of monitor */
-  dfuseNetwork?: string
+  name: string
+  logoUrl: string
+  network: ChainNetwork
+  type: ChainPlatformType
 }
 
 // Chain specific
