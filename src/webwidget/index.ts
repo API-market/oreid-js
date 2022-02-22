@@ -1,12 +1,18 @@
 import { defaultOreIdServiceUrl } from '../constants'
 import { defaultHeight, defaultWidth } from './constants'
-import { WebWidgetProps, WebWidgetPropType } from './models'
+import { WebWidgetProps } from './models'
 
-export { DappAction, WebWidgetProps } from './models'
+export * from './models'
+
+enum WebWidgetPropType {
+  Object = 'object',
+  String = 'string',
+  Function = 'function',
+}
 
 export const createWebWidget = () => {
   // eslint-disable-next-line global-require
-  const zoid = require('zoid/dist/zoid.frameworks')
+  const zoid = require('./zoid.frameworks')
   const widget = zoid.create({
     tag: 'oreid-react-web-widget',
     url: ({ props }: { props: WebWidgetProps }) => {
@@ -36,7 +42,43 @@ export const createWebWidget = () => {
         type: WebWidgetPropType.Function,
       },
     },
-    context: 'iframe',
+    defaultContext: 'iframe',
   })
   return widget
+}
+
+export const createAuthWidget = () => {
+  // eslint-disable-next-line global-require
+  const zoid = require('./zoid.frameworks')
+  const authWidget = zoid.create({
+    tag: 'oreid-auth-widget',
+    url: ({ props }: { props: { [key: string]: any } }) => {
+      const baseUrl = props.oreIdUrl ?? defaultOreIdServiceUrl
+      return `${baseUrl}/action`
+    },
+    dimensions: {
+      width: defaultWidth,
+      height: defaultHeight,
+    },
+    props: {
+      oreIdUrl: {
+        type: WebWidgetPropType.String,
+        required: false,
+      },
+      action: {
+        type: WebWidgetPropType.Object,
+        required: false,
+      },
+      onSuccess: {
+        type: WebWidgetPropType.Function,
+        required: false,
+      },
+      onError: {
+        type: WebWidgetPropType.Function,
+        required: false,
+      },
+    },
+    defaultContext: 'popup',
+  })
+  return authWidget
 }

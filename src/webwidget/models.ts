@@ -8,12 +8,6 @@ export enum DappAction {
   Logout = 'logout',
 }
 
-export enum WebWidgetPropType {
-  Object = 'object',
-  String = 'string',
-  Function = 'function',
-}
-
 export type WebWidgetProps = {
   oreIdOptions: OreIdOptions
   action: {
