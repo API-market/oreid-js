@@ -12,7 +12,7 @@ enum WebWidgetPropType {
 
 export const createWebWidget = () => {
   // eslint-disable-next-line global-require
-  const zoid = require('./zoid.frameworks')
+  const zoid = require('zoid/dist/zoid.frameworks')
   const widget = zoid.create({
     tag: 'oreid-react-web-widget',
     url: ({ props }: { props: WebWidgetProps }) => {
@@ -49,7 +49,7 @@ export const createWebWidget = () => {
 
 export const createAuthWidget = () => {
   // eslint-disable-next-line global-require
-  const zoid = require('./zoid.frameworks')
+  const zoid = require('zoid/dist/zoid.frameworks')
   const authWidget = zoid.create({
     tag: 'oreid-auth-widget',
     url: ({ props }: { props: { [key: string]: any } }) => {
