@@ -1,6 +1,6 @@
 import { defaultOreIdServiceUrl } from '../constants'
 import { defaultHeight, defaultWidth } from './constants'
-import { WebWidgetProps } from './models'
+import { WebWidgetProps, AuthWidgetProps } from './models'
 
 export * from './models'
 
@@ -52,7 +52,7 @@ export const createAuthWidget = () => {
   const zoid = require('zoid/dist/zoid.frameworks')
   const authWidget = zoid.create({
     tag: 'oreid-auth-widget',
-    url: ({ props }: { props: { [key: string]: any } }) => {
+    url: ({ props }: { props: AuthWidgetProps }) => {
       const baseUrl = props.oreIdUrl ?? defaultOreIdServiceUrl
       return `${baseUrl}/action`
     },
