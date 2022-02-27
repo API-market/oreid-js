@@ -26,12 +26,12 @@ class AccessTokenHelper {
     return Helpers.getClaimFromJwtTokenBySearchString(this.decodedToken, 'https://oreid.aikon.com/account')
   }
 
-  /** Whether current accessToken is expired
+  /** Whether current accessToken is expired (or is missing)
    *  (optional) provide a Date() to compare expiration against - defaults to current Date()
    *  Returns: (boolean) true if hasExpired
    */
   hasExpired(now?: Date): boolean {
-    if (!this._decodedToken) return false
+    if (!this._decodedToken) return true
     if (!AccessTokenHelper.isTokenDateValidNow(this._decodedToken, now)) {
       return true
     }
