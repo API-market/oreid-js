@@ -1,4 +1,4 @@
-import { OreIdContext } from '../../utils/iOreidContext'
+import OreIdContext from '../../core/IOreidContext'
 import { ApiEndpoint, AppAccessTokenMetadata, ProcessId, RequestType } from '../../models'
 import { assertHasApiKey } from '../helpers'
 import Helpers from '../../utils/helpers'

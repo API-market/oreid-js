@@ -1,4 +1,4 @@
-import { OreIdContext } from '../../utils/iOreidContext'
+import OreIdContext from '../../core/IOreidContext'
 import { AccountName, AccountType, ApiEndpoint, ProcessId, RequestType, ServiceAccountUsedFor } from '../../models'
 import {
   assertHasApiKey,

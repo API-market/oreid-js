@@ -1,6 +1,6 @@
 import Helpers from '../utils/helpers'
 import { JSONObject, ServiceAccountUsedFor } from '../models'
-import { OreIdContext } from '../utils/iOreidContext'
+import OreIdContext from '../core/IOreidContext'
 
 const { isNullOrEmpty } = Helpers
 

@@ -1,4 +1,4 @@
-import { OreIdContext } from '../../utils/iOreidContext'
+import OreIdContext from '../../core/IOreidContext'
 import { ApiEndpoint, ProcessId, RequestType } from '../../models'
 import { assertParamsHaveRequiredValues } from '../helpers'
 import { ApiResponseWithErrorCode } from '../models'

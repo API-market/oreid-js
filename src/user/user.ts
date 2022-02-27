@@ -1,4 +1,4 @@
-import { OreIdContext } from '../utils/iOreidContext'
+import OreIdContext from '../core/IOreidContext'
 import Helpers from '../utils/helpers'
 import { AccountName, AuthProvider, ChainAccount, ChainNetwork, ProcessId, UserInfo, WalletPermission } from '../models'
 import { callApiGetUser, ApiGetUserParams } from '../api'

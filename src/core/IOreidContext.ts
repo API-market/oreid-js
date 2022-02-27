@@ -3,7 +3,7 @@ import AccessTokenHelper from '../auth/accessTokenHelper'
 import LocalState from './localState'
 
 /** interface to pass OreId members to helper classes (e.g. User) */
-export interface OreIdContext {
+export default interface OreIdContext {
   options: OreIdOptions
   accessToken: string
   accessTokenHelper: AccessTokenHelper
