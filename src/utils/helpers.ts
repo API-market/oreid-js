@@ -5,10 +5,9 @@
 import { AxiosError } from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 import jwtDecode from 'jwt-decode'
+import { Base64 } from 'js-base64'
 import { JWTToken } from '../auth/models'
 import { Lookup } from '../common/models'
-
-const { Base64 } = require('js-base64')
 
 const TRACING = false // enable when debugging to see detailed outputs
 
@@ -184,8 +183,10 @@ export default class Helpers {
   }
 
   /**  Base64 encodes a string
-   * if value passed in is an Object or JSON, it will be stringified first */
+   * if value passed in is an Object or JSON, it will be stringified first
+   * if value is null, this function returns null */
   static base64Encode(valueIn: any) {
+    if (!valueIn) return null
     let value = valueIn
     if (Helpers.isAnObject(value)) {
       value = JSON.stringify(value)
