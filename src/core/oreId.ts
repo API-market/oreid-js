@@ -709,7 +709,11 @@ export default class OreId {
     } finally {
       this.setIsBusy(false)
     }
-
+    // Convert serializedTransaction from UInt8Array to Buffer
+    // i.e. when stringified change from: '{\"0\":129,\"1\":163'} to {"type":"Buffer","data":[129,163]}
+    if (signedTransaction.serializedTransaction) {
+      signedTransaction.serializedTransaction = Buffer.from(signedTransaction.serializedTransaction)
+    }
     return { signedTransaction }
   }
 
