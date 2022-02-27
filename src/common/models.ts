@@ -137,16 +137,7 @@ export type SettingChainNetwork = {
   defaultTransactionSettings?: any
   /** Url of monitor */
   dfuseNetwork?: string
-  hosts: [
-    {
-      host: string
-      port: number
-      protocol: 'https' | 'http'
-      chainId?: string
-      /** fork name used to designate a major version */
-      forkName?: string
-    },
-  ]
+  hosts: SettingChainNetworkHost[]
   isTestNetwork: boolean
   monitorConfig?: {
     dfuseSupported: boolean
@@ -156,6 +147,15 @@ export type SettingChainNetwork = {
   logoUrl: string
   network: ChainNetwork
   type: ChainPlatformType
+}
+
+export type SettingChainNetworkHost = {
+  chainId?: string
+  /** fork name used to designate a major version */
+  forkName?: string
+  host: string
+  port: number
+  protocol: 'https' | 'http'
 }
 
 // Chain specific
