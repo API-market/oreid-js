@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid'
 import jwtDecode from 'jwt-decode'
 import { Base64 } from 'js-base64'
 import { JWTToken } from '../auth/models'
-import { Lookup } from '../common/models'
+import { AuthProvider, Lookup } from '../common/models'
 
 const TRACING = false // enable when debugging to see detailed outputs
 
@@ -319,5 +319,13 @@ export default class Helpers {
 
   static isAnObject(obj: any): boolean {
     return obj !== null && typeof obj === 'object'
+  }
+
+  /** throw error if invalid provider */
+  static assertValidProvider(provider: AuthProvider) {
+    if (Helpers.isInEnum(AuthProvider, provider)) {
+      return true
+    }
+    throw new Error(`Auth provider ${provider} is not a valid option`)
   }
 }
