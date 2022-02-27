@@ -49,9 +49,8 @@ export default class Helpers {
     }
   }
 
-  /** Decodes a JWT token string and returns its body, header, and signature
-   *  If token can't be decoded (e.g. corrupted), returns null
-   *  (optional) Verifies signature if signingCert is provided - throws if invalid signture */
+  /** Decodes a JWT token string
+   *  If token can't be decoded (e.g. corrupted), returns null */
   static jwtDecodeSafe(token: string): Partial<JWTToken> {
     let decoded: JWTToken
     if (this.isNullOrEmpty(token)) {
@@ -96,22 +95,24 @@ export default class Helpers {
     return jsonParams
   }
 
-  // Returns Null if parse fails
-  static tryParseJSON(jsonStringIn: any, unescape?: boolean) {
-    let jsonString = jsonStringIn
-
-    if (!jsonString) {
-      return null
-    }
-    let doubleQuotes = ''
+  /** Returns Null if parse fails
+   *  Reinflates a serialized object (e.g. UInt8Array) if found in JSON
+   */
+  static tryParseJSON(jsonString: any, unescape = false, replaceQuotes = false) {
+    let finalJsonString = ''
+    if (!jsonString || !Helpers.isAString(jsonString) || jsonString.trim() === '') return null
     try {
       if (unescape) {
+        // eslint-disable-next-line no-param-reassign
         jsonString = decodeURI(jsonString)
       }
-      // eslint-disable-next-line quotes
-      doubleQuotes = replaceAll(jsonString, "'", '"')
-      doubleQuotes = replaceAll(doubleQuotes, '`', '"')
-      const o = JSON.parse(doubleQuotes)
+      finalJsonString = jsonString
+      if (replaceQuotes) {
+        // eslint-disable-next-line quotes
+        finalJsonString = replaceAll(jsonString, "'", '"')
+        finalJsonString = replaceAll(finalJsonString, '`', '"')
+      }
+      const o = JSON.parse(finalJsonString, Helpers.jsonParseComplexObjectReviver)
       // Handle non-exception-throwing cases:
       // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
       // but... JSON.parse(null) returns null, and typeof null === "object",
@@ -120,15 +121,48 @@ export default class Helpers {
         return o
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error)
+      // TODO: should log trace this detail: ('error parsing JSON', { jsonString, doubleQuotes, error });
     }
 
     return null
   }
 
-  static isAnObject(obj: any) {
-    return obj !== null && typeof obj === 'object'
+  /**
+   * The reviver function passed into JSON.parse to implement custom type conversions.
+   * If the value is a previously stringified buffer we convert it to a Buffer,
+   * If its an object of numbers, we convert to UInt8Array {"0":2,"1":209,"2":8 ...}
+   * otherwise return the value
+   */
+  static jsonParseComplexObjectReviver(key: string, value: any) {
+    // Convert Buffer
+    if (
+      value !== null &&
+      typeof value === 'object' &&
+      'type' in value &&
+      value.type === 'Buffer' &&
+      'data' in value &&
+      Array.isArray(value.data)
+    ) {
+      return Buffer.from(value.data)
+    }
+
+    // Convert number array to UInt8Array e.g. {"0":2,"1":209,"2":8 ...}
+    if (
+      value !== null &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      '0' in value &&
+      Helpers.isANumber(value['0'])
+    ) {
+      const values = Object.entries(value).map(([, val]) => val)
+      // if array only has 8-bit numbers, convert it to UInt8Array
+      if (values.every(val => Helpers.isANumber(val) || val < 256)) {
+        return new Uint8Array(values as number[])
+      }
+    }
+
+    // Return parsed value without modifying
+    return value
   }
 
   static base64DecodeSafe(encodedString: string) {
@@ -149,7 +183,8 @@ export default class Helpers {
     return decoded
   }
 
-  // if an Object or JSON is passed-in, it will be stringified first
+  /**  Base64 encodes a string
+   * if value passed in is an Object or JSON, it will be stringified first */
   static base64Encode(valueIn: any) {
     let value = valueIn
     if (Helpers.isAnObject(value)) {
@@ -259,5 +294,29 @@ export default class Helpers {
 
   static isAxiosError(error: any): error is AxiosError {
     return (error as AxiosError).isAxiosError !== undefined
+  }
+
+  static isAString(value: any): boolean {
+    if (!value) {
+      return false
+    }
+    return typeof value === 'string' || value instanceof String
+  }
+
+  static isADate(value: any): boolean {
+    return value instanceof Date
+  }
+
+  static isABoolean(value: any): boolean {
+    return typeof value === 'boolean' || value instanceof Boolean
+  }
+
+  static isANumber(value: any): boolean {
+    if (Number.isNaN(value)) return false
+    return typeof value === 'number' || value instanceof Number
+  }
+
+  static isAnObject(obj: any): boolean {
+    return obj !== null && typeof obj === 'object'
   }
 }
