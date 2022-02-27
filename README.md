@@ -75,9 +75,9 @@ We support EOS, ORE, and other EOSIO-based chains. Just use one of the following
   - 'ore_main' - ORE Main network
   - 'ore_test' - ORE test network
 
-## Using EOS Transit and/or UAL
+## Using EOS Transit
 
-oreid-js makes it easy for you to add many popular EOS wallets to your app. It integrates [EOS Transit](https://github.com/eosnewyork/eos-transit) and [UAL](https://github.com/EOSIO/universal-authenticator-library) so that you can use any wallet they support. oreid-js is the easiest way to use EOS Transit or UAL with your app.
+oreid-js makes it easy for you to add many popular blockchain wallets to your app. It integrates [EOS Transit](https://github.com/eosnewyork/eos-transit) so that you can use any wallet they support. oreid-js is the easiest way to add support for signing with blockchain wallets to your app.
 
 EOS Transit
 ```javascript
@@ -87,17 +87,6 @@ import scatterProvider from 'eos-transit-scatter-provider';
 const eosTransitWalletProviders = [ scatterProvider(), ... ]
 const oreId = new OreId({ ..., eosTransitWalletProviders });
 ```
-
-UAL
-```javascript
-// add the provider package for each wallet you want to support
-import { Scatter } from 'ual-scatter';
-// pass in the array of providers when you initialize the library
-const ualWalletProviders = [ Scatter, ... ]
-let oreId = new OreId({ ..., ualWalletProviders });
-```
-
-**NOTE:** You can use both UAL and Transit together however you can't pass in duplicate providers. Using `ual-scatter` and `eos-transit-scatter-provider` at the same time will result in an error.
 
 **NOTE:** This project uses a forked version of Eos-Transit library to support non-Eos blockchains (package: @aikon/eos-transit).
 

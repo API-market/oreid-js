@@ -15,12 +15,6 @@ import {
   transitProviderAttributesData,
 } from '../transit/transitProviders'
 import {
-  getUALProviderAttributes,
-  getUALProviderAttributesByUALName,
-  supportedUALProviders,
-  ualProviderAttributesData,
-} from '../transit/ualProviders'
-import {
   ApiEndpoint,
   TransitWalletAccessContext,
   OreIdOptions,
@@ -42,9 +36,6 @@ import {
   GetOreIdAuthUrlParams,
   ExternalWalletInterface,
   ConnectToTransitProviderParams,
-  ConnectToUalProviderParams,
-  CustodialMigrateAccountApiBodyParams,
-  CustodialMigrateAccountParams,
   SetupTransitWalletParams,
   Config,
   TransitAccountInfo,
@@ -62,6 +53,7 @@ import {
   LoginWithOreIdResult,
   GetRecoverAccountUrlResult,
   ApiMessageResponse,
+  SignatureProviderSignResults,
 } from '../models'
 import AccessTokenHelper from '../auth/accessTokenHelper'
 import { User } from '../user/user'
@@ -96,7 +88,8 @@ export default class OreId {
     this.cachedChainNetworks = null
 
     this.validateOptions(options)
-    this.assertNoDuplicateProviders()
+    // All installed TransitProviders
+    this.installTransitProviders()
     // create an instance of the User class
     this.user = new User({ oreIdContext: this })
   }
@@ -117,12 +110,8 @@ export default class OreId {
 
   user: User
 
-  /** compare id of EosTransitProviders and UALProviders and throw if any duplicates exist */
   /** Names of all Transit providers installed (provided to this constructor) */
   transitProvidersInstalled: AuthProvider[] = []
-
-  /** Names of all UALProviders installed (provided to this constructor) */
-  ualProvidersInstalled: AuthProvider[] = []
 
   /** whether the current appId is a demo app */
   get isDemoApp() {
@@ -190,12 +179,13 @@ export default class OreId {
     }
   }
 
-  /** Compare EosTransitProviders installed with UALProviders installed - throw if duplicates exist
-   *  Note: This function maps both types of providers to the same AuthProvider name
+  /** Verifies that all plugins provided work (can be constructed)
+   *  Stores a list of the installed providerNames (mapped to AuthProvider) for all working plugins in transitProvidersInstalled
    */
-  async assertNoDuplicateProviders() {
-    const { ualProviders, eosTransitWalletProviders } = this.options
-    // All installed TransitProviders
+  async installTransitProviders() {
+    const { eosTransitWalletProviders } = this.options
+    // Executes each provider's contructor to verify it's working
+    // stores all the providerName's for all plugins into transitProvidersInstalled array
     this.transitProvidersInstalled = (eosTransitWalletProviders || [])
       .map(makeWalletProvider => {
         try {
@@ -210,28 +200,11 @@ export default class OreId {
       .map(walletProvider => {
         return getTransitProviderAttributesByProviderId(walletProvider.id).providerName
       })
-    // All installed UALProviders
-    this.ualProvidersInstalled = (ualProviders || []).map(
-      ualProvider => getUALProviderAttributesByUALName(ualProvider.name).providerName,
-    )
-    // Check for duplicate providers
-    if (!isNullOrEmpty(eosTransitWalletProviders) && !isNullOrEmpty(ualProviders)) {
-      const duplicates = [...new Set(this.transitProvidersInstalled.filter(transit => this.hasUALProvider(transit)))]
-      if (!isNullOrEmpty(duplicates)) {
-        throw Error(
-          `Duplicate providers found for the same wallet provider(s) -> ${duplicates}. Please remove either the EosTransit or UAL provider.`,
-        )
-      }
-    }
   }
 
   /** Throw if the required plug-in is not installed */
   assertHasProviderInstalled(provider: AuthProvider, providerType: ExternalWalletInterface) {
-    if (providerType === ExternalWalletInterface.Ual) {
-      if (!this.hasUALProvider(provider)) {
-        throw Error(`UAL provider ${provider} not installed. Please pass it in via ualProviders.`)
-      }
-    } else if (providerType === ExternalWalletInterface.Transit) {
+    if (providerType === ExternalWalletInterface.Transit) {
       if (!this.hasTransitProvider(provider)) {
         throw Error(`Transit provider ${provider} not installed. Please pass it in via eosTransitWalletProviders.`)
       }
@@ -240,12 +213,7 @@ export default class OreId {
 
   /** Throw if the provider doesnt support the specified chainNetwork */
   async assertProviderValidForChainNetwork(provider: AuthProvider, chainNetwork: ChainNetwork) {
-    let chainType: ChainPlatformType
-    if (this.isUALProvider(provider)) {
-      chainType = getUALProviderAttributes(provider).chainType
-    } else {
-      chainType = getTransitProviderAttributes(provider).chainType
-    }
+    const { chainType } = getTransitProviderAttributes(provider)
     const networks = await this.getChainNetworks()
     const isValid = !!networks.find(n => n.network === chainNetwork && n.type === chainType)
     if (!isValid) {
@@ -257,7 +225,7 @@ export default class OreId {
 
   /** Calls getConfigFromApi() to retrieve settings for all chain networks defined by OreID service
    * and caches the result */
-  private async getChainNetworks() {
+  async getChainNetworks() {
     if (isNullOrEmpty(this.cachedChainNetworks)) {
       // load the chainNetworks list from the ORE ID API
       const results = await this.getConfigFromApi(Config.Chains)
@@ -363,7 +331,7 @@ export default class OreId {
       throw new Error('Not Implemented')
     }
 
-    if (this.isUALProvider(provider) || this.isTransitProvider(provider)) {
+    if (this.isTransitProvider(provider)) {
       return this.loginWithNonOreIdProvider(loginOptions)
     }
 
@@ -384,10 +352,13 @@ export default class OreId {
       return this.custodialSignWithOreId(signOptions)
     }
 
-    if (this.isUALProvider(provider) || this.isTransitProvider(provider)) {
-      // this flag is added to test external signing with the PIN window in OreId service
+    if (this.isTransitProvider(provider)) {
+      // if signExternalWithOreId=true, then it means we will do the external signing in the oreid service UX (e.g.  WebPopup) instead of locally in this app
       if (!signOptions.signExternalWithOreId) {
-        return this.signWithNonOreIdProvider(signOptions)
+        const signatureProviderSignResults = await this.signWithNonOreIdProvider(signOptions)
+        return {
+          signedTransaction: JSON.stringify(signatureProviderSignResults),
+        }
       }
     }
 
@@ -417,7 +388,6 @@ export default class OreId {
     let result = null
     console.log('Discover this.canDiscover(provider):', provider, this.canDiscover(provider))
     if (this.canDiscover(provider)) {
-      // UAL providers dont support discover
       result = this.discoverCredentialsInTransitWallet(chainNetwork, provider, oreAccount, discoveryPathIndexList)
       console.log('discoverCredentialsInTransitWallet result:', result)
     } else {
@@ -585,9 +555,7 @@ export default class OreId {
     if (!this.canSignString(provider)) {
       throw Error(`The specific provider ${provider} does not support signString`)
     }
-    const signResults = this.hasUALProvider(provider)
-      ? await this.signStringWithUALProvider(signOptions)
-      : await this.signStringWithTransitProvider(signOptions)
+    const signResults = await this.signStringWithTransitProvider(signOptions)
     await this.callDiscoverAfterSign({ account, provider, chainNetwork })
     return signResults
   }
@@ -625,15 +593,11 @@ export default class OreId {
     if (this.hasTransitProvider(provider)) {
       return getTransitProviderAttributes(provider).supportsDiscovery
     }
-    // UAL doesnt support this
     return false
   }
 
   /** whether signString is supported by the provider */
   canSignString(provider: AuthProvider) {
-    if (this.hasUALProvider(provider)) {
-      return getUALProviderAttributes(provider).supportsSignArbitrary
-    }
     if (this.hasTransitProvider(provider)) {
       return getTransitProviderAttributes(provider).supportsSignArbitrary
     }
@@ -645,7 +609,6 @@ export default class OreId {
     if (this.hasTransitProvider(provider)) {
       return getTransitProviderAttributes(provider).requiresDiscoverToLogin
     }
-    // UAL doesnt support this
     return false
   }
 
@@ -654,7 +617,6 @@ export default class OreId {
     if (this.hasTransitProvider(provider)) {
       return getTransitProviderAttributes(provider).requiresLogoutLoginToDiscover
     }
-    // UAL doesnt support this
     return false
   }
 
@@ -663,7 +625,6 @@ export default class OreId {
     if (this.hasTransitProvider(provider)) {
       return getTransitProviderAttributes(provider)?.defaultDiscoveryPathIndexList
     }
-    // UAL doesnt support this
     return null
   }
 
@@ -671,10 +632,6 @@ export default class OreId {
   helpTextForProvider(provider: AuthProvider) {
     if (this.hasTransitProvider(provider)) {
       return getTransitProviderAttributes(provider).helpText
-    }
-
-    if (this.hasUALProvider(provider)) {
-      return getUALProviderAttributes(provider).helpText
     }
 
     return null
@@ -698,24 +655,6 @@ export default class OreId {
     return response
   }
 
-  /** Signs an arbitrary string using a specific provider */
-  async signStringWithUALProvider({ provider, chainNetwork, string, chainAccount, message }: SignStringParams) {
-    this.assertHasProviderInstalled(provider, ExternalWalletInterface.Ual)
-    this.assertProviderValidForChainNetwork(provider, chainNetwork)
-    const { user } = await this.connectToUALProvider({ provider, chainNetwork, chainAccount })
-    try {
-      this.setIsBusy(true)
-      const keys = await user.getKeys()
-      const response = await user.signArbitrary(keys[0], string, message)
-      return { signedString: response }
-    } catch (error) {
-      console.error(error)
-      throw error
-    } finally {
-      this.setIsBusy(false)
-    }
-  }
-
   async signStringWithTransitProvider({ provider, chainNetwork, string, message }: SignStringParams) {
     this.assertHasProviderInstalled(provider, ExternalWalletInterface.Transit)
     this.assertProviderValidForChainNetwork(provider, chainNetwork)
@@ -732,33 +671,16 @@ export default class OreId {
     }
   }
 
-  /** sign with a wallet via UAL or Transit */
+  /** sign with a wallet via Transit */
   async signWithNonOreIdProvider(signOptions: SignOptions) {
     const isTransitProvider = this.isTransitProvider(signOptions.provider)
-    return isTransitProvider ? this.signWithTransitProvider(signOptions) : this.signWithUALProvider(signOptions)
-  }
-
-  /** sign with a UAL wallet */
-  async signWithUALProvider(signOptions: SignOptions) {
-    const { provider, broadcast, chainNetwork, transaction, chainAccount } = signOptions
-    this.assertHasProviderInstalled(provider, ExternalWalletInterface.Ual)
-    this.assertProviderValidForChainNetwork(provider, chainNetwork)
-    const { user } = await this.connectToUALProvider({ provider, chainNetwork, chainAccount })
-    try {
-      this.setIsBusy(true)
-      const response = await user.signTransaction({ actions: [transaction] }, { broadcast })
-      return { signedTransaction: response }
-    } catch (error) {
-      console.error(error)
-      throw error
-    } finally {
-      this.setIsBusy(false)
-    }
+    if (!isTransitProvider) return null
+    return this.signWithTransitProvider(signOptions)
   }
 
   /** sign with a Transit wallet */
   async signWithTransitProvider(signOptions: SignOptions) {
-    let signedTransaction
+    let signedTransaction: SignatureProviderSignResults
     const { chainNetwork, chainAccount, provider } = signOptions
     this.assertHasProviderInstalled(provider, ExternalWalletInterface.Transit)
     this.assertProviderValidForChainNetwork(provider, chainNetwork)
@@ -915,106 +837,15 @@ export default class OreId {
   /** Login using the wallet provider */
   async loginWithNonOreIdProvider(loginOptions: LoginOptions) {
     const { provider, chainAccount, chainNetwork } = loginOptions
-    let response
-    let wallet
     // Connect to Provider
-    if (this.hasUALProvider(provider)) {
-      response = await this.connectToUALProvider({ provider, chainAccount, chainNetwork })
-      wallet = response.wallet
-    } else {
-      response = await this.connectToTransitProvider({ provider, chainAccount, chainNetwork })
-      wallet = response.transitWallet
-    }
+    const response = await this.connectToTransitProvider({ provider, chainAccount, chainNetwork })
+    const wallet = response.transitWallet
     // Login if needed - if not logged-in by connectToTransitProvider, then call login explicitly
     if (!wallet.auth) {
-      if (this.hasUALProvider(provider)) {
-        await this.loginToUALProvider(wallet, provider, chainNetwork, chainAccount)
-      } else {
-        await this.loginToTransitProvider(wallet, provider, chainNetwork, chainAccount)
-      }
+      await this.loginToTransitProvider(wallet, provider, chainNetwork, chainAccount)
       await this.updateOreAccountPermissionsfromTransitWalletAuth(wallet, provider, null)
     }
     return response
-  }
-
-  async loginToUALProvider(
-    provider: AuthProvider,
-    wallet: any, // TODO: type wallet
-    chainNetwork: ChainNetwork,
-    chainAccount: ChainAccount,
-  ) {
-    this.assertHasProviderInstalled(provider, ExternalWalletInterface.Ual)
-    this.assertProviderValidForChainNetwork(provider, chainNetwork)
-    try {
-      const users = await wallet.login(chainAccount)
-      return users
-    } catch (error) {
-      const { message = '' } = error
-      if (message.includes('unknown key (boost::tuples::tuple')) {
-        throw new Error(`The account selected by the wallet for login isn't on the ${chainNetwork} chain`)
-      } else {
-        throw error
-      }
-    }
-  }
-
-  // TODO: We should cache the wallet/user object to avoid calling login everytime we need to sign
-  async connectToUALProvider({
-    provider,
-    chainNetwork = ChainNetwork.EosMain,
-    chainAccount = '',
-  }: ConnectToUalProviderParams) {
-    this.assertHasProviderInstalled(provider, ExternalWalletInterface.Ual)
-    this.assertProviderValidForChainNetwork(provider, chainNetwork)
-    const SelectedProvider = this.options.ualProviders.find(ualProvider => ualProvider.name.toLowerCase() === provider)
-    if (SelectedProvider) {
-      try {
-        const networkConfig = await this.getNetworkConfig(chainNetwork)
-        const ualNetworkConfig = {
-          chainId: networkConfig.chainId,
-          rpcEndpoints: [
-            {
-              ...networkConfig,
-            },
-          ],
-        }
-        const wallet = new SelectedProvider([ualNetworkConfig], { appName: this.options.appName })
-        await wallet.init()
-        const users = await this.loginToUALProvider(provider, wallet, chainNetwork, chainAccount)
-
-        if (!isNullOrEmpty(users)) {
-          // TODO: Handle multiple users/permissions
-          // UAL doesn't return the permission so we default to active
-          const user = users[0]
-          const publicKeys = await user.getKeys()
-          const account = await user.getAccountName()
-          const permissions: WalletPermission[] = [{ name: 'active', publicKey: publicKeys[0] }]
-          const response = {
-            isLoggedIn: true,
-            account,
-            permissions,
-            provider,
-            wallet,
-            user,
-          }
-
-          // get the chainNetwork from the UALProvider since we cant tell it what network to use
-          const chainNetworkFromProvider = await this.getChainNetworkByChainId(ualNetworkConfig.chainId)
-          if (chainNetworkFromProvider) {
-            await this.user.updatePermissionsIfNecessary(account, permissions, chainNetworkFromProvider, provider)
-          }
-
-          return response
-        }
-      } catch (error) {
-        const errMsg = `Failed to connect to ${provider} on ${chainNetwork}. ${error?.message || ''}`
-        console.log(`connectToUALProvider:${errMsg}`, error)
-        throw new Error(errMsg)
-      }
-    } else {
-      throw Error('Provider does not match')
-    }
-    return null
   }
 
   findAccountInDiscoverData(discoveryData: any, chainAccount: ChainAccount) {
@@ -1676,10 +1507,6 @@ export default class OreId {
     return provider === AuthProvider.Custodial
   }
 
-  isUALProvider(provider: AuthProvider) {
-    return supportedUALProviders.includes(provider)
-  }
-
   isTransitProvider(provider: AuthProvider) {
     return supportedTransitProviders.includes(provider)
   }
@@ -1689,15 +1516,9 @@ export default class OreId {
     return this.transitProvidersInstalled.includes(provider)
   }
 
-  /** Whether this UAL provider was installed upon instantiation */
-  hasUALProvider(provider: AuthProvider): boolean {
-    return this.ualProvidersInstalled.includes(provider)
-  }
-
   getWalletProviderInfo(provider: AuthProvider, type: ExternalWalletInterface) {
     if (!provider || !type) {
       return {
-        ualProviderAttributes: ualProviderAttributesData,
         transitProviderAttributes: transitProviderAttributesData,
       }
     }
@@ -1706,9 +1527,6 @@ export default class OreId {
       return getTransitProviderAttributes(provider)
     }
 
-    if (type === ExternalWalletInterface.Ual) {
-      return getUALProviderAttributes(provider)
-    }
     return null
   }
 

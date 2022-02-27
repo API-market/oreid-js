@@ -11,7 +11,7 @@ import {
   ProcessId,
   PublicKey,
 } from '../common/models'
-import { TransitWalletProviderFactory, UalProvider } from '../transit'
+import { TransitWalletProviderFactory } from '../transit'
 import { UserInfo } from '../user/models'
 
 export type OreIdOptions = {
@@ -30,7 +30,6 @@ export type OreIdOptions = {
   oreIdUrl?: string
   serviceKey?: string
   setBusyCallback?: (isBusy: boolean) => void
-  ualProviders?: UalProvider[]
   eosTransitWalletProviders?: TransitWalletProviderFactory[]
 }
 

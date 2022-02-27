@@ -114,7 +114,6 @@ export enum AuthProvider {
 }
 
 export enum ExternalWalletInterface {
-  Ual = 'ual',
   Transit = 'transit',
 }
 

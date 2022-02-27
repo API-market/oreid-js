@@ -33,16 +33,7 @@ export type TransitDiscoveryData = {
 // Not sure what this type is - perhaps what is returned from the wallet after login?
 export type TransitAccountInfo = any
 
-// TODO: type this. Likley should be Authenticator from EOSIO universal-authenticator-library
-export type UalProvider = any
-
 export type ConnectToTransitProviderParams = {
-  chainAccount?: ChainAccount
-  chainNetwork?: ChainNetwork
-  provider: AuthProvider
-}
-
-export type ConnectToUalProviderParams = {
   chainAccount?: ChainAccount
   chainNetwork?: ChainNetwork
   provider: AuthProvider

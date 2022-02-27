@@ -13,7 +13,6 @@ export type WebWidgetOreIdOptions = {
   backgroundColor?: string
   oreIdUrl: string
   setBusyCallback?: (isBusy: boolean) => void
-  ualProviders?: any[]
   eosTransitWalletProviders?: any[]
 }
 
