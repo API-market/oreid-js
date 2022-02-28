@@ -22,7 +22,7 @@ export async function authExample() {
 
   if (errors) return // dont continue if errors during auth
 
-  const user = await oreid.auth.User // expects auth to have logged in first (has accessToken)
+  const user = oreid.auth.user // expects auth to have logged in first (has accessToken)
   await user.getInfo() // load user name, email, chain accounts, etc.
   console.log('user logged in: ', user.info.name)
 
