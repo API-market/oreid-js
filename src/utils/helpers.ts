@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid'
 import jwtDecode from 'jwt-decode'
 import { Base64 } from 'js-base64'
 import { JWTToken } from '../auth/models'
-import { AuthProvider, Lookup } from '../common/models'
+import { AuthProvider, ExternalWalletType, JSONObject, Lookup } from '../common/models'
 
 const TRACING = false // enable when debugging to see detailed outputs
 
@@ -63,35 +63,31 @@ export default class Helpers {
     return decoded
   }
 
-  static urlParamsToArray(fullpathIn: string) {
-    let fullpath = fullpathIn
-    let firstItemIndex = 1 // skip the first parsed item by default (usually the server name)
-    if (this.isNullOrEmpty(fullpath)) {
-      return []
+  /**  Takes a url string and converts it to an object of {paramNane, paramValue}
+   * e.g input: https://xxx?enabled&name=value&name2=val2
+   *   returns: { 'enabled': true, 'name':'value', 'name2':'val2' }
+   * if the parameter only has a name and no value, then its value is set to 'true'
+   * */
+  static parseUrlParams(fullPath: string) {
+    const urlParamsObject: JSONObject = {}
+    let searchString
+    try {
+      const urlObject = new URL(fullPath)
+      if (urlObject.hash) {
+        searchString = urlObject.hash.slice(1) // remove #
+      } else {
+        searchString = urlObject.search
+      }
+    } catch (error) {
+      searchString = fullPath // treat as partial url string E.g. '?param1=value1...'
     }
 
-    // Grab everything after hash if it exists
-    if (fullpath.includes('#')) {
-      fullpath = fullpath.substring(fullpath.indexOf('#') + 1)
-      firstItemIndex = 0 // server name is pruned now
-    }
-
-    const parts = fullpath.split(/[/?/$&]/)
-
-    // Everything else delimited by '/' or ',' or '&' or '?' is a parameter
-    let params: string[] = []
-    if (parts.length > 0) {
-      params = parts.slice(firstItemIndex)
-    }
-
-    // paramPairs  e.g. [ ['enabled'], [ 'abc', '123' ], [ 'dbc', '444' ] ]   -- if the parameter only has a name and no value, the value is set to true
-    const paramPairs = params.map(param => param.split('='))
-    const jsonParams: { [key: string]: any } = {}
-    // convert array to json object e.g. { enabled: true, abc: '123', dbc: '444' }
-    paramPairs.forEach(pair => {
-      jsonParams[pair[0]] = decodeURIComponent(pair[1]) || true
+    const urlParams = new URLSearchParams(searchString)
+    urlParams.forEach((value, key) => {
+      urlParamsObject[key] = decodeURIComponent(value) || 'true'
     })
-    return jsonParams
+
+    return urlParamsObject
   }
 
   /** Returns Null if parse fails
@@ -238,10 +234,13 @@ export default class Helpers {
     return errorCodes
   }
 
+  /** Retrieve values from a url query string and returns an array of them
+   *  Also parses error codes returned into an array of errors codes/messages
+   */
   static extractDataFromCallbackUrl(url: string) {
     let params: { [key: string]: any } = {}
     if (url) {
-      params = this.urlParamsToArray(url)
+      params = this.parseUrlParams(url)
       const errors = this.getErrorCodesFromParams(params)
       return { ...params, errors }
     }
@@ -327,5 +326,12 @@ export default class Helpers {
       return true
     }
     throw new Error(`Auth provider ${provider} is not a valid option`)
+  }
+
+  /** Convert an AuthProvider to the ExternalWalletType subset
+   *  Returns null if can't convert member */
+  static mapAuthProviderToWalletType(provider: AuthProvider | ExternalWalletType) {
+    if (!provider) return null
+    return Helpers.toEnumValue(ExternalWalletType, provider)
   }
 }
