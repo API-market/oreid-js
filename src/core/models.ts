@@ -78,6 +78,20 @@ export type LoginOptions = {
   returnIdToken?: boolean
 }
 
+export type LoginWithWalletOptions = {
+  /** Optionally specify a specific account to select from wallet (some wallets don't support this) */
+  chainAccount?: ChainAccount
+  /** Optionally specify a specific blockchain to select from wallet (some wallets don't support this) */
+  chainNetwork?: ChainNetwork
+  provider?: ExternalWalletType
+  processId?: ProcessId
+}
+
+export type LoginWithTokenOptions = {
+  idToken?: string
+  processId?: ProcessId
+}
+
 export type DiscoverOptions = {
   provider: AuthProvider
   chainNetwork?: ChainNetwork

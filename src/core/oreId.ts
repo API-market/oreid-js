@@ -11,22 +11,15 @@ import { generateHmac } from '../utils/hmac'
 import { getTransitProviderAttributes, transitProviderAttributesData } from '../transit/transitProviders'
 import {
   ApiEndpoint,
-  ApiMessageResponse,
   AppAccessToken,
   AppAccessTokenMetadata,
   AuthProvider,
-  AuthResponse,
   ChainNetwork,
   ChainPlatformType,
   Config,
   DiscoverOptions,
   ExternalWalletInterface,
-  GetOreIdAuthUrlParams,
-  GetOreIdNewAccountUrlParams,
-  GetOreIdRecoverAccountUrlParams,
-  GetRecoverAccountUrlResult,
-  LoginOptions,
-  LoginWithOreIdResult,
+  ExternalWalletType,
   NewAccountOptions,
   NewAccountResponse,
   NewAccountWithOreIdResult,
@@ -40,14 +33,13 @@ import {
   SignStringParams,
   SignWithOreIdResult,
 } from '../models'
+import StorageHandler from '../utils/storage'
 import AccessTokenHelper from '../auth/accessTokenHelper'
-import { User } from '../user/user'
 import {
   ApiConvertOauthTokensParams,
   ApiCustodialMigrateAccountParams,
   ApiCustodialNewAccountParams,
   ApiGetAppTokenParams,
-  ApiLoginUserWithTokenParams,
   ApiPasswordLessSendCodeParams,
   ApiPasswordLessVerifyCodeParams,
   callApiCanAutosignTransaction,
@@ -57,82 +49,79 @@ import {
   callApiCustodialSignTransaction,
   callApiGetAppToken,
   callApiGetConfig,
-  callApiLoginUserWithToken,
   callApiPasswordLessSendCode,
   callApiPasswordLessVerifyCode,
   callApiSignTransaction,
 } from '../api'
+import { getOreIdNewAccountUrl, getOreIdSignUrl } from './urlGenerators'
+import { Auth } from './auth'
 
 const { isNullOrEmpty } = Helpers
 
 export default class OreId implements IOreidContext {
   constructor(options: OreIdOptions) {
-    this.options = null
-    this.localState = new LocalState(options)
+    this._options = null
+    const storageHandler = this.options?.storageHandler || new StorageHandler()
+    this._localState = new LocalState(this.options?.appId, storageHandler)
     this.cachedChainNetworks = null
-    this.validateOptions(options)
+    this.validateAndSetOptions(options)
     // create an instance of the User class
-    this.user = new User({ oreIdContext: this })
-    this.transitHelper = new TransitHelper(this, this.user)
+    this._transitHelper = new TransitHelper(this)
     // All installed TransitProviders
     this.transitHelper.installTransitProviders()
+    this._auth = new Auth({ oreIdContext: this })
   }
 
-  isBusy: boolean
+  _accessTokenHelper: AccessTokenHelper
 
-  options: OreIdOptions
+  _auth: Auth
 
-  appAccessToken: AppAccessToken
+  _localState: LocalState
 
-  localState: LocalState
+  _options: OreIdOptions
+
+  _transitHelper: TransitHelper
 
   cachedChainNetworks: SettingChainNetwork[] = []
 
-  accessTokenHelper: AccessTokenHelper
-
-  user: User
-
-  transitHelper: TransitHelper
+  isBusy: boolean
 
   /** Names of all Transit providers installed (provided to this constructor) */
-  transitProvidersInstalled: AuthProvider[] = []
+  transitProvidersInstalled: ExternalWalletType[] = []
+
+  /** accessToken (stored in localState) */
+  get accessToken() {
+    return this.localState.accessToken
+  }
+
+  /** accessToken helper functions and current state */
+  get accessTokenHelper() {
+    return this._accessTokenHelper
+  }
+
+  // authenticate flows and login state
+  get auth() {
+    return this._auth
+  }
 
   /** whether the current appId is a demo app */
   get isDemoApp() {
     return this.options?.appId?.toLowerCase().startsWith('demo') || false
   }
 
-  /** retrieve accessToken saved in local storage - is automatically deleted when token expires */
-  get accessToken() {
-    if (!this.accessTokenHelper) {
-      const savedToken = this.localState?.accessToken
-      if (!savedToken) return null
-      this.accessToken = savedToken // sets accessTokenHelper
-    }
-    const hasExpired = this.clearTokenAndUserIfAccessTokenExpired()
-    if (hasExpired) return null
-    return this.accessTokenHelper?.accessToken
+  /** helper to persist data (e.g. accessToken) */
+  get localState() {
+    return this._localState
   }
 
-  /** Sets the access token in local storage (and in accessTokenHelper)
-   * this token will be used to call ORE ID APIs (on behalf of the user)
-   * This token is user-specific - call logout to clear it upon user log-out
-   * For an expired token, this function will delete the accessToken (and matching user) from local storage
-   * NOTE: This function will be called automatically if you use handleAuthResponse() */
-  set accessToken(accessToken: string) {
-    try {
-      // decodes and validates accessToken is a valid token
-      this.accessTokenHelper = new AccessTokenHelper(accessToken)
-    } catch (error) {
-      console.log('accessToken cant be set: ', error.message)
-      return
-    }
-    const hasExpired = this.clearTokenAndUserIfAccessTokenExpired()
-    if (!hasExpired) {
-      this.localState.saveAccessToken(accessToken)
-      // if account in accessToken account doesn't match currently cached user, clear user
-      this.clearLocalStateUserIfNotMatchingAccount(this.accessTokenHelper.accountName)
-    }
+  /** oreid options used in constructor */
+  get options() {
+    return this._options
+  }
+
+  /** transit wallet plugin helper functions and connections */
+  get transitHelper() {
+    return this._transitHelper
   }
 
   /** If we're running in the browser, we must use a proxy server to talk to OREID api
@@ -144,27 +133,8 @@ export default class OreId implements IOreidContext {
     return Helpers.isInBrowser && !this.isDemoApp
   }
 
-  clearTokenAndUserIfAccessTokenExpired(): boolean {
-    const hasExpired = this.accessTokenHelper?.hasExpired()
-    if (!hasExpired) return false
-    // clear expired accessToken and user
-    this.localState.clearAccessToken()
-    this.localState.clearUser()
-    this.accessTokenHelper = null
-    console.log('accessToken has expired and has been cleared')
-    return true
-  }
-
-  /** if locally saved user if NOT matches account */
-  clearLocalStateUserIfNotMatchingAccount(accountName: string) {
-    const cachedUser = this.localState.user
-    if (accountName !== cachedUser?.accountName) {
-      this.localState.clearUser()
-    }
-  }
-
   /** Throw if the required plug-in is not installed */
-  assertHasProviderInstalled(provider: AuthProvider, providerType: ExternalWalletInterface) {
+  assertHasWalletProviderInstalled(provider: ExternalWalletType, providerType: ExternalWalletInterface) {
     if (providerType === ExternalWalletInterface.Transit) {
       if (!this.transitHelper.hasTransitProvider(provider)) {
         throw Error(`Transit provider ${provider} not installed. Please pass it in via eosTransitWalletProviders.`)
@@ -250,22 +220,6 @@ export default class OreId implements IOreidContext {
     return this.newAccountWithOreId(newAccountOptions)
   }
 
-  /** Returns a loginUrl to redirect the user's browser to login using ORE ID
-   *  OR, if the provider is a wallet, prompts the user to login with a wallet */
-  async login(loginOptions: LoginOptions) {
-    const { provider } = loginOptions
-
-    if (providersNotImplemented.includes(provider)) {
-      throw new Error('Not Implemented')
-    }
-
-    if (this.transitHelper.isTransitProvider(provider)) {
-      return this.loginWithNonOreIdProvider(loginOptions)
-    }
-
-    return this.loginWithOreId(loginOptions)
-  }
-
   /** Sign transaction with key(s) in wallet - connect to wallet first */
   async sign(signOptions: SignOptions): Promise<SignWithOreIdResult> {
     // handle sign transaction based on provider type
@@ -313,37 +267,6 @@ export default class OreId implements IOreidContext {
     return this.transitHelper.discoverWithTransit(discoverOptions)
   }
 
-  /** Returns a loginUrl to redirect the user's browser to login using ORE ID */
-  async loginWithOreId(loginOptions: LoginOptions): Promise<LoginWithOreIdResult> {
-    const { code, email, idToken, phone, provider, state, linkToAccount, processId, returnAccessToken, returnIdToken } =
-      loginOptions || {}
-    const { authCallbackUrl, backgroundColor } = this.options
-    const args = {
-      code,
-      email,
-      idToken,
-      phone,
-      provider,
-      backgroundColor,
-      callbackUrl: authCallbackUrl,
-      state,
-      linkToAccount,
-      processId,
-      returnAccessToken: isNullOrEmpty(returnAccessToken) ? true : returnAccessToken, // if returnAccessToken not specified, default to true
-      returnIdToken,
-    }
-    if (idToken) {
-      const { accessToken, error, processId: processIdReturned } = await this.loginWithIdToken({ idToken, processId })
-      if (!error) {
-        this.accessToken = accessToken // saves in cache and in local storage
-        this.user.getUserInfoFromApi(this.accessTokenHelper?.accountName)
-      }
-      return { accessToken, errors: error, processId: processIdReturned || processId }
-    }
-    const loginUrl = await this.getOreIdAuthUrl(args)
-    return { loginUrl, errors: null, processId }
-  }
-
   async newAccountWithOreId(newAccountOptions: NewAccountOptions): Promise<NewAccountWithOreIdResult> {
     const { account, accountType, chainNetwork, accountOptions, provider, state, processId } = newAccountOptions || {}
     const { newAccountCallbackUrl, backgroundColor } = this.options
@@ -358,7 +281,7 @@ export default class OreId implements IOreidContext {
       state,
       processId,
     }
-    const newAccountUrl = await this.getOreIdNewAccountUrl(args)
+    const newAccountUrl = await getOreIdNewAccountUrl(this, args)
     return { newAccountUrl, errors: null }
   }
 
@@ -431,7 +354,7 @@ export default class OreId implements IOreidContext {
 
     const { signCallbackUrl } = this.options
     signOptions.callbackUrl = signCallbackUrl
-    const signUrl = await this.getOreIdSignUrl(signOptions)
+    const signUrl = await getOreIdSignUrl(this, signOptions)
     return { signUrl, errors: null }
   }
 
@@ -492,48 +415,54 @@ export default class OreId implements IOreidContext {
 
   /** whether discovery is supported by the provider */
   canDiscover(provider: AuthProvider) {
-    if (this.transitHelper.hasTransitProvider(provider)) {
-      return getTransitProviderAttributes(provider).supportsDiscovery
+    const walletProvider = Helpers.mapAuthProviderToWalletType(provider)
+    if (this.transitHelper.hasTransitProvider(walletProvider)) {
+      return getTransitProviderAttributes(walletProvider).supportsDiscovery
     }
     return false
   }
 
   /** whether signString is supported by the provider */
   canSignString(provider: AuthProvider) {
-    if (this.transitHelper.hasTransitProvider(provider)) {
-      return getTransitProviderAttributes(provider).supportsSignArbitrary
+    const walletProvider = Helpers.mapAuthProviderToWalletType(provider)
+    if (this.transitHelper.hasTransitProvider(walletProvider)) {
+      return getTransitProviderAttributes(walletProvider).supportsSignArbitrary
     }
     return false
   }
 
   /** whether call to discover is required by provider before login */
   requiresDiscoverToLogin(provider: AuthProvider) {
-    if (this.transitHelper.hasTransitProvider(provider)) {
-      return getTransitProviderAttributes(provider).requiresDiscoverToLogin
+    const walletProvider = Helpers.mapAuthProviderToWalletType(provider)
+    if (this.transitHelper.hasTransitProvider(walletProvider)) {
+      return getTransitProviderAttributes(walletProvider).requiresDiscoverToLogin
     }
     return false
   }
 
   /** whether call to logout then login is required by provider before discover */
   requiresLogoutLoginToDiscover(provider: AuthProvider) {
-    if (this.transitHelper.hasTransitProvider(provider)) {
-      return getTransitProviderAttributes(provider).requiresLogoutLoginToDiscover
+    const walletProvider = Helpers.mapAuthProviderToWalletType(provider)
+    if (this.transitHelper.hasTransitProvider(walletProvider)) {
+      return getTransitProviderAttributes(walletProvider).requiresLogoutLoginToDiscover
     }
     return false
   }
 
   /** default path index for provider (if any) */
   defaultDiscoveryPathIndexList(provider: AuthProvider): number[] {
-    if (this.transitHelper.hasTransitProvider(provider)) {
-      return getTransitProviderAttributes(provider)?.defaultDiscoveryPathIndexList
+    const walletProvider = Helpers.mapAuthProviderToWalletType(provider)
+    if (this.transitHelper.hasTransitProvider(walletProvider)) {
+      return getTransitProviderAttributes(walletProvider)?.defaultDiscoveryPathIndexList
     }
     return null
   }
 
   /** help text displayed to user for provider */
   helpTextForProvider(provider: AuthProvider) {
-    if (this.transitHelper.hasTransitProvider(provider)) {
-      return getTransitProviderAttributes(provider).helpText
+    const walletProvider = Helpers.mapAuthProviderToWalletType(provider)
+    if (this.transitHelper.hasTransitProvider(walletProvider)) {
+      return getTransitProviderAttributes(walletProvider).helpText
     }
 
     return null
@@ -580,52 +509,6 @@ export default class OreId implements IOreidContext {
     return callApiConvertOauthTokens(this, oauthOptions)
   }
 
-  /** Call api account/login-user-with-token
-   * Converts OAuth idToken from some 3rd-party source to OREID Oauth accessTokens
-   * The third-party (e.g. Auth0 or Google) must be registered in the AppRegistration.oauthSettings
-   * If a user does not curently exist that matches the info in the incoming idToken, a new OreID user and account is created
-   * Requires a valid idToken but no accessToken or apiKey
-   * Returns: OreId issued accessToken and user's account name (if new account created, this is a new account name)
-   * */
-  async loginWithIdToken(
-    oauthOptions: ApiLoginUserWithTokenParams,
-  ): Promise<{ accessToken: string } & ApiMessageResponse> {
-    const accessTokenHelper = new AccessTokenHelper(oauthOptions?.idToken, true)
-    if (!accessTokenHelper.decodedToken) {
-      return {
-        accessToken: null,
-        error: 'token_invalid',
-        message: 'idToken invalid or corrupt',
-        processId: oauthOptions.processId,
-      }
-    }
-    if (!AccessTokenHelper.isTokenDateValidNow(accessTokenHelper.decodedToken)) {
-      return {
-        accessToken: null,
-        error: 'token_expired',
-        message: 'idToken provided is expired',
-        processId: oauthOptions.processId,
-      }
-    }
-    const response = await callApiLoginUserWithToken(this, oauthOptions)
-
-    return {
-      accessToken: response.accessToken,
-      error: response?.errorCode,
-      message: response?.errorMessage,
-      processId: response?.processId,
-    }
-  }
-
-  /** Login using the wallet provider */
-  async loginWithNonOreIdProvider(loginOptions: LoginOptions) {
-    const { provider } = loginOptions
-    if (this.transitHelper.isTransitProvider(provider)) {
-      return this.transitHelper.loginWithTransitProvider(loginOptions)
-    }
-    throw new Error(`Not a valid External Wallet provider: ${provider}`)
-  }
-
   async getChainNetworkByChainId(chainId: string) {
     const networks = await this.getChainNetworks()
     const chainConfig = networks.find(n => n.hosts.find(h => h.chainId === chainId))
@@ -647,11 +530,11 @@ export default class OreId implements IOreidContext {
 
   // TODO add validation of newer options
   /**  Validates startup options */
-  validateOptions(options: OreIdOptions) {
+  validateAndSetOptions(options: OreIdOptions) {
     const { appId, apiKey, oreIdUrl, serviceKey } = options || {}
     let errorMessage = ''
     // set options now since this.requiresProxyServer needs it set
-    this.options = options
+    this._options = options
 
     // Apply default options
     if (options) this.options.oreIdUrl = oreIdUrl || defaultOreIdServiceUrl
@@ -686,218 +569,6 @@ export default class OreId implements IOreidContext {
   /** Gets a single-use token to access the service */
   async getAppAccessToken(params?: ApiGetAppTokenParams) {
     return callApiGetAppToken(this, params)
-  }
-
-  /** Returns a fully formed url to call the new-account endpoint */
-  async getOreIdNewAccountUrl(args: GetOreIdNewAccountUrlParams) {
-    const {
-      account,
-      accountType,
-      chainNetwork,
-      accountOptions,
-      provider,
-      callbackUrl,
-      backgroundColor,
-      state,
-      processId,
-      accessToken,
-      idToken,
-    } = args
-    const { oreIdUrl } = this.options
-
-    // collect additional params embedded into appAccessToken
-    const appAccessTokenMetadata: AppAccessTokenMetadata = {
-      paramsNewAccount: {
-        account,
-        accountType,
-        chainNetwork,
-        accountOptions,
-      },
-    }
-
-    if (!account || !accountType || !chainNetwork || !provider || !callbackUrl) {
-      throw new Error('Missing a required parameter')
-    }
-
-    // optional params
-    const encodedStateParam = state ? `&state=${state}` : ''
-    const processIdParam = processId ? `&process_id=${processId}` : ''
-    const accessTokenParam = !isNullOrEmpty(accessToken) ? `&oauth_access_token=${accessToken}` : ''
-    const idTokenParam = !isNullOrEmpty(idToken) ? `&oauth_id_token=${idToken}` : ''
-
-    const url =
-      `${oreIdUrl}/new-account#provider=${provider}&chain_network=${chainNetwork}` +
-      `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(
-        backgroundColor,
-      )}${encodedStateParam}${processIdParam}`
-    return this.addAccessTokenAndHmacToUrl(url, appAccessTokenMetadata)
-  }
-
-  /** Returns a fully formed url to call the auth endpoint */
-  async getOreIdAuthUrl(args: GetOreIdAuthUrlParams) {
-    const {
-      code,
-      email,
-      phone,
-      provider,
-      callbackUrl,
-      backgroundColor,
-      state,
-      linkToAccount,
-      processId,
-      returnAccessToken,
-      returnIdToken,
-    } = args
-    const { oreIdUrl } = this.options
-
-    if (!provider || !callbackUrl) {
-      throw new Error('Missing a required parameter')
-    }
-
-    // optional params
-    const encodedStateParam = state ? `&state=${state}` : ''
-    const linkToAccountParam = linkToAccount ? `&link_to_account=${linkToAccount}` : ''
-    const processIdParam = processId ? `&process_id=${processId}` : ''
-
-    // handle passwordless params
-    const codeParam = code ? `&code=${code}` : ''
-    const emailParam = email ? `&email=${encodeURIComponent(email)}` : ''
-    const phoneParam = phone ? `&phone=${encodeURIComponent(phone)}` : '' // if user passes in +12103334444, the plus sign needs to be URL encoded
-
-    const returnAccessTokenParam = returnAccessToken ? `&return_access_token=${returnAccessToken}` : ''
-    const returnIdTokenParam = returnIdToken ? `&return_id_token=${returnIdToken}` : ''
-
-    const url =
-      `${oreIdUrl}/auth#provider=${provider}` +
-      `${codeParam}${emailParam}${phoneParam}` +
-      `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(
-        backgroundColor,
-      )}${linkToAccountParam}${encodedStateParam}${processIdParam}${returnAccessTokenParam}${returnIdTokenParam}`
-
-    return this.addAccessTokenAndHmacToUrl(url, null)
-  }
-
-  /** Returns a fully formed url to call the sign endpoint
-    chainNetwork = one of the valid options defined by the system - Ex: 'eos_main', 'eos_jungle', 'eos_kylin', 'ore_main', 'eos_test', etc. */
-  async getOreIdSignUrl(signOptions: SignOptions) {
-    const {
-      account,
-      allowChainAccountSelection,
-      broadcast,
-      callbackUrl,
-      chainNetwork,
-      expireSeconds,
-      multiSigChainAccounts,
-      processId,
-      provider,
-      returnSignedTransaction,
-      signedTransaction,
-      state,
-      transaction,
-      transactionRecordId,
-      userPassword,
-    } = signOptions
-    let { chainAccount } = signOptions
-    const { oreIdUrl } = this.options
-    // Now always appends accessToken to signUrl
-    const { accessToken } = this
-    if (!account || !callbackUrl || (!transaction && !signedTransaction)) {
-      throw new Error('Missing a required parameter')
-    }
-
-    // default chainAccount is the same as the user's account
-    if (!chainAccount) {
-      chainAccount = account
-    }
-
-    const encodedTransaction = Helpers.base64Encode(transaction)
-    const encodedSignedTransaction = Helpers.base64Encode(signedTransaction)
-    let optionalParams = state ? `&state=${state}` : ''
-    optionalParams += !isNullOrEmpty(transaction) ? `&transaction=${encodedTransaction}` : ''
-    optionalParams += !isNullOrEmpty(signedTransaction) ? `&signed_transaction=${encodedSignedTransaction}` : ''
-    optionalParams += !isNullOrEmpty(allowChainAccountSelection)
-      ? `&allow_chain_account_selection=${allowChainAccountSelection}`
-      : ''
-    optionalParams += !isNullOrEmpty(expireSeconds) ? `&expire_seconds=${expireSeconds}` : ''
-    optionalParams += !isNullOrEmpty(multiSigChainAccounts) ? `&multisig_chain_accounts=${multiSigChainAccounts}` : ''
-    optionalParams += !isNullOrEmpty(provider) ? `&provider=${provider}` : ''
-    optionalParams += !isNullOrEmpty(returnSignedTransaction)
-      ? `&return_signed_transaction=${returnSignedTransaction}`
-      : ''
-    optionalParams += !isNullOrEmpty(transactionRecordId) ? `&transaction_record_id=${transactionRecordId}` : ''
-    optionalParams += !isNullOrEmpty(processId) ? `&process_id=${processId}` : ''
-    optionalParams += !isNullOrEmpty(accessToken) ? `&oauth_access_token=${accessToken}` : ''
-
-    // prettier-ignore
-    const url = `${oreIdUrl}/sign#account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}${optionalParams}`
-    return this.addAccessTokenAndHmacToUrl(url, null)
-  }
-
-  /** Returns a fully formed url to call the auth endpoint */
-  async getRecoverAccountUrl(args: GetOreIdRecoverAccountUrlParams): Promise<GetRecoverAccountUrlResult> {
-    const {
-      account,
-      code,
-      email,
-      phone,
-      provider,
-      callbackUrl,
-      backgroundColor,
-      state,
-      recoverAction,
-      processId,
-      overrideAppAccessToken,
-    } = args
-    const { oreIdUrl } = this.options
-
-    if (!provider || !callbackUrl) {
-      throw new Error('Missing a required parameter')
-    }
-
-    // optional params
-    const encodedStateParam = state ? `&state=${state}` : ''
-    const processIdParam = processId ? `&process_id=${processId}` : ''
-    const actionTypeParam = recoverAction ? `&recover_action=${recoverAction}` : ''
-
-    // handle passwordless params
-    const codeParam = code ? `&code=${code}` : ''
-    const emailParam = email ? `&email=${encodeURIComponent(email)}` : ''
-    const phoneParam = phone ? `&phone=${encodeURIComponent(phone)}` : '' // if user passes in +12103334444, the plus sign needs to be URL encoded
-
-    const url =
-      `${oreIdUrl}/recover-account#provider=${provider}` +
-      `&account=${account}` +
-      `${codeParam}${emailParam}${phoneParam}` +
-      `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(
-        backgroundColor,
-      )}${actionTypeParam}${encodedStateParam}${processIdParam}`
-
-    return this.addAccessTokenAndHmacToUrl(url, null, overrideAppAccessToken)
-  }
-
-  /** Extracts the response parameters on the /auth callback URL string */
-  handleAuthResponse(callbackUrlString: string): AuthResponse {
-    // Parses error codes and returns an errors array
-    // (if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
-    const {
-      access_token: accessToken,
-      account,
-      id_token: idToken,
-      process_id: processId,
-      state,
-      errors,
-    } = Helpers.extractDataFromCallbackUrl(callbackUrlString)
-    const response: any = { account }
-    if (idToken) response.idToken = idToken
-    if (errors) response.errors = errors
-    if (processId) response.processId = processId
-    if (state) response.state = state
-    if (accessToken) {
-      response.accessToken = accessToken
-      this.accessToken = accessToken // sets access token state
-    }
-    this.setIsBusy(false)
-    return response
   }
 
   /** Extracts the response parameters on the /new-account callback URL string */
@@ -1030,7 +701,8 @@ export default class OreId implements IOreidContext {
     }
 
     if (type === ExternalWalletInterface.Transit) {
-      return getTransitProviderAttributes(provider)
+      const walletProvider = Helpers.mapAuthProviderToWalletType(provider)
+      return getTransitProviderAttributes(walletProvider)
     }
 
     return null
