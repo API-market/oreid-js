@@ -33,7 +33,8 @@ export function authCallbackHandler(oreId: OreId) {
 
     // oreId.errors = null
 
-    const response = oreId.handleAuthResponse(req.originalUrl)
+    // const response = oreId.handleAuthResponse(req.originalUrl)
+    const response = oreId.auth.handleAuthCallback(req.originalUrl)
     const { accessToken, account, errors, idToken, processId, state } = response
 
     if (errors) {
@@ -59,8 +60,10 @@ export function authCallbackHandler(oreId: OreId) {
 
     // attach user data to request object
     if (account) {
-      const user = await oreId.user.getUserInfoFromApi(account, processId) // get user from server and also save in local cookie (or state)
-      req.user = user
+      // eslint-disable-next-line prefer-destructuring
+      const user = oreId.auth.user
+      await user.getInfo() // get user data from server
+      req.user = user.info
     }
 
     return next()
