@@ -2,9 +2,9 @@ import OreIdContext from '../../core/IOreidContext'
 import {
   AccountName,
   ApiEndpoint,
-  AuthProvider,
   ChainAccount,
   ChainNetwork,
+  ExternalWalletType,
   ProcessId,
   PublicKey,
   RequestType,
@@ -19,7 +19,7 @@ export type ApiAddPermissionParams = {
   parentPermission?: PermissionName
   permission: PermissionName
   processId?: ProcessId
-  provider?: AuthProvider
+  provider?: ExternalWalletType
   publicKey: PublicKey
 }
 

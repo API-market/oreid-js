@@ -9,7 +9,7 @@ import {
   Wallet,
 } from '@aikon/eos-transit/lib'
 
-import { AuthProvider, ChainAccount, ChainNetwork } from '../common/models'
+import { ChainAccount, ChainNetwork, ExternalWalletType } from '../common/models'
 
 export type TransitDiscoveryAccount = DiscoveryAccount
 export type TransitDiscoverContinueCallback = DiscoverContinueCallback
@@ -36,12 +36,12 @@ export type TransitAccountInfo = any
 export type ConnectToTransitProviderParams = {
   chainAccount?: ChainAccount
   chainNetwork?: ChainNetwork
-  provider: AuthProvider
+  provider: ExternalWalletType
 }
 
 export type SetupTransitWalletParams = {
   chainNetwork?: ChainNetwork
-  provider: AuthProvider
+  provider: ExternalWalletType
 }
 
 // Transit Signature Provider
