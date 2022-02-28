@@ -8,11 +8,20 @@ import {
   ChainAccount,
   ChainNetwork,
   Color,
+  ExternalWalletType,
   ProcessId,
   PublicKey,
 } from '../common/models'
 import { TransitWalletProviderFactory } from '../transit'
 import { UserInfo } from '../user/models'
+
+export interface IStorage {
+  getItem: (key: string) => string
+
+  removeItem: (key: string) => void
+
+  setItem: (key: string, value: string) => void
+}
 
 export type OreIdOptions = {
   appId: string
@@ -31,6 +40,8 @@ export type OreIdOptions = {
   serviceKey?: string
   setBusyCallback?: (isBusy: boolean) => void
   eosTransitWalletProviders?: TransitWalletProviderFactory[]
+  /** Custom implementation of a storage class that saves persistant state for accessToken, etc. */
+  storageHandler?: IStorage
 }
 
 export enum RecoverAccountAction {

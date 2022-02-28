@@ -1,33 +1,24 @@
-import Helpers from './helpers'
-import StorageHandler from './storage'
-import { OreIdOptions } from '../core/models'
 import { UserInfo } from '../user/models'
-
-// avoid Helpers.isNullOrEmpty, use isNullOrEmpty()
-const { isNullOrEmpty } = Helpers
+import { IStorage } from '../core'
 
 export default class LocalState {
-  constructor(options: OreIdOptions) {
-    this.options = options
+  constructor(appId: string, storage: IStorage) {
+    this.appId = appId
     this.cachedaccessToken = null
     this.cachedUser = null
-    this.storage = new StorageHandler()
+    this.storage = storage
   }
+
+  appId: string
 
   cachedaccessToken: string
 
   cachedUser: UserInfo
 
-  options: OreIdOptions
-
-  storage: StorageHandler
+  storage: IStorage
 
   accessTokenKey() {
-    return `oreid.${this.options.appId}.accessToken`
-  }
-
-  userKey() {
-    return `oreid.${this.options.appId}.user`
+    return `oreid.${this.appId}.accessToken`
   }
 
   get accessToken(): string {
@@ -44,39 +35,12 @@ export default class LocalState {
     this.storage.setItem(this.accessTokenKey(), accessToken)
   }
 
-  get user() {
-    if (!this.cachedUser) this.loadUser()
-    return this.cachedUser
-  }
-
-  loadUser() {
-    this.cachedUser = null
-    const serialized = this.storage.getItem(this.userKey())
-    if (!isNullOrEmpty(serialized)) this.cachedUser = JSON.parse(serialized)
-  }
-
-  saveUser(user: UserInfo) {
-    this.cachedUser = user
-    this.storage.setItem(this.userKey(), JSON.stringify(this.cachedUser))
-  }
-
-  accountName() {
-    if (this.user) return this.user.accountName
-    return null
-  }
-
   clearAccessToken() {
     this.cachedaccessToken = null
     this.storage.removeItem(this.accessTokenKey())
   }
 
-  clearUser() {
-    this.cachedUser = null
-    this.storage.removeItem(this.userKey())
-  }
-
   clear() {
-    this.clearUser()
     this.clearAccessToken()
   }
 }
