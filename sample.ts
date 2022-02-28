@@ -22,7 +22,8 @@ export async function authExample() {
 
   if (errors) return // dont continue if errors during auth
 
-  const user = await oreid.auth.getUser() // expects auth to have logged in first (has accessToken)
+  const user = await oreid.auth.User // expects auth to have logged in first (has accessToken)
+  await user.getInfo() // load user name, email, chain accounts, etc.
   console.log('user logged in: ', user.info.name)
 
   await oreid.auth.logout()
@@ -35,7 +36,7 @@ export async function signExample() {
   const oreidWebPopUp = new OreidWebPopUp(oreid)
 
   // Expects login to have been completed and auth set with valid accessToken
-  const user = await oreid.auth.getUser()
+  const user = await oreid.auth.user
   const ethAccount = user.chainAccounts.find(ca => ca.chainNetwork === 'eth_main')
 
   const transaction = await oreid.createTransaction({
