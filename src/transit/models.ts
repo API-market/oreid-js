@@ -41,7 +41,7 @@ export type ConnectToTransitProviderParams = {
 
 export type SetupTransitWalletParams = {
   chainNetwork?: ChainNetwork
-  provider: ExternalWalletType
+  walletType: ExternalWalletType
 }
 
 // Transit Signature Provider
