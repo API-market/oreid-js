@@ -9,7 +9,7 @@ import {
   RequestType,
   SettingChainNetwork,
   SettingChainNetworkHost,
-  SignOptions,
+  TransactionData,
 } from '../models'
 import AccessTokenHelper from '../auth/accessTokenHelper'
 import LocalState from '../utils/localState'
@@ -27,7 +27,7 @@ export default interface OreIdContext {
     appAccessTokenMetadata: AppAccessTokenMetadata,
     overrideAppAccessToken?: AppAccessToken,
   ) => Promise<string>
-  callDiscoverAfterSign: (signOptions: SignOptions) => Promise<void>
+  callDiscoverAfterSign: (transactionData: TransactionData) => Promise<void>
   callOreIdApi: (
     requestMethod: RequestType,
     endpoint: ApiEndpoint,

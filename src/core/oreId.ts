@@ -28,10 +28,10 @@ import {
   RequestType,
   SettingChainNetwork,
   SettingChainNetworkHost,
-  SignOptions,
   SignResult,
   SignStringParams,
   SignWithOreIdResult,
+  TransactionData,
 } from '../models'
 import StorageHandler from '../utils/storage'
 import AccessTokenHelper from '../auth/accessTokenHelper'
@@ -221,35 +221,36 @@ export default class OreId implements IOreidContext {
   }
 
   /** Sign transaction with key(s) in wallet - connect to wallet first */
-  async sign(signOptions: SignOptions): Promise<SignWithOreIdResult> {
+  async sign(transactionData: TransactionData): Promise<SignWithOreIdResult> {
     // handle sign transaction based on provider type
-    const { provider } = signOptions
-    this.assertValidSignOptions(signOptions)
+    const { provider } = transactionData?.signOptions || {}
+    this.assertValidTransactionData(transactionData)
 
     if (providersNotImplemented.includes(provider)) {
       return null
     }
 
     if (this.isCustodial(provider)) {
-      return this.custodialSignWithOreId(signOptions)
+      return this.custodialSignWithOreId(transactionData)
     }
 
     if (this.transitHelper.isTransitProvider(provider)) {
       // if signExternalWithOreId=true, then it means we will do the external signing in the oreid service UX (e.g.  WebPopup) instead of locally in this app
-      if (!signOptions.signExternalWithOreId) {
-        const signatureProviderSignResult = await this.signWithNonOreIdProvider(signOptions)
+      if (!transactionData?.signOptions?.signExternalWithOreId) {
+        const signatureProviderSignResult = await this.signWithNonOreIdProvider(transactionData)
         return {
           signedTransaction: JSON.stringify(signatureProviderSignResult),
         }
       }
     }
 
-    return this.signWithOreId(signOptions)
+    return this.signWithOreId(transactionData)
   }
 
   /** ensure all required parameters are provided */
-  assertValidSignOptions(signOptions: SignOptions) {
-    const { provider, account, chainNetwork } = signOptions
+  assertValidTransactionData(transactionData: TransactionData) {
+    const { account, chainNetwork } = transactionData
+    const { provider } = transactionData?.signOptions || {}
     let missingFields = ''
     if (!provider) missingFields += 'provider, '
     if (!account) missingFields += 'account, '
@@ -289,22 +290,22 @@ export default class OreId implements IOreidContext {
    * Requires a serviceKey with the autoSign right
    * Returns: true if transaction provided can be signed using the signTransaction(autosign:true)
    * */
-  async checkIfTrxAutoSignable(signOptions: SignOptions) {
-    return callApiCanAutosignTransaction(this, signOptions)
+  async checkIfTrxAutoSignable(transactionData: TransactionData) {
+    return callApiCanAutosignTransaction(this, transactionData)
   }
 
   /** Call api to sign a transaction on behalf of the user
    * This can only be done if autoSign is enabled OR if we are signing for a custodial user where we can provide the wallet password
    * For autoSign param, requires a serviceKey with the autoSign right
-   * signOptions param specifies with ApiEndpoint.TransactionSig API (for autosign) or ApiEndpoint.CustodialSign
+   * signEndpoint param specifies either ApiEndpoint.TransactionSig API (for autosign) or ApiEndpoint.CustodialSign
    * Returns: stringified signedTransaction (and transactionId if available)
    * */
-  async callSignTransaction(signEndpoint: ApiEndpoint, signOptions: SignOptions, autoSign = false) {
+  async callSignTransaction(signEndpoint: ApiEndpoint, transactionData: TransactionData, autoSign = false) {
     let signResult
     if (signEndpoint === ApiEndpoint.TransactionSign) {
-      signResult = callApiSignTransaction(this, { signOptions, autoSign })
+      signResult = callApiSignTransaction(this, { transactionData, autoSign })
     } else if (signEndpoint === ApiEndpoint.CustodialSign) {
-      signResult = callApiCustodialSignTransaction(this, { signOptions, autoSign })
+      signResult = callApiCustodialSignTransaction(this, { transactionData, autoSign })
     }
     return signResult
   }
@@ -313,11 +314,11 @@ export default class OreId implements IOreidContext {
    *  Expects user to have previously approved autoSign for transaction type and it hasn't expired
    *  Call callApiCanAutosignTransaction() first to confirm that this transaction can be autoSigned before attempting this call
    */
-  async autoSignTransaction(signOptions: SignOptions) {
+  async autoSignTransaction(transactionData: TransactionData) {
     const signEndpoint = ApiEndpoint.TransactionSign
     const { processId, signedTransaction, transactionId, errorCode, errorMessage } = await this.callSignTransaction(
       signEndpoint,
-      signOptions,
+      transactionData,
       true,
     )
     if (errorCode || errorMessage) throw new Error(errorMessage)
@@ -327,16 +328,17 @@ export default class OreId implements IOreidContext {
   /** Attempts to sign a transaction using autoSign if possible
    * If autoSign is not available, returns a url to redirect the user to to be prompted to enter wallet password to sign a transaction
    */
-  async signWithOreId(signOptions: SignOptions): Promise<SignWithOreIdResult> {
+  async signWithOreId(transactionData: TransactionData): Promise<SignWithOreIdResult> {
     let canAutoSign = false
+    let { provider } = transactionData?.signOptions || {}
     // to use ORE ID to sign, we dont need to specify a login provider
     // if OreId was specified, this just means dont use an external wallet, so we remove that here
-    if (signOptions?.provider === AuthProvider.OreId) {
-      signOptions.provider = null
+    if (provider === AuthProvider.OreId) {
+      provider = null
     }
 
     try {
-      const results = await this.checkIfTrxAutoSignable(signOptions)
+      const results = await this.checkIfTrxAutoSignable(transactionData)
       canAutoSign = results.autoSignCredentialsExist
     } catch (error) {
       // do nothing - this will leave canAutoSign = false
@@ -344,20 +346,21 @@ export default class OreId implements IOreidContext {
     }
 
     // auto sign defaults to true if the transaction is auto signable. Developer can opt out by setting preventAutoSign to true
-    const { preventAutoSign = false } = signOptions
+    const { preventAutoSign = false } = transactionData?.signOptions || {}
 
     if (canAutoSign && !preventAutoSign) {
-      const { processId, signedTransaction, transactionId } = await this.autoSignTransaction(signOptions)
+      const { processId, signedTransaction, transactionId } = await this.autoSignTransaction(transactionData)
       return { processId, signedTransaction, transactionId }
     }
 
     const { signCallbackUrl } = this.options
-    signOptions.callbackUrl = signCallbackUrl
-    const signUrl = await getOreIdSignUrl(this, signOptions)
+    if (!transactionData?.signOptions) transactionData.signOptions = {}
+    transactionData.signOptions.callbackUrl = signCallbackUrl
+    const signUrl = await getOreIdSignUrl(this, transactionData)
     return { signUrl, errors: null }
   }
 
-  async custodialSignWithOreId(signOptions: SignOptions) {
+  async custodialSignWithOreId(transactionData: TransactionData) {
     const { serviceKey } = this.options
     if (!serviceKey) {
       throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/new-user.')
@@ -365,7 +368,7 @@ export default class OreId implements IOreidContext {
 
     const { processId, signedTransaction, transactionId, errorCode, errorMessage } = await this.callSignTransaction(
       ApiEndpoint.CustodialSign,
-      signOptions,
+      transactionData,
     )
     if (errorCode || errorMessage) throw new Error(errorMessage)
     return { processId, signedTransaction, transactionId }
@@ -374,19 +377,19 @@ export default class OreId implements IOreidContext {
   /** Sign an arbitrary string (instead of a transaction)
    *  NOTE: Currently this only supports Transit wallets - not OREID siging
    */
-  async signString(signOptions: SignStringParams) {
-    const { account, provider, chainNetwork } = signOptions
+  async signString(params: SignStringParams) {
+    const { account, provider, chainNetwork } = params
     if (!this.canSignString(provider)) {
       throw Error(`The specific provider ${provider} does not support signString`)
     }
-    const signResult = await this.transitHelper.signStringWithTransitProvider(signOptions)
-    await this.callDiscoverAfterSign({ account, provider, chainNetwork })
+    const signResult = await this.transitHelper.signStringWithTransitProvider(params)
+    await this.callDiscoverAfterSign({ account, chainNetwork, signOptions: { provider } })
     return signResult
   }
 
   /** ensure all required parameters are provided */
-  assertValidSignStringParams(signOptions: SignStringParams) {
-    const { provider, account, chainNetwork, string } = signOptions
+  assertValidSignStringParams(params: SignStringParams) {
+    const { provider, account, chainNetwork, string } = params
     let missingFields = ''
     if (!provider) missingFields += 'provider, '
     if (!account) missingFields += 'account, '
@@ -400,8 +403,9 @@ export default class OreId implements IOreidContext {
   /** Call discover after signing so we capture and save the account
    *  Note: This is needed for Ethereum since we dont know a public key until we sign with an account
    */
-  async callDiscoverAfterSign(signOptions: SignOptions) {
-    const { provider, chainNetwork, account } = signOptions
+  async callDiscoverAfterSign(transactionData: TransactionData) {
+    const { chainNetwork, account } = transactionData
+    const { provider } = transactionData?.signOptions || {}
     const discoverOptions: DiscoverOptions = {
       provider,
       chainNetwork,
@@ -468,10 +472,10 @@ export default class OreId implements IOreidContext {
   }
 
   /** sign with a wallet via Transit */
-  async signWithNonOreIdProvider(signOptions: SignOptions) {
-    const isTransitProvider = this.transitHelper.isTransitProvider(signOptions.provider)
+  async signWithNonOreIdProvider(transactionData: TransactionData) {
+    const isTransitProvider = this.transitHelper.isTransitProvider(transactionData?.signOptions?.provider)
     if (!isTransitProvider) return null
-    return this.transitHelper.signWithTransitProvider(signOptions)
+    return this.transitHelper.signWithTransitProvider(transactionData)
   }
 
   /** Create a new user account that is managed by your app

@@ -4,7 +4,7 @@ import {
   GetOreIdNewAccountUrlParams,
   GetOreIdRecoverAccountUrlParams,
   GetRecoverAccountUrlResult,
-  SignOptions,
+  TransactionData,
 } from './models'
 import Helpers from '../utils/helpers'
 import OreIdContext from './IOreidContext'
@@ -102,24 +102,19 @@ export async function getOreIdAuthUrl(oreIdContext: OreIdContext, args: GetOreId
 /** Returns a fully formed url to login a user
  *  This function calls the /sign web endpoint
  *  Returns: Callback returns transactionId (if available), and optionally signedTransaction */
-export async function getOreIdSignUrl(oreIdContext: OreIdContext, signOptions: SignOptions) {
+export async function getOreIdSignUrl(oreIdContext: OreIdContext, transactionData: TransactionData) {
+  const { account, chainNetwork, expireSeconds, signedTransaction, transaction, transactionRecordId } = transactionData
   const {
-    account,
     allowChainAccountSelection,
     broadcast,
     callbackUrl,
-    chainNetwork,
-    expireSeconds,
     multiSigChainAccounts,
     provider,
     returnSignedTransaction,
-    signedTransaction,
     state,
-    transaction,
-    transactionRecordId,
     // userPassword,
-  } = signOptions
-  let { chainAccount } = signOptions
+  } = transactionData?.signOptions || {}
+  let { chainAccount } = transactionData
   const { oreIdUrl } = oreIdContext.options
   // Now always appends accessToken to signUrl
   const { accessToken } = this

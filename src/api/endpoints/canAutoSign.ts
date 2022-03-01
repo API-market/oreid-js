@@ -7,7 +7,7 @@ import {
   ProcessId,
   RequestType,
   ServiceAccountUsedFor,
-  SignOptions,
+  TransactionData,
 } from '../../models'
 import {
   assertHasApiKeyOrAccessToken,
@@ -39,7 +39,7 @@ export type ApiCanAutosignTransactionResult = {
  * */
 export async function callApiCanAutosignTransaction(
   oreIdContext: OreIdContext,
-  params: SignOptions,
+  params: TransactionData,
 ): Promise<ApiCanAutosignTransactionResult> {
   const apiName = ApiEndpoint.CanAutoSign
   const { account, chainAccount, chainNetwork, signedTransaction, transaction, transactionChainAccount } = params

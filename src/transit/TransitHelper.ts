@@ -23,9 +23,9 @@ import {
   SetupTransitWalletParams,
   SignatureProviderArgs,
   SignatureProviderSignResult,
-  SignOptions,
   SignStringParams,
   TransitAccountInfo,
+  TransactionData,
   TransitWallet,
   WalletPermission,
 } from '../models'
@@ -397,9 +397,10 @@ export default class TransitHelper {
   }
 
   /** sign with a Transit wallet */
-  async signWithTransitProvider(signOptions: SignOptions) {
+  async signWithTransitProvider(transactionData: TransactionData) {
     let signedTransaction: SignatureProviderSignResult
-    const { chainNetwork, chainAccount, provider } = signOptions
+    const { chainNetwork, chainAccount } = transactionData
+    const { provider } = transactionData?.signOptions || {}
     const walletProvider = Helpers.mapAuthProviderToWalletType(provider)
     this.assertHasProviderInstalled(walletProvider, ExternalWalletInterface.Transit)
     this.assertProviderValidForChainNetwork(walletProvider, chainNetwork)
@@ -416,13 +417,13 @@ export default class TransitHelper {
       const { chainType } = getTransitProviderAttributes(walletProvider)
       // EOS - use eosJS to sign (eosApi.transact)
       if (chainType === ChainPlatformType.eos) {
-        signedTransaction = await this.signTransactionWithTransitAndEosSDK(signOptions, transitWallet)
+        signedTransaction = await this.signTransactionWithTransitAndEosSDK(transactionData, transitWallet)
       } else if (chainType === ChainPlatformType.algorand) {
         // Other chains - use sign function on walletProvider
-        signedTransaction = await this.signTransactionWithTransitAndAlgorandSDK(signOptions, transitWallet)
+        signedTransaction = await this.signTransactionWithTransitAndAlgorandSDK(transactionData, transitWallet)
       } else if (chainType === ChainPlatformType.ethereum) {
         // Ethereum - use sign function on ethereum walletProvider
-        signedTransaction = await this.signTransactionWithTransitAndEthereumSDK(signOptions, transitWallet)
+        signedTransaction = await this.signTransactionWithTransitAndEthereumSDK(transactionData, transitWallet)
       } else {
         throw new Error(`signWithTransitProvider doesnt support chain type: ${chainType}`)
       }
@@ -458,8 +459,9 @@ export default class TransitHelper {
   }
 
   /** sign transaction using EOS SDK .transact function */
-  private async signTransactionWithTransitAndEosSDK(signOptions: SignOptions, transitWallet: Wallet) {
-    const { broadcast, expireSeconds, transaction } = signOptions
+  private async signTransactionWithTransitAndEosSDK(transactionData: TransactionData, transitWallet: Wallet) {
+    const { expireSeconds, transaction } = transactionData
+    const { broadcast } = transactionData?.signOptions || {}
     const { signatures, serializedTransaction } = await transitWallet.eosApi.transact(
       {
         actions: [transaction],
@@ -470,13 +472,13 @@ export default class TransitHelper {
         expireSeconds: expireSeconds || 60,
       },
     )
-    await this._oreIdContext.callDiscoverAfterSign(signOptions)
+    await this._oreIdContext.callDiscoverAfterSign(transactionData)
     return { signatures, serializedTransaction }
   }
 
   /** sign transaction using Algorand SDK */
-  private async signTransactionWithTransitAndAlgorandSDK(signOptions: SignOptions, transitWallet: Wallet) {
-    const { chainNetwork, transaction } = signOptions
+  private async signTransactionWithTransitAndAlgorandSDK(transactionData: TransactionData, transitWallet: Wallet) {
+    const { chainNetwork, transaction } = transactionData
     // Other chains - use sign function on walletProvider
     const networkConfig = await this._oreIdContext.getNetworkConfig(chainNetwork)
     const signParams: SignatureProviderArgs = {
@@ -486,13 +488,13 @@ export default class TransitHelper {
       abis: null, // not used by Algorand signatureProvider
     }
     const { signatures, serializedTransaction } = await transitWallet.provider.signatureProvider.sign(signParams)
-    await this._oreIdContext.callDiscoverAfterSign(signOptions)
+    await this._oreIdContext.callDiscoverAfterSign(transactionData)
     return { signatures, serializedTransaction }
   }
 
   /** sign transaction using ethereum web3 SDK */
-  private async signTransactionWithTransitAndEthereumSDK(signOptions: SignOptions, transitWallet: Wallet) {
-    const { chainNetwork, transaction } = signOptions
+  private async signTransactionWithTransitAndEthereumSDK(transactionData: TransactionData, transitWallet: Wallet) {
+    const { chainNetwork, transaction } = transactionData
     // Other chains - use sign function on walletProvider
     const networkConfig = await this._oreIdContext.getNetworkConfig(chainNetwork)
 
@@ -503,7 +505,7 @@ export default class TransitHelper {
       abis: null, // not used by Ethereum signatureProvider
     }
     const { signatures, serializedTransaction } = await transitWallet.provider.signatureProvider.sign(signParams)
-    await this._oreIdContext.callDiscoverAfterSign(signOptions)
+    await this._oreIdContext.callDiscoverAfterSign(transactionData)
     return { signatures, serializedTransaction }
   }
 

@@ -6,7 +6,7 @@ import {
   ChainNetwork,
   RequestType,
   ServiceAccountUsedFor,
-  SignOptions,
+  TransactionData,
 } from '../../models'
 import { ApiResultWithErrorCode } from '../models'
 import {
@@ -18,7 +18,7 @@ import Helpers from '../../utils/helpers'
 
 export type ApiSignTransactionParams = {
   autoSign?: boolean
-  signOptions: SignOptions
+  transactionData: TransactionData
 }
 
 export type ApiSignTransactionBodyParams = {
@@ -47,24 +47,27 @@ export type ApiSignTransactionResult = {
 } & ApiResultWithErrorCode
 
 /** Compose the API body params for calling signTransaction */
-function composeSignBodyFromSignOptions(params: ApiSignTransactionParams): ApiSignTransactionBodyParams {
+function composeSignBodyFromTransactionData(params: ApiSignTransactionParams): ApiSignTransactionBodyParams {
   const {
     account,
-    allowChainAccountSelection,
-    broadcast,
     chainAccount,
     chainNetwork,
     expireSeconds,
-    generateAutoSignCredential,
-    multiSigChainAccounts,
-    returnSignedTransaction,
     signedTransaction: signedTransactionParam,
     transaction: transactionParam,
     transactionChainAccount,
     transactionRecordId,
+  } = params.transactionData || {}
+
+  const {
+    allowChainAccountSelection,
+    broadcast,
+    generateAutoSignCredential,
+    multiSigChainAccounts,
+    returnSignedTransaction,
     userPassword,
     userPasswordEncrypted,
-  } = params.signOptions
+  } = params.transactionData?.signOptions || {}
 
   const { autoSign } = params
 
@@ -125,10 +128,10 @@ export async function callApiSignTransaction(
   }
 
   assertHasApiKeyOrAccessToken(oreIdContext, apiName)
-  assertParamsHaveRequiredValues(params.signOptions, ['account', 'chainNetwork', 'chainAccount'], apiName)
-  assertParamsHaveOnlyOneOfValues(params.signOptions, ['transaction', 'signedTransaction'], apiName)
+  assertParamsHaveRequiredValues(params.transactionData, ['account', 'chainNetwork', 'chainAccount'], apiName)
+  assertParamsHaveOnlyOneOfValues(params.transactionData, ['transaction', 'signedTransaction'], apiName)
 
-  const body = composeSignBodyFromSignOptions(params)
+  const body = composeSignBodyFromTransactionData(params)
 
   const results = await oreIdContext.callOreIdApi(RequestType.Post, ApiEndpoint.TransactionSign, body, null)
   return mapSignResultFromApi(results)
@@ -152,12 +155,14 @@ export async function callApiCustodialSignTransaction(
     )
   }
 
-  assertHasApiKeyOrAccessToken(oreIdContext, apiName)
-  assertParamsHaveRequiredValues(params.signOptions, ['account', 'chainNetwork', 'chainAccount'], apiName)
-  assertParamsHaveOnlyOneOfValues(params.signOptions, ['transaction', 'signedTransaction'], apiName)
-  assertParamsHaveOnlyOneOfValues(params.signOptions, ['userPassword', 'userPasswordEncrypted'], apiName)
+  const { signOptions } = params.transactionData || {}
 
-  const body = composeSignBodyFromSignOptions(params)
+  assertHasApiKeyOrAccessToken(oreIdContext, apiName)
+  assertParamsHaveRequiredValues(params.transactionData, ['account', 'chainNetwork', 'chainAccount'], apiName)
+  assertParamsHaveOnlyOneOfValues(params.transactionData, ['transaction', 'signedTransaction'], apiName)
+  assertParamsHaveOnlyOneOfValues(signOptions, ['userPassword', 'userPasswordEncrypted'], apiName)
+
+  const body = composeSignBodyFromTransactionData(params)
 
   const results = await oreIdContext.callOreIdApi(RequestType.Post, ApiEndpoint.CustodialSign, body, null)
   return mapSignResultFromApi(results)
