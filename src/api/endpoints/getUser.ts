@@ -1,10 +1,9 @@
 import OreIdContext from '../../core/IOreidContext'
-import { AccountName, ApiEndpoint, ProcessId, RequestType, UserInfo } from '../../models'
+import { AccountName, ApiEndpoint, RequestType, UserInfo } from '../../models'
 import { assertHasApiKeyOrAccessToken, assertParamsHaveRequiredValues, extractProcessIdFromData } from '../helpers'
 
 export type ApiGetUserParams = {
   account: AccountName
-  processId?: ProcessId
 }
 
 /**
@@ -13,12 +12,12 @@ export type ApiGetUserParams = {
  */
 export async function callApiGetUser(oreIdContext: OreIdContext, params: ApiGetUserParams): Promise<UserInfo> {
   const apiName = ApiEndpoint.GetUser
-  const { account, processId } = params
+  const { account } = params
   assertHasApiKeyOrAccessToken(oreIdContext, apiName)
   assertParamsHaveRequiredValues(params, ['account'], apiName)
   const queryParams = { account }
 
-  const response = await oreIdContext.callOreIdApi(RequestType.Get, ApiEndpoint.GetUser, queryParams, null, processId)
+  const response = await oreIdContext.callOreIdApi(RequestType.Get, ApiEndpoint.GetUser, queryParams, null)
   const { data } = extractProcessIdFromData(response)
   return data as UserInfo
 }

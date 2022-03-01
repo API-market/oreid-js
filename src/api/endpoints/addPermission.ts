@@ -5,7 +5,6 @@ import {
   ChainAccount,
   ChainNetwork,
   ExternalWalletType,
-  ProcessId,
   PublicKey,
   RequestType,
 } from '../../models'
@@ -18,7 +17,6 @@ export type ApiAddPermissionParams = {
   chainNetwork: ChainNetwork
   parentPermission?: PermissionName
   permission: PermissionName
-  processId?: ProcessId
   provider?: ExternalWalletType
   publicKey: PublicKey
 }
@@ -44,7 +42,7 @@ export async function callApiAddPermission(
     apiName,
   )
 
-  const { account, permission, processId, provider, parentPermission } = params
+  const { account, permission, provider, parentPermission } = params
 
   const optionalParams: { [key: string]: any } = {}
   if (provider) optionalParams['wallet-type'] = provider
@@ -59,12 +57,6 @@ export async function callApiAddPermission(
     ...optionalParams,
   }
 
-  const response = await oreIdContext.callOreIdApi(
-    RequestType.Get,
-    ApiEndpoint.AddPermission,
-    queryParams,
-    null,
-    processId,
-  )
+  const response = await oreIdContext.callOreIdApi(RequestType.Get, ApiEndpoint.AddPermission, queryParams, null)
   return response as ApiMessageResponse
 }

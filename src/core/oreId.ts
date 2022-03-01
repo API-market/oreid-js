@@ -268,7 +268,7 @@ export default class OreId implements IOreidContext {
   }
 
   async newAccountWithOreId(newAccountOptions: NewAccountOptions): Promise<NewAccountWithOreIdResult> {
-    const { account, accountType, chainNetwork, accountOptions, provider, state, processId } = newAccountOptions || {}
+    const { account, accountType, chainNetwork, accountOptions, provider, state } = newAccountOptions || {}
     const { newAccountCallbackUrl, backgroundColor } = this.options
     const args = {
       account,
@@ -279,7 +279,6 @@ export default class OreId implements IOreidContext {
       provider,
       callbackUrl: newAccountCallbackUrl,
       state,
-      processId,
     }
     const newAccountUrl = await getOreIdNewAccountUrl(this, args)
     return { newAccountUrl, errors: null }
@@ -562,8 +561,8 @@ export default class OreId implements IOreidContext {
 
   /** Loads settings value from the server
     e.g. configType='chains' returns valid chain types and addresses */
-  async getConfig(configType: Config, processId: ProcessId = null) {
-    return this.getConfigFromApi(configType, processId)
+  async getConfig(configType: Config) {
+    return this.getConfigFromApi(configType)
   }
 
   /** Gets a single-use token to access the service */
@@ -603,7 +602,7 @@ export default class OreId implements IOreidContext {
    *  Call api services/config to get configuration values of a specific type
    *  Returns: for configType:Config.Chains, returns array of SettingChainNetwork objects for all chains suported by the service
    * */
-  async getConfigFromApi(configType: Config.Chains, processId: ProcessId = null) {
+  async getConfigFromApi(configType: Config.Chains) {
     const values = await callApiGetConfig(this, { configType })
     if (Helpers.isNullOrEmpty(values)) {
       throw new Error(`Not able to retrieve config values for ${configType}`)

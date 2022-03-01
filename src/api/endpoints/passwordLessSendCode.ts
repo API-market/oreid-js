@@ -1,5 +1,5 @@
 import OreIdContext from '../../core/IOreidContext'
-import { ApiEndpoint, AuthProvider, ProcessId, RequestType } from '../../models'
+import { ApiEndpoint, AuthProvider, RequestType } from '../../models'
 import {
   assertHasApiKeyOrAccessToken,
   assertParamsHaveOnlyOneOfValues,
@@ -10,7 +10,6 @@ import { ApiMessageResponse } from '../models'
 export type ApiPasswordLessSendCodeParams = {
   email?: string
   phone?: string
-  processId?: ProcessId
   provider: AuthProvider
 }
 
@@ -28,7 +27,7 @@ export async function callApiPasswordLessSendCode(
   assertParamsHaveRequiredValues(params, ['provider'], apiName)
   assertParamsHaveOnlyOneOfValues(params, ['email', 'phone'], apiName)
 
-  const { email, phone, processId, provider } = params
+  const { email, phone, provider } = params
 
   const queryParams: Partial<ApiPasswordLessSendCodeParams> = {
     provider,
@@ -37,12 +36,6 @@ export async function callApiPasswordLessSendCode(
   if (email) queryParams.email = encodeURIComponent(email)
   if (phone) queryParams.phone = encodeURIComponent(phone) // if user passes in +12103334444, the plus sign needs to be URL encoded
 
-  const response = await oreIdContext.callOreIdApi(
-    RequestType.Get,
-    ApiEndpoint.PasswordLessSendCode,
-    queryParams,
-    null,
-    processId,
-  )
+  const response = await oreIdContext.callOreIdApi(RequestType.Get, ApiEndpoint.PasswordLessSendCode, queryParams, null)
   return response as ApiMessageResponse
 }

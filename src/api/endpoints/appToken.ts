@@ -1,11 +1,10 @@
 import OreIdContext from '../../core/IOreidContext'
-import { ApiEndpoint, AppAccessTokenMetadata, ProcessId, RequestType } from '../../models'
+import { ApiEndpoint, AppAccessTokenMetadata, RequestType } from '../../models'
 import { assertHasApiKey } from '../helpers'
 import Helpers from '../../utils/helpers'
 
 export type ApiGetAppTokenParams = {
   appAccessTokenMetadata?: AppAccessTokenMetadata
-  processId?: ProcessId
 }
 
 /**
@@ -15,7 +14,7 @@ export type ApiGetAppTokenParams = {
  * */
 export async function callApiGetAppToken(oreIdContext: OreIdContext, params: ApiGetAppTokenParams): Promise<string> {
   const apiName = ApiEndpoint.AppToken
-  const { appAccessTokenMetadata, processId } = params
+  const { appAccessTokenMetadata } = params
 
   assertHasApiKey(oreIdContext, apiName)
   // to use appAccessTokenMetadata, we also require a serviceKey
@@ -31,7 +30,6 @@ export async function callApiGetAppToken(oreIdContext: OreIdContext, params: Api
     ApiEndpoint.AppToken,
     appAccessTokenMetadata,
     null,
-    processId,
   )
   return appAccessToken as string
 }

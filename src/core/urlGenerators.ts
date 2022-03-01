@@ -25,7 +25,6 @@ export async function getOreIdNewAccountUrl(oreIdContext: OreIdContext, args: Ge
     callbackUrl,
     backgroundColor,
     state,
-    processId,
     // accessToken,
   } = args
   const { oreIdUrl } = oreIdContext.options
@@ -46,14 +45,13 @@ export async function getOreIdNewAccountUrl(oreIdContext: OreIdContext, args: Ge
 
   // optional params
   const encodedStateParam = state ? `&state=${state}` : ''
-  const processIdParam = processId ? `&process_id=${processId}` : ''
   // const accessTokenParam = !isNullOrEmpty(accessToken) ? `&oauth_access_token=${accessToken}` : ''
 
   const url =
     `${oreIdUrl}/new-account#provider=${provider}&chain_network=${chainNetwork}` +
     `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(
       backgroundColor,
-    )}${encodedStateParam}${processIdParam}`
+    )}${encodedStateParam}`
   return oreIdContext.addAccessTokenAndHmacToUrl(url, appAccessTokenMetadata)
 }
 
@@ -70,7 +68,6 @@ export async function getOreIdAuthUrl(oreIdContext: OreIdContext, args: GetOreId
     backgroundColor,
     state,
     linkToAccount,
-    processId,
     returnAccessToken,
     returnIdToken,
   } = args
@@ -83,7 +80,6 @@ export async function getOreIdAuthUrl(oreIdContext: OreIdContext, args: GetOreId
   // optional params
   const encodedStateParam = state ? `&state=${state}` : ''
   const linkToAccountParam = linkToAccount ? `&link_to_account=${linkToAccount}` : ''
-  const processIdParam = processId ? `&process_id=${processId}` : ''
 
   // handle passwordless params
   const codeParam = code ? `&code=${code}` : ''
@@ -98,7 +94,7 @@ export async function getOreIdAuthUrl(oreIdContext: OreIdContext, args: GetOreId
     `${codeParam}${emailParam}${phoneParam}` +
     `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(
       backgroundColor,
-    )}${linkToAccountParam}${encodedStateParam}${processIdParam}${returnAccessTokenParam}${returnIdTokenParam}`
+    )}${linkToAccountParam}${encodedStateParam}${returnAccessTokenParam}${returnIdTokenParam}`
 
   return oreIdContext.addAccessTokenAndHmacToUrl(url, null)
 }
@@ -115,7 +111,6 @@ export async function getOreIdSignUrl(oreIdContext: OreIdContext, signOptions: S
     chainNetwork,
     expireSeconds,
     multiSigChainAccounts,
-    processId,
     provider,
     returnSignedTransaction,
     signedTransaction,
@@ -152,7 +147,6 @@ export async function getOreIdSignUrl(oreIdContext: OreIdContext, signOptions: S
     ? `&return_signed_transaction=${returnSignedTransaction}`
     : ''
   optionalParams += !isNullOrEmpty(transactionRecordId) ? `&transaction_record_id=${transactionRecordId}` : ''
-  optionalParams += !isNullOrEmpty(processId) ? `&process_id=${processId}` : ''
   optionalParams += !isNullOrEmpty(accessToken) ? `&oauth_access_token=${accessToken}` : ''
 
   // prettier-ignore
@@ -177,7 +171,6 @@ export async function getRecoverAccountUrl(
     backgroundColor,
     state,
     recoverAction,
-    processId,
     overrideAppAccessToken,
   } = args
   const { oreIdUrl } = oreIdContext.options
@@ -188,7 +181,6 @@ export async function getRecoverAccountUrl(
 
   // optional params
   const encodedStateParam = state ? `&state=${state}` : ''
-  const processIdParam = processId ? `&process_id=${processId}` : ''
   const actionTypeParam = recoverAction ? `&recover_action=${recoverAction}` : ''
 
   // handle passwordless params
@@ -202,7 +194,7 @@ export async function getRecoverAccountUrl(
     `${codeParam}${emailParam}${phoneParam}` +
     `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(
       backgroundColor,
-    )}${actionTypeParam}${encodedStateParam}${processIdParam}`
+    )}${actionTypeParam}${encodedStateParam}`
 
   return oreIdContext.addAccessTokenAndHmacToUrl(url, null, overrideAppAccessToken)
 }

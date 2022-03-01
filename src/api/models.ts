@@ -42,7 +42,6 @@ export type CustodialMigrateAccountParams = {
   account: AccountName
   chainAccount: ChainAccount
   chainNetwork: ChainNetwork
-  processId?: ProcessId
   toType: AccountType
   userPassword: string
 }

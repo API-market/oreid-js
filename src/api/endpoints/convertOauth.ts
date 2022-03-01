@@ -5,12 +5,17 @@ import { assertHasApiKeyOrAccessToken, assertParamsHaveRequiredValues } from '..
 export type ApiConvertOauthTokensParams = {
   accessToken?: string
   idToken?: string
-  processId?: ProcessId
 }
 
 export type ApiConvertOauthTokensBodyParams = {
   access_token?: string
   id_token?: string
+}
+
+export type CallApiConvertOauthTokensResults = {
+  accessToken: string
+  idToken: string
+  processId: ProcessId
 }
 
 /** Call the account/convert-oauth api
@@ -21,9 +26,9 @@ export type ApiConvertOauthTokensBodyParams = {
 export async function callApiConvertOauthTokens(
   oreIdContext: OreIdContext,
   params: ApiConvertOauthTokensParams,
-): Promise<{ accessToken: string; idToken: string }> {
+): Promise<CallApiConvertOauthTokensResults> {
   const apiName = ApiEndpoint.ConvertOauthTokens
-  const { accessToken, idToken, processId } = params
+  const { accessToken, idToken } = params
 
   assertHasApiKeyOrAccessToken(oreIdContext, apiName)
   // assertParamsHaveOnlyOneOfValues(params, ['accessToken', 'idToken'], apiName)
@@ -33,12 +38,6 @@ export async function callApiConvertOauthTokens(
   if (accessToken) body.access_token = accessToken
   if (idToken) body.id_token = idToken
 
-  const results = await oreIdContext.callOreIdApi(
-    RequestType.Post,
-    ApiEndpoint.ConvertOauthTokens,
-    body,
-    null,
-    processId,
-  )
+  const results = await oreIdContext.callOreIdApi(RequestType.Post, ApiEndpoint.ConvertOauthTokens, body, null)
   return results // accessToken and idToken
 }

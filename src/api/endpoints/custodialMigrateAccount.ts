@@ -5,7 +5,6 @@ import {
   ApiEndpoint,
   ChainAccount,
   ChainNetwork,
-  ProcessId,
   RequestType,
   ServiceAccountUsedFor,
 } from '../../models'
@@ -21,7 +20,6 @@ export type ApiCustodialMigrateAccountParams = {
   account: AccountName
   chainAccount: ChainAccount
   chainNetwork: ChainNetwork
-  processId?: ProcessId
   toType: AccountType
   userPassword: string
   userPasswordEncrypted: string
@@ -54,7 +52,7 @@ export async function callApiCustodialMigrateAccount(
 ): Promise<ApiCustodialMigrateAccountResponse> {
   const apiName = ApiEndpoint.CustodialMigrateAccount
 
-  const { account, chainAccount, chainNetwork, processId, toType, userPassword, userPasswordEncrypted } = params
+  const { account, chainAccount, chainNetwork, toType, userPassword, userPasswordEncrypted } = params
   const body: ApiCustodialMigrateAccountBodyParams = {
     account,
     chain_account: chainAccount,
@@ -69,12 +67,6 @@ export async function callApiCustodialMigrateAccount(
   assertParamsHaveRequiredValues(params, ['account', 'chainAccount', 'chainNetwork', 'toType'], apiName)
   assertParamsHaveOnlyOneOfValues(params, ['user_password', 'user_password_encrypted'], apiName)
 
-  const results = await oreIdContext.callOreIdApi(
-    RequestType.Post,
-    ApiEndpoint.CustodialMigrateAccount,
-    body,
-    null,
-    processId,
-  )
+  const results = await oreIdContext.callOreIdApi(RequestType.Post, ApiEndpoint.CustodialMigrateAccount, body, null)
   return results
 }

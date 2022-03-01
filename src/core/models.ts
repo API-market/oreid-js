@@ -1,4 +1,5 @@
 import { Request, Response } from 'express' // NOTE: We are only using types here - Express library won't be emitted in the build here
+import { LoginOptions } from '../auth/models'
 import {
   AccountName,
   AccountType,
@@ -8,7 +9,6 @@ import {
   ChainAccount,
   ChainNetwork,
   Color,
-  ExternalWalletType,
   ProcessId,
   PublicKey,
 } from '../common/models'
@@ -58,38 +58,8 @@ export type NewAccountOptions = {
   accountOptions?: CreateOnChainAccountsOptions
   provider: AuthProvider
   state?: string
-  processId?: ProcessId
   accessToken?: string
   idToken?: string
-}
-
-export type LoginOptions = {
-  provider?: AuthProvider
-  idToken?: string
-  chainAccount?: ChainAccount
-  chainNetwork?: ChainNetwork
-  code?: string
-  email?: string
-  phone?: string
-  state?: string
-  linkToAccount?: boolean
-  processId?: ProcessId
-  returnAccessToken?: boolean
-  returnIdToken?: boolean
-}
-
-export type LoginWithWalletOptions = {
-  /** Optionally specify a specific account to select from wallet (some wallets don't support this) */
-  chainAccount?: ChainAccount
-  /** Optionally specify a specific blockchain to select from wallet (some wallets don't support this) */
-  chainNetwork?: ChainNetwork
-  provider?: ExternalWalletType
-  processId?: ProcessId
-}
-
-export type LoginWithTokenOptions = {
-  idToken?: string
-  processId?: ProcessId
 }
 
 export type DiscoverOptions = {
@@ -111,7 +81,6 @@ export type SignOptions = {
   /** Comma seperated string of accounts - for which OREID should add signatures */
   multiSigChainAccounts?: string
   preventAutoSign?: boolean
-  processId?: ProcessId
   provider: AuthProvider
   returnSignedTransaction?: boolean
   signedTransaction?: string
@@ -155,7 +124,6 @@ export type passwordResetOptions = {
   chainNetwork?: ChainNetwork
   state?: string
   currentAccountPassword?: string // if the user's current password is known, it can be passed in to appAccessToken request
-  processId?: ProcessId
 }
 
 export type GetRecoverAccountUrlResult = string

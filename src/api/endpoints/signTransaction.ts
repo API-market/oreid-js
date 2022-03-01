@@ -129,9 +129,8 @@ export async function callApiSignTransaction(
   assertParamsHaveOnlyOneOfValues(params.signOptions, ['transaction', 'signedTransaction'], apiName)
 
   const body = composeSignBodyFromSignOptions(params)
-  const { processId } = params.signOptions
 
-  const results = await oreIdContext.callOreIdApi(RequestType.Post, ApiEndpoint.TransactionSign, body, null, processId)
+  const results = await oreIdContext.callOreIdApi(RequestType.Post, ApiEndpoint.TransactionSign, body, null)
   return mapSignResultsFromApi(results)
 }
 
@@ -159,8 +158,7 @@ export async function callApiCustodialSignTransaction(
   assertParamsHaveOnlyOneOfValues(params.signOptions, ['userPassword', 'userPasswordEncrypted'], apiName)
 
   const body = composeSignBodyFromSignOptions(params)
-  const { processId } = params.signOptions
 
-  const results = await oreIdContext.callOreIdApi(RequestType.Post, ApiEndpoint.CustodialSign, body, null, processId)
+  const results = await oreIdContext.callOreIdApi(RequestType.Post, ApiEndpoint.CustodialSign, body, null)
   return mapSignResultsFromApi(results)
 }

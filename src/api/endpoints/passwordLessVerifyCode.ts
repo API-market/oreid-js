@@ -1,5 +1,5 @@
 import OreIdContext from '../../core/IOreidContext'
-import { ApiEndpoint, AuthProvider, ProcessId, RequestType } from '../../models'
+import { ApiEndpoint, AuthProvider, RequestType } from '../../models'
 import {
   assertHasApiKeyOrAccessToken,
   assertParamsHaveOnlyOneOfValues,
@@ -11,7 +11,6 @@ export type ApiPasswordLessVerifyCodeParams = {
   code?: string
   email?: string
   phone?: string
-  processId?: ProcessId
   provider: AuthProvider
 }
 
@@ -29,7 +28,7 @@ export async function callApiPasswordLessVerifyCode(
   assertParamsHaveRequiredValues(params, ['code', 'provider'], apiName)
   assertParamsHaveOnlyOneOfValues(params, ['email', 'phone'], apiName)
 
-  const { code, email, phone, processId, provider } = params
+  const { code, email, phone, provider } = params
 
   const queryParams: Partial<ApiPasswordLessVerifyCodeParams> = {
     code,
@@ -44,7 +43,6 @@ export async function callApiPasswordLessVerifyCode(
     ApiEndpoint.PasswordLessVerifyCode,
     queryParams,
     null,
-    processId,
   )
   return response as ApiMessageResponse
 }

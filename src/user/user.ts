@@ -50,7 +50,7 @@ export class User {
   /** Get the user info from ORE ID API for a given user account and (usually) save the user into localStorage 'cache'
    *  Must have a valid accessToken to retrieve user
    */
-  async getInfo(processId: ProcessId = null) {
+  async getInfo() {
     // eslint-disable-next-line prefer-destructuring
     const accessToken = this._accessTokenHelper.accessToken // getting the accessToken here will delete existing accessToken if it's now expired
     if (!accessToken) {
@@ -58,7 +58,7 @@ export class User {
     }
     // get account specified in access token
     const account = this._accessTokenHelper?.accountName
-    const params: ApiGetUserParams = { account, processId }
+    const params: ApiGetUserParams = { account }
     const userInfo = await callApiGetUser(this._oreIdContext, params)
 
     this._accountName = account

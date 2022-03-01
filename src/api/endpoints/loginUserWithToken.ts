@@ -1,11 +1,10 @@
 import OreIdContext from '../../core/IOreidContext'
-import { ApiEndpoint, ProcessId, RequestType } from '../../models'
+import { ApiEndpoint, RequestType } from '../../models'
 import { assertParamsHaveRequiredValues } from '../helpers'
 import { ApiResponseWithErrorCode } from '../models'
 
 export type ApiLoginUserWithTokenParams = {
   idToken?: string
-  processId?: ProcessId
 }
 
 export type ApiLoginUserWithTokenBodyParams = {
@@ -24,7 +23,7 @@ export async function callApiLoginUserWithToken(
   params: ApiLoginUserWithTokenParams,
 ): Promise<{ accessToken: string } & ApiResponseWithErrorCode> {
   const apiName = ApiEndpoint.LoginUserWithToken
-  const { idToken, processId } = params
+  const { idToken } = params
 
   // This function does not require authentication of any kind - since it allows auth by using any idToken
 
@@ -39,7 +38,6 @@ export async function callApiLoginUserWithToken(
     ApiEndpoint.LoginUserWithToken,
     body,
     null, // an api key is NOT required to call this api endpoint
-    processId,
   )
   return results // accessToken and idToken
 }

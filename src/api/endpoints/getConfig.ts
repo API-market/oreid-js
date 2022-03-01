@@ -1,10 +1,9 @@
 import OreIdContext from '../../core/IOreidContext'
-import { ApiEndpoint, Config, ProcessId, RequestType } from '../../models'
+import { ApiEndpoint, Config, RequestType } from '../../models'
 import { assertHasApiKeyOrAccessToken, assertParamsHaveRequiredValues } from '../helpers'
 
 export type ApiGetConfigParams = {
   configType: Config.Chains
-  processId?: ProcessId
 }
 
 /**
@@ -17,14 +16,8 @@ export async function callApiGetConfig(oreIdContext: OreIdContext, params: ApiGe
   assertHasApiKeyOrAccessToken(oreIdContext, apiName)
   assertParamsHaveRequiredValues(params, ['configType'], apiName)
 
-  const { configType, processId } = params
+  const { configType } = params
   const queryParams = { type: configType }
-  const { values } = await oreIdContext.callOreIdApi(
-    RequestType.Get,
-    ApiEndpoint.GetConfig,
-    queryParams,
-    null,
-    processId,
-  )
+  const { values } = await oreIdContext.callOreIdApi(RequestType.Get, ApiEndpoint.GetConfig, queryParams, null)
   return values
 }

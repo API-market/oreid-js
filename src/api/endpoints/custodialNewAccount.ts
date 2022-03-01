@@ -1,5 +1,5 @@
 import OreIdContext from '../../core/IOreidContext'
-import { AccountName, AccountType, ApiEndpoint, ProcessId, RequestType, ServiceAccountUsedFor } from '../../models'
+import { AccountName, AccountType, ApiEndpoint, RequestType, ServiceAccountUsedFor } from '../../models'
 import {
   assertHasApiKey,
   assertHasServiceKey,
@@ -17,7 +17,6 @@ export type ApiCustodialNewAccountParams = {
   phone?: string
   userName?: string
   userPassword?: string
-  processId?: ProcessId
 }
 
 export type ApiCustodialNewAccountBodyParams = {
@@ -49,7 +48,7 @@ export async function callApiCustodialNewAccount(
 ): Promise<ApiCustodialNewAccountResponse> {
   const apiName = ApiEndpoint.CustodialNewAccount
 
-  const { accountType, email, idToken, name, picture, phone, userName, userPassword, processId } = params
+  const { accountType, email, idToken, name, picture, phone, userName, userPassword } = params
   const body: ApiCustodialNewAccountBodyParams = {
     account_type: accountType,
     email,
@@ -74,12 +73,6 @@ export async function callApiCustodialNewAccount(
     throw new Error(`Missing required parameter(s) for API ${apiName}: Must include email AND name or an idToken`)
   }
 
-  const results = await oreIdContext.callOreIdApi(
-    RequestType.Post,
-    ApiEndpoint.CustodialNewAccount,
-    body,
-    null,
-    processId,
-  )
+  const results = await oreIdContext.callOreIdApi(RequestType.Post, ApiEndpoint.CustodialNewAccount, body, null)
   return results // accessToken and idToken
 }

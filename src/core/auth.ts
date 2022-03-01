@@ -130,17 +130,17 @@ export class Auth {
    * Returns: OreId issued accessToken (which includes OreId account)
    * */
   async loginWithToken(loginOptions: LoginWithTokenOptions): Promise<LoginWithOreIdResult> {
-    const { idToken, processId } = loginOptions || {}
+    const { idToken } = loginOptions || {}
     if (!idToken) {
       throw new Error('Cant LoginWithToken - missing required parameter: idToken')
     }
     // TODO: consider allowing login with accessToken instad of idToken - along with additional user data (e.g. name, email)
-    const { accessToken, error, processId: processIdReturned } = await this.loginWithIdToken({ idToken, processId })
+    const { accessToken, error, processId } = await this.loginWithIdToken({ idToken })
     if (!error) {
       this.accessToken = accessToken // saves in cache and in local storage
       this.user.getInfo()
     }
-    return { accessToken, errors: error, processId: processIdReturned || processId }
+    return { accessToken, errors: error, processId }
   }
 
   /** Call api account/login-user-with-token
@@ -158,7 +158,6 @@ export class Auth {
         accessToken: null,
         error: 'token_invalid',
         message: 'idToken invalid or corrupt',
-        processId: oauthOptions.processId,
       }
     }
     if (!AccessTokenHelper.isTokenDateValidNow(accessTokenHelper.decodedAccessToken)) {
@@ -166,7 +165,6 @@ export class Auth {
         accessToken: null,
         error: 'token_expired',
         message: 'idToken provided is expired',
-        processId: oauthOptions.processId,
       }
     }
     const response = await callApiLoginUserWithToken(this._oreIdContext, oauthOptions)
@@ -183,7 +181,7 @@ export class Auth {
    *  This function calls the /auth web endpoint
    *  Returns: Callback returns account, and optionally accessToken and/or idToken for user */
   async getLoginUrl(loginOptions: LoginOptions): Promise<LoginWithOreIdResult> {
-    const { code, email, idToken, phone, provider, state, linkToAccount, processId, returnAccessToken, returnIdToken } =
+    const { code, email, idToken, phone, provider, state, linkToAccount, returnAccessToken, returnIdToken } =
       loginOptions || {}
     const { authCallbackUrl, backgroundColor } = this._oreIdContext.options
     const args = {
@@ -196,12 +194,11 @@ export class Auth {
       callbackUrl: authCallbackUrl,
       state,
       linkToAccount,
-      processId,
       returnAccessToken: Helpers.isNullOrEmpty(returnAccessToken) ? true : returnAccessToken, // if returnAccessToken not specified, default to true
       returnIdToken,
     }
     const loginUrl = await getOreIdAuthUrl(this._oreIdContext, args)
-    return { loginUrl, errors: null, processId }
+    return { loginUrl, errors: null }
   }
 
   /** Extracts and returns the response parameters on the /auth callback URL string

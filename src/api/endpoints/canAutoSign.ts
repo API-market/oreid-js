@@ -21,7 +21,6 @@ export type ApiCanAutosignTransactionBodyParams = {
   account: AccountName
   chain_account: ChainAccount
   chain_network: ChainNetwork
-  processId?: ProcessId
   signed_transaction?: string
   transaction?: string
   transaction_chain_acccount?: string
@@ -43,15 +42,7 @@ export async function callApiCanAutosignTransaction(
   params: SignOptions,
 ): Promise<ApiCanAutosignTransactionResults> {
   const apiName = ApiEndpoint.CanAutoSign
-  const {
-    account,
-    chainAccount,
-    chainNetwork,
-    processId,
-    signedTransaction,
-    transaction,
-    transactionChainAccount,
-  } = params
+  const { account, chainAccount, chainNetwork, signedTransaction, transaction, transactionChainAccount } = params
 
   assertHasApiKeyOrAccessToken(oreIdContext, apiName)
   assertHasServiceKey(oreIdContext, ServiceAccountUsedFor.AutoSigning, apiName)
@@ -62,13 +53,12 @@ export async function callApiCanAutosignTransaction(
     account,
     chain_account: chainAccount,
     chain_network: chainNetwork,
-    processId,
   }
 
   if (transaction) body.transaction = Helpers.base64Encode(transaction)
   if (signedTransaction) body.signed_transaction = Helpers.base64Encode(signedTransaction)
   if (transaction) body.transaction_chain_acccount = transactionChainAccount
 
-  const results = await oreIdContext.callOreIdApi(RequestType.Post, ApiEndpoint.CanAutoSign, body, null, processId)
+  const results = await oreIdContext.callOreIdApi(RequestType.Post, ApiEndpoint.CanAutoSign, body, null)
   return results
 }
