@@ -59,13 +59,15 @@ export async function signExample() {
 
   // Expects login to have been completed and auth set with valid accessToken
   const user = await oreid.auth.user
+  // get the first ETH account in user's wallet
   const ethAccount = user.chainAccounts.find(ca => ca.chainNetwork === 'eth_main')
 
+  // Transaction class validates transaction, accounts, etc. and adds user's account param
   const transaction = await oreid.createTransaction({
     chainAccount: ethAccount,
     chainNetwork: 'eth_main',
     transaction: { to: '0x123...', amount: '.0001' },
-    options: { broadcast: true },
+    signOptions: { broadcast: true },
   })
 
   if (await transaction.canAutoSign()) {
@@ -74,7 +76,7 @@ export async function signExample() {
   } else {
     // popup sign flow - when completed, transaction info is returned (if requested in options)
     await oreidWebPopUp.sign({
-      data: transaction.data,
+      data: transaction.data, // just a JSON object - same used as with createTransaction() above
       onSuccess: (data: any) => {
         console.log('transaction signed:', data.transactionId)
       },
