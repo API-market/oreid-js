@@ -5,7 +5,7 @@ import {
   GetOreIdRecoverAccountUrlParams,
   GetRecoverAccountUrlResult,
   TransactionData,
-} from './models'
+} from '../models'
 import Helpers from '../utils/helpers'
 import OreIdContext from './IOreidContext'
 
