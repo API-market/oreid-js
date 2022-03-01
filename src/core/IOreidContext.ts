@@ -1,7 +1,6 @@
 import {
   ApiEndpoint,
   AppAccessToken,
-  AuthProvider,
   ChainNetwork,
   ExternalWalletType,
   OreIdOptions,
@@ -9,7 +8,6 @@ import {
   RequestType,
   SettingChainNetwork,
   SettingChainNetworkHost,
-  TransactionData,
 } from '../models'
 import AccessTokenHelper from '../auth/accessTokenHelper'
 import LocalState from '../utils/localState'
@@ -27,7 +25,6 @@ export default interface OreIdContext {
     appAccessTokenMetadata: AppAccessTokenMetadata,
     overrideAppAccessToken?: AppAccessToken,
   ) => Promise<string>
-  callDiscoverAfterSign: (transactionData: TransactionData) => Promise<void>
   callOreIdApi: (
     requestMethod: RequestType,
     endpoint: ApiEndpoint,
@@ -35,11 +32,9 @@ export default interface OreIdContext {
     overrideAccessToken?: string,
     processId?: ProcessId,
   ) => Promise<any>
-  canDiscover: (provider: AuthProvider) => boolean
   getChainNetworks: () => Promise<SettingChainNetwork[]>
   getChainNetworkSettings: (chainNetwork: ChainNetwork) => Promise<SettingChainNetwork>
   getNetworkConfig: (chainNetwork: ChainNetwork) => Promise<SettingChainNetworkHost>
   isNotEosNetwork: (chainNetwork: ChainNetwork) => Promise<boolean>
-  requiresLogoutLoginToDiscover: (provider: AuthProvider) => boolean
   setIsBusy: (value: boolean) => void
 }
