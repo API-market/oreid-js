@@ -1,5 +1,5 @@
 import { UserInfo } from '../user/models'
-import { IStorage } from '../core'
+import IStorage from '../core/IStorage'
 
 export default class LocalState {
   constructor(appId: string, storage: IStorage) {

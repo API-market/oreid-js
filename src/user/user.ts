@@ -1,21 +1,13 @@
 import OreIdContext from '../core/IOreidContext'
 import Helpers from '../utils/helpers'
-import {
-  AccountName,
-  ChainAccount,
-  ChainNetwork,
-  ExternalWalletType,
-  ProcessId,
-  UserInfo,
-  WalletPermission,
-} from '../models'
+import { AccountName, ChainAccount, ChainNetwork, ExternalWalletType, UserInfo, WalletPermission } from '../models'
 import { callApiGetUser, ApiGetUserParams } from '../api'
 import { callApiAddPermission } from '../api/endpoints/addPermission'
 import AccessTokenHelper from '../auth/accessTokenHelper'
 
 const { isNullOrEmpty } = Helpers
 
-export class User {
+export default class User {
   constructor(args: { oreIdContext: OreIdContext; accessTokenHelper: AccessTokenHelper }) {
     this._oreIdContext = args.oreIdContext
     this._accessTokenHelper = args.accessTokenHelper // reference to current accessToken, etc.

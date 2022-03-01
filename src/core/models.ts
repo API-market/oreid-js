@@ -14,14 +14,7 @@ import {
 } from '../common/models'
 import { TransitWalletProviderFactory } from '../transit'
 import { UserInfo } from '../user/models'
-
-export interface IStorage {
-  getItem: (key: string) => string
-
-  removeItem: (key: string) => void
-
-  setItem: (key: string, value: string) => void
-}
+import IStorage from './IStorage'
 
 export type OreIdOptions = {
   appId: string

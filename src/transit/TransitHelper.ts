@@ -30,7 +30,7 @@ import {
   WalletPermission,
 } from '../models'
 import { TransitDiscoveryOptions, TransitWalletAccessContext } from '.'
-import { User } from '../user'
+import User from '../user/user'
 
 type ConnectToTransitProviderResult = {
   isLoggedIn?: boolean

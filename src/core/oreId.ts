@@ -54,7 +54,7 @@ import {
   callApiSignTransaction,
 } from '../api'
 import { getOreIdNewAccountUrl, getOreIdSignUrl } from './urlGenerators'
-import { Auth } from './auth'
+import Auth from '../auth/auth'
 
 const { isNullOrEmpty } = Helpers
 

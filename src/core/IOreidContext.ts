@@ -13,7 +13,7 @@ import {
 } from '../models'
 import AccessTokenHelper from '../auth/accessTokenHelper'
 import LocalState from '../utils/localState'
-import { AppAccessTokenMetadata } from '.'
+import { AppAccessTokenMetadata } from './models'
 
 /** interface to pass OreId members to helper classes (e.g. User) */
 export default interface OreIdContext {

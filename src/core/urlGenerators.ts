@@ -5,7 +5,7 @@ import {
   GetOreIdRecoverAccountUrlParams,
   GetRecoverAccountUrlResult,
   SignOptions,
-} from '.'
+} from './models'
 import Helpers from '../utils/helpers'
 import OreIdContext from './IOreidContext'
 
