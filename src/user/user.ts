@@ -57,12 +57,12 @@ export default class User {
     this._info = userInfo
   }
 
-  /** Update permissions for user's ORE Account if any o */
+  /** Update permissions for user's ORE Account if any */
   async updatePermissionsIfNecessary(args: {
     chainAccount: ChainAccount
     permissions: WalletPermission[]
     chainNetwork: ChainNetwork
-    provider: ExternalWalletType
+    walletType: ExternalWalletType
   }) {
     // use logged-in account if missing oreAccount param
     await this.addWalletPermissionsToOreIdAccount(args)
@@ -74,9 +74,9 @@ export default class User {
     chainAccount: ChainAccount
     chainNetwork: ChainNetwork
     permissions: WalletPermission[]
-    provider: ExternalWalletType
+    walletType: ExternalWalletType
   }) {
-    const { chainAccount, chainNetwork, permissions, provider } = args
+    const { chainAccount, chainNetwork, permissions, walletType } = args
     if (!this.accountName || isNullOrEmpty(permissions) || isNullOrEmpty(chainNetwork)) {
       return // todo: consider if we should exit silently here - since we are called after discovery everytime, then answer is probably yes
     }
@@ -117,7 +117,7 @@ export default class User {
           publicKey,
           parentPermission,
           permission,
-          provider,
+          provider: walletType,
         })
       }
     })

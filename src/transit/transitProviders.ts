@@ -286,8 +286,8 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
 ]
 
 /** Get provider-specific settings and metadata */
-export function getTransitProviderAttributes(provider: ExternalWalletType): TransitProviderAttributes {
-  return transitProviderAttributesData.find(tp => tp.providerName === provider.toString())
+export function getTransitProviderAttributes(walletType: ExternalWalletType): TransitProviderAttributes {
+  return transitProviderAttributesData.find(tp => tp.providerName === walletType.toString())
 }
 
 /** Get provider-specific settings and metadata */
