@@ -1,6 +1,6 @@
 import { OreIdOptions, LoginOptions, AuthProvider } from '../models'
 
-export enum DappAction {
+export enum WebWidgetAction {
   Auth = 'auth',
   NewAccount = 'newAccount',
   RecoverAccount = 'recoverAccount',
@@ -11,7 +11,7 @@ export enum DappAction {
 export type WebWidgetProps = {
   oreIdOptions: OreIdOptions
   action: {
-    name: DappAction
+    name: WebWidgetAction
     params: any
   }
   onSuccess: (response: any) => {} // TODO: type this as much as possible
@@ -23,7 +23,7 @@ export type WebWidgetProps = {
 export type AuthWidgetProps = {
   oreIdUrl: string
   action: {
-    name: DappAction.Auth
+    name: WebWidgetAction.Auth
     params: LoginOptions & {
       appId: string
       provider: AuthProvider
