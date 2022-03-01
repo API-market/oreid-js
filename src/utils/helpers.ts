@@ -334,4 +334,9 @@ export default class Helpers {
     if (!provider) return null
     return Helpers.toEnumValue(ExternalWalletType, provider)
   }
+
+  static isCustodial(provider: AuthProvider) {
+    return provider === AuthProvider.Custodial
+  }
+
 }
