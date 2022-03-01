@@ -15,6 +15,9 @@ enum WindowType {
   POPUP = 'popup',
 }
 
+/**
+ * @returns var name created on window for widget
+ * */
 export const createWebWidgetOnWindow = async (renderToWindow: Window = window, as = 'OreidWidget') => {
   if (typeof renderToWindow === 'undefined' || !renderToWindow) throw new Error('No window found to render widget')
   // eslint-disable-next-line global-require
@@ -48,6 +51,9 @@ export const createWebWidgetOnWindow = async (renderToWindow: Window = window, a
   return as
 }
 
+/**
+ * @returns rendered instance of widget
+ * */
 export async function renderWebWidget(
   webWidgetProps: WebWidgetProps,
   container: string,
@@ -59,12 +65,7 @@ export async function renderWebWidget(
   if (!containerElem) throw new Error(`No such element ${container} found on window's document`)
   const varOreidWidgetOnWindow = await createWebWidgetOnWindow(renderToWindow)
   const context = props.action.name === WebWidgetAction.Auth ? WindowType.POPUP : WindowType.IFRAME
-  const OreidWidget = (renderToWindow as any)[varOreidWidgetOnWindow](props)
-  Object.defineProperties(renderToWindow, {
-    [varOreidWidgetOnWindow]: {
-      value: OreidWidget,
-      writable: true,
-    },
-  })
-  OreidWidget.render(containerElem, context)
+  const OreidWidgetComponent = (renderToWindow as any)[varOreidWidgetOnWindow](props)
+  OreidWidgetComponent.render(containerElem, context)
+  return OreidWidgetComponent
 }
