@@ -105,3 +105,9 @@ export type WebWidgetSignParams = {
   /** Optional - provided instead of transaction - OreID must have this transaction saved in its database (only applies to special situations) */
   transactionRecordId?: string
 }
+
+/** params for Logout action */
+export type WebWidgetLogoutResult = any // ToDo: Type this
+export type WebWidgetNewAccountResult = any // ToDo: Type this
+export type WebWidgetRecoverAccountResult = any // ToDo: Type this
+export type WebWidgetSignResult = any // ToDo: Type this
