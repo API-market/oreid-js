@@ -1,37 +1,27 @@
-/* eslint-disable @typescript-eslint/indent */
-
-// IMPORTANT: These types are copied from oreid-service webwidget code
-
-/** version of widget served by server that matches these types */
-export const WidgetVersion = '1'
-
-/** Subset of OreIdOptions used by widget */
 export type WebWidgetOreIdOptions = {
-  accessToken?: string
   appId: string
-  appName: string
+  appName?: string
   backgroundColor?: string
-  oreIdUrl: string
+  oreIdUrl?: string
+  accessToken?: string
   setBusyCallback?: (isBusy: boolean) => void
+  ualProviders?: any[]
   eosTransitWalletProviders?: any[]
 }
 
-export enum WebWidgetPropType {
-  Object = 'object',
-  String = 'string',
-  Function = 'function',
+export enum WebWidgetAction {
+  Auth = 'auth',
+  NewAccount = 'newAccount',
+  RecoverAccount = 'recoverAccount',
+  Sign = 'sign',
+  Logout = 'logout',
 }
 
 export type WebWidgetProps = {
   oreIdOptions: WebWidgetOreIdOptions
   action: {
     name: WebWidgetAction | string
-    params:
-      | WebWidgetLogoutParams
-      | WebWidgetNewAccountParams
-      | WebWidgetRecoverAccountParams
-      | WebWidgetSignParams
-      | any
+    params: WebWidgetLoginParams | WebWidgetLogoutParams | WebWidgetNewAccountParams | WebWidgetRecoverAccountParams | WebWidgetSignParams
   } | null
   onSuccess: ({ data }: { data?: any }) => void
   /** errors is a delimited string of error codes and/or an error message */
@@ -39,19 +29,22 @@ export type WebWidgetProps = {
   timeout?: number
 }
 
-/** Actions supported by widget */
-export enum WebWidgetAction {
-  Auth = 'auth',
-  Logout = 'logout',
-  NewAccount = 'newAccount',
-  RecoverAccount = 'recoverAccount',
-  Sign = 'sign',
-}
-
 /** params for Logout action */
 export type WebWidgetLogoutParams = {
   /** comma seperated list of login providers e.g. 'google, facebook' or 'all' */
-  providers?: string
+  providers: string
+}
+
+export type WebWidgetLoginParams = {
+  provider: string
+  idToken?: string
+  code?: string
+  email?: string
+  phone?: string
+  state?: string
+  linkToAccount?: boolean
+  returnAccessToken?: boolean
+  returnIdToken?: boolean
 }
 
 /** params for New Account action - to create a new blockchain account 'within' a user's OreID account */
@@ -73,7 +66,7 @@ export type WebWidgetRecoverAccountParams = {
   /** Login provider (e.g. email) - forces user to haved logged-in using this provider before recovery */
   provider?: string
   /** Type of account recovery requested */
-  recoverAction: string
+  recoverAction?: string
 }
 
 /** params for Sign action */
