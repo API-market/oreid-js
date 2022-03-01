@@ -3,7 +3,7 @@ import Helpers from '../utils/helpers'
 import AccessTokenHelper from '../auth/accessTokenHelper'
 import LocalState from '../utils/localState'
 import {
-  AuthResponse,
+  AuthResult,
   LoginOptions,
   LoginWithOreIdResult,
   LoginWithTokenOptions,
@@ -12,7 +12,7 @@ import {
 import { providersNotImplemented } from '../constants'
 import { User } from '../user'
 import TransitHelper from '../transit/TransitHelper'
-import { ApiLoginUserWithTokenParams, ApiMessageResponse, callApiLoginUserWithToken } from '../api'
+import { ApiLoginUserWithTokenParams, ApiMessageResult, callApiLoginUserWithToken } from '../api'
 import { getOreIdAuthUrl } from './urlGenerators'
 
 export class Auth {
@@ -151,7 +151,7 @@ export class Auth {
    * */
   async loginWithIdToken(
     oauthOptions: ApiLoginUserWithTokenParams,
-  ): Promise<{ accessToken: string } & ApiMessageResponse> {
+  ): Promise<{ accessToken: string } & ApiMessageResult> {
     const accessTokenHelper = new AccessTokenHelper(oauthOptions?.idToken, true)
     if (!accessTokenHelper.decodedAccessToken) {
       return {
@@ -204,7 +204,7 @@ export class Auth {
   /** Extracts and returns the response parameters on the /auth callback URL string
    *  Applies accessToken and idToken (if included on the url) to local state
    */
-  handleAuthCallback(callbackUrlString: string): AuthResponse {
+  handleAuthCallback(callbackUrlString: string): AuthResult {
     // Parses error codes and returns an errors array
     // (if there is an error_code param sent back - can have more than one error code - seperated by a ‘&’ delimeter
     const {
@@ -215,7 +215,7 @@ export class Auth {
       process_id: processId,
       state,
     } = Helpers.extractDataFromCallbackUrl(callbackUrlString)
-    const response: AuthResponse = { account }
+    const response: AuthResult = { account }
 
     if (errors) response.errors = errors
     if (processId) response.processId = processId
@@ -223,14 +223,14 @@ export class Auth {
     if (accessToken) response.accessToken = accessToken
     if (idToken) response.idToken = idToken
 
-    this.setAuthResponse(response)
+    this.setAuthResult(response)
     // clear the busy indicator now that we've finsihed the auth flow
     this._oreIdContext.setIsBusy(false)
     return response
   }
 
   /** store response from auth flow (accountName, accessToken, idToken) in localState */
-  setAuthResponse(authResponse: AuthResponse) {
+  setAuthResult(authResponse: AuthResult) {
     const { accessToken, idToken } = authResponse
     if (accessToken) {
       this._accessTokenHelper.setAccessToken(accessToken)

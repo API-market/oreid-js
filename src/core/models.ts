@@ -93,7 +93,7 @@ export type SignOptions = {
   userPasswordEncrypted?: string
 }
 
-export type AuthResponse = {
+export type AuthResult = {
   account: AccountName
   accessToken?: string
   idToken?: string
@@ -102,14 +102,14 @@ export type AuthResponse = {
   state?: string
 }
 
-export type NewAccountResponse = {
+export type NewAccountResult = {
   chainAccount?: string
   errors?: string[]
   processId?: ProcessId
   state?: string
 }
 
-export type SignResponse = {
+export type SignResult = {
   signedTransaction?: string
   transactionId: string
   errors?: string[]

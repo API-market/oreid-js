@@ -26,7 +26,7 @@ export type ApiCanAutosignTransactionBodyParams = {
   transaction_chain_acccount?: string
 }
 
-export type ApiCanAutosignTransactionResults = {
+export type ApiCanAutosignTransactionResult = {
   autoSignCredentialsExist: boolean
   canCreateAutoSignCredentials: boolean
   maxAutoSignValidForInSeconds: number
@@ -40,7 +40,7 @@ export type ApiCanAutosignTransactionResults = {
 export async function callApiCanAutosignTransaction(
   oreIdContext: OreIdContext,
   params: SignOptions,
-): Promise<ApiCanAutosignTransactionResults> {
+): Promise<ApiCanAutosignTransactionResult> {
   const apiName = ApiEndpoint.CanAutoSign
   const { account, chainAccount, chainNetwork, signedTransaction, transaction, transactionChainAccount } = params
 

@@ -12,7 +12,7 @@ export type ApiConvertOauthTokensBodyParams = {
   id_token?: string
 }
 
-export type CallApiConvertOauthTokensResults = {
+export type CallApiConvertOauthTokensResult = {
   accessToken: string
   idToken: string
   processId: ProcessId
@@ -26,7 +26,7 @@ export type CallApiConvertOauthTokensResults = {
 export async function callApiConvertOauthTokens(
   oreIdContext: OreIdContext,
   params: ApiConvertOauthTokensParams,
-): Promise<CallApiConvertOauthTokensResults> {
+): Promise<CallApiConvertOauthTokensResult> {
   const apiName = ApiEndpoint.ConvertOauthTokens
   const { accessToken, idToken } = params
 

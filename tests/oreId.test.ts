@@ -104,6 +104,18 @@ describe('OreId', () => {
       })
     })
 
+    // it('logs in with valid idToken', async () => {
+    //   const idToken =
+    //     'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjI4MkYxRUU1NTdCMTAwNDVEMTVDMTg2RUFBQzlCQ0VBMkNBNTZBQzIifQ.eyJuYW1lIjoiVHJheSBMZXdpbiIsIm5pY2tuYW1lIjoidHJheSIsInBpY3R1cmUiOiJodHRwczovL3N0b3JhZ2UuZ29vZ2xlYXBpcy5jb20vc3RhZ2luZy1vcmVpZC1maWxlcy9pbWFnZXMvdXNlci1nb29nbGUtb2F1dGgyfDEwNzIyMDYzODAzOTI2MTkwNDY0MS1wcm9maWxlIiwidXBkYXRlZF9hdCI6IjIwMjItMDItMDlUMTQ6NDY6MDAuOTAzWiIsImVtYWlsIjoidHJheUBhaWtvbi5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInBob25lX251bWJlcl92ZXJpZmllZCI6ZmFsc2UsImlzcyI6Imh0dHBzOi8vc3RhZ2luZy5vcmVpZC5pby8iLCJzdWIiOiJnb29nbGUtb2F1dGgyfDEwNzIyMDYzODAzOTI2MTkwNDY0MSIsImF1ZCI6WyJodHRwczovL3N0YWdpbmcuc2VydmljZS5vcmVpZC5pbyIsImh0dHBzOi8vc3RhZ2luZy5zZXJ2aWNlLm9yZWlkLmlvL3VzZXJpbmZvIiwiaHR0cHM6Ly9vcmVpZC1zdGFnaW5nLmFpa29uLmNvbSIsImh0dHBzOi8vYWlrb24tc3RhZ2luZy5hdXRoMC5jb20vdXNlcmluZm8iXSwiaHR0cHM6Ly9vcmVpZC5haWtvbi5jb20vYXBwSWQiOiJhYWFhYWFhLTUwMWMtNGVlYi1hMzU1LWJiYWE4Y2ZhMjU5NyIsImh0dHBzOi8vb3JlaWQuYWlrb24uY29tL3Byb3ZpZGVyIjoiZ29vZ2xlIiwiaHR0cHM6Ly9vcmVpZC5haWtvbi5jb20vYWNjb3VudCI6Im9yZTFwcXFiemdrbyIsImh0dHBzOi8vb3JlaWQuYWlrb24uY29tL2FkbWluU2VydmljZSI6ImFpa29uLWFkbWluIiwiaWF0IjoxNjQ2MDIxNTk2LCJleHAiOjE2NDYxMDc5OTZ9.mBEr4KI5zIuTFcp41k_gRRZDch3-voMaFO1tCDLIR4S803qUJowSfAFA8Tmo-PLVrSkZZtoY7LHJf5Qv4R-AzNBF-I_wLkql09dwlmdimx80taZsMkRJRFmo9webqd116YCmy2ZG9Gc9zs5Iy6KDuVbOOrV-P2ya1t-sy1We2wjQaJkddFUlp7SPTvxGZL_OiMuaP6da4H9d-0904A_iwEx1exexg42iAHx2goOFxVLgKhBK91PO0pJ3JNO-BmzldsedqKH5AH8z0zCFsW4mkW33L0JCZh-V4sVGP1xVzmaq6frpym1Je9CCChj09zo_A0ySUenw2QJYZsI1idtBlc7acQb5v_5CBV8hywZJUjbvyjyGpm_XMihNuSmtt-yxW9O4ly6qCL4ql0DF6icYutvWKX-jSJHimm2_Y0E5E-1feueYArGFDOyuP4bvAajwtngKJtwCkoNImDxnAiYIMALkdTGRpr-0DdKv2cjrnNfiam4aTEom4OCjCezS2qaQxPdDLdcR7CtAqpto8yxyT_nYsKTtJXCPpKwjo12YLo_z9x3OL5mJsl5XKdBhIBJrY7L00wIcwKaeQUMkprH_1HY65h5Ak4Fnag0PSer7zMiIbJpM_I2ddtUUeyRvuTxGNLlN6U4Da6UgGcf0xJdfxiJMZRG7hda_szNCpsbXlfc'
+    //   const result = await oreId.auth.loginWithIdToken({ idToken })
+    //   expect(result).toEqual({
+    //     error: 'token_expired',
+    //     accessToken: null,
+    //     message: 'idToken provided is expired',
+    //     processId: undefined,
+    //   })
+    // })
+
     it('Creates an HMAC', () => {
       const loginUrl =
         'https://service.oreid.io/auth#provider=google&code=12345&email=test@test.com&phone=%2B1555555555&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&app_access_token=12345667'

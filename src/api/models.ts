@@ -22,14 +22,14 @@ export enum ApiEndpoint {
 }
 
 /** Typical API Response (when no data returned) */
-export type ApiMessageResponse = {
+export type ApiMessageResult = {
   message?: string
   error?: string
   processId?: string
   success?: string
 }
 
-export type ApiResponseWithErrorCode = {
+export type ApiResultWithErrorCode = {
   message?: string
   processId?: string
   errorCode?: string

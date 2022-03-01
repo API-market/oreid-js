@@ -21,7 +21,7 @@ import {
   ExternalWalletInterface,
   ExternalWalletType,
   NewAccountOptions,
-  NewAccountResponse,
+  NewAccountResult,
   NewAccountWithOreIdResult,
   OreIdOptions,
   ProcessId,
@@ -29,7 +29,7 @@ import {
   SettingChainNetwork,
   SettingChainNetworkHost,
   SignOptions,
-  SignResponse,
+  SignResult,
   SignStringParams,
   SignWithOreIdResult,
 } from '../models'
@@ -237,9 +237,9 @@ export default class OreId implements IOreidContext {
     if (this.transitHelper.isTransitProvider(provider)) {
       // if signExternalWithOreId=true, then it means we will do the external signing in the oreid service UX (e.g.  WebPopup) instead of locally in this app
       if (!signOptions.signExternalWithOreId) {
-        const signatureProviderSignResults = await this.signWithNonOreIdProvider(signOptions)
+        const signatureProviderSignResult = await this.signWithNonOreIdProvider(signOptions)
         return {
-          signedTransaction: JSON.stringify(signatureProviderSignResults),
+          signedTransaction: JSON.stringify(signatureProviderSignResult),
         }
       }
     }
@@ -300,13 +300,13 @@ export default class OreId implements IOreidContext {
    * Returns: stringified signedTransaction (and transactionId if available)
    * */
   async callSignTransaction(signEndpoint: ApiEndpoint, signOptions: SignOptions, autoSign = false) {
-    let signResults
+    let signResult
     if (signEndpoint === ApiEndpoint.TransactionSign) {
-      signResults = callApiSignTransaction(this, { signOptions, autoSign })
+      signResult = callApiSignTransaction(this, { signOptions, autoSign })
     } else if (signEndpoint === ApiEndpoint.CustodialSign) {
-      signResults = callApiCustodialSignTransaction(this, { signOptions, autoSign })
+      signResult = callApiCustodialSignTransaction(this, { signOptions, autoSign })
     }
-    return signResults
+    return signResult
   }
 
   /** Attempt to sign a transaction without user interaction
@@ -379,9 +379,9 @@ export default class OreId implements IOreidContext {
     if (!this.canSignString(provider)) {
       throw Error(`The specific provider ${provider} does not support signString`)
     }
-    const signResults = await this.transitHelper.signStringWithTransitProvider(signOptions)
+    const signResult = await this.transitHelper.signStringWithTransitProvider(signOptions)
     await this.callDiscoverAfterSign({ account, provider, chainNetwork })
-    return signResults
+    return signResult
   }
 
   /** ensure all required parameters are provided */
@@ -571,7 +571,7 @@ export default class OreId implements IOreidContext {
   }
 
   /** Extracts the response parameters on the /new-account callback URL string */
-  handleNewAccountResponse(callbackUrlString: string): NewAccountResponse {
+  handleNewAccountResponse(callbackUrlString: string): NewAccountResult {
     const { chain_account: chainAccount, process_id: processId, state, errors } = Helpers.extractDataFromCallbackUrl(
       callbackUrlString,
     )
@@ -580,7 +580,7 @@ export default class OreId implements IOreidContext {
   }
 
   /** Extracts the response parameters on the /sign callback URL string */
-  handleSignResponse(callbackUrlString: string): SignResponse {
+  handleSignResponse(callbackUrlString: string): SignResult {
     let signedTransaction
     const {
       signed_transaction: encodedTransaction,

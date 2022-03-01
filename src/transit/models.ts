@@ -51,7 +51,7 @@ export interface SignatureProvider {
   /** Public keys associated with the private keys that the `SignatureProvider` holds */
   getAvailableKeys: () => Promise<string[]>
   /** Sign a transaction */
-  sign: (args: SignatureProviderArgs) => Promise<SignatureProviderSignResults>
+  sign: (args: SignatureProviderArgs) => Promise<SignatureProviderSignResult>
 }
 
 /** SignatureProvider params for sign() function */
@@ -67,7 +67,7 @@ export interface SignatureProviderArgs {
 }
 
 /** Arguments for `push_transaction` */
-export interface SignatureProviderSignResults {
+export interface SignatureProviderSignResult {
   signatures: string[]
   serializedTransaction: Uint8Array
 }

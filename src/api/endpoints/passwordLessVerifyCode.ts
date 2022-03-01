@@ -5,7 +5,7 @@ import {
   assertParamsHaveOnlyOneOfValues,
   assertParamsHaveRequiredValues,
 } from '../helpers'
-import { ApiMessageResponse } from '../models'
+import { ApiMessageResult } from '../models'
 
 export type ApiPasswordLessVerifyCodeParams = {
   code?: string
@@ -21,7 +21,7 @@ export type ApiPasswordLessVerifyCodeParams = {
 export async function callApiPasswordLessVerifyCode(
   oreIdContext: OreIdContext,
   params: ApiPasswordLessVerifyCodeParams,
-): Promise<ApiMessageResponse> {
+): Promise<ApiMessageResult> {
   const apiName = ApiEndpoint.PasswordLessVerifyCode
 
   assertHasApiKeyOrAccessToken(oreIdContext, apiName)
@@ -44,5 +44,5 @@ export async function callApiPasswordLessVerifyCode(
     queryParams,
     null,
   )
-  return response as ApiMessageResponse
+  return response as ApiMessageResult
 }

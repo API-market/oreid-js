@@ -5,7 +5,7 @@ import {
   assertParamsHaveOnlyOneOfValues,
   assertParamsHaveRequiredValues,
 } from '../helpers'
-import { ApiMessageResponse } from '../models'
+import { ApiMessageResult } from '../models'
 
 export type ApiPasswordLessSendCodeParams = {
   email?: string
@@ -20,7 +20,7 @@ export type ApiPasswordLessSendCodeParams = {
 export async function callApiPasswordLessSendCode(
   oreIdContext: OreIdContext,
   params: ApiPasswordLessSendCodeParams,
-): Promise<ApiMessageResponse> {
+): Promise<ApiMessageResult> {
   const apiName = ApiEndpoint.PasswordLessSendCode
 
   assertHasApiKeyOrAccessToken(oreIdContext, apiName)
@@ -37,5 +37,5 @@ export async function callApiPasswordLessSendCode(
   if (phone) queryParams.phone = encodeURIComponent(phone) // if user passes in +12103334444, the plus sign needs to be URL encoded
 
   const response = await oreIdContext.callOreIdApi(RequestType.Get, ApiEndpoint.PasswordLessSendCode, queryParams, null)
-  return response as ApiMessageResponse
+  return response as ApiMessageResult
 }

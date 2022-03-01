@@ -6,7 +6,7 @@ import {
   assertParamsHaveOnlyOneOfValues,
   assertParamsHaveRequiredValues,
 } from '../helpers'
-import { ApiResponseWithErrorCode } from '../models'
+import { ApiResultWithErrorCode } from '../models'
 
 export type ApiCustodialNewAccountParams = {
   accountType: AccountType
@@ -32,9 +32,9 @@ export type ApiCustodialNewAccountBodyParams = {
   user_password_encrypted_backup?: string
 }
 
-export type ApiCustodialNewAccountResponse = {
+export type ApiCustodialNewAccountResult = {
   accountName: AccountName
-} & ApiResponseWithErrorCode
+} & ApiResultWithErrorCode
 
 /** Call the custodial/new-user api
  * Create a new user account that is managed by your app
@@ -45,7 +45,7 @@ export type ApiCustodialNewAccountResponse = {
 export async function callApiCustodialNewAccount(
   oreIdContext: OreIdContext,
   params: ApiCustodialNewAccountParams,
-): Promise<ApiCustodialNewAccountResponse> {
+): Promise<ApiCustodialNewAccountResult> {
   const apiName = ApiEndpoint.CustodialNewAccount
 
   const { accountType, email, idToken, name, picture, phone, userName, userPassword } = params

@@ -8,7 +8,7 @@ import {
   ServiceAccountUsedFor,
   SignOptions,
 } from '../../models'
-import { ApiResponseWithErrorCode } from '../models'
+import { ApiResultWithErrorCode } from '../models'
 import {
   assertHasApiKeyOrAccessToken,
   assertParamsHaveOnlyOneOfValues,
@@ -41,10 +41,10 @@ export type ApiSignTransactionBodyParams = {
   user_password_encrypted?: string
 }
 
-export type ApiSignTransactionResponse = {
+export type ApiSignTransactionResult = {
   signedTransaction?: string
   transactionId?: string
-} & ApiResponseWithErrorCode
+} & ApiResultWithErrorCode
 
 /** Compose the API body params for calling signTransaction */
 function composeSignBodyFromSignOptions(params: ApiSignTransactionParams): ApiSignTransactionBodyParams {
@@ -94,8 +94,8 @@ function composeSignBodyFromSignOptions(params: ApiSignTransactionParams): ApiSi
 }
 
 /** convert snake_case fields in response to camelCase */
-function mapSignResultsFromApi(apiResults: any): ApiSignTransactionResponse {
-  const { signed_transaction: signedTransaction, transaction_id: transactionId, ...rest } = apiResults
+function mapSignResultFromApi(apiResult: any): ApiSignTransactionResult {
+  const { signed_transaction: signedTransaction, transaction_id: transactionId, ...rest } = apiResult
   return {
     signedTransaction,
     transactionId,
@@ -113,7 +113,7 @@ function mapSignResultsFromApi(apiResults: any): ApiSignTransactionResponse {
 export async function callApiSignTransaction(
   oreIdContext: OreIdContext,
   params: ApiSignTransactionParams,
-): Promise<ApiSignTransactionResponse> {
+): Promise<ApiSignTransactionResult> {
   const apiName = ApiEndpoint.TransactionSign
 
   if (params?.autoSign) {
@@ -131,7 +131,7 @@ export async function callApiSignTransaction(
   const body = composeSignBodyFromSignOptions(params)
 
   const results = await oreIdContext.callOreIdApi(RequestType.Post, ApiEndpoint.TransactionSign, body, null)
-  return mapSignResultsFromApi(results)
+  return mapSignResultFromApi(results)
 }
 
 /** Call api custodial/sign - for signing a transaction on behalf of a user
@@ -143,7 +143,7 @@ export async function callApiSignTransaction(
 export async function callApiCustodialSignTransaction(
   oreIdContext: OreIdContext,
   params: ApiSignTransactionParams,
-): Promise<ApiSignTransactionResponse> {
+): Promise<ApiSignTransactionResult> {
   const apiName = ApiEndpoint.CustodialSign
 
   if (!oreIdContext.options?.serviceKey) {
@@ -160,5 +160,5 @@ export async function callApiCustodialSignTransaction(
   const body = composeSignBodyFromSignOptions(params)
 
   const results = await oreIdContext.callOreIdApi(RequestType.Post, ApiEndpoint.CustodialSign, body, null)
-  return mapSignResultsFromApi(results)
+  return mapSignResultFromApi(results)
 }

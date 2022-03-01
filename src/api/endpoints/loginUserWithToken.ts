@@ -1,7 +1,7 @@
 import OreIdContext from '../../core/IOreidContext'
 import { ApiEndpoint, RequestType } from '../../models'
 import { assertParamsHaveRequiredValues } from '../helpers'
-import { ApiResponseWithErrorCode } from '../models'
+import { ApiResultWithErrorCode } from '../models'
 
 export type ApiLoginUserWithTokenParams = {
   idToken?: string
@@ -21,7 +21,7 @@ export type ApiLoginUserWithTokenBodyParams = {
 export async function callApiLoginUserWithToken(
   oreIdContext: OreIdContext,
   params: ApiLoginUserWithTokenParams,
-): Promise<{ accessToken: string } & ApiResponseWithErrorCode> {
+): Promise<{ accessToken: string } & ApiResultWithErrorCode> {
   const apiName = ApiEndpoint.LoginUserWithToken
   const { idToken } = params
 

@@ -22,7 +22,7 @@ import {
   PublicKey,
   SetupTransitWalletParams,
   SignatureProviderArgs,
-  SignatureProviderSignResults,
+  SignatureProviderSignResult,
   SignOptions,
   SignStringParams,
   TransitAccountInfo,
@@ -32,7 +32,7 @@ import {
 import { TransitDiscoveryOptions, TransitWalletAccessContext } from '.'
 import { User } from '../user'
 
-type ConnectToTransitProviderResponse = {
+type ConnectToTransitProviderResult = {
   isLoggedIn?: boolean
   chainAccount?: ChainAccount
   permissions?: [{ name: PermissionName; publicKey: PublicKey }]
@@ -117,8 +117,8 @@ export default class TransitHelper {
     provider,
     chainNetwork = ChainNetwork.EosMain,
     chainAccount = null,
-  }: ConnectToTransitProviderParams): Promise<ConnectToTransitProviderResponse> {
-    let response: ConnectToTransitProviderResponse
+  }: ConnectToTransitProviderParams): Promise<ConnectToTransitProviderResult> {
+    let response: ConnectToTransitProviderResult
     this.assertHasProviderInstalled(provider, ExternalWalletInterface.Transit)
     this.assertProviderValidForChainNetwork(provider, chainNetwork)
     try {
@@ -398,7 +398,7 @@ export default class TransitHelper {
 
   /** sign with a Transit wallet */
   async signWithTransitProvider(signOptions: SignOptions) {
-    let signedTransaction: SignatureProviderSignResults
+    let signedTransaction: SignatureProviderSignResult
     const { chainNetwork, chainAccount, provider } = signOptions
     const walletProvider = Helpers.mapAuthProviderToWalletType(provider)
     this.assertHasProviderInstalled(walletProvider, ExternalWalletInterface.Transit)

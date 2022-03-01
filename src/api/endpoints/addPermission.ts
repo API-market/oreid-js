@@ -9,7 +9,7 @@ import {
   RequestType,
 } from '../../models'
 import { assertHasApiKeyOrAccessToken, assertParamsHaveRequiredValues } from '../helpers'
-import { ApiMessageResponse } from '../models'
+import { ApiMessageResult } from '../models'
 
 export type ApiAddPermissionParams = {
   account: AccountName
@@ -32,7 +32,7 @@ export type ApiAddPermissionParams = {
 export async function callApiAddPermission(
   oreIdContext: OreIdContext,
   params: ApiAddPermissionParams,
-): Promise<ApiMessageResponse> {
+): Promise<ApiMessageResult> {
   const apiName = ApiEndpoint.AddPermission
 
   assertHasApiKeyOrAccessToken(oreIdContext, apiName)
@@ -58,5 +58,5 @@ export async function callApiAddPermission(
   }
 
   const response = await oreIdContext.callOreIdApi(RequestType.Get, ApiEndpoint.AddPermission, queryParams, null)
-  return response as ApiMessageResponse
+  return response as ApiMessageResult
 }

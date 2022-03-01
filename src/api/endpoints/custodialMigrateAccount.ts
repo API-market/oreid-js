@@ -14,7 +14,7 @@ import {
   assertParamsHaveOnlyOneOfValues,
   assertParamsHaveRequiredValues,
 } from '../helpers'
-import { ApiResponseWithErrorCode } from '../models'
+import { ApiResultWithErrorCode } from '../models'
 
 export type ApiCustodialMigrateAccountParams = {
   account: AccountName
@@ -34,9 +34,9 @@ export type ApiCustodialMigrateAccountBodyParams = {
   user_password_encrypted?: string
 }
 
-export type ApiCustodialMigrateAccountResponse = {
+export type ApiCustodialMigrateAccountResult = {
   account: AccountName
-} & ApiResponseWithErrorCode
+} & ApiResultWithErrorCode
 
 /** Call the custodial/migrate-user api
  * Converts a user account to a new account type
@@ -49,7 +49,7 @@ export type ApiCustodialMigrateAccountResponse = {
 export async function callApiCustodialMigrateAccount(
   oreIdContext: OreIdContext,
   params: ApiCustodialMigrateAccountParams,
-): Promise<ApiCustodialMigrateAccountResponse> {
+): Promise<ApiCustodialMigrateAccountResult> {
   const apiName = ApiEndpoint.CustodialMigrateAccount
 
   const { account, chainAccount, chainNetwork, toType, userPassword, userPasswordEncrypted } = params
