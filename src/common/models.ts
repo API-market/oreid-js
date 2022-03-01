@@ -150,7 +150,7 @@ export type SettingChainNetwork = {
 }
 
 export type SettingChainNetworkHost = {
-  chainId?: string
+  chainId: string
   /** fork name used to designate a major version */
   forkName?: string
   host: string
