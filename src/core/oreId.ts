@@ -17,7 +17,6 @@ import {
   ChainNetwork,
   ChainPlatformType,
   Config,
-  DiscoverOptions,
   ExternalWalletInterface,
   ExternalWalletType,
   NewAccountOptions,
@@ -30,7 +29,6 @@ import {
   SettingChainNetworkHost,
   SignResult,
   SignStringParams,
-  SignWithOreIdResult,
   TransactionData,
 } from '../models'
 import StorageHandler from '../utils/storage'
@@ -42,19 +40,17 @@ import {
   ApiGetAppTokenParams,
   ApiPasswordLessSendCodeParams,
   ApiPasswordLessVerifyCodeParams,
-  callApiCanAutosignTransaction,
   callApiConvertOauthTokens,
   callApiCustodialMigrateAccount,
   callApiCustodialNewAccount,
-  callApiCustodialSignTransaction,
   callApiGetAppToken,
   callApiGetConfig,
   callApiPasswordLessSendCode,
   callApiPasswordLessVerifyCode,
-  callApiSignTransaction,
 } from '../api'
-import { getOreIdNewAccountUrl, getOreIdSignUrl } from './urlGenerators'
+import { getOreIdNewAccountUrl } from './urlGenerators'
 import Auth from '../auth/auth'
+import Transaction from '../transaction/transaction'
 
 const { isNullOrEmpty } = Helpers
 
@@ -65,7 +61,7 @@ export default class OreId implements IOreidContext {
     this._localState = new LocalState(this.options?.appId, storageHandler)
     this.cachedChainNetworks = null
     this.validateAndSetOptions(options)
-    // create an instance of the User class
+    // create an instance of the Transit Helper class
     this._transitHelper = new TransitHelper(this)
     // All installed TransitProviders
     this.transitHelper.installTransitProviders()
@@ -220,54 +216,6 @@ export default class OreId implements IOreidContext {
     return this.newAccountWithOreId(newAccountOptions)
   }
 
-  /** Sign transaction with key(s) in wallet - connect to wallet first */
-  async sign(transactionData: TransactionData): Promise<SignWithOreIdResult> {
-    // handle sign transaction based on provider type
-    const { provider } = transactionData?.signOptions || {}
-    this.assertValidTransactionData(transactionData)
-
-    if (providersNotImplemented.includes(provider)) {
-      return null
-    }
-
-    if (this.isCustodial(provider)) {
-      return this.custodialSignWithOreId(transactionData)
-    }
-
-    if (this.transitHelper.isTransitProvider(provider)) {
-      // if signExternalWithOreId=true, then it means we will do the external signing in the oreid service UX (e.g.  WebPopup) instead of locally in this app
-      if (!transactionData?.signOptions?.signExternalWithOreId) {
-        const signatureProviderSignResult = await this.signWithNonOreIdProvider(transactionData)
-        return {
-          signedTransaction: JSON.stringify(signatureProviderSignResult),
-        }
-      }
-    }
-
-    return this.signWithOreId(transactionData)
-  }
-
-  /** ensure all required parameters are provided */
-  assertValidTransactionData(transactionData: TransactionData) {
-    const { account, chainNetwork } = transactionData
-    const { provider } = transactionData?.signOptions || {}
-    let missingFields = ''
-    if (!provider) missingFields += 'provider, '
-    if (!account) missingFields += 'account, '
-    if (!chainNetwork) missingFields += 'chainNetwork, '
-    if (missingFields) {
-      throw new Error(`Missing parameter(s): ${missingFields}`)
-    }
-  }
-
-  /** Discovers keys in a wallet provider.
-   *  Any new keys discovered in wallet are added to user's ORE ID record.
-   *  If the provider doesnt support a discover() function, and requiresLogoutLoginToDiscover == true, attempts a logout then login instead.
-   */
-  async discover(discoverOptions: DiscoverOptions) {
-    return this.transitHelper.discoverWithTransit(discoverOptions)
-  }
-
   async newAccountWithOreId(newAccountOptions: NewAccountOptions): Promise<NewAccountWithOreIdResult> {
     const { account, accountType, chainNetwork, accountOptions, provider, state } = newAccountOptions || {}
     const { newAccountCallbackUrl, backgroundColor } = this.options
@@ -285,197 +233,31 @@ export default class OreId implements IOreidContext {
     return { newAccountUrl, errors: null }
   }
 
-  /**
-   * Whether the provided transaction (or signedTransaction) can be autoSigned via api (without user interaction)
-   * Requires a serviceKey with the autoSign right
-   * Returns: true if transaction provided can be signed using the signTransaction(autosign:true)
-   * */
-  async checkIfTrxAutoSignable(transactionData: TransactionData) {
-    return callApiCanAutosignTransaction(this, transactionData)
-  }
-
-  /** Call api to sign a transaction on behalf of the user
-   * This can only be done if autoSign is enabled OR if we are signing for a custodial user where we can provide the wallet password
-   * For autoSign param, requires a serviceKey with the autoSign right
-   * signEndpoint param specifies either ApiEndpoint.TransactionSig API (for autosign) or ApiEndpoint.CustodialSign
-   * Returns: stringified signedTransaction (and transactionId if available)
-   * */
-  async callSignTransaction(signEndpoint: ApiEndpoint, transactionData: TransactionData, autoSign = false) {
-    let signResult
-    if (signEndpoint === ApiEndpoint.TransactionSign) {
-      signResult = callApiSignTransaction(this, { transactionData, autoSign })
-    } else if (signEndpoint === ApiEndpoint.CustodialSign) {
-      signResult = callApiCustodialSignTransaction(this, { transactionData, autoSign })
-    }
-    return signResult
-  }
-
-  /** Attempt to sign a transaction without user interaction
-   *  Expects user to have previously approved autoSign for transaction type and it hasn't expired
-   *  Call callApiCanAutosignTransaction() first to confirm that this transaction can be autoSigned before attempting this call
-   */
-  async autoSignTransaction(transactionData: TransactionData) {
-    const signEndpoint = ApiEndpoint.TransactionSign
-    const { processId, signedTransaction, transactionId, errorCode, errorMessage } = await this.callSignTransaction(
-      signEndpoint,
-      transactionData,
-      true,
-    )
-    if (errorCode || errorMessage) throw new Error(errorMessage)
-    return { processId, signedTransaction, transactionId }
-  }
-
-  /** Attempts to sign a transaction using autoSign if possible
-   * If autoSign is not available, returns a url to redirect the user to to be prompted to enter wallet password to sign a transaction
-   */
-  async signWithOreId(transactionData: TransactionData): Promise<SignWithOreIdResult> {
-    let canAutoSign = false
-    let { provider } = transactionData?.signOptions || {}
-    // to use ORE ID to sign, we dont need to specify a login provider
-    // if OreId was specified, this just means dont use an external wallet, so we remove that here
-    if (provider === AuthProvider.OreId) {
-      provider = null
-    }
-
-    try {
-      const results = await this.checkIfTrxAutoSignable(transactionData)
-      canAutoSign = results.autoSignCredentialsExist
-    } catch (error) {
-      // do nothing - this will leave canAutoSign = false
-      // checkIfTrxAutoSignable will throw if a serviceKey isn't provided - most callers won't have a serviceKey and cant autosign
-    }
-
-    // auto sign defaults to true if the transaction is auto signable. Developer can opt out by setting preventAutoSign to true
-    const { preventAutoSign = false } = transactionData?.signOptions || {}
-
-    if (canAutoSign && !preventAutoSign) {
-      const { processId, signedTransaction, transactionId } = await this.autoSignTransaction(transactionData)
-      return { processId, signedTransaction, transactionId }
-    }
-
-    const { signCallbackUrl } = this.options
-    if (!transactionData?.signOptions) transactionData.signOptions = {}
-    transactionData.signOptions.callbackUrl = signCallbackUrl
-    const signUrl = await getOreIdSignUrl(this, transactionData)
-    return { signUrl, errors: null }
-  }
-
-  async custodialSignWithOreId(transactionData: TransactionData) {
-    const { serviceKey } = this.options
-    if (!serviceKey) {
-      throw new Error('Missing serviceKey in oreId config options - required to call api/custodial/new-user.')
-    }
-
-    const { processId, signedTransaction, transactionId, errorCode, errorMessage } = await this.callSignTransaction(
-      ApiEndpoint.CustodialSign,
-      transactionData,
-    )
-    if (errorCode || errorMessage) throw new Error(errorMessage)
-    return { processId, signedTransaction, transactionId }
-  }
-
   /** Sign an arbitrary string (instead of a transaction)
    *  NOTE: Currently this only supports Transit wallets - not OREID siging
    */
-  async signString(params: SignStringParams) {
-    const { account, provider, chainNetwork } = params
-    if (!this.canSignString(provider)) {
-      throw Error(`The specific provider ${provider} does not support signString`)
+  async signStringWithWallet(params: SignStringParams) {
+    const { account, walletType, chainNetwork } = params
+    if (!this.transitHelper.canSignString(walletType)) {
+      throw Error(`The specific walletType ${walletType} does not support signString`)
     }
     const signResult = await this.transitHelper.signStringWithTransitProvider(params)
-    await this.callDiscoverAfterSign({ account, chainNetwork, signOptions: { provider } })
+    const provider = Helpers.toEnumValue(AuthProvider, walletType)
+    await this.transitHelper.callDiscoverAfterSign({ account, chainNetwork, signOptions: { provider } })
     return signResult
   }
 
   /** ensure all required parameters are provided */
   assertValidSignStringParams(params: SignStringParams) {
-    const { provider, account, chainNetwork, string } = params
+    const { walletType, account, chainNetwork, string } = params
     let missingFields = ''
-    if (!provider) missingFields += 'provider, '
+    if (!walletType) missingFields += 'walletType, '
     if (!account) missingFields += 'account, '
     if (!chainNetwork) missingFields += 'chainNetwork, '
     if (!string) missingFields += 'string, '
     if (missingFields) {
       throw new Error(`Missing parameter(s): ${missingFields}`)
     }
-  }
-
-  /** Call discover after signing so we capture and save the account
-   *  Note: This is needed for Ethereum since we dont know a public key until we sign with an account
-   */
-  async callDiscoverAfterSign(transactionData: TransactionData) {
-    const { chainNetwork, account } = transactionData
-    const { provider } = transactionData?.signOptions || {}
-    const discoverOptions: DiscoverOptions = {
-      provider,
-      chainNetwork,
-      oreAccount: account,
-    }
-    await this.discover(discoverOptions)
-  }
-
-  // Supported features by provider
-
-  /** whether discovery is supported by the provider */
-  canDiscover(provider: AuthProvider) {
-    const walletProvider = Helpers.mapAuthProviderToWalletType(provider)
-    if (this.transitHelper.hasTransitProvider(walletProvider)) {
-      return getTransitProviderAttributes(walletProvider).supportsDiscovery
-    }
-    return false
-  }
-
-  /** whether signString is supported by the provider */
-  canSignString(provider: AuthProvider) {
-    const walletProvider = Helpers.mapAuthProviderToWalletType(provider)
-    if (this.transitHelper.hasTransitProvider(walletProvider)) {
-      return getTransitProviderAttributes(walletProvider).supportsSignArbitrary
-    }
-    return false
-  }
-
-  /** whether call to discover is required by provider before login */
-  requiresDiscoverToLogin(provider: AuthProvider) {
-    const walletProvider = Helpers.mapAuthProviderToWalletType(provider)
-    if (this.transitHelper.hasTransitProvider(walletProvider)) {
-      return getTransitProviderAttributes(walletProvider).requiresDiscoverToLogin
-    }
-    return false
-  }
-
-  /** whether call to logout then login is required by provider before discover */
-  requiresLogoutLoginToDiscover(provider: AuthProvider) {
-    const walletProvider = Helpers.mapAuthProviderToWalletType(provider)
-    if (this.transitHelper.hasTransitProvider(walletProvider)) {
-      return getTransitProviderAttributes(walletProvider).requiresLogoutLoginToDiscover
-    }
-    return false
-  }
-
-  /** default path index for provider (if any) */
-  defaultDiscoveryPathIndexList(provider: AuthProvider): number[] {
-    const walletProvider = Helpers.mapAuthProviderToWalletType(provider)
-    if (this.transitHelper.hasTransitProvider(walletProvider)) {
-      return getTransitProviderAttributes(walletProvider)?.defaultDiscoveryPathIndexList
-    }
-    return null
-  }
-
-  /** help text displayed to user for provider */
-  helpTextForProvider(provider: AuthProvider) {
-    const walletProvider = Helpers.mapAuthProviderToWalletType(provider)
-    if (this.transitHelper.hasTransitProvider(walletProvider)) {
-      return getTransitProviderAttributes(walletProvider).helpText
-    }
-
-    return null
-  }
-
-  /** sign with a wallet via Transit */
-  async signWithNonOreIdProvider(transactionData: TransactionData) {
-    const isTransitProvider = this.transitHelper.isTransitProvider(transactionData?.signOptions?.provider)
-    if (!isTransitProvider) return null
-    return this.transitHelper.signWithTransitProvider(transactionData)
   }
 
   /** Create a new user account that is managed by your app
@@ -583,8 +365,8 @@ export default class OreId implements IOreidContext {
     return { chainAccount, processId, state, errors }
   }
 
-  /** Extracts the response parameters on the /sign callback URL string */
-  handleSignResponse(callbackUrlString: string): SignResult {
+  /** Extracts and returns the response parameters from the /sign callback URL string */
+  handleSignCallback(callbackUrlString: string): SignResult {
     let signedTransaction
     const {
       signed_transaction: encodedTransaction,
@@ -692,10 +474,6 @@ export default class OreId implements IOreidContext {
     this.localState.clear()
   }
 
-  isCustodial(provider: AuthProvider) {
-    return provider === AuthProvider.Custodial
-  }
-
   getWalletProviderInfo(provider: AuthProvider, type: ExternalWalletInterface) {
     if (!provider || !type) {
       return {
@@ -709,6 +487,11 @@ export default class OreId implements IOreidContext {
     }
 
     return null
+  }
+
+  /** Create a new Transaction object - used for composing and signing transactions */
+  async createTransaction(data: TransactionData) {
+    return new Transaction({ oreIdContext: this, user: this.auth.user, data })
   }
 
   /** Add an app access token and hmac signature to the url

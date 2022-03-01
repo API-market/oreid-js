@@ -65,6 +65,7 @@ export async function signExample() {
     chainAccount: ethAccount,
     chainNetwork: 'eth_main',
     transaction: { to: '0x123...', amount: '.0001' },
+    options: { broadcast: true },
   })
 
   if (await transaction.canAutoSign()) {
@@ -73,12 +74,7 @@ export async function signExample() {
   } else {
     // popup sign flow - when completed, transaction info is returned (if requested in options)
     await oreidWebPopUp.sign({
-      data: {
-        account: user.account,
-        chainAccount: ethAccount,
-        chainNetwork: 'eth_main',
-        transaction: { to: '0x123...', amount: '.0001' },
-      },
+      data: transaction.data,
       onSuccess: (data: any) => {
         console.log('transaction signed:', data.transactionId)
       },

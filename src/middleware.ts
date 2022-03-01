@@ -31,9 +31,6 @@ export function authCallbackHandler(oreId: OreId) {
       return {}
     }
 
-    // oreId.errors = null
-
-    // const response = oreId.handleAuthResponse(req.originalUrl)
     const response = oreId.auth.handleAuthCallback(req.originalUrl)
     const { accessToken, account, errors, idToken, processId, state } = response
 
@@ -79,8 +76,7 @@ export function signCallbackHandler(oreId: OreId) {
       return {}
     }
 
-    // oreId.errors = null
-    const { signedTransaction, state, processId, transactionId, errors } = oreId.handleSignResponse(body)
+    const { signedTransaction, state, processId, transactionId, errors } = oreId.handleSignCallback(body)
 
     if (errors) {
       // oreId.errors = errors
