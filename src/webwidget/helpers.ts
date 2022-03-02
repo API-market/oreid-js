@@ -1,24 +1,10 @@
-import * as Yup from 'yup'
-import { WebWidgetAction } from './models'
+import { CONTEXT } from 'zoid/dist/zoid'
+import { WebWidgetAction, WebWidgetProps } from './models'
 
-export const webWidgetPropsSchema = Yup.object({
-  oreIdOptions: Yup.object({
-    appId: Yup.string().required(),
-    apiKey: Yup.string(),
-    appName: Yup.string(),
-    backgroundColor: Yup.string(),
-    oreIdUrl: Yup.string(),
-    serviceKey: Yup.string(),
-    setBusyCallback: Yup.mixed(),
-    ualProviders: Yup.mixed(),
-    eosTransitWalletProviders: Yup.array().of(Yup.mixed()),
-  }),
-  action: Yup.object({
-    name: Yup.string()
-      .oneOf(Object.values(WebWidgetAction))
-      .required(),
-    params: Yup.object().nullable(),
-  }).required(),
-  onSuccess: Yup.mixed().required(),
-  onError: Yup.mixed().required(),
-})
+export const getWindowTypeForProps = (props: WebWidgetProps) =>
+  props.action.name === WebWidgetAction.Auth ? CONTEXT.POPUP : CONTEXT.IFRAME
+
+export const validateProps = (props: any): WebWidgetProps => {
+  if (typeof props?.onSuccess === 'function' && typeof props?.onError === 'function') return props as WebWidgetProps
+  throw new Error('Invalid props')
+}
