@@ -1,6 +1,5 @@
+import { ExternalWalletType, ChainPlatformType } from '../common/models'
 import {
-  AuthProvider,
-  ChainPlatformType,
   TransitDiscoveryData,
   TransitDiscoverKeyLookupCallback,
   TransitDiscoveryAccount,
@@ -8,7 +7,7 @@ import {
 } from './models'
 
 export type TransitProviderAttributes = {
-  providerName: AuthProvider
+  providerName: ExternalWalletType
   chainType: ChainPlatformType
   providerId: string
   requiresLogin: boolean
@@ -59,7 +58,7 @@ const NonEosDiscoveryKeyLookupFunc: TransitDiscoverKeyLookupCallback = (
 
 export const transitProviderAttributesData: TransitProviderAttributes[] = [
   {
-    providerName: AuthProvider.AlgoSigner,
+    providerName: ExternalWalletType.AlgoSigner,
     chainType: ChainPlatformType.algorand,
     providerId: 'algosigner',
     requiresLogin: false,
@@ -77,7 +76,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
     logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-algosigner-logo.png',
   },
   {
-    providerName: AuthProvider.Keycat,
+    providerName: ExternalWalletType.Keycat,
     chainType: ChainPlatformType.eos,
     providerId: 'Keycat',
     requiresLogin: true,
@@ -94,7 +93,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
     logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-keycat-logo.png',
   },
   {
-    providerName: AuthProvider.Ledger,
+    providerName: ExternalWalletType.Ledger,
     chainType: ChainPlatformType.eos,
     providerId: 'ledger',
     requiresLogin: true,
@@ -113,7 +112,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
     logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-ledger-logo.png',
   },
   {
-    providerName: AuthProvider.Lynx,
+    providerName: ExternalWalletType.Lynx,
     chainType: ChainPlatformType.eos,
     providerId: 'EOS Lynx',
     requiresLogin: true,
@@ -130,7 +129,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
     logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-lynx-logo.png',
   },
   {
-    providerName: AuthProvider.Meetone,
+    providerName: ExternalWalletType.Meetone,
     chainType: ChainPlatformType.eos,
     providerId: 'meetone_provider',
     requiresLogin: false,
@@ -147,7 +146,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
     logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-meetone-logo.png',
   },
   {
-    providerName: AuthProvider.Metro,
+    providerName: ExternalWalletType.Metro,
     chainType: ChainPlatformType.eos,
     providerId: 'metro',
     requiresLogin: false,
@@ -164,7 +163,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
     logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-generic-logo.png',
   },
   {
-    providerName: AuthProvider.Portis,
+    providerName: ExternalWalletType.Portis,
     chainType: ChainPlatformType.eos,
     providerId: 'PortisProvider',
     requiresLogin: true,
@@ -181,7 +180,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
     logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-portis-logo.png',
   },
   {
-    providerName: AuthProvider.Scatter,
+    providerName: ExternalWalletType.Scatter,
     chainType: ChainPlatformType.eos,
     providerId: 'scatter',
     requiresLogin: true,
@@ -198,7 +197,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
     logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-scatter-logo.png',
   },
   {
-    providerName: AuthProvider.SimpleEos,
+    providerName: ExternalWalletType.SimpleEos,
     chainType: ChainPlatformType.eos,
     providerId: 'simpleos',
     requiresLogin: true,
@@ -215,7 +214,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
     logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-simpleos-logo.png',
   },
   {
-    providerName: AuthProvider.TokenPocket,
+    providerName: ExternalWalletType.TokenPocket,
     chainType: ChainPlatformType.eos,
     providerId: 'TokenPocket',
     requiresLogin: true,
@@ -232,7 +231,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
     logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-generic-logo.png',
   },
   {
-    providerName: AuthProvider.WalletConnect,
+    providerName: ExternalWalletType.WalletConnect,
     chainType: ChainPlatformType.ethereum,
     providerId: 'walletconnect',
     requiresLogin: false,
@@ -250,7 +249,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
     logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-walletconnect-logo.png',
   },
   {
-    providerName: AuthProvider.Web3,
+    providerName: ExternalWalletType.Web3,
     chainType: ChainPlatformType.ethereum,
     providerId: 'web3',
     requiresLogin: false,
@@ -268,7 +267,7 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
     logoUrl: 'https://storage.googleapis.com/oreid-files/partners/wallet-web3-logo.png',
   },
   {
-    providerName: AuthProvider.WhaleVault,
+    providerName: ExternalWalletType.WhaleVault,
     chainType: ChainPlatformType.eos,
     providerId: 'whalevault',
     requiresLogin: true,
@@ -287,8 +286,8 @@ export const transitProviderAttributesData: TransitProviderAttributes[] = [
 ]
 
 /** Get provider-specific settings and metadata */
-export function getTransitProviderAttributes(provider: AuthProvider): TransitProviderAttributes {
-  return transitProviderAttributesData.find(tp => tp.providerName === provider.toString())
+export function getTransitProviderAttributes(walletType: ExternalWalletType): TransitProviderAttributes {
+  return transitProviderAttributesData.find(tp => tp.providerName === walletType.toString())
 }
 
 /** Get provider-specific settings and metadata */
@@ -301,4 +300,4 @@ export function getTransitProviderAttributesByChain(chain: ChainPlatformType): T
   return transitProviderAttributesData.filter(p => p.chainType === chain)
 }
 
-export const supportedTransitProviders: AuthProvider[] = transitProviderAttributesData.map(tp => tp.providerName)
+export const supportedTransitProviders: ExternalWalletType[] = transitProviderAttributesData.map(tp => tp.providerName)

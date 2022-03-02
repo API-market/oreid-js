@@ -7,7 +7,7 @@
 */
 
 import { NextFunction } from 'express'
-import OreId from './oreId'
+import OreId from './core/oreId'
 import { RequestWithParams, ResponseWithParams } from './models'
 
 type AsyncHandlerFunc = (req: RequestWithParams, res: ResponseWithParams, next: NextFunction) => any
@@ -31,9 +31,7 @@ export function authCallbackHandler(oreId: OreId) {
       return {}
     }
 
-    // oreId.errors = null
-
-    const response = oreId.handleAuthResponse(req.originalUrl)
+    const response = oreId.auth.handleAuthCallback(req.originalUrl)
     const { accessToken, account, errors, idToken, processId, state } = response
 
     if (errors) {
@@ -59,13 +57,10 @@ export function authCallbackHandler(oreId: OreId) {
 
     // attach user data to request object
     if (account) {
-      const user = await oreId.getUserInfoFromApi(account, processId) // get user from server and also save in local cookie (or state)
-      // remove processId from user results and attach to request object instead
-      if (user?.processId) {
-        req.processId = user.processId
-        delete user.processId
-      }
-      req.user = user
+      // eslint-disable-next-line prefer-destructuring
+      const user = oreId.auth.user
+      await user.getInfo() // get user data from server
+      req.user = user.info
     }
 
     return next()
@@ -81,8 +76,7 @@ export function signCallbackHandler(oreId: OreId) {
       return {}
     }
 
-    // oreId.errors = null
-    const { signedTransaction, state, processId, transactionId, errors } = oreId.handleSignResponse(body)
+    const { signedTransaction, state, processId, transactionId, errors } = oreId.handleSignCallback(body)
 
     if (errors) {
       // oreId.errors = errors
