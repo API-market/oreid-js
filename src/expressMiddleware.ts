@@ -1,9 +1,9 @@
 import express, { Express, Request, Response, NextFunction } from 'express'
 import { createProxyMiddleware } from 'http-proxy-middleware'
 import Axios from 'axios'
-import { generateHmac } from './hmac'
+import { generateHmac } from './utils/hmac'
 import { defaultOreIdServiceUrl } from './constants'
-import Helpers from './helpers'
+import Helpers from './utils/helpers'
 
 const { isNullOrEmpty } = Helpers
 
