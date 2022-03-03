@@ -2,7 +2,7 @@ import { AccountName, AuthProvider, ChainAccount, ChainNetwork } from '../common
 
 // ORE ID Types
 
-export interface TransactionData {
+export type TransactionData = {
   account?: AccountName // user's oreid - set automatically by Transaction object
   chainAccount?: ChainAccount // chainAccount not required for Ethereum - it can be defined by the account that signed the transaction
   chainNetwork: ChainNetwork
