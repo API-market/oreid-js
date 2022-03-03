@@ -1,5 +1,11 @@
 import OreIdContext from '../core/IOreidContext'
-import { AuthProvider, ExternalWalletType, SignWithOreIdResult, TransactionData } from '../models'
+import {
+  AuthProvider,
+  CreateTransactionData,
+  ExternalWalletType,
+  SignWithOreIdResult,
+  TransactionData,
+} from '../models'
 import TransitHelper from '../transit/TransitHelper'
 import { callApiCanAutosignTransaction, callApiCustodialSignTransaction, callApiSignTransaction } from '../api'
 import { getOreIdSignUrl } from '../core/urlGenerators'
@@ -27,8 +33,8 @@ export default class Transactopm {
   }
 
   /** ensure all required parameters are provided */
-  assertValidTransactionAndSetData(transactionData: TransactionData) {
-    const { account, chainNetwork, transaction, signedTransaction } = transactionData || {}
+  assertValidTransactionAndSetData(createTransactionData: CreateTransactionData) {
+    const { chainNetwork, transaction, signedTransaction } = createTransactionData || {}
     const missingFields: string[] = []
     const validationIssues: string[] = []
 
@@ -40,10 +46,6 @@ export default class Transactopm {
     if (!chainNetwork) missingFields.push('chainNetwork')
     if (!transaction && !signedTransaction) missingFields.push('transaction OR signedTransaction')
     // validaton rules
-    if (account)
-      validationIssues.push(
-        'Transaction Data error - Dont provide a value for account param. It will automatically be set to the logged-in account.',
-      )
     if (!this._user.accountName)
       validationIssues.push('Transaction Data error - Expecting a user.accountName - is the user logged-in in?')
     if (transaction && signedTransaction) validationIssues.push('Only provide one: transaction OR signedTransaction')
@@ -61,7 +63,7 @@ export default class Transactopm {
     // account param is set to logged-in user
     this._data = {
       account: this._user.accountName,
-      ...transactionData,
+      ...createTransactionData,
     }
   }
 
