@@ -27,13 +27,7 @@ export type WebWidgetProps = {
   oreIdOptions: WebWidgetOreIdOptions
   action: {
     name: WebWidgetAction | string
-    params:
-      | WebWidgetAuthParams
-      | WebWidgetLogoutParams
-      | WebWidgetNewAccountParams
-      | WebWidgetRecoverAccountParams
-      | WebWidgetSignParams
-      | any
+    params: WebWidgetActionParams
   } | null
   onSuccess: ({ data }: { data?: any }) => void
   /** errors is a delimited string of error codes and/or an error message */
@@ -55,6 +49,15 @@ export type WebWidgetLogoutParams = {
   /** comma seperated list of login providers e.g. 'google, facebook' or 'all' */
   providers?: string
 }
+
+/** valid action param types */
+export type WebWidgetActionParams =
+  | WebWidgetAuthParams
+  | WebWidgetLogoutParams
+  | WebWidgetNewAccountParams
+  | WebWidgetRecoverAccountParams
+  | WebWidgetSignParams
+  | any
 
 /** params for Auth action */
 export type WebWidgetAuthParams = {
