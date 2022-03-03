@@ -9,9 +9,9 @@ import User from '../user/user'
 export default class Transactopm {
   constructor(args: { oreIdContext: OreIdContext; user: User; data: TransactionData }) {
     this._oreIdContext = args.oreIdContext
+    this._user = args.user
     this.assertValidTransactionAndSetData(args.data)
     this._transitHelper = new TransitHelper(this._oreIdContext)
-    this._user = args.user
   }
 
   private _oreIdContext: OreIdContext
