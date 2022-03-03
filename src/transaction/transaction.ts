@@ -45,7 +45,7 @@ export default class Transactopm {
         'Transaction Data error - Dont provide a value for account param. It will automatically be set to the logged-in account.',
       )
     if (!this._user.accountName)
-      validationIssues.push('Transaction Data error - Expecting a user.accountName but - is the user logged-in in?')
+      validationIssues.push('Transaction Data error - Expecting a user.accountName - is the user logged-in in?')
     if (transaction && signedTransaction) validationIssues.push('Only provide one: transaction OR signedTransaction')
 
     // TODO: Additional validation
