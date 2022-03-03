@@ -20,17 +20,23 @@ export default class Auth {
     this._oreIdContext = args.oreIdContext
     this._localState = this._oreIdContext.localState
     this._transitHelper = new TransitHelper(this._oreIdContext, this._user)
+    this._accessTokenHelper = new AccessTokenHelper()
   }
+
+  private _accessTokenHelper: AccessTokenHelper
 
   private _localState: LocalState
 
   private _oreIdContext: OreIdContext
 
-  private _accessTokenHelper: AccessTokenHelper
-
   private _transitHelper: TransitHelper
 
   private _user: User
+
+  /** User's OreID (accountName) */
+  get accessTokenHelper(): AccessTokenHelper {
+    return this._accessTokenHelper
+  }
 
   /** User's OreID (accountName) */
   get accountName(): string {
@@ -43,7 +49,7 @@ export default class Auth {
 
   /** retrieve accessToken saved in local storage - is automatically deleted when token expires */
   get accessToken() {
-    if (!this._accessTokenHelper) {
+    if (!this._accessTokenHelper.accessToken) {
       const savedToken = this._localState?.accessToken
       if (!savedToken) return null
       this.accessToken = savedToken // sets accessTokenHelper
@@ -61,7 +67,7 @@ export default class Auth {
   set accessToken(accessToken: string) {
     try {
       // decodes and validates accessToken is a valid token
-      this._accessTokenHelper = new AccessTokenHelper(accessToken)
+      this._accessTokenHelper.setAccessToken(accessToken)
     } catch (error) {
       console.log(`accessToken can't be set using: ${accessToken} `, error.message)
       return
@@ -93,7 +99,7 @@ export default class Auth {
     if (!hasExpired) return false
     // clear expired accessToken and user
     this._localState.clearAccessToken()
-    this._accessTokenHelper = null
+    this._accessTokenHelper.setAccessToken(null)
     console.log('accessToken has expired and has been cleared')
     return true
   }
@@ -233,7 +239,7 @@ export default class Auth {
   setAuthResult(authResponse: AuthResult) {
     const { accessToken, idToken } = authResponse
     if (!accessToken) throw Error('Cant setAuthResult. accessToken is missing')
-    this._accessTokenHelper = new AccessTokenHelper(accessToken)
+    this._accessTokenHelper.setAccessToken(accessToken)
 
     if (idToken) {
       this._accessTokenHelper.setIdToken(idToken)

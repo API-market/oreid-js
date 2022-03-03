@@ -68,8 +68,6 @@ export default class OreId implements IOreidContext {
     this._auth = new Auth({ oreIdContext: this })
   }
 
-  _accessTokenHelper: AccessTokenHelper
-
   _auth: Auth
 
   _localState: LocalState
@@ -87,12 +85,12 @@ export default class OreId implements IOreidContext {
 
   /** accessToken (stored in localState) */
   get accessToken() {
-    return this.localState.accessToken
+    return this.auth.accessToken
   }
 
   /** accessToken helper functions and current state */
   get accessTokenHelper() {
-    return this._accessTokenHelper
+    return this.auth.accessTokenHelper
   }
 
   // authenticate flows and login state
