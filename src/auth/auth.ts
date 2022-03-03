@@ -232,6 +232,12 @@ export default class Auth {
   /** store response from auth flow (accountName, accessToken, idToken) in localState */
   setAuthResult(authResponse: AuthResult) {
     const { accessToken, idToken } = authResponse
+
+    // TODO FIX: This fix is ​​not very reliable because "accessToken" can be undefined/null and in that case we will have a javascript error.
+    if (!this._accessTokenHelper) {
+      this._accessTokenHelper = new AccessTokenHelper(accessToken)
+    }
+
     if (accessToken) {
       this._accessTokenHelper.setAccessToken(accessToken)
     }
