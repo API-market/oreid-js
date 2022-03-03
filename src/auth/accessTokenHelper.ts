@@ -2,9 +2,11 @@ import Helpers from '../utils/helpers'
 import { JWTToken } from './models'
 
 class AccessTokenHelper {
-  constructor(accessToken: string, ignoreIssuer = false) {
+  constructor(accessToken?: string, ignoreIssuer = false) {
     this._ignoreIssuer = ignoreIssuer
-    this.setAccessToken(accessToken)
+    if (accessToken) {
+      this.setAccessToken(accessToken)
+    }
   }
 
   _accessToken: string
@@ -22,6 +24,7 @@ class AccessTokenHelper {
   }
 
   get decodedAccessToken() {
+    this.assertHasAccessToken()
     return this._decodedAccessToken
   }
 
@@ -34,6 +37,7 @@ class AccessTokenHelper {
   }
 
   get accountName() {
+    this.assertHasAccessToken()
     AccessTokenHelper.assertIsTokenValid(this.decodedAccessToken)
     return Helpers.getClaimFromJwtTokenBySearchString(this.decodedAccessToken, 'https://oreid.aikon.com/account')
   }
@@ -51,6 +55,11 @@ class AccessTokenHelper {
   }
 
   setAccessToken(value: string) {
+    // allows clearing of value
+    if (!value) {
+      this._accessToken = null
+      return
+    }
     const decodedAccessToken = Helpers.jwtDecodeSafe(value) as JWTToken
     if (!decodedAccessToken) throw Error(`Can't set accessToken. Value provided: ${value}`)
     AccessTokenHelper.assertIsTokenValid(decodedAccessToken, this._ignoreIssuer)
@@ -68,6 +77,11 @@ class AccessTokenHelper {
     this._idToken = value
   }
 
+  /** Throws if accessToken is NOT set yet */
+  assertHasAccessToken() {
+    if (!this.accessToken) throw Error('AccessToken not set. Login first.')
+  }
+
   /** Whether token is a valid OREID issued token and NOT expired */
   static isTokenValid(decodedToken: Partial<JWTToken>, ignoreIssuer = false): boolean {
     try {
@@ -80,7 +94,7 @@ class AccessTokenHelper {
 
   /** Throws if decodedToken is NOT a valid OREID issued token */
   static assertIsTokenValid(decodedToken: Partial<JWTToken>, ignoreIssuer = false) {
-    if (!decodedToken) throw Error('AccessToken is invalid, or expired)')
+    if (!decodedToken) throw Error('JWT (access or id) token is invalid, or expired)')
     // check if ORE ID issued this token
     if (!ignoreIssuer && !decodedToken.iss.includes('oreid.io')) {
       throw Error('Access token not issued by ORE ID')
