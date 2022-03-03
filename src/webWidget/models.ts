@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/indent */
 
+import { AuthProvider } from '../common/models'
+
 // IMPORTANT: These types are copied from oreid-service webwidget code
 
 /** version of widget served by server that matches these types */
@@ -9,11 +11,10 @@ export const WidgetVersion = '1'
 export type WebWidgetOreIdOptions = {
   accessToken?: string
   appId: string
-  appName: string
   backgroundColor?: string
   oreIdUrl: string
   setBusyCallback?: (isBusy: boolean) => void
-  eosTransitWalletProviders?: any[]
+  eosTransitWalletProviders?: any[] // TODO: remove these from being passed to webwidget
 }
 
 export enum WebWidgetPropType {
@@ -54,6 +55,20 @@ export type WebWidgetLogoutParams = {
   providers?: string
 }
 
+/** params for Auth action */
+export type WebWidgeAuthParams = {
+  /** Login provider (e.g. google, email) */
+  provider: AuthProvider
+  /** user's idToken - can be from a 3rd-party (e.g. Google) - can be used to create a new user account */
+  idToken?: string
+  /** passwordless login - email to login with (and to send a verification code to) */
+  email?: string
+  /** passwordless login - phone to login with (and to send a verification code to) */
+  phone?: string
+  /** whether the */
+  linkToAccount?: boolean
+}
+
 /** params for New Account action - to create a new blockchain account 'within' a user's OreID account */
 export type WebWidgetNewAccountParams = {
   /** User's OreID account (aka wallet account name) */
@@ -80,30 +95,31 @@ export type WebWidgetRecoverAccountParams = {
 export type WebWidgetSignParams = {
   /** User's OreID account (aka wallet account name) */
   account: string
-  /** Whether an option is displayed to the user to sign with a key in an external wallet (e.g. Metamask) */
-  allowChainAccountSelection?: boolean
-  /** Whether signed transaction should be automatically sent to the chain */
-  broadcast?: boolean
   /** Blockchain account (usually the account signing the transaction) */
   chainAccount?: string
   /** A valid chain network name (e.g. eth_main) */
   chainNetwork: string
   /** The maximum number of seconds for which the transaction will be valid (depends on blockchain-specific limits) */
   expireSeconds?: number
-  /** Comma seperated string of accounts for which OreID should add signatures - only valid for accounts managed by OreId */
-  multiSigChainAccounts?: string
-  /** whether the complete signed transaction should be returned */
-  returnSignedTransaction?: boolean
-  /** Optional login provider (e.g. email) - forces user to haved logged-in using this provider before signing */
-  provider?: string
   /** A base64, stringified, JSON object of the transaction to sign - which already includes one or more signatures */
   signedTransaction?: string
   /** A base64, stringified, JSON object of the transaction to sign (format depends on blockchain type) */
   transaction?: string
-  /** Prevents auto-signing a transaction (even if the user has an auto-sign credential enabled) */
-  preventAutoSign?: boolean
   /** Optional - provided instead of transaction - OreID must have this transaction saved in its database (only applies to special situations) */
   transactionRecordId?: string
+  /** Optional params for signing */
+  signOptions: {
+    /** Whether an option is displayed to the user to sign with a key in an external wallet (e.g. Metamask) */
+    allowChainAccountSelection?: boolean
+    /** Whether signed transaction should be automatically sent to the chain */
+    broadcast?: boolean
+    /** Comma seperated string of accounts for which OreID should add signatures - only valid for accounts managed by OreId */
+    multiSigChainAccounts?: string
+    /** Prevents auto-signing a transaction (even if the user has an auto-sign credential enabled) */
+    preventAutoSign?: boolean
+    /** whether the complete signed transaction should be returned */
+    returnSignedTransaction?: boolean
+  }
 }
 
 /** params for Logout action */
