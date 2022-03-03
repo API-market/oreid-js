@@ -40,10 +40,12 @@ export default class Transactopm {
     if (!chainNetwork) missingFields.push('chainNetwork')
     if (!transaction && !signedTransaction) missingFields.push('transaction OR signedTransaction')
     // validaton rules
-    if (account !== this._user.accountName)
+    if (account)
       validationIssues.push(
-        `Account param: ${account} does not match authenticated user: ${this._user.accountName}. You dont need to include the account param.`,
+        'Transaction Data error - Dont provide a value for account param. It will automatically be set to the logged-in account.',
       )
+    if (!this._user.accountName)
+      validationIssues.push('Transaction Data error - Expecting a user.accountName but - is the user logged-in in?')
     if (transaction && signedTransaction) validationIssues.push('Only provide one: transaction OR signedTransaction')
 
     // TODO: Additional validation
@@ -56,7 +58,7 @@ export default class Transactopm {
       throw new Error(`Transaction parameter error: ${validationIssues.join(', ')}`)
     }
 
-    // Set data from logged-in user
+    // account param is set to logged-in user
     this._data = {
       account: this._user.accountName,
       ...transactionData,
