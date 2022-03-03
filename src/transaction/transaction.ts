@@ -122,7 +122,8 @@ export default class Transactopm {
    * Returns: true if transaction can be signed using tansaction.sign()
    * */
   async checkCanAutoSign() {
-    return callApiCanAutosignTransaction(this._oreIdContext, this._data)
+    const { autoSignCredentialsExist } = await callApiCanAutosignTransaction(this._oreIdContext, this._data)
+    return autoSignCredentialsExist
   }
 
   /** Attempt to sign a transaction without user interaction
