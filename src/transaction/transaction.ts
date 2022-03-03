@@ -121,8 +121,8 @@ export default class Transactopm {
    * Requires a serviceKey with the autoSign right
    * Returns: true if transaction can be signed using tansaction.sign()
    * */
-  async checkCanAutoSign(transactionData: TransactionData) {
-    return callApiCanAutosignTransaction(this._oreIdContext, transactionData)
+  async checkCanAutoSign() {
+    return callApiCanAutosignTransaction(this._oreIdContext, this._data)
   }
 
   /** Attempt to sign a transaction without user interaction
