@@ -119,8 +119,6 @@ export type WebWidgetSignParams = {
     broadcast?: boolean
     /** Comma seperated string of accounts for which OreID should add signatures - only valid for accounts managed by OreId */
     multisigChainAccounts?: string
-    /** Prevents auto-signing a transaction (even if the user has an auto-sign credential enabled) */
-    preventAutoSign?: boolean
     /** whether the complete signed transaction should be returned */
     returnSignedTransaction?: boolean
   }
