@@ -117,7 +117,7 @@ export enum ExternalWalletInterface {
   Transit = 'transit',
 }
 
-export declare enum ServiceAccountUsedFor {
+export enum ServiceAccountUsedFor {
   AccountMigration = 'accountMigration',
   Airdrop = 'airdrop',
   AdminAccess = 'adminAccess',
