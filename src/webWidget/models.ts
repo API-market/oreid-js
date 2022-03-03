@@ -28,6 +28,7 @@ export type WebWidgetProps = {
   action: {
     name: WebWidgetAction | string
     params:
+      | WebWidgetAuthParams
       | WebWidgetLogoutParams
       | WebWidgetNewAccountParams
       | WebWidgetRecoverAccountParams
@@ -56,7 +57,7 @@ export type WebWidgetLogoutParams = {
 }
 
 /** params for Auth action */
-export type WebWidgeAuthParams = {
+export type WebWidgetAuthParams = {
   /** Login provider (e.g. google, email) */
   provider: AuthProvider
   /** user's idToken - can be from a 3rd-party (e.g. Google) - can be used to create a new user account */
@@ -123,6 +124,7 @@ export type WebWidgetSignParams = {
 }
 
 /** params for Logout action */
+export type WebWidgetAuthResult = any // ToDo: Type this
 export type WebWidgetLogoutResult = any // ToDo: Type this
 export type WebWidgetNewAccountResult = any // ToDo: Type this
 export type WebWidgetRecoverAccountResult = any // ToDo: Type this
