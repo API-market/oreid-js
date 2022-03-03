@@ -1,4 +1,12 @@
-import { AccountName, AccountType, ChainAccount, ChainNetwork, PermissionName, PublicKey } from '../common/models'
+import {
+  AccountName,
+  AccountType,
+  ChainAccount,
+  ChainNetwork,
+  ExternalWalletType,
+  PermissionName,
+  PublicKey,
+} from '../common/models'
 
 // ORE ID Types
 
@@ -14,12 +22,13 @@ export type UserInfo = {
 export type UserPermission = {
   chainNetwork: ChainNetwork
   chainAccount: ChainAccount
-  permissionName: PermissionName
-  publicKey: PublicKey
-  privateKeyStoredExterally: false
-  externalWalletType: null
-  accountType: AccountType
+  externalWalletType?: ExternalWalletType
+  isDefault?: boolean
+  isVerified?: boolean
+  nickname?: string
   permission: PermissionName
+  privateKeyStoredExterally?: boolean
+  publicKey?: PublicKey
 }
 
 export type WalletPermission = {
