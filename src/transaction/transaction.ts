@@ -12,7 +12,7 @@ import { getOreIdSignUrl } from '../core/urlGenerators'
 import Helpers from '../utils/helpers'
 import User from '../user/user'
 
-export default class Transactopm {
+export class Transaction {
   constructor(args: { oreIdContext: OreIdContext; user: User; data: TransactionData }) {
     this._oreIdContext = args.oreIdContext
     this._user = args.user

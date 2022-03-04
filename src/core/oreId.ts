@@ -50,7 +50,7 @@ import {
 } from '../api'
 import { getOreIdNewAccountUrl } from './urlGenerators'
 import Auth from '../auth/auth'
-import Transaction from '../transaction/transaction'
+import { Transaction } from '../transaction/transaction'
 
 const { isNullOrEmpty } = Helpers
 
