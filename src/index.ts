@@ -7,14 +7,14 @@ import { getTransitProviderAttributesByChain } from './transit/transitProviders'
 import Helpers from './utils/helpers'
 
 export {
+  appendHmacToUrl,
   asyncHandler,
   authCallbackHandler,
-  OreId,
-  signCallbackHandler,
-  appendHmacToUrl,
   generateHmac,
   getTransitProviderAttributesByChain,
   Helpers,
+  OreId,
+  signCallbackHandler,
   Transaction,
 }
 
