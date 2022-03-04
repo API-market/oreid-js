@@ -1,7 +1,15 @@
 import OreIdContext from '../core/IOreidContext'
 import Helpers from '../utils/helpers'
-import { AccountName, ChainAccount, ChainNetwork, ExternalWalletType, UserInfo, WalletPermission } from '../models'
-import { callApiGetUser, ApiGetUserParams } from '../api'
+import {
+  AccountName,
+  AuthProvider,
+  ChainAccount,
+  ChainNetwork,
+  ExternalWalletType,
+  UserInfo,
+  WalletPermission,
+} from '../models'
+import { callApiGetUser, ApiGetUserParams, callApiPasswordLessSendCode, callApiPasswordLessVerifyCode } from '../api'
 import { callApiAddPermission } from '../api/endpoints/addPermission'
 import AccessTokenHelper from '../auth/accessTokenHelper'
 
@@ -60,6 +68,35 @@ export default class User {
   /** Clears user's accessToken and user profile data */
   logout() {
     this._oreIdContext.logout()
+  }
+
+  /** Send a code to the user's primary email (user.email) - in order to verify the user has access to it
+   *  After sending the code, use checkVerificationCodeForEmail() to verify that the user received the code */
+  async sendVerificationCodeToEmail() {
+    this.assertUserHasValidEmail()
+    const result = await callApiPasswordLessSendCode(this._oreIdContext, {
+      email: this?.info?.email,
+      provider: AuthProvider.Email,
+    })
+    return result
+  }
+
+  /** Confirm that the code matches the last one just sent to the email by sendVerificationCodeToEmail() */
+  async checkVerificationCodeForEmail({ code }: { code: string }) {
+    this.assertUserHasValidEmail()
+    const result = await callApiPasswordLessVerifyCode(this._oreIdContext, {
+      code,
+      email: this?.info?.email,
+      provider: AuthProvider.Email,
+    })
+    return result
+  }
+
+  /** throw if user hasn't have a valid email (i.e. user.email) */
+  private async assertUserHasValidEmail() {
+    const { email } = this?.info
+    if (!Helpers.isValidEmail(email))
+      throw new Error(this?.info ? 'User doesnt have a valid email.' : 'Call user.getInfo() first.')
   }
 
   /** Update permissions for user's ORE Account if any */

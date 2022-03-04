@@ -146,36 +146,6 @@ export default class OreId implements IOreidContext {
     this.auth.logout()
   }
 
-  /** Call oreid api to send a password login code
-    email - api/account/login-passwordless-send-code?provider=email&email=me@aikon.com
-    phone - api/account/login-passwordless-send-code?provider=phone&phone=+12125551212 */
-  async passwordlessSendCodeApi(params: ApiPasswordLessSendCodeParams) {
-    let result = {}
-
-    try {
-      result = await callApiPasswordLessSendCode(this, params)
-    } catch (error) {
-      return { error }
-    }
-
-    return result
-  }
-
-  /** Call oreid api to send a password login code
-    email - api/account/login-passwordless-verify-code?provider=email&email=me@aikon.com&code=473830
-    phone - api/account/login-passwordless-verify-code?provider=phone&phone=12125551212&code=473830 */
-  async passwordlessVerifyCodeApi(params: ApiPasswordLessVerifyCodeParams) {
-    let result = {}
-
-    try {
-      result = await callApiPasswordLessVerifyCode(this, params)
-    } catch (error) {
-      return { error }
-    }
-
-    return result
-  }
-
   /** Request OREID to create a new blockchain account in an existing user's wallet
    *  This is an advanced feature - it most cases, blockchain accounts will be created automatically upon first login
    */
