@@ -19,7 +19,7 @@ export default class Auth {
   constructor(args: { oreIdContext: OreIdContext }) {
     this._oreIdContext = args.oreIdContext
     this._localState = this._oreIdContext.localState
-    this._transitHelper = new TransitHelper(this._oreIdContext, this._user)
+    this._transitHelper = new TransitHelper({ oreIdContext: this._oreIdContext, user: this._user })
     this._accessTokenHelper = new AccessTokenHelper()
   }
 
@@ -94,12 +94,17 @@ export default class Auth {
     return !!this.accessToken
   }
 
-  clearAccessTokenIfExpired(): boolean {
+  private clearAccessToken() {
+    // clear accessToken and user
+    this._localState.clearAccessToken()
+    this._accessTokenHelper.setAccessToken(null)
+  }
+
+  private clearAccessTokenIfExpired(): boolean {
     const hasExpired = this._accessTokenHelper?.hasExpired()
     if (!hasExpired) return false
     // clear expired accessToken and user
-    this._localState.clearAccessToken()
-    this._accessTokenHelper.setAccessToken(null)
+    this.clearAccessToken()
     console.log('accessToken has expired and has been cleared')
     return true
   }
@@ -120,7 +125,7 @@ export default class Auth {
   /** Connect to the wallet provider
    *  For some wallet types, this will include an unlock and 'login' flow to select a chain account
    *  If a chainAccount is selected, it and it's associated publicKey (if available) will be saved to the user's OreId wallet as an 'external key' */
-  async ConnectToWalletProvider(loginOptions: LoginWithWalletOptions) {
+  private async ConnectToWalletProvider(loginOptions: LoginWithWalletOptions) {
     const { provider } = loginOptions
     if (this._transitHelper.isTransitProvider(provider)) {
       return this._transitHelper.loginWithTransitProvider(loginOptions)
@@ -181,6 +186,12 @@ export default class Auth {
       message: response?.errorMessage,
       processId: response?.processId,
     }
+  }
+
+  /** clear accessToken and user */
+  logout() {
+    this.clearAccessToken()
+    this._user = null
   }
 
   /** Returns a fully formed url to redirect the user's browser to login using ORE ID

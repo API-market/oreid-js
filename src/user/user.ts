@@ -57,6 +57,11 @@ export default class User {
     this._info = userInfo
   }
 
+  /** Clears user's accessToken and user profile data */
+  logout() {
+    this._oreIdContext.logout()
+  }
+
   /** Update permissions for user's ORE Account if any */
   async updatePermissionsIfNecessary(args: {
     chainAccount: ChainAccount
