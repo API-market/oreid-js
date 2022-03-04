@@ -1,4 +1,4 @@
-import { initAccessContext, Wallet } from '@aikon/eos-transit'
+import { initAccessContext, MakeWalletProviderFn, Wallet } from '@aikon/eos-transit'
 import { msgPackEncode } from '../utils/chainUtils'
 import {
   getTransitProviderAttributes,
@@ -20,12 +20,13 @@ import {
   LoginWithWalletOptions,
   PermissionName,
   PublicKey,
+  SettingChainNetworkHost,
   SetupTransitWalletParams,
   SignatureProviderArgs,
   SignatureProviderSignResult,
   SignStringParams,
-  TransitAccountInfo,
   TransactionData,
+  TransitAccountInfo,
   TransitWallet,
   WalletPermission,
 } from '../models'
@@ -41,9 +42,9 @@ type ConnectToTransitProviderResult = {
 }
 
 export default class TransitHelper {
-  constructor(oreIdContext: OreIdContext, user?: User) {
-    this._oreIdContext = oreIdContext
-    this._user = user
+  constructor(args: { oreIdContext: OreIdContext; user?: User }) {
+    this._oreIdContext = args.oreIdContext
+    this._user = args?.user
     this.transitAccessContexts = {}
   }
 
@@ -56,8 +57,7 @@ export default class TransitHelper {
   /** Verifies that all plugins provided work (can be constructed)
    *  Stores a list of the installed providerNames (mapped to AuthProvider) for all working plugins in transitProvidersInstalled
    */
-  async installTransitProviders() {
-    const { eosTransitWalletProviders } = this._oreIdContext.options
+  async installTransitProviders(eosTransitWalletProviders: MakeWalletProviderFn[]) {
     // Executes each provider's contructor to verify it's working
     // stores all the providerName's for all plugins into transitProvidersInstalled array
     this._oreIdContext.transitProvidersInstalled = (eosTransitWalletProviders || [])
@@ -89,16 +89,25 @@ export default class TransitHelper {
     return transitWallet
   }
 
+  /** Returns network config (url, port, etc.) for specified chainNetwork */
+  private async getChainNetworkNextworkConfig(chainNetwork: ChainNetwork): Promise<SettingChainNetworkHost> {
+    const networkSettings = await this._oreIdContext.getChainNetworkSettings(chainNetwork)
+    if (!networkSettings) {
+      throw new Error(`Invalid chain network: ${chainNetwork}.`)
+    }
+    const { chainId, host, port, protocol } = networkSettings?.hosts[0] // using first host
+    return { host, port, protocol, chainId }
+  }
+
   /** Creates an EOS Transit WalletContent for the specified network and plugins
    *  Caches the context for future calls to this function */
-  async getOrCreateTransitAccessContext(chainNetwork: ChainNetwork) {
+  private async getOrCreateTransitAccessContext(chainNetwork: ChainNetwork) {
     const { appName, eosTransitWalletProviders = [] } = this._oreIdContext.options
     if (this.transitAccessContexts[chainNetwork]) {
       return this.transitAccessContexts[chainNetwork]
     }
-
-    const networkConfig = await this._oreIdContext.getNetworkConfig(chainNetwork)
-    const isNotEosNetwork = await this._oreIdContext.isNotEosNetwork(chainNetwork)
+    const networkConfig = await this.getChainNetworkNextworkConfig(chainNetwork)
+    const isNotEosNetwork = await this.isNotEosNetwork(chainNetwork)
     const walletContext = initAccessContext({
       appName: appName || 'missing appName',
       network: networkConfig,
@@ -169,7 +178,7 @@ export default class TransitHelper {
   /** Handles the call to login() function on the Transit provider
    *  If required by provider, calls discover() and/or logout() before calling login()
    *  IMPORTANT: use loginToTransitProvider() instead of this function */
-  async doTransitProviderLogin(
+  private async doTransitProviderLogin(
     transitWallet: TransitWallet,
     chainAccount: ChainAccount,
     chainNetwork: ChainNetwork,
@@ -229,7 +238,7 @@ export default class TransitHelper {
   }
 
   /** Handles the call to login() function on the Transit provider */
-  async loginToTransitProvider(
+  private async loginToTransitProvider(
     transitWallet: TransitWallet,
     walletType: ExternalWalletType,
     chainNetwork: ChainNetwork,
@@ -289,7 +298,7 @@ export default class TransitHelper {
 
   /** Discover all accounts (and related permissions) in the wallet and add them to ORE ID
    * Note: Most wallets don't support discovery */
-  async discoverCredentialsInTransitWallet(
+  private async discoverCredentialsInTransitWallet(
     chainNetwork: ChainNetwork,
     walletType: ExternalWalletType,
     oreAccount: AccountName,
@@ -338,7 +347,7 @@ export default class TransitHelper {
   }
 
   /** Discover options composed for specific provider */
-  discoverOptionsForProvider(
+  private discoverOptionsForProvider(
     provider: ExternalWalletType,
     pathIndexListParam: number[] = null,
   ): TransitDiscoveryOptions {
@@ -360,7 +369,7 @@ export default class TransitHelper {
     return response
   }
 
-  findAccountInDiscoverData(discoveryData: any, chainAccount: ChainAccount) {
+  private findAccountInDiscoverData(discoveryData: any, chainAccount: ChainAccount) {
     const result = discoveryData.keyToAccountMap.find((data: any) => {
       return data.accounts.find((acct: any) => {
         return acct.account === chainAccount
@@ -473,7 +482,7 @@ export default class TransitHelper {
   private async signTransactionWithTransitAndAlgorandSDK(transactionData: TransactionData, transitWallet: Wallet) {
     const { chainNetwork, transaction } = transactionData
     // Other chains - use sign function on walletProvider
-    const networkConfig = await this._oreIdContext.getNetworkConfig(chainNetwork)
+    const networkConfig = await this.getChainNetworkNextworkConfig(chainNetwork)
     const signParams: SignatureProviderArgs = {
       chainId: networkConfig.chainId, // Chain transaction is for
       requiredKeys: null, // not used by Algorand signatureProvider
@@ -489,8 +498,7 @@ export default class TransitHelper {
   private async signTransactionWithTransitAndEthereumSDK(transactionData: TransactionData, transitWallet: Wallet) {
     const { chainNetwork, transaction } = transactionData
     // Other chains - use sign function on walletProvider
-    const networkConfig = await this._oreIdContext.getNetworkConfig(chainNetwork)
-
+    const networkConfig = await this.getChainNetworkNextworkConfig(chainNetwork)
     const signParams: SignatureProviderArgs = {
       chainId: networkConfig.chainId, // Chain transaction is for
       requiredKeys: null, // not used by Ethereum signatureProvider
@@ -508,7 +516,7 @@ export default class TransitHelper {
     if (!chainId) {
       return null
     }
-    const networks = await this._oreIdContext.getChainNetworks()
+    const networks = await this._oreIdContext.getAllChainNetworkSettings()
     return networks.find(net => net.hosts.find(host => host.chainId === chainId))?.network
   }
 
@@ -537,27 +545,28 @@ export default class TransitHelper {
 
   isTransitProvider(provider: AuthProvider | ExternalWalletType) {
     const walletProviderType = Helpers.mapAuthProviderToWalletType(provider)
+    if (!walletProviderType) return false
     return supportedTransitProviders.includes(walletProviderType)
   }
 
   /** Whether this Eos Transit provider was installed upon instantiation */
-  hasTransitProvider(provider: ExternalWalletType): boolean {
-    return this._oreIdContext.transitProvidersInstalled.includes(provider)
+  hasTransitProvider(walletType: ExternalWalletType): boolean {
+    return this._oreIdContext.transitProvidersInstalled.includes(walletType)
   }
 
   /** Throw if the provider doesnt support the specified chainNetwork */
-  async assertProviderValidForChainNetwork(provider: ExternalWalletType, chainNetwork: ChainNetwork) {
-    const { chainType } = getTransitProviderAttributes(provider)
-    const networks = await this._oreIdContext.getChainNetworks()
+  async assertProviderValidForChainNetwork(walletType: ExternalWalletType, chainNetwork: ChainNetwork) {
+    const { chainType } = getTransitProviderAttributes(walletType)
+    const networks = await this._oreIdContext.getAllChainNetworkSettings()
     const isValid = !!networks.find(n => n.network === chainNetwork && n.type === chainType)
     if (!isValid) {
       throw Error(
-        `Provider ${provider} doesnt support chainNetwork ${chainNetwork}. Hint: It supports networks of type ${chainType}.`,
+        `External Wallet Type: ${walletType} doesnt support chainNetwork ${chainNetwork}. Hint: It supports networks of type ${chainType}.`,
       )
     }
   }
 
-  async waitWhileWalletIsBusy(transitWallet: TransitWallet, walletType: ExternalWalletType) {
+  private async waitWhileWalletIsBusy(transitWallet: TransitWallet, walletType: ExternalWalletType) {
     while (transitWallet.inProgress) {
       this._oreIdContext.setIsBusy(true)
       // todo: add timeout
@@ -591,52 +600,58 @@ export default class TransitHelper {
     await this.discover(discoverOptions)
   }
 
+  /** Returns true if network is NOT an EOS sisterchain */
+  async isNotEosNetwork(chainNetwork: ChainNetwork) {
+    const networkSetting = await this._oreIdContext.getChainNetworkSettings(chainNetwork)
+    return !(networkSetting.type === ChainPlatformType.eos || networkSetting.type === ChainPlatformType.ore)
+  }
+
   // Supported features by provider
 
   /** whether discovery is supported by the provider */
-  canDiscover(walletProvider: ExternalWalletType) {
-    if (this.hasTransitProvider(walletProvider)) {
-      return getTransitProviderAttributes(walletProvider).supportsDiscovery
+  canDiscover(walletType: ExternalWalletType) {
+    if (this.hasTransitProvider(walletType)) {
+      return getTransitProviderAttributes(walletType).supportsDiscovery
     }
     return false
   }
 
   /** whether signString is supported by the provider */
-  canSignString(walletProvider: ExternalWalletType) {
-    if (this.hasTransitProvider(walletProvider)) {
-      return getTransitProviderAttributes(walletProvider).supportsSignArbitrary
+  canSignString(walletType: ExternalWalletType) {
+    if (this.hasTransitProvider(walletType)) {
+      return getTransitProviderAttributes(walletType).supportsSignArbitrary
     }
     return false
   }
 
   /** whether call to discover is required by provider before login */
-  requiresDiscoverToLogin(walletProvider: ExternalWalletType) {
-    if (this.hasTransitProvider(walletProvider)) {
-      return getTransitProviderAttributes(walletProvider).requiresDiscoverToLogin
+  requiresDiscoverToLogin(walletType: ExternalWalletType) {
+    if (this.hasTransitProvider(walletType)) {
+      return getTransitProviderAttributes(walletType).requiresDiscoverToLogin
     }
     return false
   }
 
   /** whether call to logout then login is required by provider before discover */
-  requiresLogoutLoginToDiscover(walletProvider: ExternalWalletType) {
-    if (this.hasTransitProvider(walletProvider)) {
-      return getTransitProviderAttributes(walletProvider).requiresLogoutLoginToDiscover
+  requiresLogoutLoginToDiscover(walletType: ExternalWalletType) {
+    if (this.hasTransitProvider(walletType)) {
+      return getTransitProviderAttributes(walletType).requiresLogoutLoginToDiscover
     }
     return false
   }
 
   /** default path index for provider (if any) */
-  defaultDiscoveryPathIndexList(walletProvider: ExternalWalletType): number[] {
-    if (this.hasTransitProvider(walletProvider)) {
-      return getTransitProviderAttributes(walletProvider)?.defaultDiscoveryPathIndexList
+  defaultDiscoveryPathIndexList(walletType: ExternalWalletType): number[] {
+    if (this.hasTransitProvider(walletType)) {
+      return getTransitProviderAttributes(walletType)?.defaultDiscoveryPathIndexList
     }
     return null
   }
 
   /** help text displayed to user for provider */
-  helpTextForProvider(walletProvider: ExternalWalletType) {
-    if (this.hasTransitProvider(walletProvider)) {
-      return getTransitProviderAttributes(walletProvider).helpText
+  helpTextForProvider(walletType: ExternalWalletType) {
+    if (this.hasTransitProvider(walletType)) {
+      return getTransitProviderAttributes(walletType).helpText
     }
 
     return null
