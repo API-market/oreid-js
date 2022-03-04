@@ -6,7 +6,7 @@ export type PublicKey = string
 export type PermissionName = string
 export type Color = string
 
-export enum Config {
+export enum ConfigType {
   Chains = 'chains',
 }
 

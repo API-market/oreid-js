@@ -8,15 +8,13 @@ import IOreidContext from './IOreidContext'
 import LocalState from '../utils/localState'
 import { defaultOreIdServiceUrl, providersNotImplemented, publicApiEndpoints, version } from '../constants'
 import { generateHmac } from '../utils/hmac'
-import { getTransitProviderAttributes, transitProviderAttributesData } from '../transit/transitProviders'
+import { getTransitProviderAttributes } from '../transit/transitProviders'
 import {
   ApiEndpoint,
   AppAccessToken,
   AppAccessTokenMetadata,
   AuthProvider,
   ChainNetwork,
-  ChainPlatformType,
-  Config,
   ExternalWalletInterface,
   ExternalWalletType,
   NewAccountOptions,
@@ -25,14 +23,11 @@ import {
   OreIdOptions,
   ProcessId,
   RequestType,
-  SettingChainNetwork,
-  SettingChainNetworkHost,
   SignResult,
   SignStringParams,
   TransactionData,
 } from '../models'
 import StorageHandler from '../utils/storage'
-import AccessTokenHelper from '../auth/accessTokenHelper'
 import {
   ApiConvertOauthTokensParams,
   ApiCustodialMigrateAccountParams,
@@ -44,13 +39,13 @@ import {
   callApiCustodialMigrateAccount,
   callApiCustodialNewAccount,
   callApiGetAppToken,
-  callApiGetConfig,
   callApiPasswordLessSendCode,
   callApiPasswordLessVerifyCode,
 } from '../api'
 import { getOreIdNewAccountUrl } from './urlGenerators'
 import Auth from '../auth/auth'
 import Transaction from '../transaction/transaction'
+import Settings from './Settings'
 
 const { isNullOrEmpty } = Helpers
 
@@ -59,24 +54,23 @@ export default class OreId implements IOreidContext {
     this._options = null
     const storageHandler = this.options?.storageHandler || new StorageHandler()
     this._localState = new LocalState(this.options?.appId, storageHandler)
-    this.cachedChainNetworks = null
     this.validateAndSetOptions(options)
-    // create an instance of the Transit Helper class
-    this._transitHelper = new TransitHelper(this)
+    this._settings = new Settings({ oreIdContext: this })
+    this._transitHelper = new TransitHelper({ oreIdContext: this })
     // All installed TransitProviders
-    this.transitHelper.installTransitProviders()
+    this._transitHelper.installTransitProviders(this.options?.eosTransitWalletProviders)
     this._auth = new Auth({ oreIdContext: this })
   }
 
   _auth: Auth
+
+  _settings: Settings
 
   _localState: LocalState
 
   _options: OreIdOptions
 
   _transitHelper: TransitHelper
-
-  cachedChainNetworks: SettingChainNetwork[] = []
 
   isBusy: boolean
 
@@ -93,7 +87,7 @@ export default class OreId implements IOreidContext {
     return this.auth.accessTokenHelper
   }
 
-  // authenticate flows and login state
+  /** authentication flows and login state */
   get auth() {
     return this._auth
   }
@@ -113,11 +107,6 @@ export default class OreId implements IOreidContext {
     return this._options
   }
 
-  /** transit wallet plugin helper functions and connections */
-  get transitHelper() {
-    return this._transitHelper
-  }
-
   /** If we're running in the browser, we must use a proxy server to talk to OREID api
   Unless, we are running the demo app, in which case CORS is disabled by OREID server */
   get requiresProxyServer() {
@@ -125,6 +114,11 @@ export default class OreId implements IOreidContext {
     if (this?.options?.isUsingProxyServer) return true
     if (!this?.options?.apiKey) return false
     return Helpers.isInBrowser && !this.isDemoApp
+  }
+
+  /** Transit wallet plugin helper functions and connections */
+  get transitHelper() {
+    return this._transitHelper
   }
 
   /** Throw if the required plug-in is not installed */
@@ -136,39 +130,20 @@ export default class OreId implements IOreidContext {
     }
   }
 
-  /** Calls getConfigFromApi() to retrieve settings for all chain networks defined by OreID service
+  /** Retrieve settings for all chain networks defined by OreId service
    * and caches the result */
-  async getChainNetworks(): Promise<SettingChainNetwork[]> {
-    if (isNullOrEmpty(this.cachedChainNetworks)) {
-      // load the chainNetworks list from the ORE ID API
-      const results = await this.getConfigFromApi(Config.Chains)
-      this.cachedChainNetworks = results.chains // as SettingChainNetwork[]
-    }
-
-    return this.cachedChainNetworks
+  async getAllChainNetworkSettings() {
+    return this._settings.getAllChainNetworkSettings()
   }
 
   /** Returns config for specified chain network */
-  async getNetworkConfig(chainNetwork: ChainNetwork): Promise<SettingChainNetworkHost> {
-    const networks = await this.getChainNetworks()
-    const chainConfig = networks.find(n => n.network === chainNetwork)
-    if (!chainConfig) {
-      throw new Error(`Invalid chain network: ${chainNetwork}.`)
-    }
-    const { hosts } = chainConfig
-    const { chainId, host, port, protocol } = hosts[0] // using first host
-    return { host, port, protocol, chainId }
-  }
-
   async getChainNetworkSettings(chainNetwork: ChainNetwork) {
-    const networks = await this.getChainNetworks()
-    return networks.find(n => n.network === chainNetwork)
+    return this._settings.getChainNetworkSettings(chainNetwork)
   }
 
-  /** Returns true if network is NOT an EOS sisterchain */
-  async isNotEosNetwork(chainNetwork: ChainNetwork) {
-    const networkSetting = await this.getChainNetworkSettings(chainNetwork)
-    return !(networkSetting.type === ChainPlatformType.eos || networkSetting.type === ChainPlatformType.ore)
+  /** Clears user's accessToken and user profile data */
+  logout() {
+    this.auth.logout()
   }
 
   /** Call oreid api to send a password login code
@@ -245,19 +220,6 @@ export default class OreId implements IOreidContext {
     return signResult
   }
 
-  /** ensure all required parameters are provided */
-  assertValidSignStringParams(params: SignStringParams) {
-    const { walletType, account, chainNetwork, string } = params
-    let missingFields = ''
-    if (!walletType) missingFields += 'walletType, '
-    if (!account) missingFields += 'account, '
-    if (!chainNetwork) missingFields += 'chainNetwork, '
-    if (!string) missingFields += 'string, '
-    if (missingFields) {
-      throw new Error(`Missing parameter(s): ${missingFields}`)
-    }
-  }
-
   /** Create a new user account that is managed by your app
    * Requires a wallet password (userPassword) on behalf of the user
    * Requires an apiKey and a serviceKey with the createUser right
@@ -292,16 +254,20 @@ export default class OreId implements IOreidContext {
     return callApiConvertOauthTokens(this, oauthOptions)
   }
 
+  /** Return ChainNetwork that matches chainId (as defined in OreId Chain Network Settings) */
   async getChainNetworkByChainId(chainId: string) {
-    const networks = await this.getChainNetworks()
-    const chainConfig = networks.find(n => n.hosts.find(h => h.chainId === chainId))
+    const networks = await this.getAllChainNetworkSettings()
+    const chainSettings = networks.find(n => n.hosts.find(h => h.chainId === chainId))
 
-    if (!isNullOrEmpty(chainConfig)) {
-      return chainConfig.network
+    if (!isNullOrEmpty(chainSettings)) {
+      return chainSettings.network
     }
     return null
   }
 
+  /** Call the setBusyCallback() callback provided in optiont
+   *  Use true or false to set the current busy state
+   */
   setIsBusy(value: boolean) {
     if (this.isBusy !== value) {
       this.isBusy = value
@@ -327,12 +293,6 @@ export default class OreId implements IOreidContext {
         '\n --> Missing required parameter - appId. You can get an appId when you register your app with ORE ID.'
     }
 
-    // api-key will be injected by the proxy server - so isn't required here
-    // if (!this.requiresProxyServer && !apiKey) {
-    //   errorMessage +=
-    //     '\n --> Missing required parameter - apiKey. You can get an apiKey when you register your app with ORE ID.'
-    // }
-
     // api-key and service-key not allowed if this is being instantiated in the browser
     if (this.requiresProxyServer && (apiKey || serviceKey)) {
       errorMessage +=
@@ -341,12 +301,6 @@ export default class OreId implements IOreidContext {
     if (errorMessage !== '') {
       throw new Error(`Options are missing or invalid. ${errorMessage}`)
     }
-  }
-
-  /** Loads settings value from the server
-    e.g. configType='chains' returns valid chain types and addresses */
-  async getConfig(configType: Config) {
-    return this.getConfigFromApi(configType)
   }
 
   /** Gets a single-use token to access the service */
@@ -380,18 +334,6 @@ export default class OreId implements IOreidContext {
     }
     this.setIsBusy(false)
     return { signedTransaction, processId, state, transactionId, errors }
-  }
-
-  /**
-   *  Call api services/config to get configuration values of a specific type
-   *  Returns: for configType:Config.Chains, returns array of SettingChainNetwork objects for all chains suported by the service
-   * */
-  async getConfigFromApi(configType: Config.Chains) {
-    const values = await callApiGetConfig(this, { configType })
-    if (Helpers.isNullOrEmpty(values)) {
-      throw new Error(`Not able to retrieve config values for ${configType}`)
-    }
-    return values
   }
 
   /** Helper function to call api endpoint and inject api-key
@@ -467,24 +409,12 @@ export default class OreId implements IOreidContext {
     return data
   }
 
-  /** Clears user's accessToken and user profile data */
-  logout() {
-    this.localState.clear()
-  }
-
-  getWalletProviderInfo(provider: AuthProvider, type: ExternalWalletInterface) {
-    if (!provider || !type) {
-      return {
-        transitProviderAttributes: transitProviderAttributesData,
-      }
+  /** Returns metadata about the external wallet type (e.g. name, logo) and which features it supports */
+  geExternalWalletInfo(walletType: ExternalWalletType) {
+    if (!this._transitHelper.isTransitProvider(walletType)) {
+      throw new Error(`Invalid walletType:${walletType}`)
     }
-
-    if (type === ExternalWalletInterface.Transit) {
-      const walletProvider = Helpers.mapAuthProviderToWalletType(provider)
-      return getTransitProviderAttributes(walletProvider)
-    }
-
-    return null
+    return getTransitProviderAttributes(walletType)
   }
 
   /** Create a new Transaction object - used for composing and signing transactions */

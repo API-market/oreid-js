@@ -1,9 +1,9 @@
 import OreIdContext from '../../core/IOreidContext'
-import { ApiEndpoint, Config, RequestType } from '../../models'
+import { ApiEndpoint, ConfigType, RequestType } from '../../models'
 import { assertHasApiKeyOrAccessToken, assertParamsHaveRequiredValues } from '../helpers'
 
 export type ApiGetConfigParams = {
-  configType: Config.Chains
+  configType: ConfigType.Chains
 }
 
 /**

@@ -7,7 +7,6 @@ import {
   ProcessId,
   RequestType,
   SettingChainNetwork,
-  SettingChainNetworkHost,
 } from '../models'
 import AccessTokenHelper from '../auth/accessTokenHelper'
 import LocalState from '../utils/localState'
@@ -32,9 +31,8 @@ export default interface OreIdContext {
     overrideAccessToken?: string,
     processId?: ProcessId,
   ) => Promise<any>
-  getChainNetworks: () => Promise<SettingChainNetwork[]>
+  getAllChainNetworkSettings: () => Promise<SettingChainNetwork[]>
   getChainNetworkSettings: (chainNetwork: ChainNetwork) => Promise<SettingChainNetwork>
-  getNetworkConfig: (chainNetwork: ChainNetwork) => Promise<SettingChainNetworkHost>
-  isNotEosNetwork: (chainNetwork: ChainNetwork) => Promise<boolean>
+  logout: () => void
   setIsBusy: (value: boolean) => void
 }
