@@ -17,7 +17,7 @@ export default class Transactopm {
     this._oreIdContext = args.oreIdContext
     this._user = args.user
     this.assertValidTransactionAndSetData(args.data)
-    this._transitHelper = new TransitHelper(this._oreIdContext)
+    this._transitHelper = new TransitHelper({ oreIdContext: this._oreIdContext })
   }
 
   private _oreIdContext: OreIdContext
