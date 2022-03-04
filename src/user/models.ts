@@ -1,6 +1,5 @@
 import {
   AccountName,
-  AccountType,
   ChainAccount,
   ChainNetwork,
   ExternalWalletType,
