@@ -106,9 +106,9 @@ export type WebWidgetSignParams = {
   /** The maximum number of seconds for which the transaction will be valid (depends on blockchain-specific limits) */
   expireSeconds?: number
   /** A base64, stringified, JSON object of the transaction to sign - which already includes one or more signatures */
-  signedTransaction?: string
+  encodedSignedTransaction?: string
   /** A base64, stringified, JSON object of the transaction to sign (format depends on blockchain type) */
-  transaction?: string
+  encodedTransaction?: string
   /** Optional - provided instead of transaction - OreID must have this transaction saved in its database (only applies to special situations) */
   transactionRecordId?: string
   /** Optional params for signing */
