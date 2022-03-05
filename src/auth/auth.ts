@@ -15,11 +15,14 @@ import TransitHelper from '../transit/TransitHelper'
 import {
   ApiConvertOauthTokensParams,
   ApiLoginUserWithTokenParams,
+  ApiNewUserWithTokenParams,
   ApiMessageResult,
   callApiConvertOauthTokens,
   callApiLoginUserWithToken,
+  callApiNewUserWithToken,
 } from '../api'
 import { getOreIdAuthUrl } from '../core/urlGenerators'
+import { NewUserWithTokenOptions } from './models'
 
 export default class Auth {
   constructor(args: { oreIdContext: OreIdContext }) {
@@ -148,27 +151,18 @@ export default class Auth {
     return callApiConvertOauthTokens(this._oreIdContext, oauthOptions)
   }
 
-  /** Call api account/login-user-with-token
-   * Converts OAuth idToken from some 3rd-party source to OREID Oauth accessTokens
-   * The third-party (e.g. Auth0 or Google) must be registered in the AppRegistration.oauthSettings
-   * If a user does not curently exist that matches the info in the incoming idToken, a new OreID user and account is created
-   * Requires a valid idToken but no accessToken or apiKey
-   * Returns: OreId issued accessToken (which includes OreId account)
+  /**
+   * Converts OAuth accessToken or idToken from some 3rd-party source (e.g. Google) to OreId OAuth accessToken
+   * The third-party (e.g. Auth0 or Google) must be registered in the App Registration's oauthSettings
+   * If a user does not curently exist that matches the info in the incoming idToken, an error is thrown
+   * Does not requires a user to be logged-in (no current accessToken) or apiKey
+   * Returns: OreId issued accessToken
    * */
   async loginWithToken(loginOptions: LoginWithTokenOptions): Promise<LoginWithOreIdResult> {
-    const { idToken } = loginOptions || {}
-    if (!idToken) {
-      throw new Error('Cant LoginWithToken - missing required parameter: idToken')
+    if (!loginOptions?.idToken && !loginOptions?.accessToken) {
+      throw new Error('Cant loginWithToken - missing required parameter: accessToken OR idToken')
     }
-
-    // TODO: Update to accept accessToken as an alternative to idToken
-    // This will also require a service update to accept accessToken as an optional param
-    // Check here to only accept accessToken or idToken - throw if both provided
-    // loginWithAccessToken() Should check for a valid JWT accessToken and throw otherwise - if valid accessToken, it should call callApiLoginUserWithToken()
-    // logging in with an accessToken presumes the user already exists in the OREID database - if the user is not found, it throws
-    // NOTE: logging in with idToken will create a user if one already doesnt exist
-
-    const { accessToken, error, processId } = await this.loginWithIdToken({ idToken })
+    const { accessToken, error, processId } = await this.loginWithJwtToken(loginOptions)
     if (!error) {
       this.accessToken = accessToken // saves in cache and in local storage
       this.user.getInfo()
@@ -176,32 +170,74 @@ export default class Auth {
     return { accessToken, errors: error, processId }
   }
 
-  /** Call api account/login-user-with-token
-   * Converts OAuth idToken from some 3rd-party source to OREID Oauth accessTokens
-   * Requires a valid idToken but no accessToken or apiKey
-   * If a user does not curently exist that matches the info in the incoming idToken, a new OreID user and account is created
-   * Returns: OreId issued accessToken (which includes OreId account)
+  /** Converts OAuth idToken from some 3rd-party source to OREID Oauth accessTokens
+   * The third-party (e.g. Auth0 or Google) must be registered in the AppRegistration.oauthSettings
+   * Creates a new OreId user and account from info in the incoming idToken
+   * If a matching user already exist, and error is returned
+   * Requires a valid idToken but no current accessToken or apiKey
+   * Returns: OreId issued accessToken
    * */
-  async loginWithIdToken(
+  async newUserWithToken(loginOptions: NewUserWithTokenOptions): Promise<LoginWithOreIdResult> {
+    const { idToken } = loginOptions || {}
+    if (!idToken) {
+      throw new Error('Cant do newUserWithToken - missing required parameter: idToken')
+    }
+    const { accessToken, error, processId } = await this.newAccountWithIdToken({ idToken })
+    if (!error) {
+      this.accessToken = accessToken // saves in cache and in local storage
+      this.user.getInfo()
+    }
+    return { accessToken, errors: error, processId }
+  }
+
+  /** Calls api account/login-user-with-token for loginWithToken() (after checking for valid token */
+  private checkJwtTokenAndReturnError(jwtTokenString: string): { error?: string; message?: string } {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const accessTokenHelper = new AccessTokenHelper(jwtTokenString, true)
+    } catch (error) {
+      return {
+        error: 'token_invalid',
+        message: 'token invalid or corrupt - must be a JWT Oauth2 token',
+      }
+    }
+
+    return null
+  }
+
+  /** Calls api account/login-user-with-token for loginWithToken() (after checking for valid token */
+  private async loginWithJwtToken(
     oauthOptions: ApiLoginUserWithTokenParams,
   ): Promise<{ accessToken: string } & ApiMessageResult> {
-    const accessTokenHelper = new AccessTokenHelper(oauthOptions?.idToken, true)
-    if (!accessTokenHelper.decodedAccessToken) {
-      return {
-        accessToken: null,
-        error: 'token_invalid',
-        message: 'idToken invalid or corrupt',
-      }
-    }
-    if (!AccessTokenHelper.isTokenDateValidNow(accessTokenHelper.decodedAccessToken)) {
-      return {
-        accessToken: null,
-        error: 'token_expired',
-        message: 'idToken provided is expired',
-      }
-    }
-    const response = await callApiLoginUserWithToken(this._oreIdContext, oauthOptions)
+    const { accessToken, idToken } = oauthOptions
+    // check valid idToken
+    let tokenCheckError = accessToken ? this.checkJwtTokenAndReturnError(accessToken) : null
+    if (tokenCheckError) return { accessToken: null, ...tokenCheckError }
+    // check valid accessToken
+    tokenCheckError = idToken ? this.checkJwtTokenAndReturnError(idToken) : null
+    if (tokenCheckError) return { accessToken: null, ...tokenCheckError }
 
+    const response = await callApiLoginUserWithToken(this._oreIdContext, oauthOptions)
+    this.setAuthResult({ accessToken: response?.accessToken })
+    return {
+      accessToken: response.accessToken,
+      error: response?.errorCode,
+      message: response?.errorMessage,
+      processId: response?.processId,
+    }
+  }
+
+  /** Calls api account/new-user-with-token for newUserWithToken() (after checking for valid token */
+  private async newAccountWithIdToken(
+    oauthOptions: ApiNewUserWithTokenParams,
+  ): Promise<{ accessToken: string } & ApiMessageResult> {
+    const { idToken } = oauthOptions
+    // check valid ifToken
+    const tokenCheckError = idToken ? this.checkJwtTokenAndReturnError(idToken) : null
+    if (tokenCheckError) return { accessToken: null, ...tokenCheckError }
+
+    const response = await callApiNewUserWithToken(this._oreIdContext, oauthOptions)
+    this.setAuthResult({ accessToken: response?.accessToken })
     return {
       accessToken: response.accessToken,
       error: response?.errorCode,

@@ -45,5 +45,10 @@ export type LoginWithWalletOptions = {
 }
 
 export type LoginWithTokenOptions = {
+  accessToken?: string
+  idToken?: string
+}
+
+export type NewUserWithTokenOptions = {
   idToken?: string
 }

@@ -1,4 +1,4 @@
-import { AccountName, AccountType, ChainAccount, ChainNetwork, ProcessId } from '../common/models'
+import { AccountName, AccountType, ChainAccount, ChainNetwork } from '../common/models'
 
 export enum RequestType {
   Get = 'get',
@@ -16,6 +16,7 @@ export enum ApiEndpoint {
   GetUser = 'account/user',
   GetConfig = 'services/config',
   LoginUserWithToken = 'account/login-user-with-token',
+  NewUserWithToken = 'account/new-user-with-token',
   PasswordLessSendCode = 'account/login-passwordless-send-code',
   PasswordLessVerifyCode = 'account/login-passwordless-verify-code',
   TransactionSign = 'transaction/sign',
