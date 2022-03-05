@@ -4,9 +4,7 @@ import { JWTToken } from './models'
 class AccessTokenHelper {
   constructor(accessToken?: string, ignoreIssuer = false) {
     this._ignoreIssuer = ignoreIssuer
-    if (accessToken) {
-      this.setAccessToken(accessToken)
-    }
+    this.setAccessToken(accessToken)
   }
 
   _accessToken: string
@@ -55,9 +53,8 @@ class AccessTokenHelper {
   }
 
   setAccessToken(value: string) {
-    // allows clearing of value
     if (!value) {
-      this._accessToken = null
+      this._accessToken = null // allows clearing of value
       return
     }
     const decodedAccessToken = Helpers.jwtDecodeSafe(value) as JWTToken
@@ -69,6 +66,10 @@ class AccessTokenHelper {
   }
 
   setIdToken(value: string) {
+    if (!value) {
+      this._decodedIdToken = null // allows clearing of value
+      return
+    }
     const decodedIdToken = Helpers.jwtDecodeSafe(value) as JWTToken
     if (!decodedIdToken) throw Error(`Can't set IdToken. Value provided: ${value}`)
     AccessTokenHelper.assertIsTokenValid(decodedIdToken, this._ignoreIssuer)
