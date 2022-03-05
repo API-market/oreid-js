@@ -71,9 +71,9 @@ export default class Transaction {
     }
     // set encoded transaction properties
     if (createTransactionData?.transaction)
-      this._data.transactionEncoded = Helpers.base64Encode(JSON.stringify(createTransactionData.transaction))
+      this._data.encodedTransaction = Helpers.base64Encode(JSON.stringify(createTransactionData.transaction))
     if (createTransactionData?.signedTransaction)
-      this._data.signedTransactionEncoded = Helpers.base64Encode(
+      this._data.encodedSignedTransaction = Helpers.base64Encode(
         JSON.stringify(createTransactionData.signedTransaction),
       )
   }

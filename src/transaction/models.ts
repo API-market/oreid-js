@@ -9,8 +9,8 @@ export type TransactionData = {
   expireSeconds?: number
   signedTransaction?: JSONObject // 'raw' transaction that potentially includes signatures too
   transaction?: JSONObject // either transaction or signedTransaction - not both
-  signedTransactionEncoded?: string // Stringified,base64 encoded signedTransaction
-  transactionEncoded?: string // Stringified,base64 encoded transaction
+  encodedSignedTransaction?: string // Stringified,base64 encoded signedTransaction
+  encodedTransaction?: string // Stringified,base64 encoded transaction
   transactionChainAccount?: string // used to sepecify a specific 'from' account for multisig tx
   transactionRecordId?: string // when set, specifies to use a transaction saved in OREID
   signOptions?: {
@@ -32,4 +32,4 @@ export type TransactionData = {
 }
 
 export interface CreateTransactionData
-  extends Omit<TransactionData, 'account' | 'signedTransactionEncoded' | 'transactionEncoded'> {}
+  extends Omit<TransactionData, 'account' | 'encodedSignedTransaction' | 'encodedTransaction'> {}
