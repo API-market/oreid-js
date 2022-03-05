@@ -60,11 +60,22 @@ export default class Transaction {
       throw new Error(`Transaction parameter error: ${validationIssues.join(', ')}`)
     }
 
+    this.setTransactionData(createTransactionData)
+  }
+
+  private setTransactionData(createTransactionData: CreateTransactionData) {
     // account param is set to logged-in user
     this._data = {
       account: this._user.accountName,
       ...createTransactionData,
     }
+    // set encoded transaction properties
+    if (createTransactionData?.transaction)
+      this._data.transactionEncoded = Helpers.base64Encode(JSON.stringify(createTransactionData.transaction))
+    if (createTransactionData?.signedTransaction)
+      this._data.signedTransactionEncoded = Helpers.base64Encode(
+        JSON.stringify(createTransactionData.signedTransaction),
+      )
   }
 
   /** ensure that the chainNetwork and chainAccount for the transaction are in the user's wallet
