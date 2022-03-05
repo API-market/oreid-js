@@ -54,7 +54,7 @@ export type WebWidgetLogoutParams = {
 export type WebWidgetActionParams =
   | WebWidgetAuthParams
   | WebWidgetLogoutParams
-  | WebWidgetNewAccountParams
+  | WebWidgetNewChainAccountParams
   | WebWidgetRecoverAccountParams
   | WebWidgetSignParams
   | any
@@ -74,7 +74,7 @@ export type WebWidgetAuthParams = {
 }
 
 /** params for New Account action - to create a new blockchain account 'within' a user's OreID account */
-export type WebWidgetNewAccountParams = {
+export type WebWidgetNewChainAccountParams = {
   /** User's OreID account (aka wallet account name) */
   account: string
   /** Optional JSON object of account creation options (blockchain-specific) */
@@ -127,6 +127,13 @@ export type WebWidgetSignParams = {
 /** params for Logout action */
 export type WebWidgetAuthResult = any // ToDo: Type this
 export type WebWidgetLogoutResult = any // ToDo: Type this
-export type WebWidgetNewAccountResult = any // ToDo: Type this
+export type WebWidgetNewChainAccountResult = any // ToDo: Type this
 export type WebWidgetRecoverAccountResult = any // ToDo: Type this
 export type WebWidgetSignResult = any // ToDo: Type this
+
+export type WebWidgetActionResult =
+  | WebWidgetAuthResult
+  | WebWidgetLogoutResult
+  | WebWidgetNewChainAccountResult
+  | WebWidgetRecoverAccountResult
+  | WebWidgetSignResult
