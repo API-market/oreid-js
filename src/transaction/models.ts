@@ -1,4 +1,4 @@
-import { AccountName, AuthProvider, ChainAccount, ChainNetwork } from '../common/models'
+import { AccountName, AuthProvider, ChainAccount, ChainNetwork, JSONObject } from '../common/models'
 
 // ORE ID Types
 
@@ -7,8 +7,8 @@ export type TransactionData = {
   chainAccount?: ChainAccount // chainAccount not required for Ethereum - it can be defined by the account that signed the transaction
   chainNetwork: ChainNetwork
   expireSeconds?: number
-  signedTransaction?: string // 'raw' transaction that potentially includes signatures too
-  transaction?: string // either transaction or signedTransaction - not both
+  signedTransaction?: JSONObject // 'raw' transaction that potentially includes signatures too
+  transaction?: JSONObject // either transaction or signedTransaction - not both
   signedTransactionEncoded?: string // Stringified,base64 encoded signedTransaction
   transactionEncoded?: string // Stringified,base64 encoded transaction
   transactionChainAccount?: string // used to sepecify a specific 'from' account for multisig tx
