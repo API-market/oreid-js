@@ -47,6 +47,13 @@ export default class User {
     return !!this._accessTokenHelper.accessToken
   }
 
+  /** throw if user hasn't have a valid email (i.e. user.email) */
+  private async assertUserHasValidEmail() {
+    const { email } = this?.info
+    if (!Helpers.isValidEmail(email))
+      throw new Error(this?.info ? 'User doesnt have a valid email.' : 'Call user.getInfo() first.')
+  }
+
   /** Get the user info from ORE ID API for a given user account and (usually) save the user into localStorage 'cache'
    *  Must have a valid accessToken to retrieve user
    */
@@ -90,13 +97,6 @@ export default class User {
       provider: AuthProvider.Email,
     })
     return result
-  }
-
-  /** throw if user hasn't have a valid email (i.e. user.email) */
-  private async assertUserHasValidEmail() {
-    const { email } = this?.info
-    if (!Helpers.isValidEmail(email))
-      throw new Error(this?.info ? 'User doesnt have a valid email.' : 'Call user.getInfo() first.')
   }
 
   /** Update permissions for user's ORE Account if any */

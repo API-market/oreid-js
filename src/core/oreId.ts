@@ -33,14 +33,10 @@ import {
   ApiCustodialMigrateAccountParams,
   ApiCustodialNewAccountParams,
   ApiGetAppTokenParams,
-  ApiPasswordLessSendCodeParams,
-  ApiPasswordLessVerifyCodeParams,
   callApiConvertOauthTokens,
   callApiCustodialMigrateAccount,
   callApiCustodialNewAccount,
   callApiGetAppToken,
-  callApiPasswordLessSendCode,
-  callApiPasswordLessVerifyCode,
 } from '../api'
 import { getOreIdNewAccountUrl } from './urlGenerators'
 import Auth from '../auth/auth'
