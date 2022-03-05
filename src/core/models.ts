@@ -44,16 +44,14 @@ export enum RecoverAccountAction {
 
 // oreid-js
 
-/** For rediecting to new-account endpoint - to create a chainAccount in an existing wallet */
+/** For creating a new chainAccount in an existing wallet */
 export type NewAccountOptions = {
   account: AccountName // existing wallet account name (ore account)
+  accountOptions?: CreateOnChainAccountsOptions
   accountType: AccountType
   chainNetwork?: ChainNetwork
-  accountOptions?: CreateOnChainAccountsOptions
-  provider: AuthProvider
+  provider?: AuthProvider // TODO: confirm if we need this
   state?: string
-  accessToken?: string
-  idToken?: string
 }
 
 export type DiscoverOptions = {
@@ -64,7 +62,7 @@ export type DiscoverOptions = {
 }
 
 export type AuthResult = {
-  account: AccountName
+  account?: AccountName
   accessToken?: string
   idToken?: string
   errors?: string[]
