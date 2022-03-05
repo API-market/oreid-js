@@ -211,15 +211,6 @@ export default class OreId implements IOreidContext {
     return response
   }
 
-  /** Call the account/convert-oauth api
-   * Converts OAuth tokens from some 3rd-party source to OREID Oauth tokens
-   * The third-party (e.g. Auth0 or Google) must be registered in the AppRegistration.oauthSettings
-   * Returns: OreId issued accessToken and idToken
-   * */
-  async convertOauthTokens(oauthOptions: ApiConvertOauthTokensParams) {
-    return callApiConvertOauthTokens(this, oauthOptions)
-  }
-
   /** Return ChainNetwork that matches chainId (as defined in OreId Chain Network Settings) */
   async getChainNetworkByChainId(chainId: string) {
     const networks = await this.getAllChainNetworkSettings()

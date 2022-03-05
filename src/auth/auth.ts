@@ -12,7 +12,13 @@ import {
 import { providersNotImplemented } from '../constants'
 import User from '../user/user'
 import TransitHelper from '../transit/TransitHelper'
-import { ApiLoginUserWithTokenParams, ApiMessageResult, callApiLoginUserWithToken } from '../api'
+import {
+  ApiConvertOauthTokensParams,
+  ApiLoginUserWithTokenParams,
+  ApiMessageResult,
+  callApiConvertOauthTokens,
+  callApiLoginUserWithToken,
+} from '../api'
 import { getOreIdAuthUrl } from '../core/urlGenerators'
 
 export default class Auth {
@@ -119,18 +125,27 @@ export default class Auth {
       throw new Error(`loginWithWallet not supprted for provider: ${provider}`)
     }
 
-    return this.ConnectToWalletProvider(loginOptions)
+    return this.connectToWalletProvider(loginOptions)
   }
 
   /** Connect to the wallet provider
    *  For some wallet types, this will include an unlock and 'login' flow to select a chain account
    *  If a chainAccount is selected, it and it's associated publicKey (if available) will be saved to the user's OreId wallet as an 'external key' */
-  private async ConnectToWalletProvider(loginOptions: LoginWithWalletOptions) {
+  private async connectToWalletProvider(loginOptions: LoginWithWalletOptions) {
     const { provider } = loginOptions
     if (this._transitHelper.isTransitProvider(provider)) {
       return this._transitHelper.loginWithTransitProvider(loginOptions)
     }
     throw new Error(`Not a valid External Wallet provider: ${provider}`)
+  }
+
+  /** Calls the account/convert-oauth api
+   * Converts OAuth tokens from some 3rd-party source to OREID Oauth tokens
+   * The third-party (e.g. Auth0 or Google) must be registered in the AppRegistration.oauthSettings
+   * Returns: OreId issued accessToken and idToken
+   * */
+  private async convertOauthTokens(oauthOptions: ApiConvertOauthTokensParams) {
+    return callApiConvertOauthTokens(this._oreIdContext, oauthOptions)
   }
 
   /** Call api account/login-user-with-token
@@ -145,7 +160,14 @@ export default class Auth {
     if (!idToken) {
       throw new Error('Cant LoginWithToken - missing required parameter: idToken')
     }
-    // TODO: consider allowing login with accessToken instad of idToken - along with additional user data (e.g. name, email)
+
+    // TODO: Update to accept accessToken as an alternative to idToken
+    // This will also require a service update to accept accessToken as an optional param
+    // Check here to only accept accessToken or idToken - throw if both provided
+    // loginWithAccessToken() Should check for a valid JWT accessToken and throw otherwise - if valid accessToken, it should call callApiLoginUserWithToken()
+    // logging in with an accessToken presumes the user already exists in the OREID database - if the user is not found, it throws
+    // NOTE: logging in with idToken will create a user if one already doesnt exist
+
     const { accessToken, error, processId } = await this.loginWithIdToken({ idToken })
     if (!error) {
       this.accessToken = accessToken // saves in cache and in local storage
