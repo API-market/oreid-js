@@ -127,7 +127,7 @@ export type SignStringParams = {
 
 // Function Params
 
-export type GetOreIdNewAccountUrlParams = NewAccountOptions & {
+export type GetOreIdNewChainAccountUrlParams = NewAccountOptions & {
   callbackUrl: string
   backgroundColor?: string
 }

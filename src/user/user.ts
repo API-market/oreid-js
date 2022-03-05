@@ -6,12 +6,15 @@ import {
   ChainAccount,
   ChainNetwork,
   ExternalWalletType,
+  NewAccountOptions,
+  NewAccountWithOreIdResult,
   UserInfo,
   WalletPermission,
 } from '../models'
 import { callApiGetUser, ApiGetUserParams, callApiPasswordLessSendCode, callApiPasswordLessVerifyCode } from '../api'
 import { callApiAddPermission } from '../api/endpoints/addPermission'
 import AccessTokenHelper from '../auth/accessTokenHelper'
+import { getOreIdNewChainAccountUrl } from '../core/urlGenerators'
 
 const { isNullOrEmpty } = Helpers
 
@@ -75,6 +78,34 @@ export default class User {
   /** Clears user's accessToken and user profile data */
   logout() {
     this._oreIdContext.logout()
+  }
+
+  /** Request OREID to create a new blockchain account in an existing user's wallet
+   *  This is an advanced feature - it most cases, blockchain accounts will be created automatically upon first login
+   */
+  // async newChainAccount(newAccountOptions: NewAccountOptions) {
+  //   // TODO - call API to create chain accont (requires serviceKey)
+  //   // for webwidget, it should just refresh user info upon callback
+  // }
+
+  /** Returns a fully formed url to redirect the user's browser to create a new chain account using ORE ID
+   *  This function calls the /new-account web endpoint
+   *  Returns: Callback returns new chainAccount name */
+  async getNewChainAccountUrl(newAccountOptions: NewAccountOptions): Promise<NewAccountWithOreIdResult> {
+    const { account, accountType, chainNetwork, accountOptions, provider, state } = newAccountOptions || {}
+    const { newAccountCallbackUrl, backgroundColor } = this._oreIdContext.options
+    const args = {
+      account,
+      accountType,
+      backgroundColor,
+      chainNetwork,
+      accountOptions,
+      provider,
+      callbackUrl: newAccountCallbackUrl,
+      state,
+    }
+    const newAccountUrl = await getOreIdNewChainAccountUrl(this._oreIdContext, args)
+    return { newAccountUrl, errors: null }
   }
 
   /** Send a code to the user's primary email (user.email) - in order to verify the user has access to it

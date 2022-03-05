@@ -1,7 +1,7 @@
 import {
   AppAccessTokenMetadata,
   GetOreIdAuthUrlParams,
-  GetOreIdNewAccountUrlParams,
+  GetOreIdNewChainAccountUrlParams,
   GetOreIdRecoverAccountUrlParams,
   GetRecoverAccountUrlResult,
   TransactionData,
@@ -15,18 +15,8 @@ const { isNullOrEmpty } = Helpers
  *  This function calls the /new-account web endpoint
  *  It requires an apiKey in order to add an appAccessToken with new account metadata
  *  Returns: Callback returns chainAccount - for the new account */
-export async function getOreIdNewAccountUrl(oreIdContext: OreIdContext, args: GetOreIdNewAccountUrlParams) {
-  const {
-    account,
-    accountType,
-    chainNetwork,
-    accountOptions,
-    provider,
-    callbackUrl,
-    backgroundColor,
-    state,
-    // accessToken,
-  } = args
+export async function getOreIdNewChainAccountUrl(oreIdContext: OreIdContext, args: GetOreIdNewChainAccountUrlParams) {
+  const { account, accountType, chainNetwork, accountOptions, provider, callbackUrl, backgroundColor, state } = args
   const { oreIdUrl } = oreIdContext.options
 
   // collect additional params embedded into appAccessToken
@@ -43,15 +33,16 @@ export async function getOreIdNewAccountUrl(oreIdContext: OreIdContext, args: Ge
     throw new Error('Missing a required parameter')
   }
 
+  const accessTokenParam = `&oauth_access_token=${oreIdContext.accessToken}`
+
   // optional params
   const encodedStateParam = state ? `&state=${state}` : ''
-  // const accessTokenParam = !isNullOrEmpty(accessToken) ? `&oauth_access_token=${accessToken}` : ''
 
   const url =
     `${oreIdUrl}/new-account#provider=${provider}&chain_network=${chainNetwork}` +
     `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(
       backgroundColor,
-    )}${encodedStateParam}`
+    )}${encodedStateParam}${accessTokenParam}`
   return oreIdContext.addAccessTokenAndHmacToUrl(url, appAccessTokenMetadata)
 }
 
@@ -117,7 +108,6 @@ export async function getOreIdSignUrl(oreIdContext: OreIdContext, transactionDat
   let { chainAccount } = transactionData
   const { oreIdUrl } = oreIdContext.options
   // Now always appends accessToken to signUrl
-  const { accessToken } = this
   if (!account || !callbackUrl || (!transaction && !signedTransaction)) {
     throw new Error('Missing a required parameter')
   }
@@ -142,7 +132,7 @@ export async function getOreIdSignUrl(oreIdContext: OreIdContext, transactionDat
     ? `&return_signed_transaction=${returnSignedTransaction}`
     : ''
   optionalParams += !isNullOrEmpty(transactionRecordId) ? `&transaction_record_id=${transactionRecordId}` : ''
-  optionalParams += !isNullOrEmpty(accessToken) ? `&oauth_access_token=${accessToken}` : ''
+  optionalParams += `&oauth_access_token=${oreIdContext.accessToken}`
 
   // prettier-ignore
   const url = `${oreIdUrl}/sign#account=${account}&broadcast=${broadcast}&callback_url=${encodeURIComponent(callbackUrl)}&chain_account=${chainAccount}&chain_network=${encodeURIComponent(chainNetwork)}${optionalParams}`
@@ -174,6 +164,8 @@ export async function getRecoverAccountUrl(
     throw new Error('Missing a required parameter')
   }
 
+  const accessTokenParam = `&oauth_access_token=${oreIdContext.accessToken}`
+
   // optional params
   const encodedStateParam = state ? `&state=${state}` : ''
   const actionTypeParam = recoverAction ? `&recover_action=${recoverAction}` : ''
@@ -189,7 +181,7 @@ export async function getRecoverAccountUrl(
     `${codeParam}${emailParam}${phoneParam}` +
     `&callback_url=${encodeURIComponent(callbackUrl)}&background_color=${encodeURIComponent(
       backgroundColor,
-    )}${actionTypeParam}${encodedStateParam}`
+    )}${actionTypeParam}${encodedStateParam}${accessTokenParam}`
 
   return oreIdContext.addAccessTokenAndHmacToUrl(url, null, overrideAppAccessToken)
 }

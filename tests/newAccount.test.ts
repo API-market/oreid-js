@@ -48,7 +48,7 @@ describe('OreId', () => {
     })
 
     it('create new account with oreid', async () => {
-      const result = await oreId.newAccountWithOreId(newAccountOptions)
+      const result = await oreId.auth.user.getNewChainAccountUrl(newAccountOptions)
       expect(result).toEqual({
         errors: null,
         newAccountUrl:
@@ -57,7 +57,7 @@ describe('OreId', () => {
     })
 
     it('create new account', async () => {
-      const result = await oreId.newAccount(newAccountOptions)
+      const result = await oreId.auth.user.getNewChainAccountUrl(newAccountOptions)
       expect(result).toEqual({
         errors: null,
         newAccountUrl:
