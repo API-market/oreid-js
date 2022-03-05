@@ -31,8 +31,12 @@ export default class LocalState {
   }
 
   saveAccessToken(accessToken: string) {
-    this.cachedaccessToken = accessToken
-    this.storage.setItem(this.accessTokenKey(), accessToken)
+    if (accessToken) {
+      this.cachedaccessToken = accessToken
+      this.storage.setItem(this.accessTokenKey(), accessToken)
+    } else {
+      this.clearAccessToken()
+    }
   }
 
   clearAccessToken() {
