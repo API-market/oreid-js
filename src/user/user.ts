@@ -13,22 +13,21 @@ import {
 } from '../models'
 import { callApiGetUser, ApiGetUserParams, callApiPasswordLessSendCode, callApiPasswordLessVerifyCode } from '../api'
 import { callApiAddPermission } from '../api/endpoints/addPermission'
-import AccessTokenHelper from '../auth/accessTokenHelper'
 import { getOreIdNewChainAccountUrl } from '../core/urlGenerators'
 
 const { isNullOrEmpty } = Helpers
 
 export default class User {
-  constructor(args: { oreIdContext: OreIdContext; accessTokenHelper: AccessTokenHelper }) {
+  constructor(args: { oreIdContext: OreIdContext; getAccessToken: string; getAccountName: AccountName }) {
     this._oreIdContext = args.oreIdContext
-    this._accessTokenHelper = args.accessTokenHelper // reference to current accessToken, etc.
-    this._accountName = this._oreIdContext?.accessTokenHelper?.accountName
+    this._accessToken = args.getAccessToken // reference to current accessToken (via getter)
+    this._accountName = args.getAccountName
   }
 
   // pulled from the accessToken
   private _accountName: AccountName
 
-  private _accessTokenHelper: AccessTokenHelper
+  private _accessToken: string
 
   private _oreIdContext: OreIdContext
 
@@ -47,7 +46,7 @@ export default class User {
 
   /** Whether we have a valid access token for the current user */
   get isLoggedIn(): boolean {
-    return !!this._accessTokenHelper.accessToken
+    return !!this._accessToken
   }
 
   /** throw if user hasn't have a valid email (i.e. user.email) */
@@ -62,12 +61,12 @@ export default class User {
    */
   async getInfo() {
     // eslint-disable-next-line prefer-destructuring
-    const accessToken = this._accessTokenHelper.accessToken // getting the accessToken here will delete existing accessToken if it's now expired
+    const accessToken = this?._accessToken // getting the accessToken here will delete existing accessToken if it's now expired
     if (!accessToken) {
       throw new Error('AccessToken is missing or has expired')
     }
     // get account specified in access token
-    const account = this._accessTokenHelper?.accountName
+    const account = this?._accountName
     const params: ApiGetUserParams = { account }
     const userInfo = await callApiGetUser(this._oreIdContext, params)
 

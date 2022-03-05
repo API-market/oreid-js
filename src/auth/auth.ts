@@ -84,8 +84,8 @@ export default class Auth {
     const hasExpired = this.clearAccessTokenIfExpired()
     if (!hasExpired) {
       this._localState.saveAccessToken(accessToken)
-      this._user = null
     }
+    this._user = null
   }
 
   /** Returns user object matching current accessToken
@@ -93,7 +93,11 @@ export default class Auth {
    */
   get user() {
     if (!this._user) {
-      this._user = new User({ oreIdContext: this._oreIdContext, accessTokenHelper: this._accessTokenHelper })
+      this._user = new User({
+        oreIdContext: this._oreIdContext,
+        getAccessToken: this.accessToken, // accessToken getter
+        getAccountName: this.accountName, // accountName getter
+      })
     }
     return this._user
   }
