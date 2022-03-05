@@ -6,7 +6,7 @@ import TransitHelper from '../transit/TransitHelper'
 import Helpers from '../utils/helpers'
 import IOreidContext from './IOreidContext'
 import LocalState from '../utils/localState'
-import { defaultOreIdServiceUrl, providersNotImplemented, publicApiEndpoints, version } from '../constants'
+import { defaultOreIdServiceUrl, publicApiEndpoints, version } from '../constants'
 import { generateHmac } from '../utils/hmac'
 import { getTransitProviderAttributes } from '../transit/transitProviders'
 import {
@@ -15,11 +15,8 @@ import {
   AppAccessTokenMetadata,
   AuthProvider,
   ChainNetwork,
-  ExternalWalletInterface,
   ExternalWalletType,
-  NewAccountOptions,
   NewAccountResult,
-  NewAccountWithOreIdResult,
   OreIdOptions,
   ProcessId,
   RequestType,
@@ -29,16 +26,13 @@ import {
 } from '../models'
 import StorageHandler from '../utils/storage'
 import {
-  ApiConvertOauthTokensParams,
   ApiCustodialMigrateAccountParams,
   ApiCustodialNewAccountParams,
   ApiGetAppTokenParams,
-  callApiConvertOauthTokens,
   callApiCustodialMigrateAccount,
   callApiCustodialNewAccount,
   callApiGetAppToken,
 } from '../api'
-import { getOreIdNewAccountUrl } from './urlGenerators'
 import Auth from '../auth/auth'
 import Transaction from '../transaction/transaction'
 import Settings from './Settings'
@@ -117,15 +111,6 @@ export default class OreId implements IOreidContext {
     return this._transitHelper
   }
 
-  /** Throw if the required plug-in is not installed */
-  assertHasWalletProviderInstalled(provider: ExternalWalletType, providerType: ExternalWalletInterface) {
-    if (providerType === ExternalWalletInterface.Transit) {
-      if (!this.transitHelper.hasTransitProvider(provider)) {
-        throw Error(`Transit provider ${provider} not installed. Please pass it in via eosTransitWalletProviders.`)
-      }
-    }
-  }
-
   /** Retrieve settings for all chain networks defined by OreId service
    * and caches the result */
   async getAllChainNetworkSettings() {
@@ -140,36 +125,6 @@ export default class OreId implements IOreidContext {
   /** Clears user's accessToken and user profile data */
   logout() {
     this.auth.logout()
-  }
-
-  /** Request OREID to create a new blockchain account in an existing user's wallet
-   *  This is an advanced feature - it most cases, blockchain accounts will be created automatically upon first login
-   */
-  async newAccount(newAccountOptions: NewAccountOptions) {
-    const { provider } = newAccountOptions
-
-    if (providersNotImplemented.includes(provider)) {
-      throw new Error('Not Implemented')
-    }
-
-    return this.newAccountWithOreId(newAccountOptions)
-  }
-
-  async newAccountWithOreId(newAccountOptions: NewAccountOptions): Promise<NewAccountWithOreIdResult> {
-    const { account, accountType, chainNetwork, accountOptions, provider, state } = newAccountOptions || {}
-    const { newAccountCallbackUrl, backgroundColor } = this.options
-    const args = {
-      account,
-      accountType,
-      backgroundColor,
-      chainNetwork,
-      accountOptions,
-      provider,
-      callbackUrl: newAccountCallbackUrl,
-      state,
-    }
-    const newAccountUrl = await getOreIdNewAccountUrl(this, args)
-    return { newAccountUrl, errors: null }
   }
 
   /** Sign an arbitrary string (instead of a transaction)
@@ -220,6 +175,19 @@ export default class OreId implements IOreidContext {
       return chainSettings.network
     }
     return null
+  }
+
+  /** Returns metadata about the external wallet type (e.g. name, logo) and which features it supports */
+  geExternalWalletInfo(walletType: ExternalWalletType) {
+    if (!this._transitHelper.isTransitProvider(walletType)) {
+      throw new Error(`Invalid walletType:${walletType}`)
+    }
+    return getTransitProviderAttributes(walletType)
+  }
+
+  /** Create a new Transaction object - used for composing and signing transactions */
+  async createTransaction(data: TransactionData) {
+    return new Transaction({ oreIdContext: this, user: this.auth.user, data })
   }
 
   /** Call the setBusyCallback() callback provided in optiont
@@ -364,19 +332,6 @@ export default class OreId implements IOreidContext {
 
     const { data } = response
     return data
-  }
-
-  /** Returns metadata about the external wallet type (e.g. name, logo) and which features it supports */
-  geExternalWalletInfo(walletType: ExternalWalletType) {
-    if (!this._transitHelper.isTransitProvider(walletType)) {
-      throw new Error(`Invalid walletType:${walletType}`)
-    }
-    return getTransitProviderAttributes(walletType)
-  }
-
-  /** Create a new Transaction object - used for composing and signing transactions */
-  async createTransaction(data: TransactionData) {
-    return new Transaction({ oreIdContext: this, user: this.auth.user, data })
   }
 
   /** Add an app access token and hmac signature to the url
