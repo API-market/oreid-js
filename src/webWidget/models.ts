@@ -39,7 +39,7 @@ export type WebWidgetProps = {
 export enum WebWidgetAction {
   Auth = 'auth',
   Logout = 'logout',
-  NewAccount = 'newAccount',
+  NewChainAccount = 'newChainAccount',
   RecoverAccount = 'recoverAccount',
   Sign = 'sign',
 }
