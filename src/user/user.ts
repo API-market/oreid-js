@@ -110,7 +110,7 @@ export default class User {
    *  This is an advanced feature - it most cases, blockchain accounts will be created automatically upon first login
    */
   // async newChainAccount(newAccountOptions: NewAccountOptions) {
-  //   // TODO - call API to create chain accont (requires serviceKey)
+  //   // TODO - call API to create chain account (requires apiKey with createAccount right)
   //   // for webwidget, it should just refresh user info upon callback
   // }
 

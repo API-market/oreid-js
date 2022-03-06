@@ -6,14 +6,9 @@ import {
   ChainAccount,
   ChainNetwork,
   RequestType,
-  ServiceAccountUsedFor,
+  ApiKeyUsedFor,
 } from '../../models'
-import {
-  assertHasApiKey,
-  assertHasServiceKey,
-  assertParamsHaveOnlyOneOfValues,
-  assertParamsHaveRequiredValues,
-} from '../helpers'
+import { assertHasApiKey, assertParamsHaveOnlyOneOfValues, assertParamsHaveRequiredValues } from '../helpers'
 import { ApiResultWithErrorCode } from '../models'
 
 export type ApiCustodialMigrateAccountParams = {
@@ -43,7 +38,7 @@ export type ApiCustodialMigrateAccountResult = {
  * Usually used to convert a virtal account to a native account (on-chain)
  * .. and expects the account to be a managed (custodial) account
  * Requires a wallet password (userPassword) on behalf of the user
- * Requires an apiKey and a serviceKey with the accountMigration right
+ * Requires an apiKey with the accountMigration right
  * Returns: account name of migrated account
  *       OR errorCode, errorMessage, and message if any problems */
 export async function callApiCustodialMigrateAccount(
@@ -62,8 +57,7 @@ export async function callApiCustodialMigrateAccount(
     user_password_encrypted: userPasswordEncrypted,
   }
 
-  assertHasApiKey(oreIdContext, apiName)
-  assertHasServiceKey(oreIdContext, ServiceAccountUsedFor.AccountMigration, apiName)
+  assertHasApiKey(oreIdContext, ApiKeyUsedFor.AccountMigration, apiName)
   assertParamsHaveRequiredValues(params, ['account', 'chainAccount', 'chainNetwork', 'toType'], apiName)
   assertParamsHaveOnlyOneOfValues(params, ['user_password', 'user_password_encrypted'], apiName)
 

@@ -1,5 +1,5 @@
 import Helpers from '../utils/helpers'
-import { JSONObject, ServiceAccountUsedFor } from '../models'
+import { JSONObject, ApiKeyUsedFor } from '../models'
 import OreIdContext from '../core/IOreidContext'
 
 const { isNullOrEmpty } = Helpers
@@ -34,16 +34,10 @@ export function assertHasAccessToken(oreIdContext: OreIdContext, apiName: string
 }
 
 /** Check that we have an apiKey */
-export function assertHasApiKey(oreIdContext: OreIdContext, apiName: string) {
+export function assertHasApiKey(oreIdContext: OreIdContext, usedFor: ApiKeyUsedFor, apiName: string) {
   if (!oreIdContext.options?.apiKey) {
-    throw new Error(`Missing required header for API ${apiName}: Must have a options.apiKey`)
-  }
-}
-
-/** Check that an apiKey or accessToken */
-export function assertHasServiceKey(oreIdContext: OreIdContext, usedFor: ServiceAccountUsedFor, apiName: string) {
-  if (!oreIdContext.options?.serviceKey) {
-    throw new Error(`Missing required header for API ${apiName}: Must have a options.serviceKey with ${usedFor} right`)
+    const usedFprMsg = usedFor ? ` - with ${usedFor} right.` : '.'
+    throw new Error(`Missing required header for API ${apiName}: Must have an options.apiKey${usedFprMsg}`)
   }
 }
 

@@ -5,11 +5,12 @@ import {
   ChainAccount,
   ChainNetwork,
   RequestType,
-  ServiceAccountUsedFor,
+  ApiKeyUsedFor,
   TransactionData,
 } from '../../models'
 import { ApiResultWithErrorCode } from '../models'
 import {
+  assertHasApiKey,
   assertHasApiKeyOrAccessToken,
   assertParamsHaveOnlyOneOfValues,
   assertParamsHaveRequiredValues,
@@ -109,7 +110,7 @@ function mapSignResultFromApi(apiResult: any): ApiSignTransactionResult {
 /** Call api transaction/sign - to sign a transaction for a user
  * Can only sign a transaction if autoSign specified (and previously enabled by user)
  * OR if OreId is managing a private key it can sign with (e.g. most often an account in multiSigChainAccounts)
- * For autoSign param, requires a serviceKey with the autoSign right
+ * For autoSign param, requires an apiKey with the autoSign right
  * Returns: stringified signedTransaction (and transactionId if available)
  *          OR errorCode, errorDescription, message - if any issues
  * */
@@ -120,14 +121,10 @@ export async function callApiSignTransaction(
   const apiName = ApiEndpoint.TransactionSign
 
   if (params?.autoSign) {
-    if (!oreIdContext.options?.serviceKey) {
-      throw new Error(
-        `Missing required header for API ${apiName}: Must have a options.serviceKey with ${ServiceAccountUsedFor.AutoSigning} right.`,
-      )
-    }
+    assertHasApiKey(oreIdContext, ApiKeyUsedFor.AutoSigning, apiName)
+  } else {
+    assertHasApiKeyOrAccessToken(oreIdContext, apiName)
   }
-
-  assertHasApiKeyOrAccessToken(oreIdContext, apiName)
   assertParamsHaveRequiredValues(params.transactionData, ['account', 'chainNetwork', 'chainAccount'], apiName)
   assertParamsHaveOnlyOneOfValues(params.transactionData, ['transaction', 'signedTransaction'], apiName)
 
@@ -139,7 +136,7 @@ export async function callApiSignTransaction(
 
 /** Call api custodial/sign - for signing a transaction on behalf of a user
  * Requires wallet password: either user_password or user_password_encrypted param (used to decrypt user's key)
- * Requires a serviceKey with the proxySign right
+ * Requires an apiKey with the proxySign right
  * Returns: stringified signedTransaction (and transactionId if available)
  *          OR errorCode, errorDescription, message - if any issues
  * */
@@ -148,16 +145,9 @@ export async function callApiCustodialSignTransaction(
   params: ApiSignTransactionParams,
 ): Promise<ApiSignTransactionResult> {
   const apiName = ApiEndpoint.CustodialSign
-
-  if (!oreIdContext.options?.serviceKey) {
-    throw new Error(
-      `Missing required header for API ${apiName}: Must have a options.serviceKey with ${ServiceAccountUsedFor.ProxySigning} right`,
-    )
-  }
-
   const { signOptions } = params.transactionData || {}
 
-  assertHasApiKeyOrAccessToken(oreIdContext, apiName)
+  assertHasApiKey(oreIdContext, ApiKeyUsedFor.ProxySigning, apiName)
   assertParamsHaveRequiredValues(params.transactionData, ['account', 'chainNetwork', 'chainAccount'], apiName)
   assertParamsHaveOnlyOneOfValues(params.transactionData, ['transaction', 'signedTransaction'], apiName)
   assertParamsHaveOnlyOneOfValues(signOptions, ['userPassword', 'userPasswordEncrypted'], apiName)

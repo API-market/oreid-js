@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`OreId sets the chainNetworks correctly when initializing 1`] = `undefined`;

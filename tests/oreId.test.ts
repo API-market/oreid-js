@@ -10,7 +10,7 @@ describe('OreId', () => {
   let options: OreIdOptions = {
     appName: 'testrunner',
     appId: 'demo_0097ed83e0a54e679ca46d082ee0e33a',
-    apiKey: 'demo_k_97b33a2f8c984fb5b119567ca19e4a49',
+    apiKey: 't_k8889ced3cf2b4097a2bec7f90267d172', // has extra rights for examples (serviceKey)
     oreIdUrl: defaultOreIdServiceUrl,
   }
 
@@ -30,7 +30,7 @@ describe('OreId', () => {
     it('Throws an error without an appId', () => {
       const appIdError = `Options are missing or invalid. 
  --> Missing required parameter - appId. You can get an appId when you register your app with ORE ID.
- --> You cant include the apiKey (or serviceKey) when creating an instance of OreId that runs in the browser. This is to prevent your keys from being visible in the browser. If this app runs solely in the browser (like a Create React App), you need to set-up a proxy server to protect your keys. Refer to https://github.com/TeamAikon/ore-id-docs. Note: You wont get this error when using the appId and apiKey for a demo app (appId starts with demo_).`
+ --> You cant include the apiKey when creating an instance of OreId that runs in the browser. This is to prevent your key from being visible in the browser. If this app runs solely in the browser (like a Create React App), you need to set-up a proxy server to protect your keys. Refer to https://github.com/TeamAikon/ore-id-docs. Note: You wont get this error when using the appId and apiKey for a demo app (appId starts with demo_).`
       expect(() => {
         oreId = new OreId({ ...options, appId: '' })
       }).toThrowError(Error(appIdError))
@@ -95,7 +95,7 @@ describe('OreId', () => {
     it('Fails to log in with expired idToken', async () => {
       const idToken =
         'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjI4MkYxRUU1NTdCMTAwNDVEMTVDMTg2RUFBQzlCQ0VBMkNBNTZBQzIifQ.eyJuYW1lIjoiVHJheSBMZXdpbiIsIm5pY2tuYW1lIjoidHJheSIsInBpY3R1cmUiOiJodHRwczovL3N0b3JhZ2UuZ29vZ2xlYXBpcy5jb20vc3RhZ2luZy1vcmVpZC1maWxlcy9pbWFnZXMvdXNlci1nb29nbGUtb2F1dGgyfDEwNzIyMDYzODAzOTI2MTkwNDY0MS1wcm9maWxlIiwidXBkYXRlZF9hdCI6IjIwMjItMDItMDlUMTQ6NDY6MDAuOTAzWiIsImVtYWlsIjoidHJheUBhaWtvbi5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInBob25lX251bWJlcl92ZXJpZmllZCI6ZmFsc2UsImlzcyI6Imh0dHBzOi8vc3RhZ2luZy5vcmVpZC5pby8iLCJzdWIiOiJnb29nbGUtb2F1dGgyfDEwNzIyMDYzODAzOTI2MTkwNDY0MSIsImF1ZCI6WyJodHRwczovL3N0YWdpbmcuc2VydmljZS5vcmVpZC5pbyIsImh0dHBzOi8vc3RhZ2luZy5zZXJ2aWNlLm9yZWlkLmlvL3VzZXJpbmZvIiwiaHR0cHM6Ly9vcmVpZC1zdGFnaW5nLmFpa29uLmNvbSIsImh0dHBzOi8vYWlrb24tc3RhZ2luZy5hdXRoMC5jb20vdXNlcmluZm8iXSwiaHR0cHM6Ly9vcmVpZC5haWtvbi5jb20vYXBwSWQiOiJhZG1pbi02MjllLTQ3MTktOTIwNi0wMmJmOWVkY2FhMjgiLCJodHRwczovL29yZWlkLmFpa29uLmNvbS9wcm92aWRlciI6Imdvb2dsZSIsImh0dHBzOi8vb3JlaWQuYWlrb24uY29tL2FjY291bnQiOiJvcmUxcms0MmQzYWciLCJodHRwczovL29yZWlkLmFpa29uLmNvbS9hZG1pblNlcnZpY2UiOiJhaWtvbi1hZG1pbiIsImlhdCI6MTY0NTU3NzAwMywiZXhwIjoxNjQ1NjYzNDAzfQ.I0jwkN5drAcjrdsly78KSDezNoPGjuEDIJHd0QS_ddx-tVjWiSlkNXKaH1ZHJDCNNlKKdZUlz5LfAraoLaTTVingva2VQljFsFDWoT6dYcQ9BJui5AJUSL5Q5ufha5mSSPint-jOVuN-WcaMXJdFLbcNDcNYUx74hn1U-6OBSsjHzVegWH_VHRn1tAoMkbFPSDVnP3rQtj6Nyiwk0BaEKwUeOj2Jf_hNIUzoC9eHvhAr_eCx4K0ll8rhnhkmXKkcMQZNsRg1NLKJWKKpUymCgfn40EGtn_xMLs1qd1U_IgeKYde7RGlzk8t6NEbbCKy4Z9JBdjNL9ipzcQ98kY9VDG6bCX5qnGN9qj29vghbOdbgNJ9BKkadFBzHW4PF-7pLT8Q5p6oJf77cKF8yhTzZEnEQeQ-ELYNOTiIpYIPhBs0btG95Y2D8yHffzIXBxlWOb05b7O6Z9IehSPfcQ9LvD8n46PEymNBmitbmpx6WV3RRdwrrRojShaVAYr2lpLQL9O1pb3BYOo17rmXMMzMhAIF_d7Pw1hRitN-aM4Q1_FGNEBvHS6RumoB5CIkJYOwP_WB5AVbS-JEaSLwGbEMG0QGJjg1lWrMrFvNyfYnQdCMS80Sh8FGKT5fdrSnkpWYrU-T6Pjq9IWCnE2BsKkc9VMvTQa922pKLV21UkBcqSJA'
-      const result = await oreId.auth.loginWithIdToken({ idToken })
+      const result = await oreId.auth.loginWithToken({ idToken })
       expect(result).toEqual({
         error: 'token_expired',
         accessToken: null,

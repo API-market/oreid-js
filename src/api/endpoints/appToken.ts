@@ -1,5 +1,5 @@
 import OreIdContext from '../../core/IOreidContext'
-import { ApiEndpoint, AppAccessTokenMetadata, RequestType } from '../../models'
+import { ApiEndpoint, AppAccessTokenMetadata, RequestType, ApiKeyUsedFor } from '../../models'
 import { assertHasApiKey } from '../helpers'
 import Helpers from '../../utils/helpers'
 
@@ -16,14 +16,11 @@ export async function callApiGetAppToken(oreIdContext: OreIdContext, params: Api
   const apiName = ApiEndpoint.AppToken
   const { appAccessTokenMetadata } = params
 
-  assertHasApiKey(oreIdContext, apiName)
-  // to use appAccessTokenMetadata, we also require a serviceKey
+  // to use appAccessTokenMetadata, we require a apiKey with 'createUser' right
   if (!Helpers.isNullOrEmpty(appAccessTokenMetadata)) {
-    if (!oreIdContext.options?.serviceKey) {
-      throw new Error(
-        `Missing required header for API ${apiName}: Must have a options.serviceKey to use appAccessTokenMetadata`,
-      )
-    }
+    assertHasApiKey(oreIdContext, ApiKeyUsedFor.CreateUser, apiName)
+  } else {
+    assertHasApiKey(oreIdContext, null, apiName)
   }
   const { appAccessToken } = await oreIdContext.callOreIdApi(
     RequestType.Post,

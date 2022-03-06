@@ -133,7 +133,7 @@ export default class Transaction {
 
   /**
    * Whether the provided transaction (or signedTransaction) can be autoSigned via api (without user interaction)
-   * Requires a serviceKey with the autoSign right
+   * Requires an apiKey with the autoSign right
    * Returns: true if transaction can be signed using tansaction.sign()
    * */
   async checkCanAutoSign() {
@@ -159,7 +159,7 @@ export default class Transaction {
 
   /** Sign a transaction without user interaction
    *  Requires a user's wallet password or encrypted password (a 'custodial' account managed by you)
-   *  Requires a serviceKey with the proxySign right
+   *  Requires an apiKey with the proxySign right
    */
   async signWithPassword(userPassword?: string, userPasswordEncrypted?: string) {
     this.assertTransactionAccountValidForUser()

@@ -1,11 +1,6 @@
 import OreIdContext from '../../core/IOreidContext'
-import { AccountName, AccountType, ApiEndpoint, RequestType, ServiceAccountUsedFor } from '../../models'
-import {
-  assertHasApiKey,
-  assertHasServiceKey,
-  assertParamsHaveOnlyOneOfValues,
-  assertParamsHaveRequiredValues,
-} from '../helpers'
+import { AccountName, AccountType, ApiEndpoint, RequestType, ApiKeyUsedFor } from '../../models'
+import { assertHasApiKey, assertParamsHaveOnlyOneOfValues, assertParamsHaveRequiredValues } from '../helpers'
 import { ApiResultWithErrorCode } from '../models'
 
 export type ApiCustodialNewAccountParams = {
@@ -39,7 +34,7 @@ export type ApiCustodialNewAccountResult = {
 /** Call the custodial/new-user api
  * Create a new user account that is managed by your app
  * Requires a wallet password (userPassword) on behalf of the user
- * Requires an apiKey and a serviceKey with the createUser right
+ * Requires an apiKey with the createUser right
  * Returns: accountName of newly created account
  *       OR errorCode, errorMessage, and message if any problems */
 export async function callApiCustodialNewAccount(
@@ -60,8 +55,7 @@ export async function callApiCustodialNewAccount(
     user_password: userPassword,
   }
 
-  assertHasApiKey(oreIdContext, apiName)
-  assertHasServiceKey(oreIdContext, ServiceAccountUsedFor.CreateUser, apiName)
+  assertHasApiKey(oreIdContext, ApiKeyUsedFor.CreateUser, apiName)
   assertParamsHaveRequiredValues(params, ['accountType'], apiName)
   assertParamsHaveOnlyOneOfValues(
     params,

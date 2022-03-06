@@ -4,7 +4,6 @@
 //   appName: 'AI Market',
 //   appId: '{your appId}',
 //   apiKey: '{your api key}',
-//   serviceKey: '{your service key}',
 // })
 
 // const newAccountParams = {

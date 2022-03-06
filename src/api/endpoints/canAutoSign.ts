@@ -6,15 +6,10 @@ import {
   ChainNetwork,
   ProcessId,
   RequestType,
-  ServiceAccountUsedFor,
+  ApiKeyUsedFor,
   TransactionData,
 } from '../../models'
-import {
-  assertHasApiKeyOrAccessToken,
-  assertHasServiceKey,
-  assertParamsHaveOnlyOneOfValues,
-  assertParamsHaveRequiredValues,
-} from '../helpers'
+import { assertHasApiKey, assertParamsHaveOnlyOneOfValues, assertParamsHaveRequiredValues } from '../helpers'
 import Helpers from '../../utils/helpers'
 
 export type ApiCanAutosignTransactionBodyParams = {
@@ -34,7 +29,7 @@ export type ApiCanAutosignTransactionResult = {
 }
 
 /** Call api transaction/can-auto-sign
- * Requires a serviceKey with the autoSign right
+ * Requires a apiKey with the autoSign right
  * Returns: true if transaction provided can be signed using the signTransaction(autosign:true)
  * */
 export async function callApiCanAutosignTransaction(
@@ -44,8 +39,7 @@ export async function callApiCanAutosignTransaction(
   const apiName = ApiEndpoint.CanAutoSign
   const { account, chainAccount, chainNetwork, signedTransaction, transaction, transactionChainAccount } = params
 
-  assertHasApiKeyOrAccessToken(oreIdContext, apiName)
-  assertHasServiceKey(oreIdContext, ServiceAccountUsedFor.AutoSigning, apiName)
+  assertHasApiKey(oreIdContext, ApiKeyUsedFor.AutoSigning, apiName)
   assertParamsHaveRequiredValues(params, ['account', 'chainNetwork', 'chainAccount'], apiName)
   assertParamsHaveOnlyOneOfValues(params, ['transaction', 'signedTransaction'], apiName)
 

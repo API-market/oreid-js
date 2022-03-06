@@ -10,7 +10,6 @@ const { isNullOrEmpty } = Helpers
 export type ExpressMiddlewareOptions = {
   oreidUrl?: string
   apiKey: string
-  serviceKey?: string
   algorandApiKey?: string
 }
 
@@ -51,9 +50,8 @@ function addAlgorandApiKeysMiddleware(options: ExpressMiddlewareOptions) {
 // Appends Oreid api key(s) to header
 function addOreidApiKeysMiddleware(options: ExpressMiddlewareOptions) {
   return (req: Request, res: Response, next: NextFunction) => {
-    // inject api-key and service-key(s) to header of request
+    // inject api-key to header of request
     if (options?.apiKey) req.headers['api-key'] = options.apiKey
-    if (options?.serviceKey) req.headers['service-key'] = options.serviceKey
     next()
   }
 }
@@ -131,13 +129,13 @@ export function algorandProxyMiddleware() {
 /** Adds api routes for /oreid/prepare-url, /oreid/api, /algorand, etc.
  *  Also injects apikeys/secrets into request headers
  *  Secrets must be provided in options paramters e.g. ...
- *  options = { apiKey: 'myApiKey', serviceKey: 'myServiceKey', algorandApiKey : 'myAlgorandPureStakeApiKey' }
+ *  options = { apiKey: 'myApiKey', algorandApiKey : 'myAlgorandPureStakeApiKey' }
  * */
 export function addOreidExpressMiddleware(app: Express, options: ExpressMiddlewareOptions) {
   // validate options
-  if (isNullOrEmpty(options) || (isNullOrEmpty(options?.apiKey) && isNullOrEmpty(options?.serviceKey))) {
+  if (isNullOrEmpty(options) || isNullOrEmpty(options?.apiKey)) {
     throw new Error(
-      'You must provide the ORE ID api-key (or service-key) and possibly other secrets via the options parameter. See https://github.com/TeamAikon/ore-id-docs',
+      'You must provide the ORE ID api-key as well as other values via the options parameter. See https://github.com/TeamAikon/ore-id-docs',
     )
   }
 

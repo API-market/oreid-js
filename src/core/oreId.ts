@@ -143,7 +143,7 @@ export default class OreId implements IOreidContext {
 
   /** Create a new user account that is managed by your app
    * Requires a wallet password (userPassword) on behalf of the user
-   * Requires an apiKey and a serviceKey with the createUser right
+   * Requires an apiKey with the createUser right
    * Returns: accountName of newly created account
    *       OR errorCode, errorMessage, and message if any problems */
   async custodialNewAccount(accountOptions: ApiCustodialNewAccountParams) {
@@ -157,7 +157,7 @@ export default class OreId implements IOreidContext {
    * Usually used to convert a virtal account to a native account (on-chain)
    * .. and expects the account to be a managed (custodial) account
    * Requires a wallet password (userPassword) on behalf of the user
-   * Requires an apiKey and a serviceKey with the accountMigration right
+   * Requires an apiKey with the accountMigration right
    * Returns: account name of migrated account
    *       OR errorCode, errorMessage, and message if any problems */
   async custodialMigrateAccount(migrateOptions: ApiCustodialMigrateAccountParams) {
@@ -205,7 +205,7 @@ export default class OreId implements IOreidContext {
   // TODO add validation of newer options
   /**  Validates startup options */
   validateAndSetOptions(options: OreIdOptions) {
-    const { appId, apiKey, oreIdUrl, serviceKey } = options || {}
+    const { appId, apiKey, oreIdUrl } = options || {}
     let errorMessage = ''
     // set options now since this.requiresProxyServer needs it set
     this._options = options
@@ -219,9 +219,9 @@ export default class OreId implements IOreidContext {
     }
 
     // api-key and service-key not allowed if this is being instantiated in the browser
-    if (this.requiresProxyServer && (apiKey || serviceKey)) {
+    if (this.requiresProxyServer && apiKey) {
       errorMessage +=
-        '\n --> You cant include the apiKey (or serviceKey) when creating an instance of OreId that runs in the browser. This is to prevent your keys from being visible in the browser. If this app runs solely in the browser (like a Create React App), you need to set-up a proxy server to protect your keys. Refer to https://github.com/TeamAikon/ore-id-docs. Note: You wont get this error when using the appId and apiKey for a demo app (appId starts with demo_).'
+        '\n --> You cant include the apiKey when creating an instance of OreId that runs in the browser. This is to prevent your key from being visible in the browser. If this app runs solely in the browser (like a Create React App), you need to set-up a proxy server to protect your keys. Refer to https://github.com/TeamAikon/ore-id-docs. Note: You wont get this error when using the appId and apiKey for a demo app (appId starts with demo_).'
     }
     if (errorMessage !== '') {
       throw new Error(`Options are missing or invalid. ${errorMessage}`)
@@ -276,7 +276,7 @@ export default class OreId implements IOreidContext {
     let urlString
     let response
     const headers: { [key: string]: any } = {}
-    const { apiKey, serviceKey, oreIdUrl } = this.options
+    const { apiKey, oreIdUrl } = this.options
     // if running in browser, we dont call the api directly, we use a proxy server (unless we're running a demo app)
     // calls to the proxy server must start with '/' (not an host like http://server) and we'll prepend 'oreid' to it e.g. /oreid/api/xxx to make it easier to do proxy server routing
     const oreIdUrlBase = this.requiresProxyServer ? '/oreid' : oreIdUrl
@@ -296,9 +296,6 @@ export default class OreId implements IOreidContext {
       headers.Authorization = `Bearer ${accessToken}`
     }
 
-    if (!isNullOrEmpty(serviceKey)) {
-      headers['service-key'] = serviceKey
-    }
     if (!isNullOrEmpty(processId)) {
       headers['process-id'] = processId
     }
