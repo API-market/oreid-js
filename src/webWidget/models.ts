@@ -17,22 +17,21 @@ export type WebWidgetOreIdOptions = {
   eosTransitWalletProviders?: any[] // TODO: remove these from being passed to webwidget
 }
 
-export enum WebWidgetPropType {
-  Object = 'object',
-  String = 'string',
-  Function = 'function',
-}
-
 export type WebWidgetProps = {
   oreIdOptions: WebWidgetOreIdOptions
   action: {
     name: WebWidgetAction | string
     params: WebWidgetActionParams
   } | null
+  /** callback for success */
   onSuccess: ({ data }: { data?: any }) => void
-  /** errors is a delimited string of error codes and/or an error message */
+  /** callback for errors - errors is a delimited string of error codes and/or an error message */
   onError: ({ errors, data }: { errors?: string; data?: any }) => void
   timeout?: number
+  /** the time of the request (Epoch time) */
+  timestamp: number
+  /** the signture of the request body */
+  signature: string
 }
 
 /** Actions supported by widget */
