@@ -1,4 +1,4 @@
-import { UserInfo } from '../user/models'
+import { UserSourceData } from '../user/models'
 import IStorage from '../core/IStorage'
 
 export default class LocalState {
@@ -13,7 +13,7 @@ export default class LocalState {
 
   cachedaccessToken: string
 
-  cachedUser: UserInfo
+  cachedUser: UserSourceData
 
   storage: IStorage
 

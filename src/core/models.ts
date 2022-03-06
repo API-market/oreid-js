@@ -14,7 +14,7 @@ import {
   PublicKey,
 } from '../common/models'
 import { TransitWalletProviderFactory } from '../transit'
-import { UserInfo } from '../user/models'
+import { UserData } from '../user/models'
 import IStorage from './IStorage'
 
 export type OreIdOptions = {
@@ -182,7 +182,7 @@ type ParamsForRequest = {
   state?: string
   signedTransaction?: string
   transactionId?: string
-  user?: UserInfo
+  user?: UserData
 }
 
 type ParamsForResponse = {

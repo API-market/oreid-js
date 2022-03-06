@@ -89,7 +89,7 @@ export default class Auth {
   }
 
   /** Returns user object matching current accessToken
-   *  A newly created object object won't have user.info populated, call user.getInfo() to retrieve
+   *  A newly created object object won't have user.info populated, call user.getData() to retrieve
    */
   get user() {
     if (!this._user) {
@@ -169,7 +169,7 @@ export default class Auth {
     const { accessToken, error, processId } = await this.loginWithJwtToken(loginOptions)
     if (!error) {
       this.accessToken = accessToken // saves in cache and in local storage
-      this.user.getInfo()
+      this.user.getData()
     }
     return { accessToken, errors: error, processId }
   }
@@ -189,7 +189,7 @@ export default class Auth {
     const { accessToken, error, processId } = await this.newAccountWithIdToken({ idToken })
     if (!error) {
       this.accessToken = accessToken // saves in cache and in local storage
-      this.user.getInfo()
+      this.user.getData()
     }
     return { accessToken, errors: error, processId }
   }

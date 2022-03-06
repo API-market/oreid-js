@@ -9,16 +9,49 @@ import {
 
 // ORE ID Types
 
-export type UserInfo = {
+/** All User data retrieved including permissions */
+export type UserSourceData = {
   accountName: AccountName
   email: string
   picture: URL
   name: string
   username: string
-  permissions: UserPermission[]
+  permissions: UserPermissionData[]
 }
 
-export type UserPermission = {
+/** User personal and blockchain account information */
+export type UserData = {
+  accountName: AccountName
+  email: string
+  picture: URL
+  name: string
+  username: string
+  chainAccounts: UserChainAccount[]
+}
+
+/** Blockchain accounts associated with the user's OreId account
+ *  Permissions are names for publicKeys used with the chainAccount
+ *  The default permission is the one most commonly used to sign transactions for the chain account
+ */
+export type UserChainAccount = {
+  chainNetwork: ChainNetwork
+  chainAccount: ChainAccount
+  /* The default permission is the one most commonly used to sign transactions for the chain account */
+  defaultPermission: UserPermissionForChainAccount
+  /** Permissions are publicKeys used with the chainAccount - which have been given a name
+   * For most chains, there is only one permission named 'active' */
+  permissions: UserPermissionForChainAccount[]
+}
+
+export interface UserPermission extends Omit<UserPermissionData, 'permission'> {
+  name: PermissionName // rename permission.permission to permission.name
+}
+
+export interface UserPermissionForChainAccount extends Omit<UserPermission, 'chainAccount' | 'chainNetwork'> {
+  name: PermissionName // rename permission.permission to permission.name
+}
+
+export type UserPermissionData = {
   chainNetwork: ChainNetwork
   chainAccount: ChainAccount
   externalWalletType?: ExternalWalletType

@@ -8,12 +8,13 @@ import {
   ExternalWalletType,
   NewAccountOptions,
   NewAccountWithOreIdResult,
-  UserInfo,
+  UserSourceData,
   WalletPermission,
 } from '../models'
 import { callApiGetUser, ApiGetUserParams, callApiPasswordLessSendCode, callApiPasswordLessVerifyCode } from '../api'
 import { callApiAddPermission } from '../api/endpoints/addPermission'
 import { getOreIdNewChainAccountUrl } from '../core/urlGenerators'
+import { UserChainAccount, UserData, UserPermissionData, UserPermissionForChainAccount } from './models'
 
 const { isNullOrEmpty } = Helpers
 
@@ -32,7 +33,7 @@ export default class User {
   private _oreIdContext: OreIdContext
 
   /** User's basic information and blockchain accounts (aka permissions) */
-  private _info: UserInfo
+  private _userSourceData: UserSourceData
 
   /** User's OreID (accountName) */
   get accountName(): AccountName {
@@ -40,8 +41,27 @@ export default class User {
   }
 
   /** User's personal info (e.g. name, email, picture) */
-  get info(): UserInfo {
-    return this._info
+  get data(): UserData {
+    this.assertUserHasData()
+    const { permissions, ...otherInfo } = this._userSourceData
+    return {
+      ...otherInfo,
+      chainAccounts: this.getChainAccounts(),
+    }
+  }
+
+  /** Return Blockchain accounts associated with the user's OreId account */
+  private getChainAccounts(): UserChainAccount[] {
+    this.assertUserHasData()
+    return (this._userSourceData.permissions || []).map(perm => {
+      const [defaultPermission] = this.getDefaultPermissionForChainAccount(perm.chainAccount, perm.chainNetwork)
+      return {
+        chainAccount: perm.chainAccount,
+        chainNetwork: perm.chainNetwork,
+        defaultPermission,
+        permissions: this.getPermissionForChainAccount(perm.chainAccount, perm.chainNetwork),
+      }
+    })
   }
 
   /** Whether we have a valid access token for the current user */
@@ -49,17 +69,24 @@ export default class User {
     return !!this._accessToken
   }
 
+  /** throw if user data hasn't been retrieved yet */
+  private assertUserHasData() {
+    if (isNullOrEmpty(this?._userSourceData)) {
+      throw new Error('User data hasnt been retrieved. Call user.getData() first.')
+    }
+  }
+
   /** throw if user hasn't have a valid email (i.e. user.email) */
-  private async assertUserHasValidEmail() {
-    const { email } = this?.info
-    if (!Helpers.isValidEmail(email))
-      throw new Error(this?.info ? 'User doesnt have a valid email.' : 'Call user.getInfo() first.')
+  private assertUserHasValidEmail() {
+    this.assertUserHasData()
+    const { email } = this?.data
+    if (!Helpers.isValidEmail(email)) throw new Error('User doesnt have a valid email')
   }
 
   /** Get the user info from ORE ID API for a given user account and (usually) save the user into localStorage 'cache'
    *  Must have a valid accessToken to retrieve user
    */
-  async getInfo() {
+  async getData() {
     // eslint-disable-next-line prefer-destructuring
     const accessToken = this?._accessToken // getting the accessToken here will delete existing accessToken if it's now expired
     if (!accessToken) {
@@ -68,10 +95,10 @@ export default class User {
     // get account specified in access token
     const account = this?._accountName
     const params: ApiGetUserParams = { account }
-    const userInfo = await callApiGetUser(this._oreIdContext, params)
+    const userSourceData = await callApiGetUser(this._oreIdContext, params)
 
     this._accountName = account
-    this._info = userInfo
+    this._userSourceData = userSourceData
   }
 
   /** Clears user's accessToken and user profile data */
@@ -112,7 +139,7 @@ export default class User {
   async sendVerificationCodeToEmail() {
     this.assertUserHasValidEmail()
     const result = await callApiPasswordLessSendCode(this._oreIdContext, {
-      email: this?.info?.email,
+      email: this?.data?.email,
       provider: AuthProvider.Email,
     })
     return result
@@ -123,10 +150,46 @@ export default class User {
     this.assertUserHasValidEmail()
     const result = await callApiPasswordLessVerifyCode(this._oreIdContext, {
       code,
-      email: this?.info?.email,
+      email: this?.data?.email,
       provider: AuthProvider.Email,
     })
     return result
+  }
+
+  /** Map permission from server data to local UserPermission object */
+  mapUserPermission(permission: UserPermissionData): UserPermissionForChainAccount {
+    if (isNullOrEmpty(permission)) return null
+    const { chainNetwork, chainAccount, permission: permissionName, ...other } = permission
+    return {
+      ...other,
+      name: permissionName,
+    }
+  }
+
+  /** returns the UserPermissins a chainNetwork/chainAccount
+   * if defaultOnly = true, returns the single default permission for the chainAccount
+   */
+  getPermissionForChainAccount(
+    chainAccount: ChainAccount,
+    chainNetwork: ChainNetwork,
+  ): UserPermissionForChainAccount[] {
+    const accountPermissions = this._userSourceData.permissions.filter(
+      p => p.chainAccount === chainAccount && p.chainNetwork === chainNetwork,
+    )
+    return accountPermissions.map(this.mapUserPermission)
+  }
+
+  getDefaultPermissionForChainAccount(
+    chainAccount: ChainAccount,
+    chainNetwork: ChainNetwork,
+  ): UserPermissionForChainAccount[] {
+    const accountPermissions = this.getPermissionForChainAccount(chainAccount, chainNetwork)
+    let defaultPermission = accountPermissions.filter(p => p.isDefault === true)
+    // if no default is defined, and there is only one permission, use it as the default - this might be an external key
+    if (isNullOrEmpty(defaultPermission) && accountPermissions?.length === 1) {
+      defaultPermission = accountPermissions
+    }
+    return defaultPermission
   }
 
   /** Update permissions for user's ORE Account if any */
@@ -154,7 +217,7 @@ export default class User {
     }
 
     // get latest user info
-    await this.getInfo()
+    await this.getData()
 
     // for each permission provided, check if it's already in the user's list, if not, add it by calling the api (addPermission)
     await Helpers.asyncForEach(permissions, async perm => {
@@ -171,7 +234,7 @@ export default class User {
         }
       }
       // filter out permission that the user already has in his record
-      const skipThisPermission = this.info.permissions.some(
+      const skipThisPermission = this._userSourceData.permissions.some(
         up =>
           (up.chainAccount === chainAccount && up.chainNetwork === chainNetwork && up.permission === permission) ||
           permission === 'owner',
@@ -195,6 +258,6 @@ export default class User {
     })
 
     // reload user to get updated permissions
-    await this.getInfo()
+    await this.getData()
   }
 }

@@ -59,8 +59,8 @@ export function authCallbackHandler(oreId: OreId) {
     if (account) {
       // eslint-disable-next-line prefer-destructuring
       const user = oreId.auth.user
-      await user.getInfo() // get user data from server
-      req.user = user.info
+      await user.getData() // get user data from server
+      req.user = user.data
     }
 
     return next()

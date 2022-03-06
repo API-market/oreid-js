@@ -38,8 +38,8 @@ export default class Transaction {
     const missingFields: string[] = []
     const validationIssues: string[] = []
 
-    if (!this._user || !this._user?.info) {
-      throw new Error('Make sure that a user has been authenticated and that youve called user.getInfo()')
+    if (!this._user || !this._user?.data) {
+      throw new Error('Make sure that a user has been authenticated and that youve called user.getData()')
     }
 
     // required fields
@@ -85,19 +85,23 @@ export default class Transaction {
     const { chainAccount, chainNetwork } = this._data
     const { accountName } = this._user
 
-    const permissionInWallet = this._user?.info.permissions.find(
+    const chainAccountsInWallet = this._user?.data?.chainAccounts?.find(
       perm => perm.chainNetwork === chainNetwork && perm.chainAccount === chainAccount,
     )
 
-    if (!permissionInWallet) {
+    const allPermissionsExternal = chainAccountsInWallet?.permissions?.every(p => p.privateKeyStoredExterally === true)
+    const externalWalletType = chainAccountsInWallet?.permissions?.find(p => p.privateKeyStoredExterally === true)
+      ?.externalWalletType
+
+    if (!chainAccountsInWallet) {
       throw new Error(
         `Can't find a chainAccount: ${chainAccount} for chainNetwork: ${chainNetwork} in user's oreId account: ${accountName}`,
       )
     }
 
-    if (permissionInWallet?.privateKeyStoredExterally) {
+    if (allPermissionsExternal) {
       throw new Error(
-        `ChainAccount: ${chainAccount} for chainNetwork: ${chainNetwork} appears to be in a wallet app (type: ${permissionInWallet.externalWalletType}) - use signWithWallet() to sign`,
+        `ChainAccount: ${chainAccount} for chainNetwork: ${chainNetwork} appears to be in a wallet app (type: ${externalWalletType}) - use signWithWallet() to sign`,
       )
     }
   }
