@@ -28,13 +28,10 @@ export type WebWidgetProps = {
   /** callback for errors - errors is a delimited string of error codes and/or an error message */
   onError: ({ errors, data }: { errors?: string; data?: any }) => void
   timeout?: number
-}
-
-export interface WebWidgetPropsSigned extends WebWidgetProps {
   /** the time of the request (Epoch time) */
-  timestamp: number
+  timestamp?: number
   /** the signture of the request body */
-  signature: string
+  signature?: string
 }
 
 /** Actions supported by widget */
@@ -121,6 +118,8 @@ export type WebWidgetSignParams = {
     broadcast?: boolean
     /** Comma seperated string of accounts for which OreID should add signatures - only valid for accounts managed by OreId */
     multisigChainAccounts?: string
+    /** Prevents the use of auto sign functionality while signing the transaction */
+    preventAutosign?: string
     /** whether the complete signed transaction should be returned */
     returnSignedTransaction?: boolean
   }
