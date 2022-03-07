@@ -8,7 +8,7 @@ describe('OreId', () => {
   let options: OreIdOptions = {
     appName: 'testrunner',
     appId: 'demo_0097ed83e0a54e679ca46d082ee0e33a',
-    apiKey: 't_k8889ced3cf2b4097a2bec7f90267d172', // has extra rights for examples (serviceKey)
+    apiKey: 'demo_k_97b33a2f8c984fb5b119567ca19e4a49',, // has extra rights for examples (serviceKey)
     oreIdUrl: defaultOreIdServiceUrl,
   }
 
@@ -51,7 +51,7 @@ describe('OreId', () => {
       expect(result).toEqual({
         errors: null,
         newAccountUrl:
-          'https://service.oreid.io/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&app_access_token=12345667&hmac=3f5d33fb560f661aaea656bc78cec5f80ed3ae77adde8eec62fb7ebc9cc1d434',
+          'http://localhost:8080/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&oauth_access_token=null&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&app_access_token=12345667&hmac=3979b2bb92c0ac2212395220bd32babacb3d4d1e595c6f3c6b9c09504a67973f',
       })
     })
 
@@ -60,7 +60,7 @@ describe('OreId', () => {
       expect(result).toEqual({
         errors: null,
         newAccountUrl:
-          'https://service.oreid.io/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&app_access_token=12345667&hmac=3f5d33fb560f661aaea656bc78cec5f80ed3ae77adde8eec62fb7ebc9cc1d434',
+          'http://localhost:8080/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&oauth_access_token=null&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&app_access_token=12345667&hmac=3979b2bb92c0ac2212395220bd32babacb3d4d1e595c6f3c6b9c09504a67973f',
       })
     })
   })
