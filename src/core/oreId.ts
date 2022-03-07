@@ -7,7 +7,7 @@ import Helpers from '../utils/helpers'
 import IOreidContext from './IOreidContext'
 import LocalState from '../utils/localState'
 import { defaultOreIdServiceUrl, publicApiEndpoints, version } from '../constants'
-import { generateHmac } from '../utils/hmac'
+import { appendHmacToUrl, generateHmacWithApiKeyOrProxyServer } from '../utils/hmac'
 import { getTransitProviderAttributes } from '../transit/transitProviders'
 import {
   ApiEndpoint,
@@ -16,6 +16,7 @@ import {
   AuthProvider,
   ChainNetwork,
   ExternalWalletType,
+  JSONObject,
   NewAccountResult,
   OreIdOptions,
   ProcessId,
@@ -261,6 +262,25 @@ export default class OreId implements IOreidContext {
     return { signedTransaction, processId, state, transactionId, errors }
   }
 
+  /** Updates and returns a JSON object to include two new fields: timestamp, signature
+   *  timestamp: current server time
+   *  signature: HMAC signature of the object including the timestamp - calculated using the apiKey
+   *  Accepts an optional value for timestamp - uses server's current date/time if not provided
+   *  If an apiKey is not provided in options, this function expects a proxy server endpoint at /oreid/hmac to generate the siganture with the secured apiKey
+   *  Returns the updated object that includes the timestamp and the signature fields
+   */
+  async appendTimestampAndSignature(data: JSONObject, timestamp?: number) {
+    const nowTimestamp = timestamp || new Date().getTime()
+    data.timestamp = nowTimestamp
+    const stringified = JSON.stringify(data)
+    data.signature = await generateHmacWithApiKeyOrProxyServer(
+      this.requiresProxyServer,
+      this.options.apiKey,
+      stringified,
+    )
+    return data
+  }
+
   /** Helper function to call api endpoint and inject api-key
     here params can be query params in case of a GET request or body params in case of POST request
     processId (optional) - can be used to associate multiple calls together into a single process flow
@@ -319,15 +339,13 @@ export default class OreId implements IOreidContext {
         const body = !isNullOrEmpty(params) ? JSON.stringify(params) : null
         response = await axios.post(url, body, {
           headers: { 'Content-Type': 'application/json', ...headers },
-          // body: params,
         })
       }
     } catch (networkError) {
       const error = Helpers.getErrorFromAxiosError(networkError)
       throw error
     }
-
-    const { data } = response
+    const data = response?.data
     return data
   }
 
@@ -354,13 +372,11 @@ export default class OreId implements IOreidContext {
       completeUrl = `${completeUrl}&app_access_token=${appAccessToken}`
     }
 
-    let hmacParam = ''
-    // An hmac is no longer required - however, if we have an apiKey, we can generate one
+    // An hmac is no longer always required - however, if we have an apiKey, we can generate one
     if (this.options?.apiKey) {
-      const hmac = generateHmac(this.options.apiKey, completeUrl)
-      const urlEncodedHmac = encodeURIComponent(hmac)
-      hmacParam = `&hmac=${urlEncodedHmac}`
+      completeUrl = await appendHmacToUrl(false, this.options?.apiKey, completeUrl)
     }
-    return `${completeUrl}${hmacParam}`
+
+    return completeUrl
   }
 }
