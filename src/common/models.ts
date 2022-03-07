@@ -173,7 +173,7 @@ export interface Lookup {
 
 export type JSONArray = Array<JSONValue>
 
-export type JSONValue = string | number | boolean | JSONObject | JSONArray
+export type JSONValue = string | number | boolean | Function | JSONObject | JSONArray
 
 export interface JSONObject {
   [x: string]: JSONValue
