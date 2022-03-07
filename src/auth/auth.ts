@@ -222,7 +222,9 @@ export default class Auth {
     if (tokenCheckError) return { accessToken: null, ...tokenCheckError }
 
     const response = await callApiLoginUserWithToken(this._oreIdContext, oauthOptions)
-    this.setAuthResult({ accessToken: response?.accessToken })
+    if (!response?.errorCode) {
+      this.setAuthResult({ accessToken: response?.accessToken })
+    }
     return {
       accessToken: response.accessToken,
       error: response?.errorCode,
@@ -241,7 +243,9 @@ export default class Auth {
     if (tokenCheckError) return { accessToken: null, ...tokenCheckError }
 
     const response = await callApiNewUserWithToken(this._oreIdContext, oauthOptions)
-    this.setAuthResult({ accessToken: response?.accessToken })
+    if (!response?.errorCode) {
+      this.setAuthResult({ accessToken: response?.accessToken })
+    }
     return {
       accessToken: response.accessToken,
       error: response?.errorCode,
@@ -302,7 +306,10 @@ export default class Auth {
     if (accessToken) response.accessToken = accessToken
     if (idToken) response.idToken = idToken
 
-    this.setAuthResult(response)
+    if (!errors) {
+      this.setAuthResult(response)
+    }
+
     // clear the busy indicator now that we've finsihed the auth flow
     this._oreIdContext.setIsBusy(false)
     return response
@@ -313,7 +320,6 @@ export default class Auth {
     const { accessToken, idToken } = authResponse
     if (!accessToken) throw Error('Cant setAuthResult. accessToken is missing')
     this._accessTokenHelper.setAccessToken(accessToken)
-
     if (idToken) {
       this._accessTokenHelper.setIdToken(idToken)
     }
