@@ -24,7 +24,6 @@ import {
   SignStringParams,
   TransactionData,
   WebWidgetProps,
-  WebWidgetPropsSigned,
 } from '../models'
 import StorageHandler from '../utils/storage'
 import {
@@ -263,23 +262,32 @@ export default class OreId implements IOreidContext {
     return { signedTransaction, processId, state, transactionId, errors }
   }
 
-  /** Updates and returns a JSON object to include two new fields: timestamp, signature
+  /** Updates and returns a WebWidgetProps object to include two new fields: timestamp, signature
    *  timestamp: current server time
    *  signature: HMAC signature of the object including the timestamp - calculated using the apiKey
-   *  Accepts an optional value for timestamp - uses server's current date/time if not provided
+   *  IF incoming props already has a value for timestamp - it is kept
+   *  If both incoming and timestamp and signature are already present, this returns incoming data unmodified
    *  If an apiKey is not provided in options, this function expects a proxy server endpoint at /oreid/hmac to generate the siganture with the secured apiKey
    *  Returns the updated object that includes the timestamp and the signature fields
    */
-  async appendTimestampAndSignature(data: WebWidgetProps, timestamp?: number) {
-    const signedProps: Partial<WebWidgetPropsSigned> = { ...data }
-    const nowTimestamp = timestamp || new Date().getTime()
+  async appendTimestampAndSignatureToWidgetProps(data: WebWidgetProps) {
+    // if we already have timestamp and signature, just return data as is
+    if (data?.timestamp && data?.signature) return data
+    const signedProps: Partial<WebWidgetProps> = { ...data }
+    // keep existing timestamp if there is one
+    const nowTimestamp = data?.timestamp || new Date().getTime()
     signedProps.timestamp = nowTimestamp
-    signedProps.signature = await generateHmacWithApiKeyOrProxyServer(
-      this.requiresProxyServer,
-      this.options.apiKey,
-      JSON.stringify(data), // props including timestamp
-    )
-    return signedProps as WebWidgetPropsSigned
+    // if we have an apiKey, add a signature
+    try {
+      signedProps.signature = await generateHmacWithApiKeyOrProxyServer(
+        this.requiresProxyServer,
+        this.options.apiKey,
+        JSON.stringify(Helpers.sortJson(data)), // props including timestamp - sortJson ensures json members are always in the same order
+      )
+    } catch (error) {
+      // do nothing, we just can't add a signature since apiKey and proxyServer are missing
+    }
+    return signedProps as WebWidgetProps
   }
 
   /** Helper function to call api endpoint and inject api-key

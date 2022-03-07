@@ -4,6 +4,7 @@
 // import jwtdecode from 'jwt-decode'
 import { AxiosError } from 'axios'
 import { v4 as uuidv4 } from 'uuid'
+import canonicalize from 'canonicalize'
 import jwtDecode from 'jwt-decode'
 import { Base64 } from 'js-base64'
 import { JWTToken } from '../auth/models'
@@ -343,5 +344,12 @@ export default class Helpers {
     if (!email) return false
     const emailRegex = /^(([^<>()[]\\.,;:\s@]+(\.[^<>()[]\\.,;:\s@]+)*)|(.+))@(([[0-9]{1,3}\[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     return emailRegex.test(email)
+  }
+
+  /** Sort JSON in a deterministic way */
+  static sortJson(value: any): any {
+    if (!value) return value
+    const stringified = canonicalize(value)
+    return JSON.parse(stringified)
   }
 }
