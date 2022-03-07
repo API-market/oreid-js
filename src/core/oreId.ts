@@ -16,7 +16,6 @@ import {
   AuthProvider,
   ChainNetwork,
   ExternalWalletType,
-  JSONObject,
   NewAccountResult,
   OreIdOptions,
   ProcessId,
@@ -24,6 +23,8 @@ import {
   SignResult,
   SignStringParams,
   TransactionData,
+  WebWidgetProps,
+  WebWidgetPropsSigned,
 } from '../models'
 import StorageHandler from '../utils/storage'
 import {
@@ -269,16 +270,16 @@ export default class OreId implements IOreidContext {
    *  If an apiKey is not provided in options, this function expects a proxy server endpoint at /oreid/hmac to generate the siganture with the secured apiKey
    *  Returns the updated object that includes the timestamp and the signature fields
    */
-  async appendTimestampAndSignature(data: JSONObject, timestamp?: number) {
+  async appendTimestampAndSignature(data: WebWidgetProps, timestamp?: number) {
+    const signedProps: Partial<WebWidgetPropsSigned> = { ...data }
     const nowTimestamp = timestamp || new Date().getTime()
-    data.timestamp = nowTimestamp
-    const stringified = JSON.stringify(data)
-    data.signature = await generateHmacWithApiKeyOrProxyServer(
+    signedProps.timestamp = nowTimestamp
+    signedProps.signature = await generateHmacWithApiKeyOrProxyServer(
       this.requiresProxyServer,
       this.options.apiKey,
-      stringified,
+      JSON.stringify(data), // props including timestamp
     )
-    return data
+    return signedProps as WebWidgetPropsSigned
   }
 
   /** Helper function to call api endpoint and inject api-key

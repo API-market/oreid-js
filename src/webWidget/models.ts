@@ -12,7 +12,7 @@ export type WebWidgetOreIdOptions = {
   accessToken?: string
   appId: string
   backgroundColor?: string
-  oreIdUrl: string
+  oreIdUrl?: string
   setBusyCallback?: (isBusy: boolean) => void
   eosTransitWalletProviders?: any[] // TODO: remove these from being passed to webwidget
 }
@@ -28,6 +28,9 @@ export type WebWidgetProps = {
   /** callback for errors - errors is a delimited string of error codes and/or an error message */
   onError: ({ errors, data }: { errors?: string; data?: any }) => void
   timeout?: number
+}
+
+export interface WebWidgetPropsSigned extends WebWidgetProps {
   /** the time of the request (Epoch time) */
   timestamp: number
   /** the signture of the request body */
