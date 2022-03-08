@@ -276,6 +276,7 @@ export default class OreId implements IOreidContext {
     const signedProps: Partial<WebWidgetProps> = { ...data }
     // keep existing timestamp if there is one
     const nowTimestamp = data?.timestamp || new Date().getTime()
+    signedProps.origin = data?.origin || window?.location.origin
     signedProps.timestamp = nowTimestamp
     // if we have an apiKey, add a signature
     try {

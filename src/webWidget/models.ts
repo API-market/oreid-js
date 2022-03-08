@@ -27,6 +27,8 @@ export type WebWidgetProps = {
   onSuccess: ({ data }: { data?: any }) => void
   /** callback for errors - errors is a delimited string of error codes and/or an error message */
   onError: ({ errors, data }: { errors?: string; data?: any }) => void
+  /** source url for request (e.g. https://yourapp.com) */
+  origin: string
   timeout?: number
   /** the time of the request (Epoch time) */
   timestamp?: number
