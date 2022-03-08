@@ -18,6 +18,8 @@ export type TransactionData = {
     broadcast?: boolean
     generateAutoSignCredential?: boolean
     multiSigChainAccounts?: string // Comma seperated string of accounts - for which OREID should add signatures
+    /** Prevents the use of auto sign functionality while signing the transaction */
+    preventAutosign?: boolean
     returnSignedTransaction?: boolean
     signatureOnly?: boolean
     userPassword?: string // custodial
