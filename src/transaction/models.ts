@@ -13,24 +13,26 @@ export type TransactionData = {
   encodedTransaction?: string // Stringified,base64 encoded transaction
   transactionChainAccount?: string // used to sepecify a specific 'from' account for multisig tx
   transactionRecordId?: string // when set, specifies to use a transaction saved in OREID
-  signOptions?: {
-    allowChainAccountSelection?: boolean
-    broadcast?: boolean
-    generateAutoSignCredential?: boolean
-    multiSigChainAccounts?: string // Comma seperated string of accounts - for which OREID should add signatures
-    /** Prevents the use of auto sign functionality while signing the transaction */
-    preventAutosign?: boolean
-    returnSignedTransaction?: boolean
-    signatureOnly?: boolean
-    userPassword?: string // custodial
-    userPasswordEncrypted?: string // possibly from local storage - non necessarily custodial
-    // not for widget
-    accessToken?: string
-    callbackUrl?: string
-    provider?: AuthProvider // force login with this provider
-    signExternalWithOreId?: boolean // Remove: opening widget means using oreid
-    state?: string
-  }
+  signOptions?: TransactionSignOptions
+}
+
+export type TransactionSignOptions = {
+  allowChainAccountSelection?: boolean
+  broadcast?: boolean
+  generateAutoSignCredential?: boolean
+  multiSigChainAccounts?: string // Comma seperated string of accounts - for which OREID should add signatures
+  /** Prevents the use of auto sign functionality while signing the transaction */
+  preventAutosign?: boolean
+  returnSignedTransaction?: boolean
+  signatureOnly?: boolean
+  userPassword?: string // custodial
+  userPasswordEncrypted?: string // possibly from local storage - non necessarily custodial
+  // not for widget
+  accessToken?: string
+  callbackUrl?: string
+  provider?: AuthProvider // force login with this provider
+  signExternalWithOreId?: boolean // Remove: opening widget means using oreid
+  state?: string
 }
 
 export interface CreateTransactionData
