@@ -10,9 +10,10 @@ https://github.com/auth0/auth0.js/tree/master/src/helper/storage
 */
 
 import Cookie from 'js-cookie'
+import IStorage from '../core/IStorage'
 import Helpers from './helpers'
 
-class CookieStorage {
+class CookieStorage implements IStorage {
   getItem(key: string): string {
     return Cookie.get(key)
   }
@@ -30,7 +31,7 @@ class CookieStorage {
   }
 }
 
-class LocalStorage {
+class LocalStorage implements IStorage {
   constructor() {
     if (window) {
       // some browsers throw an error when trying to access localStorage
@@ -63,7 +64,7 @@ class LocalStorage {
   }
 }
 
-class DummyStorage {
+class DummyStorage implements IStorage {
   getItem(key: any): any {
     return null
   }
@@ -77,7 +78,7 @@ class DummyStorage {
   }
 }
 
-class StorageHandler {
+class StorageHandler implements IStorage {
   constructor(options = { tryLocalStorageFirst: true }) {
     this.triedLocalStorage = false
     this.triedCookieStorage = false

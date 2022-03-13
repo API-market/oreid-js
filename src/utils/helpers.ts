@@ -4,10 +4,11 @@
 // import jwtdecode from 'jwt-decode'
 import { AxiosError } from 'axios'
 import { v4 as uuidv4 } from 'uuid'
+import canonicalize from 'canonicalize'
 import jwtDecode from 'jwt-decode'
-import { JWTToken, Lookup } from './models'
-
-const { Base64 } = require('js-base64')
+import { Base64 } from 'js-base64'
+import { JWTToken } from '../auth/models'
+import { AuthProvider, ExternalWalletType, JSONObject, Lookup } from '../common/models'
 
 const TRACING = false // enable when debugging to see detailed outputs
 
@@ -48,9 +49,8 @@ export default class Helpers {
     }
   }
 
-  /** Decodes a JWT token string and returns its body, header, and signature
-   *  If token can't be decoded (e.g. corrupted), returns null
-   *  (optional) Verifies signature if signingCert is provided - throws if invalid signture */
+  /** Decodes a JWT token string
+   *  If token can't be decoded (e.g. corrupted), returns null */
   static jwtDecodeSafe(token: string): Partial<JWTToken> {
     let decoded: JWTToken
     if (this.isNullOrEmpty(token)) {
@@ -64,53 +64,51 @@ export default class Helpers {
     return decoded
   }
 
-  static urlParamsToArray(fullpathIn: string) {
-    let fullpath = fullpathIn
-    let firstItemIndex = 1 // skip the first parsed item by default (usually the server name)
-    if (this.isNullOrEmpty(fullpath)) {
-      return []
+  /**  Takes a url string and converts it to an object of {paramNane, paramValue}
+   * e.g input: https://xxx?enabled&name=value&name2=val2
+   *   returns: { 'enabled': true, 'name':'value', 'name2':'val2' }
+   * if the parameter only has a name and no value, then its value is set to 'true'
+   * */
+  static parseUrlParams(fullPath: string) {
+    const urlParamsObject: JSONObject = {}
+    let searchString
+    try {
+      const urlObject = new URL(fullPath)
+      if (urlObject.hash) {
+        searchString = urlObject.hash.slice(1) // remove #
+      } else {
+        searchString = urlObject.search
+      }
+    } catch (error) {
+      searchString = fullPath // treat as partial url string E.g. '?param1=value1...'
     }
 
-    // Grab everything after hash if it exists
-    if (fullpath.includes('#')) {
-      fullpath = fullpath.substring(fullpath.indexOf('#') + 1)
-      firstItemIndex = 0 // server name is pruned now
-    }
-
-    const parts = fullpath.split(/[/?/$&]/)
-
-    // Everything else delimited by '/' or ',' or '&' or '?' is a parameter
-    let params: string[] = []
-    if (parts.length > 0) {
-      params = parts.slice(firstItemIndex)
-    }
-
-    // paramPairs  e.g. [ ['enabled'], [ 'abc', '123' ], [ 'dbc', '444' ] ]   -- if the parameter only has a name and no value, the value is set to true
-    const paramPairs = params.map(param => param.split('='))
-    const jsonParams: { [key: string]: any } = {}
-    // convert array to json object e.g. { enabled: true, abc: '123', dbc: '444' }
-    paramPairs.forEach(pair => {
-      jsonParams[pair[0]] = decodeURIComponent(pair[1]) || true
+    const urlParams = new URLSearchParams(searchString)
+    urlParams.forEach((value, key) => {
+      urlParamsObject[key] = decodeURIComponent(value) || 'true'
     })
-    return jsonParams
+
+    return urlParamsObject
   }
 
-  // Returns Null if parse fails
-  static tryParseJSON(jsonStringIn: any, unescape?: boolean) {
-    let jsonString = jsonStringIn
-
-    if (!jsonString) {
-      return null
-    }
-    let doubleQuotes = ''
+  /** Returns Null if parse fails
+   *  Reinflates a serialized object (e.g. UInt8Array) if found in JSON
+   */
+  static tryParseJSON(jsonString: any, unescape = false, replaceQuotes = false) {
+    let finalJsonString = ''
+    if (!jsonString || !Helpers.isAString(jsonString) || jsonString.trim() === '') return null
     try {
       if (unescape) {
+        // eslint-disable-next-line no-param-reassign
         jsonString = decodeURI(jsonString)
       }
-      // eslint-disable-next-line quotes
-      doubleQuotes = replaceAll(jsonString, "'", '"')
-      doubleQuotes = replaceAll(doubleQuotes, '`', '"')
-      const o = JSON.parse(doubleQuotes)
+      finalJsonString = jsonString
+      if (replaceQuotes) {
+        // eslint-disable-next-line quotes
+        finalJsonString = replaceAll(jsonString, "'", '"')
+        finalJsonString = replaceAll(finalJsonString, '`', '"')
+      }
+      const o = JSON.parse(finalJsonString, Helpers.jsonParseComplexObjectReviver)
       // Handle non-exception-throwing cases:
       // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
       // but... JSON.parse(null) returns null, and typeof null === "object",
@@ -119,15 +117,48 @@ export default class Helpers {
         return o
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error)
+      // TODO: should log trace this detail: ('error parsing JSON', { jsonString, doubleQuotes, error });
     }
 
     return null
   }
 
-  static isAnObject(obj: any) {
-    return obj !== null && typeof obj === 'object'
+  /**
+   * The reviver function passed into JSON.parse to implement custom type conversions.
+   * If the value is a previously stringified buffer we convert it to a Buffer,
+   * If its an object of numbers, we convert to UInt8Array {"0":2,"1":209,"2":8 ...}
+   * otherwise return the value
+   */
+  static jsonParseComplexObjectReviver(key: string, value: any) {
+    // Convert Buffer
+    if (
+      value !== null &&
+      typeof value === 'object' &&
+      'type' in value &&
+      value.type === 'Buffer' &&
+      'data' in value &&
+      Array.isArray(value.data)
+    ) {
+      return Buffer.from(value.data)
+    }
+
+    // Convert number array to UInt8Array e.g. {"0":2,"1":209,"2":8 ...}
+    if (
+      value !== null &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      '0' in value &&
+      Helpers.isANumber(value['0'])
+    ) {
+      const values = Object.entries(value).map(([, val]) => val)
+      // if array only has 8-bit numbers, convert it to UInt8Array
+      if (values.every(val => Helpers.isANumber(val) || val < 256)) {
+        return new Uint8Array(values as number[])
+      }
+    }
+
+    // Return parsed value without modifying
+    return value
   }
 
   static base64DecodeSafe(encodedString: string) {
@@ -148,8 +179,11 @@ export default class Helpers {
     return decoded
   }
 
-  // if an Object or JSON is passed-in, it will be stringified first
+  /**  Base64 encodes a string
+   * if value passed in is an Object or JSON, it will be stringified first
+   * if value is null, this function returns null */
   static base64Encode(valueIn: any) {
+    if (!valueIn) return null
     let value = valueIn
     if (Helpers.isAnObject(value)) {
       value = JSON.stringify(value)
@@ -201,10 +235,13 @@ export default class Helpers {
     return errorCodes
   }
 
+  /** Retrieve values from a url query string and returns an array of them
+   *  Also parses error codes returned into an array of errors codes/messages
+   */
   static extractDataFromCallbackUrl(url: string) {
     let params: { [key: string]: any } = {}
     if (url) {
-      params = this.urlParamsToArray(url)
+      params = this.parseUrlParams(url)
       const errors = this.getErrorCodesFromParams(params)
       return { ...params, errors }
     }
@@ -251,11 +288,68 @@ export default class Helpers {
     const errorCodes = this.getErrorCodesFromParams(data)
     // oreid apis pass back errorCode/errorMessages
     // also handle when a standard error message is thrown
-    const errorString = errorCodes || message || 'unknown error'
+    const errorCodesList = errorCodes && errorCodes?.length > 1 ? errorCodes.join(', ') : errorCodes
+    const errorString = errorCodesList || message || 'unknown error'
     return Error(errorString)
   }
 
   static isAxiosError(error: any): error is AxiosError {
     return (error as AxiosError).isAxiosError !== undefined
+  }
+
+  static isAString(value: any): boolean {
+    if (!value) {
+      return false
+    }
+    return typeof value === 'string' || value instanceof String
+  }
+
+  static isADate(value: any): boolean {
+    return value instanceof Date
+  }
+
+  static isABoolean(value: any): boolean {
+    return typeof value === 'boolean' || value instanceof Boolean
+  }
+
+  static isANumber(value: any): boolean {
+    if (Number.isNaN(value)) return false
+    return typeof value === 'number' || value instanceof Number
+  }
+
+  static isAnObject(obj: any): boolean {
+    return obj !== null && typeof obj === 'object'
+  }
+
+  /** throw error if invalid provider */
+  static assertValidProvider(provider: AuthProvider) {
+    if (Helpers.isInEnum(AuthProvider, provider)) {
+      return true
+    }
+    throw new Error(`Auth provider ${provider} is not a valid option`)
+  }
+
+  /** Convert an AuthProvider to the ExternalWalletType subset
+   *  Returns null if can't convert member */
+  static mapAuthProviderToWalletType(provider: AuthProvider | ExternalWalletType) {
+    if (!provider) return null
+    return Helpers.toEnumValue(ExternalWalletType, provider)
+  }
+
+  static isCustodial(provider: AuthProvider) {
+    return provider === AuthProvider.Custodial
+  }
+
+  static isValidEmail(email: any): boolean {
+    if (!email) return false
+    const emailRegex = /^(([^<>()[]\\.,;:\s@]+(\.[^<>()[]\\.,;:\s@]+)*)|(.+))@(([[0-9]{1,3}\[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    return emailRegex.test(email)
+  }
+
+  /** Sort JSON in a deterministic way */
+  static sortJson(value: any): any {
+    if (!value) return value
+    const stringified = canonicalize(value)
+    return JSON.parse(stringified)
   }
 }
