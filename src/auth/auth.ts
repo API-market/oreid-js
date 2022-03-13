@@ -319,7 +319,7 @@ export default class Auth {
   setAuthResult(authResponse: AuthResult) {
     const { accessToken, idToken } = authResponse
     if (!accessToken) throw Error('Cant setAuthResult. accessToken is missing')
-    this._accessTokenHelper.setAccessToken(accessToken)
+    this.accessToken = accessToken // saves the token to localstorage
     if (idToken) {
       this._accessTokenHelper.setIdToken(idToken)
     }
