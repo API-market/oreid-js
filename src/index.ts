@@ -1,19 +1,22 @@
-import OreId from './oreId'
+import OreId from './core/oreId'
+import Transaction from './transaction/transaction'
 import { asyncHandler, authCallbackHandler, signCallbackHandler } from './middleware'
-import { appendHmacToUrl, generateHmac } from './hmac'
-import { getTransitProviderAttributesByChain } from './transitProviders'
+import { appendHmacToUrl, generateHmac, generateHmacWithApiKeyOrProxyServer } from './utils/hmac'
+import { getTransitProviderAttributesByChain } from './transit/transitProviders'
 
-import Helpers from './helpers'
+import Helpers from './utils/helpers'
 
 export {
+  appendHmacToUrl,
   asyncHandler,
   authCallbackHandler,
-  OreId,
-  signCallbackHandler,
-  appendHmacToUrl,
   generateHmac,
+  generateHmacWithApiKeyOrProxyServer,
   getTransitProviderAttributesByChain,
   Helpers,
+  OreId,
+  signCallbackHandler,
+  Transaction,
 }
 
 export * from './models'

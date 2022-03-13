@@ -8,10 +8,11 @@ oreid-js is a javascript helper library for interacting with the Aikon ORE ID se
 
 [ORE ID](https://github.com/api-market/ore-id-docs) is a simple way to add OAuth login to your blockchain enabled app.
 
-Install npm package:
+Install this npm package as well as the related oreid-webwidget package:
 
 ```
-npm install oreid-js
+yarn add oreid-js oreid-webwidget
+
 ```
 
 # Usage
@@ -19,23 +20,51 @@ npm install oreid-js
 Example code:
 
 ```javascript
-//Initialize the library
-let oreId = new OreId({ appId, apiKey, oreIdUrl });
+// import this library and the Web popup widget
+import { OreId } from "oreid-js";
+import { OreIdWebWidget } from "oreid-webwidget";
+```
+## Auth
+```javascript
+//Initialize the libraries
+let oreId = new OreId({ appId, apiKey });
+const webwidget = new OreIdWebWidget(oreId, window);
 
-//Start the OAuth flow by setting the user's browser to this URL
-let authUrl = await oreId.getOreIdAuthUrl({ provider, callbackUrl, backgroundColor });
+//Start the OAuth flow - after login, 
+webwidget.onAuth({
+    params: { provider: ‘google’ },
+    onError: (errors) => {console.log(errors)},
+    onSuccess: (data) => {console.log(data)},
+});
+```
+## User
+```javascript
+// access logged-in user info
+Const userData = await oreid.auth.user.getData()
+console.log(`Hello ${userData.name}`)
+```
 
-//...then handle the callback results of the Auth flow
-let authResults = oreId.handleAuthResponse(authCallbackResults);
+## Transaction
+```javascript
+// Get the first Ethereum account in the user's account
+const ethAccount = user.data.chainAccounts.find(ca => ca.chainNetwork === 'eth_ropsten')
+// create and sign transaction
+const transaction = await oreid.createTransaction({
+  chainAccount: ethAccount,
+  chainNetwork: 'eth_ropsten',
+  transaction: { to: '0x123...', amount: '.0001' },
+  signOptions: { broadcast: true },
+})
 
-//Request that the user sign a transaction by setting the user's browser to this URL
-let signUrl = await oreId.getOreIdSignUrl({ account, transaction, signCallbackUrl, chainNetwork, ... });
+// popup sign flow - when completed, transaction info is returned
+await oreidWebPopUp.sign({
+  transaction,
+  onSuccess: (data: any) => {
+    console.log('transaction signed:', data.transactionId)
+  },
+  onError: showErrors,
+})
 
-//...then handle the callback results of the Sign flow
-let signResults = oreId.handleSignResponse(signedCallbackResults);
-
-//Get the user's info given a blockchain account
-let userInfo = await oreId.getUserInfoFromApi(account);
 
 ```
 
@@ -75,9 +104,9 @@ We support EOS, ORE, and other EOSIO-based chains. Just use one of the following
   - 'ore_main' - ORE Main network
   - 'ore_test' - ORE test network
 
-## Using EOS Transit and/or UAL
+## Using EOS Transit
 
-oreid-js makes it easy for you to add many popular EOS wallets to your app. It integrates [EOS Transit](https://github.com/eosnewyork/eos-transit) and [UAL](https://github.com/EOSIO/universal-authenticator-library) so that you can use any wallet they support. oreid-js is the easiest way to use EOS Transit or UAL with your app.
+oreid-js makes it easy for you to add many popular blockchain wallets to your app. It integrates [EOS Transit](https://github.com/eosnewyork/eos-transit) so that you can use any wallet they support. oreid-js is the easiest way to add support for signing with blockchain wallets to your app.
 
 EOS Transit
 ```javascript
@@ -87,17 +116,6 @@ import scatterProvider from 'eos-transit-scatter-provider';
 const eosTransitWalletProviders = [ scatterProvider(), ... ]
 const oreId = new OreId({ ..., eosTransitWalletProviders });
 ```
-
-UAL
-```javascript
-// add the provider package for each wallet you want to support
-import { Scatter } from 'ual-scatter';
-// pass in the array of providers when you initialize the library
-const ualWalletProviders = [ Scatter, ... ]
-let oreId = new OreId({ ..., ualWalletProviders });
-```
-
-**NOTE:** You can use both UAL and Transit together however you can't pass in duplicate providers. Using `ual-scatter` and `eos-transit-scatter-provider` at the same time will result in an error.
 
 **NOTE:** This project uses a forked version of Eos-Transit library to support non-Eos blockchains (package: @aikon/eos-transit).
 

@@ -1,8 +1,6 @@
 /* eslint-disable jest/no-mocks-import */
-import OreId from '../src/oreId'
-import demoChainNetworks from '../src/testHelpers/__mocks__/chainNetworks.json'
+import OreId from '../src/core/oreId'
 import { OreIdOptions, AuthProvider, ChainNetwork, AccountType } from '../src/models'
-import { generateHmac } from '../src/hmac'
 import { defaultOreIdServiceUrl } from '../src/constants'
 
 describe('OreId', () => {
@@ -10,7 +8,7 @@ describe('OreId', () => {
   let options: OreIdOptions = {
     appName: 'testrunner',
     appId: 'demo_0097ed83e0a54e679ca46d082ee0e33a',
-    apiKey: 'demo_k_97b33a2f8c984fb5b119567ca19e4a49',
+    apiKey: 'demo_k_97b33a2f8c984fb5b119567ca19e4a49',, // has extra rights for examples (serviceKey)
     oreIdUrl: defaultOreIdServiceUrl,
   }
 
@@ -49,20 +47,20 @@ describe('OreId', () => {
     })
 
     it('create new account with oreid', async () => {
-      const result = await oreId.newAccountWithOreId(newAccountOptions)
+      const result = await oreId.auth.user.getNewChainAccountUrl(newAccountOptions)
       expect(result).toEqual({
         errors: null,
         newAccountUrl:
-          'https://service.oreid.io/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&app_access_token=12345667&hmac=P10z%2B1YPZhqupla8eM7F%2BA7Trnet3o7sYvt%2BvJzB1DQ%3D',
+          'http://localhost:8080/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&oauth_access_token=null&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&app_access_token=12345667&hmac=3979b2bb92c0ac2212395220bd32babacb3d4d1e595c6f3c6b9c09504a67973f',
       })
     })
 
-    xit('create new account with oreid', async () => {
-      const result = await oreId.newAccount(newAccountOptions)
+    it('create new account', async () => {
+      const result = await oreId.auth.user.getNewChainAccountUrl(newAccountOptions)
       expect(result).toEqual({
         errors: null,
-        loginUrl:
-          'https://service.oreid.io/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&app_access_token=12345667&hmac=P10z%2B1YPZhqupla8eM7F%2BA7Trnet3o7sYvt%2BvJzB1DQ%3D',
+        newAccountUrl:
+          'http://localhost:8080/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&oauth_access_token=null&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&app_access_token=12345667&hmac=3979b2bb92c0ac2212395220bd32babacb3d4d1e595c6f3c6b9c09504a67973f',
       })
     })
   })
