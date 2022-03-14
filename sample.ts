@@ -71,7 +71,7 @@ export async function signExample() {
     signOptions: { broadcast: true },
   })
 
-  if (await transaction.canAutoSign()) {
+  if (await transaction.checkCanAutoSign()) {
     const data = await transaction.autoSign()
     console.log('transaction signed:', data.transactionId)
   } else {
