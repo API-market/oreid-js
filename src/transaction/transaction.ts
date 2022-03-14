@@ -137,7 +137,13 @@ export default class Transaction {
    * Returns: true if transaction can be signed using tansaction.sign()
    * */
   async checkCanAutoSign() {
-    const { autoSignCredentialsExist } = await callApiCanAutosignTransaction(this._oreIdContext, this._data)
+    let autoSignCredentialsExist: boolean
+    try {
+      // this will throw if we don't have an api key with the right rights
+      ;({ autoSignCredentialsExist } = await callApiCanAutosignTransaction(this._oreIdContext, this._data))
+    } catch (error) {
+      return false // can't auto-sign
+    }
     return autoSignCredentialsExist
   }
 
