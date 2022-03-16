@@ -194,7 +194,7 @@ export default class Transaction {
     const transactionData = this.data
     const isTransitProvider = this._transitHelper.isTransitProvider(walletType)
     if (!isTransitProvider) return null
-    const signResult = this._transitHelper.signWithTransitProvider(transactionData)
+    const signResult = this._transitHelper.signWithTransitProvider(transactionData, walletType)
     // If we've signed a transaction with a key in a wallet, callDiscoverAfterSign() will add it to the user's wallet
     const provider = Helpers.toEnumValue(AuthProvider, walletType)
     const { account, chainNetwork } = transactionData
