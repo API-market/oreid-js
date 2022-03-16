@@ -17,7 +17,7 @@ export async function callApiGetUser(oreIdContext: OreIdContext, params: ApiGetU
   assertParamsHaveRequiredValues(params, ['account'], apiName)
   const queryParams = { account }
 
-  const response = await oreIdContext.callOreIdApi(RequestType.Get, ApiEndpoint.GetUser, queryParams, null)
+  const response = await oreIdContext.callOreIdApi(RequestType.Get, ApiEndpoint.GetUser, queryParams)
   const { data } = extractProcessIdFromData(response)
   return data as UserSourceData
 }
