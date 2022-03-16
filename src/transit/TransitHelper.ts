@@ -265,7 +265,7 @@ export default class TransitHelper {
   assertHasProviderInstalled(provider: ExternalWalletType, providerType: ExternalWalletInterface) {
     if (providerType === ExternalWalletInterface.Transit) {
       if (!this.hasTransitProvider(provider)) {
-        throw Error(`Transit provider ${provider} not installed. Please pass it in via eosTransitWalletProviders.`)
+        throw Error(`Transit provider:"${provider}" not installed. Please pass it in via eosTransitWalletProviders.`)
       }
     }
   }
@@ -400,11 +400,11 @@ export default class TransitHelper {
   }
 
   /** sign with a Transit wallet */
-  async signWithTransitProvider(transactionData: TransactionData) {
+  async signWithTransitProvider(transactionData: TransactionData, transitProvider?: ExternalWalletType) {
     let signedTransaction: SignatureProviderSignResult
     const { chainNetwork, chainAccount } = transactionData
     const { provider } = transactionData?.signOptions || {}
-    const walletType = Helpers.mapAuthProviderToWalletType(provider)
+    const walletType = Helpers.mapAuthProviderToWalletType(transitProvider || provider)
     this.assertHasProviderInstalled(walletType, ExternalWalletInterface.Transit)
     this.assertProviderValidForChainNetwork(walletType, chainNetwork)
     // connect to wallet
