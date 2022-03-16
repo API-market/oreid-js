@@ -40,7 +40,7 @@ webwidget.onAuth({
 ## User
 ```javascript
 // access logged-in user info
-Const userData = await oreid.auth.user.getData()
+const userData = await oreid.auth.user.getData()
 console.log(`Hello ${userData.name}`)
 ```
 
