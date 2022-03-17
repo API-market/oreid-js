@@ -140,7 +140,7 @@ export type GetOreIdRecoverAccountUrlParams = LoginOptions & {
   account: AccountName
   backgroundColor?: string
   callbackUrl: string
-  recoverAction: RecoverAccountAction
+  recoverAction?: RecoverAccountAction
   overrideAppAccessToken?: AppAccessToken
 }
 
