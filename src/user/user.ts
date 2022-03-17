@@ -53,15 +53,27 @@ export default class User {
   /** Return Blockchain accounts associated with the user's OreId account */
   private getChainAccounts(): UserChainAccount[] {
     this.assertUserHasData()
-    return (this._userSourceData.permissions || []).map(perm => {
-      const [defaultPermission] = this.getDefaultPermissionForChainAccount(perm.chainAccount, perm.chainNetwork)
-      return {
-        chainAccount: perm.chainAccount,
-        chainNetwork: perm.chainNetwork,
-        defaultPermission,
-        permissions: this.getPermissionForChainAccount(perm.chainAccount, perm.chainNetwork),
+    return (this._userSourceData.permissions || []).reduce((userChainAccounts, userPermission) => {
+      if (
+        !userChainAccounts.find(
+          userChainAccount =>
+            userChainAccount.chainAccount === userPermission.chainAccount &&
+            userChainAccount.chainNetwork === userPermission.chainNetwork,
+        )
+      ) {
+        const [defaultPermission] = this.getDefaultPermissionForChainAccount(
+          userPermission.chainAccount,
+          userPermission.chainNetwork,
+        )
+        userChainAccounts.push({
+          chainAccount: userPermission.chainAccount,
+          chainNetwork: userPermission.chainNetwork,
+          defaultPermission,
+          permissions: this.getPermissionForChainAccount(userPermission.chainAccount, userPermission.chainNetwork),
+        })
       }
-    })
+      return userChainAccounts
+    }, [] as UserChainAccount[])
   }
 
   /** Whether we have a valid access token for the current user */
