@@ -93,7 +93,7 @@ export type WebWidgetRecoverAccountParams = {
   /** Login provider (e.g. email) - forces user to haved logged-in using this provider before recovery */
   provider?: string
   /** Type of account recovery requested */
-  recoverAction: string
+  recoverAction?: string
 }
 
 /** params for Sign action */

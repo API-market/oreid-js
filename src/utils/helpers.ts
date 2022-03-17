@@ -351,4 +351,11 @@ export default class Helpers {
     const stringified = canonicalize(value)
     return JSON.parse(stringified)
   }
+
+  /** filter complex values in array down to an array of a single, uniques values
+   * e.g. if array = [{value:'A', other}, {value:'B', something}, {value:'A', other}]
+   *       => [{value:'A', other}, {value:'B', something}] */
+  static getUniqueValues<T>(array: T[]) {
+    return Array.from(new Set(array.map(item => JSON.stringify(item)))).map(item => JSON.parse(item))
+  }
 }
