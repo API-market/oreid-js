@@ -400,11 +400,10 @@ export default class TransitHelper {
   }
 
   /** sign with a Transit wallet */
-  async signWithTransitProvider(transactionData: TransactionData, transitProvider?: ExternalWalletType) {
+  async signWithTransitProvider(transactionData: TransactionData, transitProvider: ExternalWalletType) {
     let signedTransaction: SignatureProviderSignResult
     const { chainNetwork, chainAccount } = transactionData
-    const { provider } = transactionData?.signOptions || {}
-    const walletType = Helpers.mapAuthProviderToWalletType(transitProvider || provider)
+    const walletType = Helpers.mapAuthProviderToWalletType(transitProvider)
     this.assertHasProviderInstalled(walletType, ExternalWalletInterface.Transit)
     this.assertProviderValidForChainNetwork(walletType, chainNetwork)
     // connect to wallet
