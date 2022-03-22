@@ -89,7 +89,7 @@ describe('OreId', () => {
       expect(result).toEqual({
         errors: null,
         loginUrl:
-          'http://localhost:8080/auth#provider=google&code=12345&email=test%40test.com&phone=%2B1555555555&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&return_access_token=true&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&hmac=4ade28471c40a36591808ed28dc57026e0bc9f4578c16737f4aa0b9b18f9846b',
+          'https://service.oreid.io/auth#provider=google&code=12345&email=test%40test.com&phone=%2B1555555555&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&return_access_token=true&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&hmac=e97f04950953fb1725dcf1a15871234e12fa47cec72f4d7c5a061b5bb867aed7',
       })
     })
 

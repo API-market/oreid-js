@@ -51,7 +51,7 @@ describe('OreId', () => {
       expect(result).toEqual({
         errors: null,
         newAccountUrl:
-          'http://localhost:8080/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&oauth_access_token=null&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&app_access_token=12345667&hmac=3979b2bb92c0ac2212395220bd32babacb3d4d1e595c6f3c6b9c09504a67973f',
+          'https://service.oreid.io/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&oauth_access_token=null&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&app_access_token=12345667&hmac=4673c0ec90d09834d185188b7cf873d14f98e8b73d815353518e15137e601693',
       })
     })
 
@@ -60,7 +60,7 @@ describe('OreId', () => {
       expect(result).toEqual({
         errors: null,
         newAccountUrl:
-          'http://localhost:8080/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&oauth_access_token=null&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&app_access_token=12345667&hmac=3979b2bb92c0ac2212395220bd32babacb3d4d1e595c6f3c6b9c09504a67973f',
+          'https://service.oreid.io/new-account#provider=google&chain_network=algo_test&callback_url=http%3A%2F%2Flocalhost.com&background_color=&state=abc&oauth_access_token=null&app_id=demo_0097ed83e0a54e679ca46d082ee0e33a&app_access_token=12345667&hmac=4673c0ec90d09834d185188b7cf873d14f98e8b73d815353518e15137e601693',
       })
     })
   })
