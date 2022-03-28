@@ -55,8 +55,10 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/API-market
+      # get npmrc token
+      - run: echo $NPMRC | base64 -d > ~/.npmrc
       - run: npm run build
-      # - run: npm publish --dry-run --no-git-tag-version
+      - run: npm publish --dry-run --no-git-tag-version
 
 # define the jobs to run
 workflows:
@@ -70,6 +72,8 @@ workflows:
           requires:
             - test
           # only run deploy step on tags
+          context:
+            - global-env
           filters:
             # ignore any commit on any branch by default
             branches:
