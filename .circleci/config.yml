@@ -1,0 +1,78 @@
+# version of circleci config to use
+version: 2.1
+
+# orbs to use for the project
+# information: https://circleci.com/orbs/
+orbs:
+  node: circleci/node@5.0.0
+
+executors:
+  node-executor:
+    docker:
+      - image: node:16.13.2
+
+# jobs that this workflow will run
+jobs:
+  setup:
+    # directory commands will run from by default
+    # usually set to organization/repo
+    working_directory: ~/API-market/oreid-js
+    shell: /bin/bash --login -e
+    executor: node-executor
+    steps:
+      # checkout the code. Because the default working_directory is the name of the repo 
+      # we need to go up a directory thus the `path: ".."`
+      - checkout
+      # call `yarn install`
+      - node/install-packages
+      # call the linter
+      - run: npm run lint
+      # save the installed modules and configured repo for the following steps
+      - persist_to_workspace:
+          root: ~/API-market
+          paths:
+            - oreid-js
+
+  # job to run the tests
+  test:
+    # directory commands will run from by default
+    # usually set to organization/repo
+    working_directory: ~/API-market/oreid-js
+    shell: /bin/bash --login -e
+    executor: node-executor
+    steps:
+      - attach_workspace:
+          at: ~/API-market
+      - run:
+          command: npm run test
+
+  deploy:
+    # directory commands will run from by default
+    # usually set to organization/repo
+    working_directory: ~/API-market/oreid-js
+    shell: /bin/bash --login -e
+    executor: node-executor
+    steps:
+      - attach_workspace:
+          at: ~/API-market
+      - run: npm run build
+      # - run: npm publish --dry-run --no-git-tag-version
+
+# define the jobs to run
+workflows:
+  build_and_test:
+    jobs:
+      - setup
+      - test:
+          requires:
+            - setup
+      - deploy:
+          requires:
+            - test
+          # only run deploy step on tags
+          filters:
+            # ignore any commit on any branch by default
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*$/
