@@ -64,10 +64,16 @@ jobs:
 workflows:
   build_and_test:
     jobs:
-      - setup
+      - setup:
+          filters:
+            tags: 
+              only: /^v[0-9]+(\.[0-9]+)*$/
       - test:
           requires:
             - setup
+          filters:
+            tags: 
+              only: /^v[0-9]+(\.[0-9]+)*$/
       - deploy:
           requires:
             - test
