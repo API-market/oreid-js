@@ -1,7 +1,15 @@
+import {
+  ApiConvertOauthTokensParams,
+  ApiLoginUserWithTokenParams,
+  ApiMessageResult,
+  ApiNewUserWithTokenParams,
+  callApiConvertOauthTokens,
+  callApiLoginUserWithToken,
+  callApiNewUserWithToken,
+} from '../api'
+import { providersNotImplemented } from '../constants'
 import OreIdContext from '../core/IOreidContext'
-import Helpers from '../utils/helpers'
-import AccessTokenHelper from './accessTokenHelper'
-import LocalState from '../utils/localState'
+import { getOreIdAuthUrl } from '../core/urlGenerators'
 import {
   AuthResult,
   LoginOptions,
@@ -9,20 +17,12 @@ import {
   LoginWithTokenOptions,
   LoginWithWalletOptions,
 } from '../models'
-import { providersNotImplemented } from '../constants'
-import User from '../user/user'
 import TransitHelper from '../transit/TransitHelper'
-import {
-  ApiConvertOauthTokensParams,
-  ApiLoginUserWithTokenParams,
-  ApiNewUserWithTokenParams,
-  ApiMessageResult,
-  callApiConvertOauthTokens,
-  callApiLoginUserWithToken,
-  callApiNewUserWithToken,
-} from '../api'
-import { getOreIdAuthUrl } from '../core/urlGenerators'
-import { NewUserWithTokenOptions } from './models'
+import User from '../user/user'
+import Helpers from '../utils/helpers'
+import LocalState from '../utils/localState'
+import AccessTokenHelper from './accessTokenHelper'
+import { NewUserWithTokenOptions, SubscriberAuth } from './models'
 
 export default class Auth {
   constructor(args: { oreIdContext: OreIdContext }) {
@@ -30,6 +30,7 @@ export default class Auth {
     this._localState = this._oreIdContext.localState
     this._transitHelper = new TransitHelper({ oreIdContext: this._oreIdContext, user: this._user })
     this._accessTokenHelper = new AccessTokenHelper()
+    this._subscribers = []
   }
 
   private _accessTokenHelper: AccessTokenHelper
@@ -41,6 +42,8 @@ export default class Auth {
   private _transitHelper: TransitHelper
 
   private _user: User
+
+  private _subscribers: SubscriberAuth[]
 
   /** User's OreID (accountName) */
   get accessTokenHelper(): AccessTokenHelper {
@@ -86,6 +89,24 @@ export default class Auth {
       this._localState.saveAccessToken(accessToken)
     }
     this._user = null
+    this.callSubscribers()
+  }
+
+  public subscribe(subscriber: SubscriberAuth) {
+    const hasThisSubscriber = this._subscribers.find(s => s === subscriber)
+    if (!subscriber || hasThisSubscriber) {
+      return
+    }
+    subscriber(this)
+    this._subscribers.push(subscriber)
+  }
+
+  public unsubscribe(subscriber: SubscriberAuth) {
+    this._subscribers = this._subscribers.filter(f => f !== subscriber)
+  }
+
+  private callSubscribers() {
+    this._subscribers.forEach(f => f(this))
   }
 
   /** Returns user object matching current accessToken
@@ -111,6 +132,7 @@ export default class Auth {
     // clear accessToken and user
     this._localState.clearAccessToken()
     this._accessTokenHelper.setAccessToken(null)
+    this.callSubscribers()
   }
 
   private clearAccessTokenIfExpired(): boolean {
