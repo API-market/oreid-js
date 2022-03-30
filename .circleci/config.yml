@@ -27,9 +27,8 @@ jobs:
           name: Update version
           command: |
               export PACK_VERSION=`node -p "JSON.stringify(require('./package.json').version)"`
-              sed -i ".bak" "s/version = '0.0.1'/version = '$PACK_VERSION'/g" ./src/constants.ts
+              sed -i".bak" "s/version = '0.0.1'/version = '$PACK_VERSION'/g" ./src/constants.ts
             
-
       # call `yarn install`
       - node/install-packages
       # call the linter
