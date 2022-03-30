@@ -23,6 +23,13 @@ jobs:
       # checkout the code. Because the default working_directory is the name of the repo 
       # we need to go up a directory thus the `path: ".."`
       - checkout
+      - run:
+          name: Update version
+          command: |
+              export PACK_VERSION=`node -p "JSON.stringify(require('./package.json').version)"`
+              sed -i ".bak" "s/version = '0.0.1'/version = '$PACK_VERSION'/g" ./src/constants.ts
+            
+
       # call `yarn install`
       - node/install-packages
       # call the linter
