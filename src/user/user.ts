@@ -1,5 +1,7 @@
+import { ApiGetUserParams, callApiGetUser, callApiPasswordLessSendCode, callApiPasswordLessVerifyCode } from '../api'
+import { callApiAddPermission } from '../api/endpoints/addPermission'
 import OreIdContext from '../core/IOreidContext'
-import Helpers from '../utils/helpers'
+import { getOreIdNewChainAccountUrl } from '../core/urlGenerators'
 import {
   AccountName,
   AuthProvider,
@@ -11,10 +13,8 @@ import {
   UserSourceData,
   WalletPermission,
 } from '../models'
-import { callApiGetUser, ApiGetUserParams, callApiPasswordLessSendCode, callApiPasswordLessVerifyCode } from '../api'
-import { callApiAddPermission } from '../api/endpoints/addPermission'
-import { getOreIdNewChainAccountUrl } from '../core/urlGenerators'
-import { UserChainAccount, UserData, UserPermissionData, UserPermissionForChainAccount } from './models'
+import Helpers from '../utils/helpers'
+import { SubscriberUser, UserChainAccount, UserData, UserPermissionData, UserPermissionForChainAccount } from './models'
 
 const { isNullOrEmpty } = Helpers
 
@@ -23,6 +23,7 @@ export default class User {
     this._oreIdContext = args.oreIdContext
     this._accessToken = args.getAccessToken // reference to current accessToken (via getter)
     this._accountName = args.getAccountName
+    this._subscribers = []
   }
 
   // pulled from the accessToken
@@ -35,6 +36,25 @@ export default class User {
   /** User's basic information and blockchain accounts (aka permissions) */
   private _userSourceData: UserSourceData
 
+  private _subscribers: SubscriberUser[]
+
+  public subscribe(subscriber: SubscriberUser) {
+    const hasThisSubscriber = this._subscribers.find(s => s === subscriber)
+    if (!subscriber || hasThisSubscriber) {
+      return
+    }
+    subscriber(this)
+    this._subscribers.push(subscriber)
+  }
+
+  public unsubscribe(subscriber: SubscriberUser) {
+    this._subscribers = this._subscribers.filter(f => f !== subscriber)
+  }
+
+  private callSubscribers() {
+    this._subscribers.forEach(f => f(this))
+  }
+
   /** User's OreID (accountName) */
   get accountName(): AccountName {
     return this._accountName
@@ -43,17 +63,26 @@ export default class User {
   /** User's personal info (e.g. name, email, picture) */
   get data(): UserData {
     this.assertUserHasData()
-    const { permissions, ...otherInfo } = this._userSourceData
+    const { permissions, ...otherInfo } = this.userSourceData
     return {
       ...otherInfo,
       chainAccounts: this.getChainAccounts(),
     }
   }
 
+  get userSourceData(): UserSourceData {
+    return this._userSourceData
+  }
+
+  set userSourceData(userSourceData: UserSourceData) {
+    this._userSourceData = userSourceData
+    this.callSubscribers()
+  }
+
   /** Return Blockchain accounts associated with the user's OreId account */
   private getChainAccounts(): UserChainAccount[] {
     this.assertUserHasData()
-    const chainAccounts = (this._userSourceData.permissions || []).map(perm => {
+    const chainAccounts = (this.userSourceData.permissions || []).map(perm => {
       const [defaultPermission] = this.getDefaultPermissionForChainAccount(perm.chainAccount, perm.chainNetwork)
       return {
         chainAccount: perm.chainAccount,
@@ -100,7 +129,7 @@ export default class User {
     const userSourceData = await callApiGetUser(this._oreIdContext, params)
 
     this._accountName = account
-    this._userSourceData = userSourceData
+    this.userSourceData = userSourceData
   }
 
   /** Clears user's accessToken and user profile data */
@@ -175,7 +204,7 @@ export default class User {
     chainAccount: ChainAccount,
     chainNetwork: ChainNetwork,
   ): UserPermissionForChainAccount[] {
-    const accountPermissions = this._userSourceData.permissions.filter(
+    const accountPermissions = this.userSourceData.permissions.filter(
       p => p.chainAccount === chainAccount && p.chainNetwork === chainNetwork,
     )
     return accountPermissions.map(this.mapUserPermission)
@@ -236,7 +265,7 @@ export default class User {
         }
       }
       // filter out permission that the user already has in his record
-      const skipThisPermission = this._userSourceData.permissions.some(
+      const skipThisPermission = this.userSourceData.permissions.some(
         up =>
           (up.chainAccount === chainAccount && up.chainNetwork === chainNetwork && up.permission === permission) ||
           permission === 'owner',
