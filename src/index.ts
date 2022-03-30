@@ -1,4 +1,6 @@
 import OreId from './core/oreId'
+import User from './user/user'
+import Auth from './auth/auth'
 import Transaction from './transaction/transaction'
 import { asyncHandler, authCallbackHandler, signCallbackHandler } from './middleware'
 import { appendHmacToUrl, generateHmac, generateHmacWithApiKeyOrProxyServer } from './utils/hmac'
@@ -17,6 +19,8 @@ export {
   OreId,
   signCallbackHandler,
   Transaction,
+  User,
+  Auth,
 }
 
 export * from './models'
