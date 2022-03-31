@@ -21,16 +21,17 @@ import TransitHelper from '../transit/TransitHelper'
 import User from '../user/user'
 import Helpers from '../utils/helpers'
 import LocalState from '../utils/localState'
+import { Observable } from '../utils/observable'
 import AccessTokenHelper from './accessTokenHelper'
 import { NewUserWithTokenOptions, SubscriberAuth } from './models'
 
-export default class Auth {
+export default class Auth extends Observable<SubscriberAuth> {
   constructor(args: { oreIdContext: OreIdContext }) {
+    super()
     this._oreIdContext = args.oreIdContext
     this._localState = this._oreIdContext.localState
     this._transitHelper = new TransitHelper({ oreIdContext: this._oreIdContext, user: this._user })
     this._accessTokenHelper = new AccessTokenHelper()
-    this._subscribers = []
   }
 
   private _accessTokenHelper: AccessTokenHelper
@@ -42,8 +43,6 @@ export default class Auth {
   private _transitHelper: TransitHelper
 
   private _user: User
-
-  private _subscribers: SubscriberAuth[]
 
   /** User's OreID (accountName) */
   get accessTokenHelper(): AccessTokenHelper {
@@ -89,24 +88,7 @@ export default class Auth {
       this._localState.saveAccessToken(accessToken)
     }
     this._user = null
-    this.callSubscribers()
-  }
-
-  public subscribe(subscriber: SubscriberAuth) {
-    const hasThisSubscriber = this._subscribers.find(s => s === subscriber)
-    if (!subscriber || hasThisSubscriber) {
-      return
-    }
-    subscriber(this)
-    this._subscribers.push(subscriber)
-  }
-
-  public unsubscribe(subscriber: SubscriberAuth) {
-    this._subscribers = this._subscribers.filter(f => f !== subscriber)
-  }
-
-  private callSubscribers() {
-    this._subscribers.forEach(f => f(this))
+    super.callSubscribers()
   }
 
   /** Returns user object matching current accessToken
@@ -132,7 +114,7 @@ export default class Auth {
     // clear accessToken and user
     this._localState.clearAccessToken()
     this._accessTokenHelper.setAccessToken(null)
-    this.callSubscribers()
+    super.callSubscribers()
   }
 
   private clearAccessTokenIfExpired(): boolean {
