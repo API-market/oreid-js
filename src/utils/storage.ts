@@ -10,6 +10,7 @@ https://github.com/auth0/auth0.js/tree/master/src/helper/storage
 */
 
 import Cookie from 'js-cookie'
+import { JSONObject } from '../models'
 import IStorage from '../core/IStorage'
 import Helpers from './helpers'
 
@@ -64,7 +65,8 @@ class LocalStorage implements IStorage {
   }
 }
 
-class DummyStorage implements IStorage {
+/** does not store or retrieve any values - allows 'disabling' of storage */
+export class DummyStorage implements IStorage {
   getItem(key: any): any {
     return null
   }
@@ -75,6 +77,25 @@ class DummyStorage implements IStorage {
 
   setItem(key: any, value: any, options?: any) {
     // empty
+  }
+}
+
+/** stores items in memory - does not persist across instances */
+export class MemoryStorage implements IStorage {
+  memoryCache: JSONObject = {}
+
+  getItem(key: any): any {
+    if (key in this.memoryCache) return this.memoryCache[key]
+    return null
+  }
+
+  removeItem(key: any): void {
+    if (!this.getItem(key)) return
+    delete this.memoryCache[key]
+  }
+
+  setItem(key: any, value: any, options?: any) {
+    this.memoryCache[key] = value
   }
 }
 
@@ -104,7 +125,7 @@ class StorageHandler implements IStorage {
     }
   }
 
-  storage: LocalStorage | CookieStorage | DummyStorage
+  storage: LocalStorage | CookieStorage | DummyStorage | IStorage
 
   triedLocalStorage: boolean
 
