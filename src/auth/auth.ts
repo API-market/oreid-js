@@ -10,22 +10,18 @@ import {
 import { providersNotImplemented } from '../constants'
 import OreIdContext from '../core/IOreidContext'
 import { getOreIdAuthUrl } from '../core/urlGenerators'
-import {
-  AuthResult,
-  LoginOptions,
-  LoginWithOreIdResult,
-  LoginWithTokenOptions,
-  LoginWithWalletOptions,
-} from '../models'
 import TransitHelper from '../transit/TransitHelper'
-import User from '../user/user'
+import { User } from '../user/user'
 import Helpers from '../utils/helpers'
 import LocalState from '../utils/localState'
 import { Observable } from '../utils/observable'
-import AccessTokenHelper from './accessTokenHelper'
-import { NewUserWithTokenOptions, SubscriberAuth } from './models'
+import { AccessTokenHelper } from './accessTokenHelper'
+import { AuthResult, LoginWithOreIdResult } from '../core/models'
+import { LoginOptions, LoginWithTokenOptions, LoginWithWalletOptions, NewUserWithTokenOptions } from './models'
 
-export default class Auth extends Observable<SubscriberAuth> {
+export type SubscriberAuth = (auth: Auth) => void
+
+export class Auth extends Observable<SubscriberAuth> {
   constructor(args: { oreIdContext: OreIdContext }) {
     super()
     this._oreIdContext = args.oreIdContext

@@ -2,24 +2,24 @@ import { ApiGetUserParams, callApiGetUser, callApiPasswordLessSendCode, callApiP
 import { callApiAddPermission } from '../api/endpoints/addPermission'
 import OreIdContext from '../core/IOreidContext'
 import { getOreIdNewChainAccountUrl } from '../core/urlGenerators'
-import {
-  AccountName,
-  AuthProvider,
-  ChainAccount,
-  ChainNetwork,
-  ExternalWalletType,
-  NewAccountOptions,
-  NewAccountWithOreIdResult,
-  UserSourceData,
-  WalletPermission,
-} from '../models'
 import Helpers from '../utils/helpers'
 import { Observable } from '../utils/observable'
-import { SubscriberUser, UserChainAccount, UserData, UserPermissionData, UserPermissionForChainAccount } from './models'
+import { AuthProvider, AccountName, ChainAccount, ChainNetwork, ExternalWalletType } from '../common/models'
+import { NewAccountOptions, NewAccountWithOreIdResult } from '../core/models'
+import {
+  UserChainAccount,
+  UserData,
+  UserPermissionData,
+  UserPermissionForChainAccount,
+  UserSourceData,
+  WalletPermission,
+} from './models'
 
 const { isNullOrEmpty } = Helpers
 
-export default class User extends Observable<SubscriberUser> {
+export type SubscriberUser = (values: User) => void
+
+export class User extends Observable<SubscriberUser> {
   constructor(args: { oreIdContext: OreIdContext; getAccessToken: string; getAccountName: AccountName }) {
     super()
     this._oreIdContext = args.oreIdContext

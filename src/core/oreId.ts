@@ -34,7 +34,7 @@ import {
   callApiCustodialNewAccount,
   callApiGetAppToken,
 } from '../api'
-import Auth from '../auth/auth'
+import { Auth } from '../auth/auth'
 import Transaction from '../transaction/transaction'
 import Settings from './Settings'
 

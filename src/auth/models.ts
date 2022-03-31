@@ -1,5 +1,4 @@
 import { AuthProvider, ChainAccount, ChainNetwork, ExternalWalletType } from '../common/models'
-import Auth from './auth'
 
 /** Raw data extracted from OAuth IDToken */
 export type IdToken = {
@@ -53,5 +52,3 @@ export type LoginWithTokenOptions = {
 export type NewUserWithTokenOptions = {
   idToken?: string
 }
-
-export type SubscriberAuth = (auth: Auth) => void

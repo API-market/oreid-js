@@ -1,7 +1,7 @@
 import Helpers from '../utils/helpers'
 import { JWTToken } from './models'
 
-class AccessTokenHelper {
+export class AccessTokenHelper {
   constructor(accessToken?: string, ignoreIssuer = false) {
     this._ignoreIssuer = ignoreIssuer
     this.setAccessToken(accessToken)
@@ -127,5 +127,3 @@ class AccessTokenHelper {
     return true
   }
 }
-
-export default AccessTokenHelper

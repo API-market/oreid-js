@@ -1,9 +1,9 @@
-import Auth from './auth/auth'
+import { Auth } from './auth/auth'
 import OreId from './core/oreId'
 import { asyncHandler, authCallbackHandler, signCallbackHandler } from './middleware'
 import Transaction from './transaction/transaction'
 import { getTransitProviderAttributesByChain } from './transit/transitProviders'
-import User from './user/user'
+import { User } from './user/user'
 import Helpers from './utils/helpers'
 import { appendHmacToUrl, generateHmac, generateHmacWithApiKeyOrProxyServer } from './utils/hmac'
 

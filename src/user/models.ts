@@ -6,7 +6,6 @@ import {
   PermissionName,
   PublicKey,
 } from '../common/models'
-import User from './user'
 
 // ORE ID Types
 
@@ -70,5 +69,3 @@ export type WalletPermission = {
   parent?: PermissionName
   publicKey: PublicKey
 }
-
-export type SubscriberUser = (values: User) => void
