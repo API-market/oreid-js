@@ -4,6 +4,7 @@ import { asyncHandler, authCallbackHandler, signCallbackHandler } from './middle
 import Transaction from './transaction/transaction'
 import { getTransitProviderAttributesByChain } from './transit/transitProviders'
 import { User } from './user/user'
+import { DummyStorage, MemoryStorage } from './utils/storage'
 import Helpers from './utils/helpers'
 import { appendHmacToUrl, generateHmac, generateHmacWithApiKeyOrProxyServer } from './utils/hmac'
 
@@ -13,10 +14,12 @@ export {
   asyncHandler,
   Auth,
   authCallbackHandler,
+  DummyStorage,
   generateHmac,
   generateHmacWithApiKeyOrProxyServer,
   getTransitProviderAttributesByChain,
   Helpers,
+  MemoryStorage,
   OreId,
   signCallbackHandler,
   Transaction,

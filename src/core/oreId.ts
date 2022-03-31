@@ -43,8 +43,8 @@ const { isNullOrEmpty } = Helpers
 export default class OreId implements IOreidContext {
   constructor(options: OreIdOptions) {
     this._options = null
-    const storageHandler = this.options?.storageHandler || new StorageHandler()
     this.validateAndSetOptions(options)
+    const storageHandler = this.options?.storageHandler || new StorageHandler()
     this._localState = new LocalState(this.options?.appId, storageHandler)
     this._settings = new Settings({ oreIdContext: this })
     this._transitHelper = new TransitHelper({ oreIdContext: this })
