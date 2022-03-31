@@ -4,5 +4,5 @@ export default interface IStorage {
 
   removeItem: (key: string) => void
 
-  setItem: (key: string, value: string) => void
+  setItem: (key: string, value: string, options?: any) => void
 }
