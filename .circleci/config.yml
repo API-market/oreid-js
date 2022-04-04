@@ -23,16 +23,11 @@ jobs:
       # checkout the code. Because the default working_directory is the name of the repo 
       # we need to go up a directory thus the `path: ".."`
       - checkout
-      - run:
-          name: Update version
-          command: |
-              export PACK_VERSION=`node -p "JSON.stringify(require('./package.json').version)"`
-              sed -i".bak" "s/version = '0.0.1'/version = '$PACK_VERSION'/g" ./src/constants.ts
-            
       # call `yarn install`
-      - node/install-packages
+      - node/install-packages:
+          pkg-manager: yarn
       # call the linter
-      - run: npm run lint
+      - run: yarn run lint
       # save the installed modules and configured repo for the following steps
       - persist_to_workspace:
           root: ~/API-market
@@ -49,8 +44,7 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/API-market
-      - run:
-          command: npm run test
+      - run: yarn run test
 
   deploy:
     # directory commands will run from by default
@@ -63,8 +57,8 @@ jobs:
           at: ~/API-market
       # get npmrc token
       - run: echo $NPMRC | base64 -d > ~/.npmrc
-      - run: npm run build
-      - run: npm publish --no-git-tag-version
+      - run: yarn run build
+      - run: yarn run publish --no-git-tag-version
 
 # define the jobs to run
 workflows:
