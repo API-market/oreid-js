@@ -1,39 +1,47 @@
+import { ApiGetUserParams, callApiGetUser, callApiPasswordLessSendCode, callApiPasswordLessVerifyCode } from '../api'
+import { callApiAddPermission } from '../api/endpoints/addPermission'
 import OreIdContext from '../core/IOreidContext'
+import { getOreIdNewChainAccountUrl } from '../core/urlGenerators'
 import Helpers from '../utils/helpers'
+import { Observable } from '../utils/observable'
+import { AuthProvider, AccountName, ChainAccount, ChainNetwork, ExternalWalletType } from '../common/models'
+import { NewAccountOptions, NewAccountWithOreIdResult } from '../core/models'
 import {
-  AccountName,
-  AuthProvider,
-  ChainAccount,
-  ChainNetwork,
-  ExternalWalletType,
-  NewAccountOptions,
-  NewAccountWithOreIdResult,
+  UserChainAccount,
+  UserData,
+  UserPermissionData,
+  UserPermissionForChainAccount,
   UserSourceData,
   WalletPermission,
-} from '../models'
-import { callApiGetUser, ApiGetUserParams, callApiPasswordLessSendCode, callApiPasswordLessVerifyCode } from '../api'
-import { callApiAddPermission } from '../api/endpoints/addPermission'
-import { getOreIdNewChainAccountUrl } from '../core/urlGenerators'
-import { UserChainAccount, UserData, UserPermissionData, UserPermissionForChainAccount } from './models'
+} from './models'
+import { AccessTokenHelper } from '../auth/accessTokenHelper'
 
 const { isNullOrEmpty } = Helpers
 
-export default class User {
-  constructor(args: { oreIdContext: OreIdContext; getAccessToken: string; getAccountName: AccountName }) {
+export type SubscriberUser = (values: User) => void
+
+export class User extends Observable<SubscriberUser> {
+  constructor(args: { oreIdContext: OreIdContext; accessTokenHelper: AccessTokenHelper; accountName: AccountName }) {
+    super()
     this._oreIdContext = args.oreIdContext
-    this._accessToken = args.getAccessToken // reference to current accessToken (via getter)
-    this._accountName = args.getAccountName
+    this._accessTokenHelper = args.accessTokenHelper // reference to current accessToken (via getter)
+    this._accountName = args.accountName
+    this._accessTokenHelper.subscribe(this.onUpdateAccessTokenHelper)
   }
 
   // pulled from the accessToken
   private _accountName: AccountName
 
-  private _accessToken: string
+  private _accessTokenHelper: AccessTokenHelper
 
   private _oreIdContext: OreIdContext
 
   /** User's basic information and blockchain accounts (aka permissions) */
   private _userSourceData: UserSourceData
+
+  private get accessToken(): string {
+    return this._accessTokenHelper.accessToken
+  }
 
   /** User's OreID (accountName) */
   get accountName(): AccountName {
@@ -48,6 +56,11 @@ export default class User {
       ...otherInfo,
       chainAccounts: this.getChainAccounts(),
     }
+  }
+
+  private setUserSourceData(userSourceData: UserSourceData) {
+    this._userSourceData = userSourceData
+    super.callSubscribers()
   }
 
   /** Return Blockchain accounts associated with the user's OreId account */
@@ -68,7 +81,13 @@ export default class User {
 
   /** Whether we have a valid access token for the current user */
   get isLoggedIn(): boolean {
-    return !!this._accessToken
+    return !!this.accessToken
+  }
+
+  /** runs when accessTokenHelper changes */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private onUpdateAccessTokenHelper = (newAccessTokenHelper: AccessTokenHelper) => {
+    super.callSubscribers()
   }
 
   /** throw if user data hasn't been retrieved yet */
@@ -90,7 +109,7 @@ export default class User {
    */
   async getData() {
     // eslint-disable-next-line prefer-destructuring
-    const accessToken = this?._accessToken // getting the accessToken here will delete existing accessToken if it's now expired
+    const accessToken = this.accessToken
     if (!accessToken) {
       throw new Error('AccessToken is missing or has expired')
     }
@@ -100,7 +119,7 @@ export default class User {
     const userSourceData = await callApiGetUser(this._oreIdContext, params)
 
     this._accountName = account
-    this._userSourceData = userSourceData
+    this.setUserSourceData(userSourceData)
   }
 
   /** Clears user's accessToken and user profile data */

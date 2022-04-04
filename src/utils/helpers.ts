@@ -278,6 +278,10 @@ export default class Helpers {
         'Browser threw a Network Error. This is likely because of CORS error. Make sure that you are not sending an api-key in the header of the request.',
       )
     }
+    if (error?.code === 'ECONNREFUSED') {
+      throw new Error(`Could not connect to ORE ID service. ${error.message}.`)
+    }
+
     if (!Helpers.isAxiosError(error)) {
       return error
     }
@@ -357,5 +361,29 @@ export default class Helpers {
    *       => [{value:'A', other}, {value:'B', something}] */
   static getUniqueValues<T>(array: T[]) {
     return Array.from(new Set(array.map(item => JSON.stringify(item)))).map(item => JSON.parse(item))
+  }
+
+  /** Execute a callback function at a given Unix Epoch time */
+  static runAtTime(callback: Function, executionEoochTime: number) {
+    const now = Date.now()
+    const runAtTime = Math.max(executionEoochTime, now) // if executionEoochTime is in the past, use the current time to run the function immediately
+    return setTimeout(callback, runAtTime - now)
+  }
+
+  /** whether objects are 'equal' by deep comparing all members */
+  static objectsAreEqual(a: any, b: any) {
+    if (a === b) return true
+    if (typeof a !== 'object' || typeof b !== 'object' || a == null || b == null) return false
+    const keysA = Object.keys(a)
+    const keysB = Object.keys(b)
+    if (keysA.length !== keysB.length) return false
+    // eslint-disable-next-line no-restricted-syntax
+    for (const key of keysA) {
+      if (!keysB.includes(key)) return false
+      if (typeof a[key] === 'function' || typeof b[key] === 'function') {
+        if (a[key].toString() !== b[key].toString()) return false
+      } else if (!Helpers.objectsAreEqual(a[key], b[key])) return false
+    }
+    return true
   }
 }

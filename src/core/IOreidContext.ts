@@ -8,7 +8,7 @@ import {
   RequestType,
   SettingChainNetwork,
 } from '../models'
-import AccessTokenHelper from '../auth/accessTokenHelper'
+import { AccessTokenHelper } from '../auth/accessTokenHelper'
 import LocalState from '../utils/localState'
 import { AppAccessTokenMetadata } from './models'
 

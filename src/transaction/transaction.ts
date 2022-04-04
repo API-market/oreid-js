@@ -10,7 +10,7 @@ import TransitHelper from '../transit/TransitHelper'
 import { callApiCanAutosignTransaction, callApiCustodialSignTransaction, callApiSignTransaction } from '../api'
 import { getOreIdSignUrl } from '../core/urlGenerators'
 import Helpers from '../utils/helpers'
-import User from '../user/user'
+import { User } from '../user/user'
 
 export default class Transaction {
   constructor(args: { oreIdContext: OreIdContext; user: User; data: TransactionData }) {
