@@ -46,8 +46,9 @@ export class Auth extends Observable<SubscriberAuth> {
   }
 
   private setAccessTokenHelper() {
+    this._accessTokenHelper = new AccessTokenHelper()
     const savedToken = this._localState?.accessToken
-    this._accessTokenHelper = new AccessTokenHelper(savedToken)
+    this.setAndSaveAccessToken(savedToken) // if savedToken is expired, it will be not set here
     // listen for changes to accessTokenHelper
     this._accessTokenHelper.subscribe(this.onUpdateAccessTokenHelper)
   }
@@ -74,11 +75,10 @@ export class Auth extends Observable<SubscriberAuth> {
   set accessToken(accessToken: string) {
     try {
       // decodes and validates accessToken is a valid token
-      // _accessTokenHelper.setAccessToken() triggers onUpdateAccessTokenHelper() which will save the token to localState
       // if incoming token has expired, _accessTokenHelper will throw (and token wont be saved)
       this._accessTokenHelper.setAccessToken(accessToken)
     } catch (error) {
-      console.log(`accessToken can't be set using: ${accessToken} `, error.message)
+      console.log('Cant set accessToken.', error.message)
     }
   }
 
