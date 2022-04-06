@@ -27,7 +27,7 @@ export class Auth extends Observable<SubscriberAuth> {
     this._oreIdContext = args.oreIdContext
     this._localState = this._oreIdContext.localState
     this._transitHelper = new TransitHelper({ oreIdContext: this._oreIdContext, user: this._user })
-    this.setAccessTokenHelper()
+    this.initAccessTokenHelper()
   }
 
   private _accessTokenHelper: AccessTokenHelper
@@ -45,12 +45,12 @@ export class Auth extends Observable<SubscriberAuth> {
     return this._accessTokenHelper
   }
 
-  private setAccessTokenHelper() {
+  private initAccessTokenHelper() {
     this._accessTokenHelper = new AccessTokenHelper()
     const savedToken = this._localState?.accessToken
     this.accessToken = savedToken
-    this.setAndSaveAccessToken(savedToken) // if savedToken is expired, it will be not set here
-    // listen for changes to accessTokenHelper
+    this.saveAccessTokenAndNotifySubscribers(savedToken) // if savedToken is expired, it will be not set here
+    // listen for future changes to accessTokenHelper
     this._accessTokenHelper.subscribe(this.onUpdateAccessTokenHelper)
   }
 
@@ -78,13 +78,16 @@ export class Auth extends Observable<SubscriberAuth> {
       // decodes and validates accessToken is a valid token
       // if incoming token has expired, _accessTokenHelper will throw (and token wont be saved)
       this._accessTokenHelper.setAccessToken(accessToken)
+      // NOTE: We dont save the access token to local storage here as that will happen when onUpdateAccessTokenHelper is called
     } catch (error) {
       console.log('Cant set accessToken.', error.message)
     }
   }
 
-  /** set private variable and save to localState */
-  private setAndSaveAccessToken(accessToken: string) {
+  /** set private variable and save to localState 
+   * NOTE: This is called every time this._accessTokenHelper.accessToken changes (or expires)
+  */
+  private saveAccessTokenAndNotifySubscribers(accessToken: string) {
     if (this._localState?.accessToken !== accessToken) {
       this._localState.saveAccessToken(accessToken)
       this._user = null
@@ -115,7 +118,7 @@ export class Auth extends Observable<SubscriberAuth> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private onUpdateAccessTokenHelper = (newAccessTokenHelper: AccessTokenHelper) => {
     // save new access token
-    this.setAndSaveAccessToken(this._accessTokenHelper.accessToken)
+    this.saveAccessTokenAndNotifySubscribers(this._accessTokenHelper.accessToken)
   }
 
   private clearAccessToken() {
