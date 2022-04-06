@@ -58,7 +58,7 @@ jobs:
       # get npmrc token
       - run: echo $NPMRC | base64 -d > ~/.npmrc
       - run: yarn run build
-      - run: yarn run publish --no-git-tag-version
+      - run: yarn publish --no-git-tag-version
 
 # define the jobs to run
 workflows:
