@@ -48,6 +48,7 @@ export class Auth extends Observable<SubscriberAuth> {
   private setAccessTokenHelper() {
     this._accessTokenHelper = new AccessTokenHelper()
     const savedToken = this._localState?.accessToken
+    this.accessToken = savedToken
     this.setAndSaveAccessToken(savedToken) // if savedToken is expired, it will be not set here
     // listen for changes to accessTokenHelper
     this._accessTokenHelper.subscribe(this.onUpdateAccessTokenHelper)
