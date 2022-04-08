@@ -14,13 +14,10 @@ type AsyncHandlerFunc = (req: RequestWithParams, res: ResponseWithParams, next: 
 
 /* eslint-disable no-param-reassign */
 /** Generic async handler for Express Middleware */
-export const asyncHandler = (fn: AsyncHandlerFunc) => (
-  req: RequestWithParams,
-  res: ResponseWithParams,
-  next: NextFunction,
-) => {
-  Promise.resolve(fn(req, res, next)).catch(next)
-}
+export const asyncHandler =
+  (fn: AsyncHandlerFunc) => (req: RequestWithParams, res: ResponseWithParams, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch(next)
+  }
 
 /** Process the response from the /auth endpoint
  *  Attach user to HTTP request */

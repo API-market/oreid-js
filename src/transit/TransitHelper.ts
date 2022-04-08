@@ -319,7 +319,7 @@ export default class TransitHelper {
         const { accounts = [], key: publicKey } = credential
         // ethereum may not have a public key - dont save if missing
         if (accounts.length > 0 && !!publicKey) {
-          const { account, authorization } = accounts[0]
+          const [{ account, authorization }] = accounts
           const permissions: WalletPermission[] = [
             {
               account,

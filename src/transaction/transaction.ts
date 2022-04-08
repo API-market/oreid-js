@@ -90,8 +90,9 @@ export default class Transaction {
     )
 
     const allPermissionsExternal = chainAccountsInWallet?.permissions?.every(p => p.privateKeyStoredExterally === true)
-    const externalWalletType = chainAccountsInWallet?.permissions?.find(p => p.privateKeyStoredExterally === true)
-      ?.externalWalletType
+    const externalWalletType = chainAccountsInWallet?.permissions?.find(
+      p => p.privateKeyStoredExterally === true,
+    )?.externalWalletType
 
     if (!chainAccountsInWallet) {
       throw new Error(
@@ -178,13 +179,8 @@ export default class Transaction {
       throw new Error('Provide either a userPassword OR userPasswordEncrypted param. Both were provided.')
     }
 
-    const {
-      processId,
-      signedTransaction,
-      transactionId,
-      errorCode,
-      errorMessage,
-    } = await callApiCustodialSignTransaction(this._oreIdContext, { transactionData, autoSign: false })
+    const { processId, signedTransaction, transactionId, errorCode, errorMessage } =
+      await callApiCustodialSignTransaction(this._oreIdContext, { transactionData, autoSign: false })
     if (errorCode || errorMessage) throw new Error(errorMessage)
     return { processId, signedTransaction, transactionId }
   }
