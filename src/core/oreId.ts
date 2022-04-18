@@ -53,15 +53,15 @@ export default class OreId implements IOreidContext {
     this._auth = new Auth({ oreIdContext: this })
   }
 
-  _auth: Auth
+  private _auth: Auth
 
-  _settings: Settings
+  private _settings: Settings
 
-  _localState: LocalState
+  private _localState: LocalState
 
-  _options: OreIdOptions
+  private _options: OreIdOptions
 
-  _transitHelper: TransitHelper
+  private _transitHelper: TransitHelper
 
   isBusy: boolean
 
