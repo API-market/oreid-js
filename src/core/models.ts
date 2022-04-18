@@ -22,8 +22,6 @@ export type OreIdOptions = {
   /** appKey is required to call the oreid API */
   apiKey?: string
   appName?: string
-  accessToken?: string
-  idToken?: string
   authCallbackUrl?: string
   newAccountCallbackUrl?: string
   signCallbackUrl?: string
