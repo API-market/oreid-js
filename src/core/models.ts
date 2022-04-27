@@ -1,9 +1,10 @@
 import { Request, Response } from 'express' // NOTE: We are only using types here - Express library won't be emitted in the build here
+import { PopUp } from '../popup/models'
 import { LoginOptions } from '../auth/models'
 import {
   AccountName,
   AccountType,
-  AlgorandMultiSigOptions, // TODO": should this be somewhere else?
+  AlgorandMultiSigOptions,
   AppAccessToken,
   AuthProvider,
   ChainAccount,
@@ -16,6 +17,11 @@ import {
 import { TransitWalletProviderFactory } from '../transit'
 import { UserData } from '../user/models'
 import IStorage from './IStorage'
+import OreId from './oreId'
+
+export interface InitPlugin<Plugin> {
+  init: (oreId: OreId) => Promise<Plugin>
+}
 
 export type OreIdOptions = {
   appId: string
@@ -35,6 +41,9 @@ export type OreIdOptions = {
   eosTransitWalletProviders?: TransitWalletProviderFactory[]
   /** Custom implementation of a storage class that saves persistant state for accessToken, etc. */
   storageHandler?: IStorage
+  plugins?: {
+    popup?: InitPlugin<PopUp>
+  }
 }
 
 export enum RecoverAccountAction {
