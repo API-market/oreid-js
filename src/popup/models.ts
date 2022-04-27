@@ -1,37 +1,48 @@
 import { ChainNetwork } from '../common/models'
 import Transaction from '../transaction/transaction'
 import { UserData } from '../user/models'
-import { WebWidgetAuthParams, WebWidgetRecoverAccountResult, WebWidgetSignResult } from '../webWidget/models'
+import {
+  WebWidgetAuthParams,
+  WebWidgetLogoutResult,
+  WebWidgetRecoverAccountResult,
+  WebWidgetSignResult,
+} from '../webWidget/models'
 
-type OnError = ({ errors, data }: { errors?: string; data?: any }) => void
+export type PopUpError = ({ errors, data }: { errors?: string; data?: any }) => void
 
-interface AuthParams {
+export interface PopupAuthParams {
   params: WebWidgetAuthParams
-  onError?: OnError
+  onError?: PopUpError
   onSuccess?: (user: UserData) => void
 }
 
-interface SignParams {
+export interface PopupSignParams {
   transaction: Transaction
-  onError?: OnError
+  onError?: PopUpError
   onSuccess?: (result: WebWidgetSignResult) => void
 }
 
-interface NewChainAccountParams {
+export interface PopupNewChainAccountParams {
   params: { accountType?: string; chainNetwork: ChainNetwork; accountOptions?: any }
-  onError?: OnError
+  onError?: PopUpError
   onSuccess?: (chainAccount: string) => void
 }
 
-interface RecoverAccountParams {
+export interface PopupRecoverAccountParams {
   params: { provider?: string; recoverAction?: string }
-  onError?: OnError
+  onError?: PopUpError
   onSuccess?: (result: WebWidgetRecoverAccountResult) => void
 }
 
+export interface PopupLogoutParams {
+  onError?: PopUpError
+  onSuccess?: (result: WebWidgetLogoutResult) => void
+}
+
 export interface PopUp {
-  auth: (args: AuthParams) => void
-  sign: (args: SignParams) => void
-  newChainAccount: (args: NewChainAccountParams) => void
-  recoverAccount: (args: RecoverAccountParams) => void
+  auth: (args: PopupAuthParams) => void
+  sign: (args: PopupSignParams) => void
+  newChainAccount: (args: PopupNewChainAccountParams) => void
+  recoverAccount: (args: PopupRecoverAccountParams) => void
+  logout: (args?: PopupLogoutParams) => void
 }
