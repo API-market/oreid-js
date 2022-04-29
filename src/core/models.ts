@@ -1,5 +1,4 @@
 import { Request, Response } from 'express' // NOTE: We are only using types here - Express library won't be emitted in the build here
-import { PopUp } from '../popup/models'
 import { LoginOptions } from '../auth/models'
 import {
   AccountName,
@@ -9,48 +8,15 @@ import {
   AuthProvider,
   ChainAccount,
   ChainNetwork,
-  Color,
   ExternalWalletType,
   ProcessId,
   PublicKey,
 } from '../common/models'
-import { TransitWalletProviderFactory } from '../transit'
 import { UserData } from '../user/models'
-import IStorage from './IStorage'
-import OreId from './oreId'
-
-export interface InitPlugin<Plugin> {
-  init: (oreId: OreId) => Promise<Plugin>
-}
-
-export type OreIdOptions = {
-  appId: string
-  /** appKey is required to call the oreid API */
-  apiKey?: string
-  appName?: string
-  accessToken?: string
-  idToken?: string
-  authCallbackUrl?: string
-  newAccountCallbackUrl?: string
-  signCallbackUrl?: string
-  backgroundColor?: Color
-  /** whether you are using a proxy server - required for api calls or auth calls without idToken */
-  isUsingProxyServer?: boolean
-  oreIdUrl?: string
-  setBusyCallback?: (isBusy: boolean) => void
-  eosTransitWalletProviders?: TransitWalletProviderFactory[]
-  /** Custom implementation of a storage class that saves persistant state for accessToken, etc. */
-  storageHandler?: IStorage
-  plugins?: {
-    popup?: InitPlugin<PopUp>
-  }
-}
 
 export enum RecoverAccountAction {
   Republic = 'republic',
 }
-
-// oreid-js
 
 /** For creating a new chainAccount in an existing wallet */
 export type NewAccountOptions = {
