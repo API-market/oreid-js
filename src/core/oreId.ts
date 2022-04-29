@@ -2,32 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 import axios from 'axios'
-import TransitHelper from '../transit/TransitHelper'
-import Helpers from '../utils/helpers'
-import IOreidContext from './IOreidContext'
-import LocalState from '../utils/localState'
-import { defaultOreIdServiceUrl, publicApiEndpoints, version } from '../constants'
-import { appendHmacToUrl, generateHmacWithApiKeyOrProxyServer } from '../utils/hmac'
-import { getTransitProviderAttributes } from '../transit/transitProviders'
-import {
-  ApiEndpoint,
-  AppAccessToken,
-  AppAccessTokenMetadata,
-  AuthProvider,
-  ChainNetwork,
-  InitPlugin,
-  ExternalWalletType,
-  NewAccountResult,
-  OreIdOptions,
-  PopUp,
-  ProcessId,
-  RequestType,
-  SignResult,
-  SignStringParams,
-  TransactionData,
-  WebWidgetProps,
-} from '../models'
-import StorageHandler from '../utils/storage'
 import {
   ApiCustodialMigrateAccountParams,
   ApiCustodialNewAccountParams,
@@ -37,7 +11,33 @@ import {
   callApiGetAppToken,
 } from '../api'
 import { Auth } from '../auth/auth'
+import { defaultOreIdServiceUrl, publicApiEndpoints, version } from '../constants'
+import {
+  ApiEndpoint,
+  AppAccessToken,
+  AppAccessTokenMetadata,
+  AuthProvider,
+  ChainNetwork,
+  ExternalWalletType,
+  NewAccountResult,
+  ProcessId,
+  RequestType,
+  SignResult,
+  SignStringParams,
+  TransactionData,
+  WebWidgetProps,
+} from '../models'
+import { PopupPlugin } from '../plugins'
+import { Plugin } from '../plugins/plugin'
 import Transaction from '../transaction/transaction'
+import TransitHelper from '../transit/TransitHelper'
+import { getTransitProviderAttributes } from '../transit/transitProviders'
+import Helpers from '../utils/helpers'
+import { appendHmacToUrl, generateHmacWithApiKeyOrProxyServer } from '../utils/hmac'
+import LocalState from '../utils/localState'
+import StorageHandler from '../utils/storage'
+import IOreidContext from './IOreidContext'
+import { OreIdOptions } from './IOreIdOptions'
 import Settings from './Settings'
 
 const { isNullOrEmpty } = Helpers
@@ -54,16 +54,12 @@ export default class OreId implements IOreidContext {
     this._transitHelper.installTransitProviders(this.options?.eosTransitWalletProviders)
     this._auth = new Auth({ oreIdContext: this })
     this.isInitialized = false
-    this._initializerPlugins = {
-      popup: options?.plugins?.popup,
-    }
+    this._initializerPlugins = options.plugins || {}
   }
 
   isInitialized: boolean
 
-  _initializerPlugins: {
-    popup?: InitPlugin<PopUp>
-  }
+  _initializerPlugins: { popup?: Plugin<PopupPlugin> }
 
   _auth: Auth
 
@@ -75,7 +71,7 @@ export default class OreId implements IOreidContext {
 
   _transitHelper: TransitHelper
 
-  popup?: PopUp
+  _popup?: PopupPlugin
 
   isBusy: boolean
 
@@ -112,6 +108,12 @@ export default class OreId implements IOreidContext {
     return this._options
   }
 
+  /** installed popup plugin */
+  get popup() {
+    this.assertIsInitialized()
+    return this._popup
+  }
+
   /** If we're running in the browser, we must use a proxy server to talk to OREID api
   Unless, we are running the demo app, in which case CORS is disabled by OREID server */
   get requiresProxyServer() {
@@ -126,13 +128,21 @@ export default class OreId implements IOreidContext {
     return this._transitHelper
   }
 
-  // TODO: Should check if oreid is iniatialized before any call
   async init() {
     if (this.isInitialized) return
+
     if (this._initializerPlugins?.popup) {
-      this.popup = await this._initializerPlugins?.popup?.init(this)
+      this._popup = await this._initializerPlugins?.popup?.init(this)
     }
+
     this.isInitialized = true
+  }
+
+  /** throw and error if oreId is not initialized yet */
+  private assertIsInitialized() {
+    if (!this.isInitialized) {
+      throw new Error('OreId is not initialized')
+    }
   }
 
   /** Retrieve settings for all chain networks defined by OreId service
@@ -193,7 +203,7 @@ export default class OreId implements IOreidContext {
   /** Return ChainNetwork that matches chainId (as defined in OreId Chain Network Settings) */
   async getChainNetworkByChainId(chainId: string) {
     const networks = await this.getAllChainNetworkSettings()
-    const chainSettings = networks.find((n) => n.hosts.find((h) => h.chainId === chainId))
+    const chainSettings = networks.find(n => n.hosts.find(h => h.chainId === chainId))
 
     if (!isNullOrEmpty(chainSettings)) {
       return chainSettings.network
@@ -259,12 +269,9 @@ export default class OreId implements IOreidContext {
 
   /** Extracts the response parameters on the /new-account callback URL string */
   handleNewAccountResponse(callbackUrlString: string): NewAccountResult {
-    const {
-      chain_account: chainAccount,
-      process_id: processId,
-      state,
-      errors,
-    } = Helpers.extractDataFromCallbackUrl(callbackUrlString)
+    const { chain_account: chainAccount, process_id: processId, state, errors } = Helpers.extractDataFromCallbackUrl(
+      callbackUrlString,
+    )
     this.setIsBusy(false)
     return { chainAccount, processId, state, errors }
   }
@@ -363,7 +370,7 @@ export default class OreId implements IOreidContext {
       if (requestMethod === RequestType.Get) {
         if (!isNullOrEmpty(params)) {
           urlString = Object.keys(params)
-            .map((key) => `${key}=${params[key]}`)
+            .map(key => `${key}=${params[key]}`)
             .join('&')
         }
 
