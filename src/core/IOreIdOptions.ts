@@ -4,7 +4,7 @@ import { Plugin } from '../plugins/plugin'
 import { TransitWalletProviderFactory } from '../transit'
 import IStorage from './IStorage'
 
-export type OreIdOptions = {
+export interface OreIdOptions {
   appId: string
   /** appKey is required to call the oreid API */
   apiKey?: string
