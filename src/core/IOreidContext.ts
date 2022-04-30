@@ -1,7 +1,4 @@
-// NOTE: disabling cyclical reference error here as we need to reference Transaction in PopupPluginSignParams referenced in PopupPlugin which references OreIdContext
-// eslint-disable-next-line import/no-cycle
 import { PopupPlugin } from '../plugins/popupPlugin/models'
-// eslint-disable-next-line import/no-cycle
 import { OreIdOptions } from './IOreIdOptions'
 import { AccessTokenHelper } from '../auth/accessTokenHelper'
 import {

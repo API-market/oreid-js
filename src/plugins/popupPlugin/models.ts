@@ -1,6 +1,4 @@
 import { ChainNetwork } from '../../common/models'
-// NOTE: disabling cyclical reference error here as we need to reference Transaction in PopupPluginSignParams referenced in PopupPlugin which references OreIdContext
-// eslint-disable-next-line import/no-cycle
 import Transaction from '../../transaction/transaction'
 import { UserData } from '../../user/models'
 import {

@@ -1,4 +1,3 @@
-/* eslint-disable import/no-cycle */
 import OreIdContext from '../core/IOreidContext'
 import {
   AuthProvider,
