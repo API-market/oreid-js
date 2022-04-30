@@ -53,25 +53,25 @@ export default class OreId implements IOreidContext {
     // All installed TransitProviders
     this._transitHelper.installTransitProviders(this.options?.eosTransitWalletProviders)
     this._auth = new Auth({ oreIdContext: this })
-    this.isInitialized = false
     this._initializerPlugins = options.plugins || {}
+    this._isInitialized = false
   }
 
-  isInitialized: boolean
+  private _auth: Auth
 
-  _initializerPlugins: { popup?: Plugin<PopupPlugin> }
+  private _initializerPlugins: { popup?: Plugin<PopupPlugin> }
 
-  _auth: Auth
+  private _isInitialized: boolean
 
-  _settings: Settings
+  private _localState: LocalState
 
-  _localState: LocalState
+  private _options: OreIdOptions
 
-  _options: OreIdOptions
+  private _popup?: PopupPlugin
 
-  _transitHelper: TransitHelper
+  private _settings: Settings
 
-  _popup?: PopupPlugin
+  private _transitHelper: TransitHelper
 
   isBusy: boolean
 
@@ -96,6 +96,11 @@ export default class OreId implements IOreidContext {
   /** whether the current appId is a demo app */
   get isDemoApp() {
     return this.options?.appId?.toLowerCase().startsWith('demo') || false
+  }
+
+  /** whether init() has been called */
+  get isInitialized() {
+    return this._isInitialized
   }
 
   /** helper to persist data (e.g. accessToken) */
@@ -128,6 +133,7 @@ export default class OreId implements IOreidContext {
     return this._transitHelper
   }
 
+  /** perform asynchronous setup tasks */
   async init() {
     if (this.isInitialized) return
 
@@ -135,13 +141,13 @@ export default class OreId implements IOreidContext {
       this._popup = await this._initializerPlugins?.popup?.init(this)
     }
 
-    this.isInitialized = true
+    this._isInitialized = true
   }
 
   /** throw and error if oreId is not initialized yet */
   private assertIsInitialized() {
     if (!this.isInitialized) {
-      throw new Error('OreId is not initialized')
+      throw new Error('OreId is not initialized - call init() first')
     }
   }
 
