@@ -127,12 +127,37 @@ export type WebWidgetSignParams = {
   }
 }
 
-/** params for Logout action */
-export type WebWidgetAuthResult = any // ToDo: Type this
-export type WebWidgetLogoutResult = any // ToDo: Type this
-export type WebWidgetNewChainAccountResult = any // ToDo: Type this
-export type WebWidgetRecoverAccountResult = any // ToDo: Type this
-export type WebWidgetSignResult = any // ToDo: Type this
+/** Result for Auth action */
+export type WebWidgetAuthResult = {
+  /** User's OreID account (aka wallet account name) */
+  account: string
+  /** user's accessToken signed by ORE ID (in JWT format) */
+  accessToken?: string
+  /** user's idToken signed by ORE ID (in JWT format) */
+  idToken?: string
+}
+
+/** Result for a server-side Logout action (Depricated) */
+export type WebWidgetLogoutResult = {}
+
+/** Result for New Chain Account action */
+export type WebWidgetNewChainAccountResult = {
+  /** User's new blockchain account name */
+  chainAccount: string
+}
+
+/** Result for a Recover Account action */
+export type WebWidgetRecoverAccountResult = WebWidgetAuthResult
+
+/** Result for Sign transaction action */
+export type WebWidgetSignResult = {
+  /** array of signatures created during sign flow - signatures might be stringified objects or pure strings */
+  signatures?: string[]
+  /** completed signed transaction (stringified) */
+  signedTransaction?: string
+  /** transactionId to identify transaction on blockchain (if returned) */
+  transactionId?: string
+}
 
 export type WebWidgetActionResult =
   | WebWidgetAuthResult
