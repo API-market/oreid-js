@@ -28,6 +28,8 @@
     }
   ],
   "rules": {
+    // NOTE: disabling cyclical reference error here as we need to reference Transaction in PopupPluginSignParams referenced in PopupPlugin which references OreIdContext
+    "import/no-cycle": "off",
     "no-underscore-dangle": "off",
     "prettier/prettier": "error",
     "object-curly-newline": "off",
