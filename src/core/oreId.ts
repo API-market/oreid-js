@@ -227,6 +227,9 @@ export default class OreId implements IOreidContext {
 
   /** Create a new Transaction object - used for composing and signing transactions */
   async createTransaction(data: TransactionData) {
+    if (!this._auth.user.hasData) {
+      await this._auth.user.getData()
+    }
     return new Transaction({ oreIdContext: this, user: this.auth.user, data })
   }
 
