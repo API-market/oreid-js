@@ -1,5 +1,6 @@
 import OreIdContext from '../core/IOreidContext'
 import {
+  ApiKeyUsedFor,
   AuthProvider,
   CreateTransactionData,
   ExternalWalletType,
@@ -7,7 +8,12 @@ import {
   TransactionData,
 } from '../models'
 import TransitHelper from '../transit/TransitHelper'
-import { callApiCanAutosignTransaction, callApiCustodialSignTransaction, callApiSignTransaction } from '../api'
+import {
+  assertHasApiKey,
+  callApiCanAutosignTransaction,
+  callApiCustodialSignTransaction,
+  callApiSignTransaction,
+} from '../api'
 import { getOreIdSignUrl } from '../core/urlGenerators'
 import Helpers from '../utils/helpers'
 import { User } from '../user/user'
@@ -38,7 +44,7 @@ export default class Transaction {
     const missingFields: string[] = []
     const validationIssues: string[] = []
 
-    if (!this._user || !this._user?.data) {
+    if (!this._user || !this._user.hasData) {
       throw new Error('Make sure that a user has been authenticated and that youve called user.getData()')
     }
 
@@ -139,6 +145,7 @@ export default class Transaction {
   async checkCanAutoSign() {
     let autoSignCredentialsExist: boolean
     try {
+      assertHasApiKey(this._oreIdContext, ApiKeyUsedFor.AutoSigning, '')
       // this will throw if we don't have an api key with the right rights
       ;({ autoSignCredentialsExist } = await callApiCanAutosignTransaction(this._oreIdContext, this._data))
     } catch (error) {
