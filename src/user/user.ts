@@ -112,7 +112,8 @@ export class User extends Observable<SubscriberUser> {
   /** Get the user info from ORE ID API for a given user account and (usually) save the user into localStorage 'cache'
    *  Must have a valid accessToken to retrieve user
    */
-  async getData() {
+  async getData(forceRefresh?: boolean): Promise<UserData> {
+    if (this.hasData && !forceRefresh) return this.data
     // eslint-disable-next-line prefer-destructuring
     const accessToken = this.accessToken
     if (!accessToken) {
@@ -125,6 +126,7 @@ export class User extends Observable<SubscriberUser> {
 
     this._accountName = account
     this.setUserSourceData(userSourceData)
+    return this.data
   }
 
   /** Clears user's accessToken and user profile data */
