@@ -58,6 +58,11 @@ export class User extends Observable<SubscriberUser> {
     }
   }
 
+  /** Whether user's data has been retrieved with getData() */
+  get hasData() {
+    return !isNullOrEmpty(this?._userSourceData)
+  }
+
   private setUserSourceData(userSourceData: UserSourceData) {
     this._userSourceData = userSourceData
     super.callSubscribers()
@@ -92,7 +97,7 @@ export class User extends Observable<SubscriberUser> {
 
   /** throw if user data hasn't been retrieved yet */
   private assertUserHasData() {
-    if (isNullOrEmpty(this?._userSourceData)) {
+    if (!this.hasData) {
       throw new Error('User data hasnt been retrieved. Call user.getData() first.')
     }
   }
