@@ -84,9 +84,9 @@ export class Auth extends Observable<SubscriberAuth> {
     }
   }
 
-  /** set private variable and save to localState 
+  /** set private variable and save to localState
    * NOTE: This is called every time this._accessTokenHelper.accessToken changes (or expires)
-  */
+   */
   private saveAccessTokenAndNotifySubscribers(accessToken: string) {
     if (this._localState?.accessToken !== accessToken) {
       this._localState.saveAccessToken(accessToken)
