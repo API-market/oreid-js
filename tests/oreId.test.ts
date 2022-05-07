@@ -1,7 +1,8 @@
 /* eslint-disable jest/no-mocks-import */
 import OreId from '../src/core/oreId'
 import demoChainNetworks from '../src/testHelpers/__mocks__/chainNetworks.json'
-import { OreIdOptions, AuthProvider } from '../src/models'
+import { AuthProvider } from '../src/models'
+import { OreIdOptions } from '../src/core/IOreIdOptions'
 import { generateHmac } from '../src/utils/hmac'
 import { defaultOreIdServiceUrl } from '../src/constants'
 

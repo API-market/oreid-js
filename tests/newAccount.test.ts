@@ -1,6 +1,7 @@
 /* eslint-disable jest/no-mocks-import */
 import OreId from '../src/core/oreId'
-import { OreIdOptions, AuthProvider, ChainNetwork, AccountType } from '../src/models'
+import { AuthProvider, ChainNetwork, AccountType } from '../src/models'
+import { OreIdOptions } from '../src/core/IOreIdOptions'
 import { defaultOreIdServiceUrl } from '../src/constants'
 
 describe('OreId', () => {
@@ -8,7 +9,7 @@ describe('OreId', () => {
   let options: OreIdOptions = {
     appName: 'testrunner',
     appId: 'demo_0097ed83e0a54e679ca46d082ee0e33a',
-    apiKey: 'demo_k_97b33a2f8c984fb5b119567ca19e4a49',, // has extra rights for examples (serviceKey)
+    apiKey: 'demo_k_97b33a2f8c984fb5b119567ca19e4a49', // has extra rights for examples (serviceKey)
     oreIdUrl: defaultOreIdServiceUrl,
   }
 

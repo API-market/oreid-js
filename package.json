@@ -4,8 +4,9 @@
   "description": "Add authentication and signing for any blockchain app",
   "author": "AIKON",
   "license": "MIT",
-  "main": "./dist/index.js",
-  "browser": "./dist/browser.js",
+  "main": "dist/index.js",
+  "source": "src/index.ts",
+  "browser": "dist/browser.js",
   "files": [
     "dist",
     "dist.browser"
