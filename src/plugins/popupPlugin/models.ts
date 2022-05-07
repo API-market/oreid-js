@@ -3,6 +3,7 @@ import { UserData } from '../../user/models'
 import {
   WebWidgetAuthParams,
   WebWidgetAuthResult,
+  WebWidgetLogoutParams,
   WebWidgetNewChainAccountParams,
   WebWidgetNewChainAccountResult,
   WebWidgetRecoverAccountParams,
@@ -10,36 +11,40 @@ import {
   WebWidgetSignResult,
 } from '../../webWidget/models'
 
-export interface PopupPluginError {
+export interface PopupPluginErrorResults {
   errors?: string
   data?: any
 }
 
-export type PopupPluginAuthSuccessResults = WebWidgetAuthResult & { user: UserData }
+// params
 
-export interface PopupPluginAuthParams {
-  params: WebWidgetAuthParams
-}
+export type PopupPluginAuthParams = WebWidgetAuthParams
 
-export interface PopupPluginSignParams {
+export type PopupPluginLogoutParams = Partial<WebWidgetLogoutParams>
+
+export type PopupPluginNewChainAccountParams = Partial<WebWidgetNewChainAccountParams>
+
+export type PopupPluginRecoverAccountParams = Partial<WebWidgetRecoverAccountParams>
+
+export type PopupPluginSignParams = {
   transaction: Transaction
 }
 
-export type PopupPluginNewChainAccountSuccessResults = WebWidgetNewChainAccountResult & { chainNetwork: string }
+// resuls
 
-export interface PopupPluginNewChainAccountParams {
-  params: Partial<WebWidgetNewChainAccountParams>
-}
+export type PopupPluginAuthSuccessResults = WebWidgetAuthResult & { user: UserData }
 
-export interface PopupPluginRecoverAccountParams {
-  params: Partial<WebWidgetRecoverAccountParams>
-}
+export type PopupPluginLogoutResults = WebWidgetNewChainAccountResult
 
-export interface PopupPluginLogoutParams {}
+export type PopupPluginNewChainAccountResults = WebWidgetNewChainAccountResult & { chainNetwork: string }
+
+export type PopupPluginRecoverAccountResults = WebWidgetRecoverAccountResult
+
+export type PopupPluginSignResults = WebWidgetSignResult
 
 export interface PopupPlugin {
   auth: (args: PopupPluginAuthParams) => Promise<PopupPluginAuthSuccessResults>
-  sign: (args: PopupPluginSignParams) => Promise<WebWidgetSignResult>
-  newChainAccount: (args: PopupPluginNewChainAccountParams) => Promise<PopupPluginNewChainAccountSuccessResults>
-  recoverAccount: (args: PopupPluginRecoverAccountParams) => Promise<WebWidgetRecoverAccountResult>
+  sign: (args: PopupPluginSignParams) => Promise<PopupPluginSignResults>
+  newChainAccount: (args: PopupPluginNewChainAccountParams) => Promise<PopupPluginNewChainAccountResults>
+  recoverAccount: (args: PopupPluginRecoverAccountParams) => Promise<PopupPluginRecoverAccountResults>
 }
