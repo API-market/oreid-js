@@ -3,7 +3,7 @@ import { UserData } from '../../user/models'
 import {
   WebWidgetAuthParams,
   WebWidgetAuthResult,
-  WebWidgetLogoutResult,
+  WebWidgetLogoutParams,
   WebWidgetNewChainAccountParams,
   WebWidgetNewChainAccountResult,
   WebWidgetRecoverAccountParams,
@@ -11,45 +11,40 @@ import {
   WebWidgetSignResult,
 } from '../../webWidget/models'
 
-export type PopupPluginError = ({ errors, data }: { errors?: string; data?: any }) => void
+export interface PopupPluginErrorResults {
+  errors?: string
+  data?: any
+}
+
+// params
+
+export type PopupPluginAuthParams = WebWidgetAuthParams
+
+export type PopupPluginLogoutParams = Partial<WebWidgetLogoutParams>
+
+export type PopupPluginNewChainAccountParams = Partial<WebWidgetNewChainAccountParams>
+
+export type PopupPluginRecoverAccountParams = Partial<WebWidgetRecoverAccountParams>
+
+export type PopupPluginSignParams = {
+  transaction: Transaction
+}
+
+// resuls
 
 export type PopupPluginAuthSuccessResults = WebWidgetAuthResult & { user: UserData }
 
-export interface PopupPluginAuthParams {
-  params: WebWidgetAuthParams
-  onError?: PopupPluginError
-  onSuccess?: (result: PopupPluginAuthSuccessResults) => void
-}
+export type PopupPluginLogoutResults = WebWidgetNewChainAccountResult
 
-export interface PopupPluginSignParams {
-  transaction: Transaction
-  onError?: PopupPluginError
-  onSuccess?: (result: WebWidgetSignResult) => void
-}
+export type PopupPluginNewChainAccountResults = WebWidgetNewChainAccountResult & { chainNetwork: string }
 
-export type PopupPluginNewChainAccountSuccessResults = WebWidgetNewChainAccountResult & { chainNetwork: string }
+export type PopupPluginRecoverAccountResults = WebWidgetRecoverAccountResult
 
-export interface PopupPluginNewChainAccountParams {
-  params: Partial<WebWidgetNewChainAccountParams>
-  onError?: PopupPluginError
-  onSuccess?: (result: PopupPluginNewChainAccountSuccessResults) => void
-}
-
-export interface PopupPluginRecoverAccountParams {
-  params: Partial<WebWidgetRecoverAccountParams>
-  onError?: PopupPluginError
-  onSuccess?: (result: WebWidgetRecoverAccountResult) => void
-}
-
-export interface PopupPluginLogoutParams {
-  onError?: PopupPluginError
-  onSuccess?: (result: WebWidgetLogoutResult) => void
-}
+export type PopupPluginSignResults = WebWidgetSignResult
 
 export interface PopupPlugin {
-  auth: (args: PopupPluginAuthParams) => void
-  sign: (args: PopupPluginSignParams) => void
-  newChainAccount: (args: PopupPluginNewChainAccountParams) => void
-  recoverAccount: (args: PopupPluginRecoverAccountParams) => void
-  logout: (args?: PopupPluginLogoutParams) => void
+  auth: (args: PopupPluginAuthParams) => Promise<PopupPluginAuthSuccessResults>
+  sign: (args: PopupPluginSignParams) => Promise<PopupPluginSignResults>
+  newChainAccount: (args: PopupPluginNewChainAccountParams) => Promise<PopupPluginNewChainAccountResults>
+  recoverAccount: (args: PopupPluginRecoverAccountParams) => Promise<PopupPluginRecoverAccountResults>
 }
