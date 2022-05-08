@@ -17,7 +17,8 @@ export type WebWidgetOreIdOptions = {
   eosTransitWalletProviders?: any[] // TODO: remove these from being passed to webwidget
 }
 
-export type WebWidgetOnError = ({ errors, data }: { errors?: string; data?: any }) => void
+export type WebWidgetOnSuccess = ({ data }: { data?: any }) => void
+export type WebWidgetOnError = (error: Error) => void
 
 export type WebWidgetProps = {
   oreIdOptions: WebWidgetOreIdOptions
@@ -25,9 +26,9 @@ export type WebWidgetProps = {
     name: WebWidgetAction | string
     params: WebWidgetActionParams
   } | null
-  /** callback for success */
-  onSuccess: ({ data }: { data?: any }) => void
-  /** callback for errors - errors is a delimited string of error codes and/or an error message */
+  /** callback on success */
+  onSuccess: WebWidgetOnSuccess
+  /** callback if error - error message is a delimited string of error codes and/or an error message */
   onError: WebWidgetOnError
   /** source url for request (e.g. https://yourapp.com) */
   origin: string

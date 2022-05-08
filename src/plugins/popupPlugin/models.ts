@@ -11,11 +11,6 @@ import {
   WebWidgetSignResult,
 } from '../../webWidget/models'
 
-export interface PopupPluginErrorResults {
-  errors?: string
-  data?: any
-}
-
 // params
 
 export type PopupPluginAuthParams = WebWidgetAuthParams
