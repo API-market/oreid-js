@@ -26,7 +26,7 @@ export class AccessTokenHelper extends Observable<SubscriberAccessTokenHelper> {
   }
 
   get decodedAccessToken() {
-    this.assertHasAccessToken()
+    if (!this.accessToken) return null
     return this._decodedAccessToken
   }
 
@@ -39,7 +39,7 @@ export class AccessTokenHelper extends Observable<SubscriberAccessTokenHelper> {
   }
 
   get accountName() {
-    this.assertHasAccessToken()
+    if (!this.accessToken) return null
     AccessTokenHelper.assertIsTokenValid(this.decodedAccessToken)
     return Helpers.getClaimFromJwtTokenBySearchString(this.decodedAccessToken, 'https://oreid.aikon.com/account')
   }
