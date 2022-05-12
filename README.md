@@ -8,10 +8,10 @@ oreid-js is a javascript helper library for interacting with the Aikon ORE ID se
 
 [ORE ID](https://github.com/api-market/ore-id-docs) is a simple way to add OAuth login to your blockchain enabled app.
 
-Install this npm package as well as the related oreid-webwidget package:
+Install this npm package as well as the related oreid-webpopup package:
 
 ```
-yarn add oreid-js oreid-webwidget
+yarn add oreid-js oreid-webpopup
 
 ```
 
@@ -22,49 +22,48 @@ Example code:
 ```javascript
 // import this library and the Web popup widget
 import { OreId } from "oreid-js";
-import { OreIdWebWidget } from "oreid-webwidget";
+import { WebPopup } from "oreid-webpopup";
 ```
+
+```javascript
+// Initialize libraries
+const oreId = new OreId({ appId, apiKey, plugins:{ popup: WebPopup() }});
+oreId.init().then(
+  // oreId is ready
+);
+```
+
 ## Auth
 ```javascript
-//Initialize the libraries
-let oreId = new OreId({ appId, apiKey });
-const webwidget = new OreIdWebWidget(oreId, window);
-
-//Start the OAuth flow - after login, 
-webwidget.onAuth({
-    params: { provider: ‘google’ },
-    onError: (errors) => {console.log(errors)},
-    onSuccess: (data) => {console.log(data)},
-});
+// launch popup for user to login
+oreId.popup.auth({ provider })
+  .then(onSuccess)
+  .catch(onError);
 ```
 ## User
 ```javascript
 // access logged-in user info
-const userData = await oreid.auth.user.getData()
-console.log(`Hello ${userData.name}`)
+const userData = await oreid.auth.user.getData();
+console.log(`Hello ${userData.name}`);
 ```
 
 ## Transaction
 ```javascript
 // Get the first Ethereum account in the user's account
-const ethAccount = user.data.chainAccounts.find(ca => ca.chainNetwork === 'eth_ropsten')
+const ethAccount = user.data.chainAccounts.find(ca => ca.chainNetwork === 'eth_ropsten');
+
 // create and sign transaction
 const transaction = await oreid.createTransaction({
   chainAccount: ethAccount,
   chainNetwork: 'eth_ropsten',
   transaction: { to: '0x123...', amount: '.0001' },
-  signOptions: { broadcast: true },
-})
+  signOptions: { broadcast: true }
+});
 
-// popup sign flow - when completed, transaction info is returned
-await oreidWebPopUp.sign({
-  transaction,
-  onSuccess: (data: any) => {
-    console.log('transaction signed:', data.transactionId)
-  },
-  onError: showErrors,
-})
-
+// launch popup for sign flow - when completed, transaction info is returned
+oreId.popup.sign({ transaction })
+  .then((results) => { console.log('txId:', results.transactionId)}),
+  .catch(error => { ... });
 
 ```
 
