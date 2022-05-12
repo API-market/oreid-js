@@ -49,10 +49,10 @@ export default class OreId implements IOreidContext {
     const storageHandler = this.options?.storageHandler || new StorageHandler()
     this._localState = new LocalState(this.options?.appId, storageHandler)
     this._settings = new Settings({ oreIdContext: this })
-    this._transitHelper = new TransitHelper({ oreIdContext: this })
+    this._auth = new Auth({ oreIdContext: this })
+    this._transitHelper = new TransitHelper({ oreIdContext: this, user: this._auth.user })
     // All installed TransitProviders
     this._transitHelper.installTransitProviders(this.options?.eosTransitWalletProviders)
-    this._auth = new Auth({ oreIdContext: this })
     this._initializerPlugins = options.plugins || {}
     this._isInitialized = false
   }
@@ -130,10 +130,6 @@ export default class OreId implements IOreidContext {
 
   /** Transit wallet plugin helper functions and connections */
   get transitHelper() {
-    const { user } = this.auth
-    if (user && !this._transitHelper._user) {
-      this._transitHelper._user = user
-    }
     return this._transitHelper
   }
 
