@@ -130,6 +130,10 @@ export default class OreId implements IOreidContext {
 
   /** Transit wallet plugin helper functions and connections */
   get transitHelper() {
+    const { user } = this.auth
+    if (user && !this._transitHelper._user) {
+      this._transitHelper._user = user
+    }
     return this._transitHelper
   }
 
