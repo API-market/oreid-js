@@ -279,8 +279,12 @@ export default class TransitHelper {
     this.assertProviderValidForChainNetwork(walletType, chainNetwork)
     let result = null
     if (this.canDiscover(walletType)) {
-      result = this.discoverCredentialsInTransitWallet(chainNetwork, walletType, oreAccount, discoveryPathIndexList)
-      console.log('discoverCredentialsInTransitWallet result:', result)
+      result = await this.discoverCredentialsInTransitWallet(
+        chainNetwork,
+        walletType,
+        oreAccount,
+        discoveryPathIndexList,
+      )
     } else {
       // if provider doesn't support a discover function, we can use login to retrieve a single account/key instead
       const transitWallet = await this.setupTransitWallet({ walletType, chainNetwork })
