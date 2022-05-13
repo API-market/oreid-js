@@ -42,9 +42,9 @@ type ConnectToTransitProviderResult = {
 }
 
 export default class TransitHelper {
-  constructor(args: { oreIdContext: OreIdContext; user?: User }) {
+  constructor(args: { oreIdContext: OreIdContext; user: User }) {
     this._oreIdContext = args.oreIdContext
-    this._user = args?.user
+    this._user = args.user
     this.transitAccessContexts = {}
   }
 

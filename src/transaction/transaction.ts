@@ -23,7 +23,7 @@ export default class Transaction {
     this._oreIdContext = args.oreIdContext
     this._user = args.user
     this.assertValidTransactionAndSetData(args.data)
-    this._transitHelper = new TransitHelper({ oreIdContext: this._oreIdContext })
+    this._transitHelper = new TransitHelper({ oreIdContext: this._oreIdContext, user: this._user })
   }
 
   private _oreIdContext: OreIdContext
