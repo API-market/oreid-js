@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/default-param-last */
 import Helpers from '../utils/helpers'
 import { JSONObject, ApiKeyUsedFor } from '../models'
 import OreIdContext from '../core/IOreidContext'
@@ -78,6 +79,7 @@ export function assertParamsHaveOnlyOneOfValues(params: JSONObject = {}, paramNa
 export function extractProcessIdFromData(data: any) {
   let processId
   if (data?.processId) {
+    // eslint-disable-next-line prefer-destructuring
     processId = data.processId
     // eslint-disable-next-line no-param-reassign
     delete data.processId

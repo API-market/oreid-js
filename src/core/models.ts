@@ -60,7 +60,7 @@ export type SignResult = {
 }
 
 // Todo: implement passwordReset flow/url
-export type passwordResetOptions = {
+export type PasswordResetOptions = {
   provider: AuthProvider
   chainAccount?: ChainAccount
   chainNetwork?: ChainNetwork

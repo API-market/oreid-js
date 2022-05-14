@@ -95,7 +95,7 @@ export default class TransitHelper {
     if (!networkSettings) {
       throw new Error(`Invalid chain network: ${chainNetwork}.`)
     }
-    const { chainId, host, port, protocol } = networkSettings?.hosts[0] // using first host
+    const { chainId, host, port, protocol } = networkSettings?.hosts[0] || {} // using first host
     return { host, port, protocol, chainId }
   }
 
@@ -323,7 +323,7 @@ export default class TransitHelper {
         const { accounts = [], key: publicKey } = credential
         // ethereum may not have a public key - dont save if missing
         if (accounts.length > 0 && !!publicKey) {
-          const { account, authorization } = accounts[0]
+          const [{ account, authorization }] = accounts // get first item in array
           const permissions: WalletPermission[] = [
             {
               account,
@@ -393,6 +393,7 @@ export default class TransitHelper {
         const [first] = result.accounts
 
         if (first) {
+          // eslint-disable-next-line prefer-destructuring
           authorization = first.authorization
         }
       }
@@ -515,7 +516,7 @@ export default class TransitHelper {
 
   /** Determine the chainNetwork from the transitWallet context */
   async getChainNetworkFromTransitWallet(transitWallet: TransitWallet) {
-    const { chainId } = transitWallet?.ctx?.network
+    const { chainId } = transitWallet?.ctx?.network || {}
     if (!chainId) {
       return null
     }
