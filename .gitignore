@@ -9,7 +9,6 @@ example/dist
 .DS_Store
 dist/
 dist.browser/
-dist.webwidget/
 coverage/
 createurl.ts
 first_auth_flow1.js

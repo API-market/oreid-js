@@ -9,7 +9,13 @@
       "es2017",
       "dom"
     ],
-    "module": "CommonJS",
+    "module": "esnext",
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true,
+    "noEmit": true, // older
     "esModuleInterop": true,
     "moduleResolution": "node",
     "noImplicitAny": true,
@@ -17,7 +23,10 @@
     "target": "es5",
     "baseUrl": "./",
     "paths": {
-      "*" : ["src/@customTypes/*"]
+      "*" : ["src/@customTypes/*"],
+      "crypto": [
+        "node_modules/crypto-js" // use browser version of crypto library
+      ]
     },
     "resolveJsonModule": true
   },
