@@ -1,4 +1,5 @@
 {
+  "eslint.workingDirectories": ["./src/"],
   "workbench.colorCustomizations": {
     "titleBar.inactiveBackground": "#f5617a",
     "titleBar.activeBackground": "#f5617a",
