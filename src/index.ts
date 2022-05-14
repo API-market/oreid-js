@@ -1,5 +1,5 @@
 import { Auth } from './auth/auth'
-import { OreIdOptions } from './core/IOreIdOptions'
+import { OreIdOptions as OreIdOptionsType } from './core/IOreIdOptions'
 import OreId from './core/oreId'
 import { asyncHandler, authCallbackHandler, signCallbackHandler } from './middleware'
 import Transaction from './transaction/transaction'
@@ -23,8 +23,9 @@ export {
   Helpers,
   MemoryStorage,
   OreId,
-  OreIdOptions,
   signCallbackHandler,
   Transaction,
   User,
 }
+
+export type OreIdOptions = OreIdOptionsType
