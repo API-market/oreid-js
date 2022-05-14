@@ -1,6 +1,6 @@
 import babel from 'rollup-plugin-babel'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
-import nodePolyfills from 'rollup-plugin-polyfill-node'
+// import nodePolyfills from 'rollup-plugin-polyfill-node'
 import pluginJson from '@rollup/plugin-json'
 import commonjs from '@rollup/plugin-commonjs'
 import peerDepsExternal from 'rollup-plugin-peer-deps-external'
@@ -36,10 +36,9 @@ export default {
       exclude: 'node_modules/**',
       extensions: ['.js', '.svg'],
     }),
-    nodePolyfills(), // should go before commonjs
-    commonjs(),
     pluginJson(),
-    terser(),
+    commonjs(),
+    // nodePolyfills(), // should go after commonjs or errors will occur
     typescript(),
   ],
 }
