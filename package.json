@@ -1,24 +1,24 @@
 {
   "name": "oreid-js",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Add authentication and signing to any blockchain app",
   "author": "AIKON",
   "license": "MIT",
   "main": "dist/index.js",
   "source": "src/index.ts",
-  "browser": "dist/browser.js",
+  "browser": "dist.browser/index.js",
   "files": [
     "dist",
     "dist.browser"
   ],
   "scripts": {
-    "build": "npm run build-server && npm run build-browser",
+    "build": "yarn run build-server && yarn run build-browser",
     "build-server": "rm -rf dist/* && tsc --build tsconfig.json",
     "build-browser": "rm -rf dist.browser/* && ./node_modules/.bin/ncc build -o dist.browser --minify",
     "lint": "./node_modules/.bin/eslint src",
     "lint-fix": "./node_modules/.bin/eslint src --fix",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm run lint && npm run test",
+    "prepare": "yarn run build",
+    "prepublishOnly": "yarn run lint && yarn run test",
     "test": "jest --runInBand --coverage --detectOpenHandles"
   },
   "repository": {
