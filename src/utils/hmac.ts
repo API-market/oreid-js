@@ -1,4 +1,4 @@
-import HmacSHA256 from 'crypto-js/hmac-sha256';
+import HmacSHA256 from 'crypto-js/hmac-sha256'
 import Axios from 'axios'
 import Helpers from './helpers'
 

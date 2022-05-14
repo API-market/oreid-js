@@ -105,7 +105,7 @@ export class User extends Observable<SubscriberUser> {
   /** throw if user hasn't have a valid email (i.e. user.email) */
   private assertUserHasValidEmail() {
     this.assertUserHasData()
-    const { email } = this?.data
+    const { email } = this?.data || {}
     if (!Helpers.isValidEmail(email)) throw new Error('User doesnt have a valid email')
   }
 

@@ -12,10 +12,8 @@ import { AuthProvider, ExternalWalletType, JSONObject, Lookup } from '../common/
 const TRACING = false // enable when debugging to see detailed outputs
 
 // split a string or array at a given index position
-export const splitAt = (index: number, dropChars: number) => (x: string) => [
-  x.slice(0, index),
-  x.slice(index + dropChars),
-]
+export const splitAt = (index: number, dropChars: number) => (x: string) =>
+  [x.slice(0, index), x.slice(index + dropChars)]
 
 const replaceAll = (inString: string, search: string, replacement: string) => {
   return inString.replace(new RegExp(search, 'g'), replacement)
@@ -345,7 +343,8 @@ export default class Helpers {
 
   static isValidEmail(email: any): boolean {
     if (!email) return false
-    const emailRegex = /^(([^<>()[]\\.,;:\s@]+(\.[^<>()[]\\.,;:\s@]+)*)|(.+))@(([[0-9]{1,3}\[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    const emailRegex =
+      /^(([^<>()[]\\.,;:\s@]+(\.[^<>()[]\\.,;:\s@]+)*)|(.+))@(([[0-9]{1,3}\[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     return emailRegex.test(email)
   }
 

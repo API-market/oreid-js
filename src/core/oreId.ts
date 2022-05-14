@@ -278,9 +278,12 @@ export default class OreId implements IOreidContext {
 
   /** Extracts the response parameters on the /new-account callback URL string */
   handleNewAccountResponse(callbackUrlString: string): NewAccountResult {
-    const { chain_account: chainAccount, process_id: processId, state, errors } = Helpers.extractDataFromCallbackUrl(
-      callbackUrlString,
-    )
+    const {
+      chain_account: chainAccount,
+      process_id: processId,
+      state,
+      errors,
+    } = Helpers.extractDataFromCallbackUrl(callbackUrlString)
     this.setIsBusy(false)
     return { chainAccount, processId, state, errors }
   }
