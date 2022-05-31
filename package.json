@@ -1,6 +1,6 @@
 {
   "name": "oreid-js",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "description": "Add authentication and signing to any blockchain app",
   "author": "AIKON",
   "license": "MIT",
@@ -30,7 +30,6 @@
   },
   "homepage": "https://github.com/api-market/oreid-js#readme",
   "dependencies": {
-    "@aikon/aikon-configs": "1.0.1",
     "@aikon/eos-transit": "^4.0.8",
     "@msgpack/msgpack": "^2.7.2",
     "@rollup/plugin-json": "^4.1.0",
@@ -47,6 +46,7 @@
     "uuid": "^7.0.3"
   },
   "devDependencies": {
+    "@aikon/aikon-configs": "1.0.1",
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-node-resolve": "^13.1.3",
     "@types/crypto-js": "^4.1.0",
