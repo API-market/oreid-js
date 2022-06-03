@@ -3,7 +3,12 @@
     "outDir": "dist",
     "allowJs": true,
     "alwaysStrict": true,
+     // enabling declaration (.d.ts) emit
     "declaration": true,
+     // optional - in general it's a good practice to decouple declaration files from your actual transpiled JavaScript files
+    "declarationDir": "./dist/dts",
+    // optional if you're using babel to transpile TS -> JS
+    // "emitDeclarationOnly": true
     "downlevelIteration": true,
     "lib": [
       "es2017",

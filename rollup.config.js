@@ -1,15 +1,18 @@
 import babel from 'rollup-plugin-babel'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
-// import nodePolyfills from 'rollup-plugin-polyfill-node'
+import nodePolyfills from 'rollup-plugin-polyfill-node'
 import pluginJson from '@rollup/plugin-json'
 import commonjs from '@rollup/plugin-commonjs'
 import peerDepsExternal from 'rollup-plugin-peer-deps-external'
 import typescript from 'rollup-plugin-typescript2'
 import { terser } from 'rollup-plugin-terser'
+import ignore from "rollup-plugin-ignore"
+import builtins from 'rollup-plugin-node-builtins'
+import dts from 'rollup-plugin-dts'
 
 const pkg = require('./package.json')
 
-export default {
+export default [{
   input: './src/index.ts',
   output: [
     {
@@ -24,13 +27,18 @@ export default {
       sourcemap: false,
       file: 'dist.browser/index.min.js',
       format: 'esm',
-      plugins: [terser()],
+      plugins: [
+        builtins({crypto: false}),
+        // ignore(["crypto"]),
+        // nodePolyfills(), // should go after commonjs or errors will occur
+        nodeResolve({
+          browser: true,
+        }),
+        terser(),
+      ],
     },
   ],
   plugins: [
-    nodeResolve({
-      browser: true,
-    }),
     peerDepsExternal(),
     babel({
       exclude: 'node_modules/**',
@@ -38,7 +46,13 @@ export default {
     }),
     pluginJson(),
     commonjs(),
-    // nodePolyfills(), // should go after commonjs or errors will occur
-    typescript(),
+    typescript({ useTsconfigDeclarationDir: true }),
   ],
+},
+{
+    // path to your declaration files root
+    input: './dist/dts/index.d.ts',
+    output: [{ file: 'dist/index.d.ts', format: 'es' }],
+    plugins: [dts()],
 }
+]
