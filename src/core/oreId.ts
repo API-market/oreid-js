@@ -44,8 +44,6 @@ const { isNullOrEmpty } = Helpers
 
 export default class OreId implements IOreidContext {
   constructor(options: OreIdOptions) {
-    console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
-
     this._options = null
     this.validateAndSetOptions(options)
     const storageHandler = this.options?.storageHandler || new StorageHandler()
