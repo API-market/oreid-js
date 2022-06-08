@@ -1,11 +1,5 @@
-import commonjs from '@rollup/plugin-commonjs'
-import pluginJson from '@rollup/plugin-json'
-import babel from 'rollup-plugin-babel'
-import peerDepsExternal from 'rollup-plugin-peer-deps-external'
-import nodePolyfills from 'rollup-plugin-polyfill-node'
 import typescript from 'rollup-plugin-typescript2'
-
-// import { nodeResolve } from '@rollup/plugin-node-resolve';
+import { terser } from "rollup-plugin-terser";
 
 const pkg = require('./package.json')
 
@@ -17,19 +11,11 @@ export default {
       sourcemap: true,
       file: pkg.main,
       format: 'umd',
+      compact: true
     }
   ],
   plugins: [
-    // nodeResolve({ browser: true }),
-    peerDepsExternal(),
-    nodePolyfills({ crypto: false }),
-    pluginJson(),
-    babel({
-      exclude: "node_modules/**", extensions: ['.js', '.svg'],
-    }),
-    commonjs(),
-    typescript({
-      tsconfig: "./tsconfig.json",
-    }),
+    typescript({ tsconfig: "./tsconfig.json", allowJs: true }), // generate .js files from .ts files (and types)
+    terser() // minify the bundle
   ]
 };
