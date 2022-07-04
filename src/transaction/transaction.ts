@@ -56,7 +56,8 @@ export default class Transaction {
       validationIssues.push('Transaction Data error - Expecting a user.accountName - is the user logged-in in?')
     if (transaction && signedTransaction) validationIssues.push('Only provide one: transaction OR signedTransaction')
 
-    // TODO: Additional validation
+    // TODO: call this.validate()
+
     // transaction OR signedTransaction - check for valid JSON object
 
     if (!Helpers.isNullOrEmpty(missingFields)) {
@@ -83,6 +84,9 @@ export default class Transaction {
         JSON.stringify(createTransactionData.signedTransaction),
       )
   }
+
+  // TODO: Consider providing property to explain that account/permission is in external wallet so developer can easily check
+  // TODO: Consider web-widget automatically handling pop-up of wallet when sign is called
 
   /** ensure that the chainNetwork and chainAccount for the transaction are in the user's wallet
    *  NOTE: This check is not required for a user signing with a wallet app - Since the account may be in the wallet and not yet added to OreId
@@ -119,10 +123,11 @@ export default class Transaction {
    * Returns array of errors
    */
   async validate(): Promise<string[]> {
-    // TODO: add transactin/validate api endpoint
+    // TODO: call API validateTransaction on OREID Service - transaction/validate api endpoint
     throw new Error('Not Implemented')
   }
 
+  // TODO: add depricated
   /**
    * Returns a url to redirect the user's browser to - to sign transaction using OREID web interface
    */
