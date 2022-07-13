@@ -32,6 +32,14 @@
     },
     "resolveJsonModule": true
   },
-  "exclude": ["dist", "dist.browser", "node_modules", "./src/**/?(*.)test.ts", "./src/tests/*.*", "./src/testHelpers"],
-  "include": ["./src/**/*.js", "./src/**/*.ts"]
+  "exclude": [
+    "dist",
+    "dist.browser",
+    "node_modules",
+    "./src/**/?(*.)(test|spec).ts",
+    "./src/tests/*.*",
+    "./src/testHelpers",
+    "./tests/**/*.(test|spec).ts"
+  ],
+  "include": ["src/**/*.js", "src/**/*.ts", "tests/**/*.ts"]
 }
