@@ -1,11 +1,17 @@
 import nock from 'nock'
 import { getOreId, getOreIdToken, getUser, generateToken } from './utils'
 
+afterEach(() => {
+  jest.clearAllTimers()
+  jest.useRealTimers()
+})
+
 afterAll(async () => {
   nock.cleanAll()
 })
 
 test('Login user with valid accessToken (issued by ORE ID)', async () => {
+  jest.useFakeTimers()
   const accessToken = getOreIdToken()
   const oreId = getOreId()
   const accountName = 'ore1t2swc4zn'
@@ -22,12 +28,15 @@ test('Login user with valid accessToken (issued by ORE ID)', async () => {
     ...userData,
   })
 
-  const response = await oreId.auth.loginWithToken({ accessToken })
-
+  const promise = oreId.auth.loginWithToken({ accessToken })
+  jest.advanceTimersByTime(300)
+  const response = await promise
   expect(response).toEqual({ accessToken, errors: undefined, processId: 'a82e9a02050a' })
+  jest.clearAllTimers()
 })
 
 test('Login user with valid idToken (issued by ORE ID)', async () => {
+  jest.useFakeTimers()
   const idToken = getOreIdToken()
   const oreId = getOreId()
   const accountName = 'ore1t2swc4zn'
@@ -43,12 +52,14 @@ test('Login user with valid idToken (issued by ORE ID)', async () => {
     processId: '889cae07d220',
     ...userData,
   })
-  const response = await oreId.auth.loginWithToken({ idToken })
-
+  const promise = oreId.auth.loginWithToken({ idToken })
+  jest.advanceTimersByTime(300)
+  const response = await promise
   expect(response).toEqual({ accessToken: idToken, errors: undefined, processId: 'a82e9a02050a' })
 })
 
 test('Login user with an invalidly signed token (invalided by backend)', async () => {
+  jest.useFakeTimers()
   const accessToken = getOreIdToken()
   const oreId = getOreId()
 
@@ -57,9 +68,9 @@ test('Login user with an invalidly signed token (invalided by backend)', async (
     .post('/api/account/login-user-with-token')
     .reply(400, { processId: '889cae07d220', errorCode: 'tokenInvalid', errorMessage: 'Token invalid or expired' })
 
-  await expect(oreId.auth.loginWithToken({ accessToken })).rejects.toThrowError(
-    'tokenInvalid, Token invalid or expired',
-  )
+  const promise = oreId.auth.loginWithToken({ accessToken })
+  jest.advanceTimersByTime(300)
+  await expect(promise).rejects.toThrowError('tokenInvalid, Token invalid or expired')
 })
 
 test('Login user with an corrupted token', async () => {
