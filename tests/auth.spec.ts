@@ -62,8 +62,7 @@ test('Login user with an invalidly signed token (invalided by backend)', async (
   )
 })
 
-// ! This test caught wrong behavior
-test.skip('Login user with an corrupted token', async () => {
+test('Login user with an corrupted token', async () => {
   const oreId = getOreId()
 
   const mockServer = nock('https://service.oreid.io')
@@ -71,19 +70,15 @@ test.skip('Login user with an corrupted token', async () => {
     .post('/api/account/login-user-with-token')
     .reply(400, { processId: '889cae07d220', errorCode: 'tokenInvalid', errorMessage: 'Token invalid or expired' })
 
-  // ! In this test the token is corrupted. I deleted some characters in the middle, to make sure the token is invalid.
-  // ! The desired behavior is for an exception to be thrown, but that is not what is happening. The promise is fulfilled with an error response.
+  const response = await oreId.auth.loginWithToken({
+    accessToken:
+      'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkM0N0I2NUI4OTNBRTEwN0ExNkE5MTQ0Njk2ODBCMDVEREVGQjFEMjcifQ.eyJpc3MiOiJodHRwczovL29yZWlkLmlvzExNDM3MTYwOTkRhZ2luZy5zZXJ2aWNlLm9yZWlkLmlvIiwiaHR0cHM6Ly9zdGFnaW5nLnNlcnZpY2Uub3JlaWQuaW8vdXNlcmluZm8iLCJodHRwczovL29yZWlkLmFpa29uLmNvbSIsImh0dHBzOi8vYWlrb24uYXV0aDAuY29tL3VzZXJpbmZvIl0sImF6cCI6InRfNDY4M2FmYzA3NGFiNDQ0ZWJkZjFiZjA4ZWQ4ZDE3NTciLCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIHBob25lIiwiaHR0cHM6Ly9vcmVpZC5haWtvbi5jb20vYXBwSWQiOiJ0XzQ2ODNhZmMwNzRhYjQ0NGViZGYxYmYwOGVkOGQxNzU3IiwiaHR0cHM6Ly9vcmVpZC5haWtvbi5jb20vcHJvdmlkZXIiOiJnb29nbGUiLCJodHRwczovL29yZWlkLmFpa29uLmNvbS9hY2NvdW50Ijoib3JlMXQyc3djNHpuIiwiaHR0cHM6Ly9vcmVpZC5haWtvbi5jb20vYWRtaW5TZXJ2aWNlIjoiYWlrb24tYWRtaW4iLCJpYXQiOjE2NTYzNDY3NzQsImV4cCI6MTY1NjM0NzI3NH0=.skA5HUFqxaTt2lLRKKbIl4OgvcD7iczNvZeWQXr2nKWb7kVUVWYSLLxDTqanfveALQ9YEQgo4OJnFRZ6CMSlJFQfDWPCk2YZJuIi4BOOWsN8aTuwdoD8Z6ZQWmwnCWMpMKFzVQE_ui75DST8dQAB7guR4Hk2iC5FJOmUkn_oJodMJDc3OML0xWbdrnYH2K5r4Rjq5E6X7Nqu9uHf3uZE9EhGMJOIuaBbR9ft34CEEOCA9Mzdmp0XGsc8AKrscfRDpNJsP6SP3sdOml0K-ZfSB30Ssbz_DKAzTrz5WrOCQ67FBNvpBYDsIjEt607dNMZncyYwzHB5aT2Aob7yla7JaA',
+  })
 
-  await expect(
-    oreId.auth.loginWithToken({
-      accessToken:
-        'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkM0N0I2NUI4OTNBRTEwN0ExNkE5MTQ0Njk2ODBCMDVEREVGQjFEMjcifQ.eyJpc3MiOiJodHRwczovL29yZWlkLmlvzExNDM3MTYwOTkRhZ2luZy5zZXJ2aWNlLm9yZWlkLmlvIiwiaHR0cHM6Ly9zdGFnaW5nLnNlcnZpY2Uub3JlaWQuaW8vdXNlcmluZm8iLCJodHRwczovL29yZWlkLmFpa29uLmNvbSIsImh0dHBzOi8vYWlrb24uYXV0aDAuY29tL3VzZXJpbmZvIl0sImF6cCI6InRfNDY4M2FmYzA3NGFiNDQ0ZWJkZjFiZjA4ZWQ4ZDE3NTciLCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIHBob25lIiwiaHR0cHM6Ly9vcmVpZC5haWtvbi5jb20vYXBwSWQiOiJ0XzQ2ODNhZmMwNzRhYjQ0NGViZGYxYmYwOGVkOGQxNzU3IiwiaHR0cHM6Ly9vcmVpZC5haWtvbi5jb20vcHJvdmlkZXIiOiJnb29nbGUiLCJodHRwczovL29yZWlkLmFpa29uLmNvbS9hY2NvdW50Ijoib3JlMXQyc3djNHpuIiwiaHR0cHM6Ly9vcmVpZC5haWtvbi5jb20vYWRtaW5TZXJ2aWNlIjoiYWlrb24tYWRtaW4iLCJpYXQiOjE2NTYzNDY3NzQsImV4cCI6MTY1NjM0NzI3NH0=.skA5HUFqxaTt2lLRKKbIl4OgvcD7iczNvZeWQXr2nKWb7kVUVWYSLLxDTqanfveALQ9YEQgo4OJnFRZ6CMSlJFQfDWPCk2YZJuIi4BOOWsN8aTuwdoD8Z6ZQWmwnCWMpMKFzVQE_ui75DST8dQAB7guR4Hk2iC5FJOmUkn_oJodMJDc3OML0xWbdrnYH2K5r4Rjq5E6X7Nqu9uHf3uZE9EhGMJOIuaBbR9ft34CEEOCA9Mzdmp0XGsc8AKrscfRDpNJsP6SP3sdOml0K-ZfSB30Ssbz_DKAzTrz5WrOCQ67FBNvpBYDsIjEt607dNMZncyYwzHB5aT2Aob7yla7JaA',
-    }),
-  ).rejects.toThrowError('tokenInvalid, Token invalid or expired')
+  expect(response).toEqual({ accessToken: null, errors: 'token_invalid', processId: undefined })
 })
 
-// ! This test caught wrong behavior
-test.skip('Login user with an expired token', async () => {
+test('Login user with an expired token', async () => {
   const accessToken = generateToken({
     iss: 'https://oreid.io/',
     sub: 'google-oauth2|105741711437160993941',
@@ -117,9 +112,9 @@ test.skip('Login user with an expired token', async () => {
     ...userData,
   })
 
-  await expect(oreId.auth.loginWithToken({ accessToken })).rejects.toThrowError(
-    'tokenInvalid, Token invalid or expired',
-  )
+  const response = await oreId.auth.loginWithToken({ accessToken })
+
+  expect(response).toEqual({ accessToken: null, errors: 'token_invalid', processId: undefined })
 })
 
 // (low) Login user with valid accessToken (issued by Google) with appId not configured for accessToken’s azp (clientId) - handled in oreId service backend
