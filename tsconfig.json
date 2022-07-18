@@ -41,5 +41,5 @@
     "./src/testHelpers",
     "./tests/**/*.(test|spec).ts"
   ],
-  "include": ["src/**/*.js", "src/**/*.ts", "tests/**/*.ts"]
+  "include": ["src/**/*.js", "src/**/*.ts"]
 }
