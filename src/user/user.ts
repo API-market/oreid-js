@@ -120,7 +120,7 @@ export class User extends Observable<SubscriberUser> {
       throw new Error('AccessToken is missing or has expired')
     }
     // get account specified in access token
-    const account = this?._accountName
+    const account = this?._accountName || this?._accessTokenHelper.accountName
     const params: ApiGetUserParams = { account }
     const userSourceData = await callApiGetUser(this._oreIdContext, params)
 
@@ -239,13 +239,13 @@ export class User extends Observable<SubscriberUser> {
     permissions: WalletPermission[]
     walletType: ExternalWalletType
   }) {
+    // get latest user info
+    await this.getData()
+
     const { chainAccount, chainNetwork, permissions, walletType } = args
     if (!this.accountName || isNullOrEmpty(permissions) || isNullOrEmpty(chainNetwork)) {
       return // todo: consider if we should exit silently here - since we are called after discovery everytime, then answer is probably yes
     }
-
-    // get latest user info
-    await this.getData()
 
     // for each permission provided, check if it's already in the user's list, if not, add it by calling the api (addPermission)
     await Helpers.asyncForEach(permissions, async perm => {
