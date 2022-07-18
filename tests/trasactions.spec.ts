@@ -1,4 +1,4 @@
-import { getOreId, generateToken } from './utils'
+import { getOreId, generateToken } from '../src/test-utils'
 
 describe('Create a transaction', () => {
   test('No erros', async () => {

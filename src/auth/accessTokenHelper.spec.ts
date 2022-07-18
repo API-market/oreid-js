@@ -1,4 +1,4 @@
-import { getToken } from '../test-utils/mockFactory'
+import { getToken } from '../test-utils'
 import { AccessTokenHelper } from './accessTokenHelper'
 import Helpers from '../utils/helpers'
 

@@ -1,6 +1,6 @@
 // generate JWT
 
-import { OreId } from '../src'
+import { OreId } from '..'
 import { Base64 } from 'js-base64'
 
 export const generateToken = (token: object) => {

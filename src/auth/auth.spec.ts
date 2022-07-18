@@ -1,5 +1,5 @@
 /* eslint-disable no-import-assign */
-import { createOreIdContext, getToken } from '../test-utils/mockFactory'
+import { createOreIdContext, getToken } from '../test-utils'
 import OreIdContext from '../core/IOreidContext'
 import { Auth } from './auth'
 import { AccessTokenHelper } from './accessTokenHelper'

@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { getOreId, getOreIdToken, getUser, generateToken } from './utils'
+import { getOreId, getOreIdToken, getUser, generateToken } from '../src/test-utils'
 
 afterEach(() => {
   jest.clearAllTimers()
