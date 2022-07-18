@@ -18,6 +18,7 @@ let oreIdContext: OreIdContext
 beforeEach(() => {
   const spy = jest.spyOn(Helpers, 'jwtDecodeSafe')
   const myToken = getToken()
+  // eslint-disable-next-line consistent-return
   spy.mockImplementation(token => {
     if (token === myToken.token) return myToken.decoed
   })
