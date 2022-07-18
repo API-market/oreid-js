@@ -48,7 +48,7 @@
     "uuid": "^7.0.3"
   },
   "devDependencies": {
-    "@aikon/aikon-configs": "1.0.1",
+    "@aikon/aikon-configs": "1.0.4",
     "@types/crypto-js": "^4.1.0",
     "@types/jest": "^28.1.1",
     "@types/js-base64": "^3.3.1",

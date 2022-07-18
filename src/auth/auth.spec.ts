@@ -1,5 +1,5 @@
 /* eslint-disable no-import-assign */
-import { createOreIdContext, getToken } from '../test-utils/mockFactory'
+import { createOreIdContext, getToken } from '../test-utils'
 import OreIdContext from '../core/IOreidContext'
 import { Auth } from './auth'
 import { AccessTokenHelper } from './accessTokenHelper'
@@ -18,6 +18,7 @@ let oreIdContext: OreIdContext
 beforeEach(() => {
   const spy = jest.spyOn(Helpers, 'jwtDecodeSafe')
   const myToken = getToken()
+  // eslint-disable-next-line consistent-return
   spy.mockImplementation(token => {
     if (token === myToken.token) return myToken.decoed
   })

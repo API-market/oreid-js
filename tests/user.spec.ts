@@ -1,4 +1,4 @@
-import { getOreId, generateToken } from './utils'
+import { getOreId, generateToken } from '../src/test-utils'
 
 test('Try to retrieve user data without being authenticated', async () => {
   expect(1).toEqual(1)
