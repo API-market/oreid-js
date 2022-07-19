@@ -1,7 +1,7 @@
 import { ApiEndpoint } from './models'
 const pjson = require('../package.json')
 
-export const providersNotImplemented = ['metro']
+export const externalWalletsNotImplemented = ['metro']
 export const defaultOreIdServiceUrl = 'https://service.oreid.io'
 
 export const { version } = pjson
