@@ -55,7 +55,7 @@ export default class TransitHelper {
   transitAccessContexts: { [key: string]: TransitWalletAccessContext }
 
   /** Verifies that all plugins provided work (can be constructed)
-   *  Stores a list of the installed providerNames (mapped to AuthProvider) for all working plugins in transitProvidersInstalled
+   *  Stores a list of the installed providerNames (mapped to ExternalWalletType) for all working plugins in transitProvidersInstalled
    */
   async installTransitProviders(eosTransitWalletProviders: MakeWalletProviderFn[]) {
     // Executes each provider's contructor to verify it's working
@@ -124,7 +124,7 @@ export default class TransitHelper {
   /** Handles the call to connect() function on the Transit provider */
   async connectToTransitProvider({
     walletType,
-    chainNetwork = ChainNetwork.EosMain,
+    chainNetwork,
     chainAccount = null,
   }: ConnectToTransitProviderParams): Promise<ConnectToTransitProviderResult> {
     let response: ConnectToTransitProviderResult
@@ -224,7 +224,7 @@ export default class TransitHelper {
 
   /** Login using the wallet provider */
   async loginWithTransitProvider(loginOptions: LoginWithWalletOptions) {
-    const { provider, chainAccount, chainNetwork } = loginOptions
+    const { walletType: provider, chainAccount, chainNetwork } = loginOptions
     // Connect to Provider
     const walletType = Helpers.mapAuthProviderToWalletType(provider)
     const response = await this.connectToTransitProvider({ walletType, chainAccount, chainNetwork })
@@ -405,10 +405,9 @@ export default class TransitHelper {
   }
 
   /** sign with a Transit wallet */
-  async signWithTransitProvider(transactionData: TransactionData, transitProvider: ExternalWalletType) {
+  async signWithTransitProvider(transactionData: TransactionData, walletType: ExternalWalletType) {
     let signedTransaction: SignatureProviderSignResult
     const { chainNetwork, chainAccount } = transactionData
-    const walletType = Helpers.mapAuthProviderToWalletType(transitProvider)
     this.assertHasProviderInstalled(walletType, ExternalWalletInterface.Transit)
     this.assertProviderValidForChainNetwork(walletType, chainNetwork)
     // connect to wallet

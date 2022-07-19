@@ -41,7 +41,7 @@ export type LoginWithWalletOptions = {
   chainAccount?: ChainAccount
   /** Optionally specify a specific blockchain to select from wallet (some wallets don't support this) */
   chainNetwork?: ChainNetwork
-  provider?: ExternalWalletType
+  walletType?: ExternalWalletType
 }
 
 export type LoginWithTokenOptions = {
