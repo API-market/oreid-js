@@ -21,6 +21,7 @@ export default interface OreIdContext {
   localState: LocalState
   options: OreIdOptions
   transitProvidersInstalled: ExternalWalletType[]
+  ualProvidersInstalled: ExternalWalletType[]
   addAccessTokenAndHmacToUrl: (
     urlString: string,
     appAccessTokenMetadata: AppAccessTokenMetadata,
@@ -34,7 +35,9 @@ export default interface OreIdContext {
     processId?: ProcessId,
   ) => Promise<any>
   getAllChainNetworkSettings: () => Promise<SettingChainNetwork[]>
+  getChainNetworkByChainId: (chainId: string) => Promise<ChainNetwork>
   getChainNetworkSettings: (chainNetwork: ChainNetwork) => Promise<SettingChainNetwork>
+  isAValidExternalWalletType: (walletType: ExternalWalletType) => boolean
   logout: () => void
   setIsBusy: (value: boolean) => void
   isInitialized: boolean
