@@ -92,6 +92,7 @@ export class User extends Observable<SubscriberUser> {
   /** runs when accessTokenHelper changes */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private onUpdateAccessTokenHelper = (newAccessTokenHelper: AccessTokenHelper) => {
+    this._accountName = newAccessTokenHelper.accountName
     super.callSubscribers()
   }
 
@@ -120,7 +121,7 @@ export class User extends Observable<SubscriberUser> {
       throw new Error('AccessToken is missing or has expired')
     }
     // get account specified in access token
-    const account = this?._accountName || this?._accessTokenHelper.accountName
+    const account = this?._accountName
     const params: ApiGetUserParams = { account }
     const userSourceData = await callApiGetUser(this._oreIdContext, params)
 
