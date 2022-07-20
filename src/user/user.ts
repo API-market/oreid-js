@@ -92,6 +92,7 @@ export class User extends Observable<SubscriberUser> {
   /** runs when accessTokenHelper changes */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private onUpdateAccessTokenHelper = (newAccessTokenHelper: AccessTokenHelper) => {
+    this._accountName = newAccessTokenHelper.accountName
     super.callSubscribers()
   }
 
@@ -239,13 +240,13 @@ export class User extends Observable<SubscriberUser> {
     permissions: WalletPermission[]
     walletType: ExternalWalletType
   }) {
+    // get latest user info
+    await this.getData()
+
     const { chainAccount, chainNetwork, permissions, walletType } = args
     if (!this.accountName || isNullOrEmpty(permissions) || isNullOrEmpty(chainNetwork)) {
       return // todo: consider if we should exit silently here - since we are called after discovery everytime, then answer is probably yes
     }
-
-    // get latest user info
-    await this.getData()
 
     // for each permission provided, check if it's already in the user's list, if not, add it by calling the api (addPermission)
     await Helpers.asyncForEach(permissions, async perm => {
