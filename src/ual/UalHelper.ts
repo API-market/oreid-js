@@ -4,11 +4,9 @@ import Helpers from '../utils/helpers'
 import {
   ChainAccount,
   ChainNetwork,
-  ChainPlatformType,
   ExternalWalletInterface,
   ExternalWalletType,
   LoginWithWalletOptions,
-  SettingChainNetworkHost,
   SignStringParams,
   TransactionData,
 } from '../models'
@@ -41,16 +39,6 @@ export default class UalHelper {
     this._oreIdContext.ualProvidersInstalled = (ualWalletProviders || []).map(
       ualProviderFactory => getUalProviderAttributesByUalName(ualProviderFactory?.name)?.providerName,
     )
-  }
-
-  /** Returns network config (url, port, etc.) for specified chainNetwork */
-  private async getChainNetworkNextworkConfig(chainNetwork: ChainNetwork): Promise<SettingChainNetworkHost> {
-    const networkSettings = await this._oreIdContext.getChainNetworkSettings(chainNetwork)
-    if (!networkSettings) {
-      throw new Error(`Invalid chain network: ${chainNetwork}.`)
-    }
-    const { chainId, host, port, protocol } = networkSettings?.hosts[0] || {} // using first host
-    return { host, port, protocol, chainId }
   }
 
   /** Retrieve the user and their account/permission details for the matching chainNetwork
@@ -104,7 +92,7 @@ export default class UalHelper {
     )
 
     try {
-      const networkConfig = await this.getChainNetworkNextworkConfig(chainNetwork)
+      const networkConfig = await this._oreIdContext.settings.getChainNetworkNextworkConfig(chainNetwork)
       const ualNetworkConfig = {
         chainId: networkConfig.chainId,
         rpcEndpoints: [
@@ -179,7 +167,7 @@ export default class UalHelper {
   /** Extract user account/permission for all publicKeys in the User's wallet */
   async getAccountAndPermissionsFromUalUser(ualUser: UalUser): Promise<UserAccountPermissions> {
     const chainId = await ualUser.getChainId()
-    const chainNetwork = await this._oreIdContext.getChainNetworkByChainId(chainId)
+    const chainNetwork = await this._oreIdContext.settings.getChainNetworkByChainId(chainId)
     const account = await ualUser.getAccountName()
     const publicKeys = await ualUser.getKeys()
     // for each publicKey in the user's wallet, return a WalletPermission object
@@ -297,7 +285,7 @@ export default class UalHelper {
   /** Throw if the provider doesnt support the specified chainNetwork */
   async assertProviderValidForChainNetwork(walletType: ExternalWalletType, chainNetwork: ChainNetwork) {
     const { chainType } = getUalProviderAttributes(walletType)
-    const networks = await this._oreIdContext.getAllChainNetworkSettings()
+    const networks = await this._oreIdContext.settings.getAllChainNetworkSettings()
     const isValid = !!networks.find(n => n.network === chainNetwork && n.type === chainType)
     if (!isValid) {
       throw Error(
@@ -317,12 +305,6 @@ export default class UalHelper {
       console.log(`connecting to ${walletType} via UAL wallet in progress:`, ualAuthenticator.isLoading())
     }
     this._oreIdContext.setIsBusy(false)
-  }
-
-  /** Returns true if network is NOT an EOS sisterchain */
-  async isNotEosNetwork(chainNetwork: ChainNetwork) {
-    const networkSetting = await this._oreIdContext.getChainNetworkSettings(chainNetwork)
-    return !(networkSetting.type === ChainPlatformType.eos || networkSetting.type === ChainPlatformType.ore)
   }
 
   // Supported features by provider

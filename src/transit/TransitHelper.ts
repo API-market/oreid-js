@@ -20,7 +20,6 @@ import {
   LoginWithWalletOptions,
   PermissionName,
   PublicKey,
-  SettingChainNetworkHost,
   SetupTransitWalletParams,
   SignatureProviderArgs,
   SignatureProviderSignResult,
@@ -89,16 +88,6 @@ export default class TransitHelper {
     return transitWallet
   }
 
-  /** Returns network config (url, port, etc.) for specified chainNetwork */
-  private async getChainNetworkNextworkConfig(chainNetwork: ChainNetwork): Promise<SettingChainNetworkHost> {
-    const networkSettings = await this._oreIdContext.getChainNetworkSettings(chainNetwork)
-    if (!networkSettings) {
-      throw new Error(`Invalid chain network: ${chainNetwork}.`)
-    }
-    const { chainId, host, port, protocol } = networkSettings?.hosts[0] || {} // using first host
-    return { host, port, protocol, chainId }
-  }
-
   /** Creates an EOS Transit WalletContent for the specified network and plugins
    *  Caches the context for future calls to this function */
   private async getOrCreateTransitAccessContext(chainNetwork: ChainNetwork) {
@@ -106,8 +95,8 @@ export default class TransitHelper {
     if (this.transitAccessContexts[chainNetwork]) {
       return this.transitAccessContexts[chainNetwork]
     }
-    const networkConfig = await this.getChainNetworkNextworkConfig(chainNetwork)
-    const isNotEosNetwork = await this.isNotEosNetwork(chainNetwork)
+    const networkConfig = await this._oreIdContext.settings.getChainNetworkNextworkConfig(chainNetwork)
+    const isNotEosNetwork = await this._oreIdContext.settings.isNotEosNetwork(chainNetwork)
     const walletContext = initAccessContext({
       appName: appName || 'missing appName',
       network: networkConfig,
@@ -485,7 +474,7 @@ export default class TransitHelper {
   private async signTransactionWithTransitAndAlgorandSDK(transactionData: TransactionData, transitWallet: Wallet) {
     const { chainNetwork, transaction } = transactionData
     // Other chains - use sign function on walletProvider
-    const networkConfig = await this.getChainNetworkNextworkConfig(chainNetwork)
+    const networkConfig = await this._oreIdContext.settings.getChainNetworkNextworkConfig(chainNetwork)
     const signParams: SignatureProviderArgs = {
       chainId: networkConfig.chainId, // Chain transaction is for
       requiredKeys: null, // not used by Algorand signatureProvider
@@ -501,7 +490,7 @@ export default class TransitHelper {
   private async signTransactionWithTransitAndEthereumSDK(transactionData: TransactionData, transitWallet: Wallet) {
     const { chainNetwork, transaction } = transactionData
     // Other chains - use sign function on walletProvider
-    const networkConfig = await this.getChainNetworkNextworkConfig(chainNetwork)
+    const networkConfig = await this._oreIdContext.settings.getChainNetworkNextworkConfig(chainNetwork)
     const signParams: SignatureProviderArgs = {
       chainId: networkConfig.chainId, // Chain transaction is for
       requiredKeys: null, // not used by Ethereum signatureProvider
@@ -519,7 +508,7 @@ export default class TransitHelper {
     if (!chainId) {
       return null
     }
-    const networks = await this._oreIdContext.getAllChainNetworkSettings()
+    const networks = await this._oreIdContext.settings.getAllChainNetworkSettings()
     return networks.find(net => net.hosts.find(host => host.chainId === chainId))?.network
   }
 
@@ -560,7 +549,7 @@ export default class TransitHelper {
   /** Throw if the provider doesnt support the specified chainNetwork */
   async assertProviderValidForChainNetwork(walletType: ExternalWalletType, chainNetwork: ChainNetwork) {
     const { chainType } = getTransitProviderAttributes(walletType)
-    const networks = await this._oreIdContext.getAllChainNetworkSettings()
+    const networks = await this._oreIdContext.settings.getAllChainNetworkSettings()
     const isValid = !!networks.find(n => n.network === chainNetwork && n.type === chainType)
     if (!isValid) {
       throw Error(
@@ -601,12 +590,6 @@ export default class TransitHelper {
       oreAccount: account,
     }
     await this.discover(discoverOptions)
-  }
-
-  /** Returns true if network is NOT an EOS sisterchain */
-  async isNotEosNetwork(chainNetwork: ChainNetwork) {
-    const networkSetting = await this._oreIdContext.getChainNetworkSettings(chainNetwork)
-    return !(networkSetting.type === ChainPlatformType.eos || networkSetting.type === ChainPlatformType.ore)
   }
 
   // Supported features by provider

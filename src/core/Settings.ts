@@ -1,5 +1,5 @@
 import { callApiGetConfig } from '../api'
-import { ChainNetwork, ConfigType, SettingChainNetwork } from '../models'
+import { ChainNetwork, ChainPlatformType, ConfigType, SettingChainNetwork, SettingChainNetworkHost } from '../models'
 import Helpers from '../utils/helpers'
 import OreIdContext from './IOreidContext'
 
@@ -47,5 +47,32 @@ export default class Settings {
       throw new Error(`Not able to retrieve config values for ${configType}`)
     }
     return values
+  }
+
+  /** Returns network config (url, port, etc.) for specified chainNetwork */
+  async getChainNetworkNextworkConfig(chainNetwork: ChainNetwork): Promise<SettingChainNetworkHost> {
+    const networkSettings = await this.getChainNetworkSettings(chainNetwork)
+    if (!networkSettings) {
+      throw new Error(`Invalid chain network: ${chainNetwork}.`)
+    }
+    const { chainId, host, port, protocol } = networkSettings?.hosts[0] || {} // using first host
+    return { host, port, protocol, chainId }
+  }
+
+  /** Return ChainNetwork that matches chainId (as defined in OreId Chain Network Settings) */
+  async getChainNetworkByChainId(chainId: string) {
+    const networks = await this.getAllChainNetworkSettings()
+    const chainSettings = networks.find(n => n.hosts.find(h => h.chainId === chainId))
+
+    if (!Helpers.isNullOrEmpty(chainSettings)) {
+      return chainSettings.network
+    }
+    return null
+  }
+
+  /** Returns true if network is NOT an EOS sisterchain */
+  async isNotEosNetwork(chainNetwork: ChainNetwork) {
+    const networkSetting = await this._oreIdContext.settings.getChainNetworkSettings(chainNetwork)
+    return !(networkSetting.type === ChainPlatformType.eos || networkSetting.type === ChainPlatformType.ore)
   }
 }
