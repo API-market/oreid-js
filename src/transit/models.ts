@@ -10,6 +10,7 @@ import {
 } from '@aikon/eos-transit/lib'
 
 import { ChainAccount, ChainNetwork, ExternalWalletType } from '../common/models'
+import { WalletProviderAttributes } from '../wallets/models'
 
 export type TransitDiscoveryAccount = DiscoveryAccount
 export type TransitDiscoverContinueCallback = DiscoverContinueCallback
@@ -19,6 +20,10 @@ export type TransitWalletProviderFactory = MakeWalletProviderFn
 export type TransitWalletProvider = WalletProvider
 export type TransitWalletAccessContext = WalletAccessContext
 export type TransitWallet = Wallet
+
+export type TransitProviderAttributes = WalletProviderAttributes & {
+  discoveryKeyLookupFunc?: TransitDiscoverKeyLookupCallback
+}
 
 // The DiscoveryData type is missing 'note' field in the Transit Library - replicating the type here and adding note
 export type TransitDiscoveryData = {
