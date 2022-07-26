@@ -198,26 +198,7 @@ export default class Transaction {
 
   /** Sign with a supported blockchain wallet via Transit provider */
   async signWithWallet(walletType: ExternalWalletType) {
-    let signResult = {}
     const transactionData = this.data
-
-    if (!this._oreIdContext.isAValidExternalWalletType(walletType)) {
-      throw new Error(`signWithWallet not supported for external wallet type: ${walletType}`)
-    }
-    const provider = Helpers.toEnumValue(AuthProvider, walletType)
-
-    if (this._transitHelper.hasTransitProvider(walletType)) {
-      // Treat as Transit interface
-      signResult = this._transitHelper.signWithTransitProvider(transactionData, walletType)
-      // If we've signed a transaction with a key in a wallet, callDiscoverAfterSign() will add it to the user's wallet
-      const { account, chainNetwork } = transactionData
-      await this._transitHelper.callDiscoverAfterSign({ account, chainNetwork, signOptions: { provider } })
-    } else if (this._ualHelper.hasUalProvider(walletType)) {
-      // Treat as UAL interface
-      signResult = await this._ualHelper.signWithUalProvider(transactionData, walletType)
-      // await this.ualHelper.callDiscoverAfterSign({ account, chainNetwork, signOptions: { provider } })
-    }
-
-    return signResult
+    return this._oreIdContext.walletHelper.signWithWallet(walletType, transactionData)
   }
 }
