@@ -2,30 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 import axios from 'axios'
-import TransitHelper from '../transit/TransitHelper'
-import Helpers from '../utils/helpers'
-import IOreidContext from './IOreidContext'
-import LocalState from '../utils/localState'
-import { defaultOreIdServiceUrl, publicApiEndpoints, version } from '../constants'
-import { appendHmacToUrl, generateHmacWithApiKeyOrProxyServer } from '../utils/hmac'
-import { getTransitProviderAttributes } from '../transit/transitProviders'
-import {
-  ApiEndpoint,
-  AppAccessToken,
-  AppAccessTokenMetadata,
-  AuthProvider,
-  ChainNetwork,
-  ExternalWalletType,
-  NewAccountResult,
-  OreIdOptions,
-  ProcessId,
-  RequestType,
-  SignResult,
-  SignStringParams,
-  TransactionData,
-  WebWidgetProps,
-} from '../models'
-import StorageHandler from '../utils/storage'
 import {
   ApiCustodialMigrateAccountParams,
   ApiCustodialNewAccountParams,
@@ -34,8 +10,34 @@ import {
   callApiCustodialNewAccount,
   callApiGetAppToken,
 } from '../api'
-import Auth from '../auth/auth'
+import { Auth } from '../auth/auth'
+import { defaultOreIdServiceUrl, publicApiEndpoints, version } from '../constants'
+import {
+  ApiEndpoint,
+  AppAccessToken,
+  AppAccessTokenMetadata,
+  AuthProvider,
+  ChainNetwork,
+  ExternalWalletType,
+  NewAccountResult,
+  ProcessId,
+  RequestType,
+  SignResult,
+  SignStringParams,
+  TransactionData,
+  WebWidgetProps,
+} from '../models'
+import { PopupPlugin } from '../plugins'
+import { Plugin } from '../plugins/plugin'
 import Transaction from '../transaction/transaction'
+import TransitHelper from '../transit/TransitHelper'
+import { getTransitProviderAttributes } from '../transit/transitProviders'
+import Helpers from '../utils/helpers'
+import { appendHmacToUrl, generateHmacWithApiKeyOrProxyServer } from '../utils/hmac'
+import LocalState from '../utils/localState'
+import StorageHandler from '../utils/storage'
+import IOreidContext from './IOreidContext'
+import { OreIdOptions } from './IOreIdOptions'
 import Settings from './Settings'
 
 const { isNullOrEmpty } = Helpers
@@ -47,21 +49,29 @@ export default class OreId implements IOreidContext {
     const storageHandler = this.options?.storageHandler || new StorageHandler()
     this._localState = new LocalState(this.options?.appId, storageHandler)
     this._settings = new Settings({ oreIdContext: this })
-    this._transitHelper = new TransitHelper({ oreIdContext: this })
+    this._auth = new Auth({ oreIdContext: this })
+    this._transitHelper = new TransitHelper({ oreIdContext: this, user: this._auth.user })
     // All installed TransitProviders
     this._transitHelper.installTransitProviders(this.options?.eosTransitWalletProviders)
-    this._auth = new Auth({ oreIdContext: this })
+    this._initializerPlugins = options.plugins || {}
+    this._isInitialized = false
   }
 
-  _auth: Auth
+  private _auth: Auth
 
-  _settings: Settings
+  private _initializerPlugins: { popup?: Plugin<PopupPlugin> }
 
-  _localState: LocalState
+  private _isInitialized: boolean
 
-  _options: OreIdOptions
+  private _localState: LocalState
 
-  _transitHelper: TransitHelper
+  private _options: OreIdOptions
+
+  private _popup?: PopupPlugin
+
+  private _settings: Settings
+
+  private _transitHelper: TransitHelper
 
   isBusy: boolean
 
@@ -88,6 +98,11 @@ export default class OreId implements IOreidContext {
     return this.options?.appId?.toLowerCase().startsWith('demo') || false
   }
 
+  /** whether init() has been called */
+  get isInitialized() {
+    return this._isInitialized
+  }
+
   /** helper to persist data (e.g. accessToken) */
   get localState() {
     return this._localState
@@ -96,6 +111,12 @@ export default class OreId implements IOreidContext {
   /** oreid options used in constructor */
   get options() {
     return this._options
+  }
+
+  /** installed popup plugin */
+  get popup() {
+    this.assertIsInitialized()
+    return this._popup
   }
 
   /** If we're running in the browser, we must use a proxy server to talk to OREID api
@@ -110,6 +131,24 @@ export default class OreId implements IOreidContext {
   /** Transit wallet plugin helper functions and connections */
   get transitHelper() {
     return this._transitHelper
+  }
+
+  /** perform asynchronous setup tasks */
+  async init() {
+    if (this.isInitialized) return
+
+    if (this._initializerPlugins?.popup) {
+      this._popup = await this._initializerPlugins?.popup?.init(this)
+    }
+
+    this._isInitialized = true
+  }
+
+  /** throw and error if oreId is not initialized yet */
+  private assertIsInitialized() {
+    if (!this.isInitialized) {
+      throw new Error('OreId is not initialized - call init() first')
+    }
   }
 
   /** Retrieve settings for all chain networks defined by OreId service
@@ -188,6 +227,9 @@ export default class OreId implements IOreidContext {
 
   /** Create a new Transaction object - used for composing and signing transactions */
   async createTransaction(data: TransactionData) {
+    if (!this._auth.user.hasData) {
+      await this._auth.user.getData()
+    }
     return new Transaction({ oreIdContext: this, user: this.auth.user, data })
   }
 

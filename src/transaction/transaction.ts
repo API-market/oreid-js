@@ -1,5 +1,6 @@
 import OreIdContext from '../core/IOreidContext'
 import {
+  ApiKeyUsedFor,
   AuthProvider,
   CreateTransactionData,
   ExternalWalletType,
@@ -7,17 +8,22 @@ import {
   TransactionData,
 } from '../models'
 import TransitHelper from '../transit/TransitHelper'
-import { callApiCanAutosignTransaction, callApiCustodialSignTransaction, callApiSignTransaction } from '../api'
+import {
+  assertHasApiKey,
+  callApiCanAutosignTransaction,
+  callApiCustodialSignTransaction,
+  callApiSignTransaction,
+} from '../api'
 import { getOreIdSignUrl } from '../core/urlGenerators'
 import Helpers from '../utils/helpers'
-import User from '../user/user'
+import { User } from '../user/user'
 
 export default class Transaction {
   constructor(args: { oreIdContext: OreIdContext; user: User; data: TransactionData }) {
     this._oreIdContext = args.oreIdContext
     this._user = args.user
     this.assertValidTransactionAndSetData(args.data)
-    this._transitHelper = new TransitHelper({ oreIdContext: this._oreIdContext })
+    this._transitHelper = new TransitHelper({ oreIdContext: this._oreIdContext, user: this._user })
   }
 
   private _oreIdContext: OreIdContext
@@ -38,7 +44,7 @@ export default class Transaction {
     const missingFields: string[] = []
     const validationIssues: string[] = []
 
-    if (!this._user || !this._user?.data) {
+    if (!this._user || !this._user.hasData) {
       throw new Error('Make sure that a user has been authenticated and that youve called user.getData()')
     }
 
@@ -90,8 +96,9 @@ export default class Transaction {
     )
 
     const allPermissionsExternal = chainAccountsInWallet?.permissions?.every(p => p.privateKeyStoredExterally === true)
-    const externalWalletType = chainAccountsInWallet?.permissions?.find(p => p.privateKeyStoredExterally === true)
-      ?.externalWalletType
+    const externalWalletType = chainAccountsInWallet?.permissions?.find(
+      p => p.privateKeyStoredExterally === true,
+    )?.externalWalletType
 
     if (!chainAccountsInWallet) {
       throw new Error(
@@ -139,6 +146,7 @@ export default class Transaction {
   async checkCanAutoSign() {
     let autoSignCredentialsExist: boolean
     try {
+      assertHasApiKey(this._oreIdContext, ApiKeyUsedFor.AutoSigning, '')
       // this will throw if we don't have an api key with the right rights
       ;({ autoSignCredentialsExist } = await callApiCanAutosignTransaction(this._oreIdContext, this._data))
     } catch (error) {
@@ -178,13 +186,8 @@ export default class Transaction {
       throw new Error('Provide either a userPassword OR userPasswordEncrypted param. Both were provided.')
     }
 
-    const {
-      processId,
-      signedTransaction,
-      transactionId,
-      errorCode,
-      errorMessage,
-    } = await callApiCustodialSignTransaction(this._oreIdContext, { transactionData, autoSign: false })
+    const { processId, signedTransaction, transactionId, errorCode, errorMessage } =
+      await callApiCustodialSignTransaction(this._oreIdContext, { transactionData, autoSign: false })
     if (errorCode || errorMessage) throw new Error(errorMessage)
     return { processId, signedTransaction, transactionId }
   }
@@ -194,7 +197,7 @@ export default class Transaction {
     const transactionData = this.data
     const isTransitProvider = this._transitHelper.isTransitProvider(walletType)
     if (!isTransitProvider) return null
-    const signResult = this._transitHelper.signWithTransitProvider(transactionData, walletType)
+    const signResult = await this._transitHelper.signWithTransitProvider(transactionData, walletType)
     // If we've signed a transaction with a key in a wallet, callDiscoverAfterSign() will add it to the user's wallet
     const provider = Helpers.toEnumValue(AuthProvider, walletType)
     const { account, chainNetwork } = transactionData

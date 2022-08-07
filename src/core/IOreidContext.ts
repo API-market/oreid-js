@@ -1,17 +1,19 @@
+import { PopupPlugin } from '../plugins/popupPlugin/models'
+import { OreIdOptions } from './IOreIdOptions'
+import { AccessTokenHelper } from '../auth/accessTokenHelper'
 import {
   ApiEndpoint,
   AppAccessToken,
   ChainNetwork,
   ExternalWalletType,
-  OreIdOptions,
   ProcessId,
   RequestType,
   SettingChainNetwork,
 } from '../models'
-import AccessTokenHelper from '../auth/accessTokenHelper'
 import LocalState from '../utils/localState'
 import { AppAccessTokenMetadata } from './models'
 
+// oreid-js
 /** interface to pass OreId members to helper classes (e.g. User) */
 export default interface OreIdContext {
   accessToken: string
@@ -35,4 +37,6 @@ export default interface OreIdContext {
   getChainNetworkSettings: (chainNetwork: ChainNetwork) => Promise<SettingChainNetwork>
   logout: () => void
   setIsBusy: (value: boolean) => void
+  isInitialized: boolean
+  popup?: PopupPlugin
 }

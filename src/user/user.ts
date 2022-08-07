@@ -1,39 +1,47 @@
+import { ApiGetUserParams, callApiGetUser, callApiPasswordLessSendCode, callApiPasswordLessVerifyCode } from '../api'
+import { callApiAddPermission } from '../api/endpoints/addPermission'
 import OreIdContext from '../core/IOreidContext'
+import { getOreIdNewChainAccountUrl } from '../core/urlGenerators'
 import Helpers from '../utils/helpers'
+import { Observable } from '../utils/observable'
+import { AuthProvider, AccountName, ChainAccount, ChainNetwork, ExternalWalletType } from '../common/models'
+import { NewAccountOptions, NewAccountWithOreIdResult } from '../core/models'
 import {
-  AccountName,
-  AuthProvider,
-  ChainAccount,
-  ChainNetwork,
-  ExternalWalletType,
-  NewAccountOptions,
-  NewAccountWithOreIdResult,
+  UserChainAccount,
+  UserData,
+  UserPermissionData,
+  UserPermissionForChainAccount,
   UserSourceData,
   WalletPermission,
-} from '../models'
-import { callApiGetUser, ApiGetUserParams, callApiPasswordLessSendCode, callApiPasswordLessVerifyCode } from '../api'
-import { callApiAddPermission } from '../api/endpoints/addPermission'
-import { getOreIdNewChainAccountUrl } from '../core/urlGenerators'
-import { UserChainAccount, UserData, UserPermissionData, UserPermissionForChainAccount } from './models'
+} from './models'
+import { AccessTokenHelper } from '../auth/accessTokenHelper'
 
 const { isNullOrEmpty } = Helpers
 
-export default class User {
-  constructor(args: { oreIdContext: OreIdContext; getAccessToken: string; getAccountName: AccountName }) {
+export type SubscriberUser = (values: User) => void
+
+export class User extends Observable<SubscriberUser> {
+  constructor(args: { oreIdContext: OreIdContext; accessTokenHelper: AccessTokenHelper; accountName: AccountName }) {
+    super()
     this._oreIdContext = args.oreIdContext
-    this._accessToken = args.getAccessToken // reference to current accessToken (via getter)
-    this._accountName = args.getAccountName
+    this._accessTokenHelper = args.accessTokenHelper // reference to current accessToken (via getter)
+    this._accountName = args.accountName
+    this._accessTokenHelper.subscribe(this.onUpdateAccessTokenHelper)
   }
 
   // pulled from the accessToken
   private _accountName: AccountName
 
-  private _accessToken: string
+  private _accessTokenHelper: AccessTokenHelper
 
   private _oreIdContext: OreIdContext
 
   /** User's basic information and blockchain accounts (aka permissions) */
   private _userSourceData: UserSourceData
+
+  private get accessToken(): string {
+    return this._accessTokenHelper.accessToken
+  }
 
   /** User's OreID (accountName) */
   get accountName(): AccountName {
@@ -48,6 +56,16 @@ export default class User {
       ...otherInfo,
       chainAccounts: this.getChainAccounts(),
     }
+  }
+
+  /** Whether user's data has been retrieved with getData() */
+  get hasData() {
+    return !isNullOrEmpty(this?._userSourceData)
+  }
+
+  private setUserSourceData(userSourceData: UserSourceData) {
+    this._userSourceData = userSourceData
+    super.callSubscribers()
   }
 
   /** Return Blockchain accounts associated with the user's OreId account */
@@ -68,12 +86,19 @@ export default class User {
 
   /** Whether we have a valid access token for the current user */
   get isLoggedIn(): boolean {
-    return !!this._accessToken
+    return !!this.accessToken
+  }
+
+  /** runs when accessTokenHelper changes */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private onUpdateAccessTokenHelper = (newAccessTokenHelper: AccessTokenHelper) => {
+    this._accountName = newAccessTokenHelper.accountName
+    super.callSubscribers()
   }
 
   /** throw if user data hasn't been retrieved yet */
   private assertUserHasData() {
-    if (isNullOrEmpty(this?._userSourceData)) {
+    if (!this.hasData) {
       throw new Error('User data hasnt been retrieved. Call user.getData() first.')
     }
   }
@@ -81,16 +106,17 @@ export default class User {
   /** throw if user hasn't have a valid email (i.e. user.email) */
   private assertUserHasValidEmail() {
     this.assertUserHasData()
-    const { email } = this?.data
+    const { email } = this?.data || {}
     if (!Helpers.isValidEmail(email)) throw new Error('User doesnt have a valid email')
   }
 
   /** Get the user info from ORE ID API for a given user account and (usually) save the user into localStorage 'cache'
    *  Must have a valid accessToken to retrieve user
    */
-  async getData() {
+  async getData(forceRefresh?: boolean): Promise<UserData> {
+    if (this.hasData && !forceRefresh) return this.data
     // eslint-disable-next-line prefer-destructuring
-    const accessToken = this?._accessToken // getting the accessToken here will delete existing accessToken if it's now expired
+    const accessToken = this.accessToken
     if (!accessToken) {
       throw new Error('AccessToken is missing or has expired')
     }
@@ -100,7 +126,8 @@ export default class User {
     const userSourceData = await callApiGetUser(this._oreIdContext, params)
 
     this._accountName = account
-    this._userSourceData = userSourceData
+    this.setUserSourceData(userSourceData)
+    return this.data
   }
 
   /** Clears user's accessToken and user profile data */
@@ -213,13 +240,13 @@ export default class User {
     permissions: WalletPermission[]
     walletType: ExternalWalletType
   }) {
+    // get latest user info
+    await this.getData()
+
     const { chainAccount, chainNetwork, permissions, walletType } = args
     if (!this.accountName || isNullOrEmpty(permissions) || isNullOrEmpty(chainNetwork)) {
       return // todo: consider if we should exit silently here - since we are called after discovery everytime, then answer is probably yes
     }
-
-    // get latest user info
-    await this.getData()
 
     // for each permission provided, check if it's already in the user's list, if not, add it by calling the api (addPermission)
     await Helpers.asyncForEach(permissions, async perm => {

@@ -3,45 +3,20 @@ import { LoginOptions } from '../auth/models'
 import {
   AccountName,
   AccountType,
-  AlgorandMultiSigOptions, // TODO": should this be somewhere else?
+  AlgorandMultiSigOptions,
   AppAccessToken,
   AuthProvider,
   ChainAccount,
   ChainNetwork,
-  Color,
   ExternalWalletType,
   ProcessId,
   PublicKey,
 } from '../common/models'
-import { TransitWalletProviderFactory } from '../transit'
 import { UserData } from '../user/models'
-import IStorage from './IStorage'
-
-export type OreIdOptions = {
-  appId: string
-  /** appKey is required to call the oreid API */
-  apiKey?: string
-  appName?: string
-  accessToken?: string
-  idToken?: string
-  authCallbackUrl?: string
-  newAccountCallbackUrl?: string
-  signCallbackUrl?: string
-  backgroundColor?: Color
-  /** whether you are using a proxy server - required for api calls or auth calls without idToken */
-  isUsingProxyServer?: boolean
-  oreIdUrl?: string
-  setBusyCallback?: (isBusy: boolean) => void
-  eosTransitWalletProviders?: TransitWalletProviderFactory[]
-  /** Custom implementation of a storage class that saves persistant state for accessToken, etc. */
-  storageHandler?: IStorage
-}
 
 export enum RecoverAccountAction {
   Republic = 'republic',
 }
-
-// oreid-js
 
 /** For creating a new chainAccount in an existing wallet */
 export type NewAccountOptions = {
@@ -85,7 +60,7 @@ export type SignResult = {
 }
 
 // Todo: implement passwordReset flow/url
-export type passwordResetOptions = {
+export type PasswordResetOptions = {
   provider: AuthProvider
   chainAccount?: ChainAccount
   chainNetwork?: ChainNetwork

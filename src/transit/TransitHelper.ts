@@ -31,7 +31,7 @@ import {
   WalletPermission,
 } from '../models'
 import { TransitDiscoveryOptions, TransitWalletAccessContext } from '.'
-import User from '../user/user'
+import { User } from '../user/user'
 
 type ConnectToTransitProviderResult = {
   isLoggedIn?: boolean
@@ -42,9 +42,9 @@ type ConnectToTransitProviderResult = {
 }
 
 export default class TransitHelper {
-  constructor(args: { oreIdContext: OreIdContext; user?: User }) {
+  constructor(args: { oreIdContext: OreIdContext; user: User }) {
     this._oreIdContext = args.oreIdContext
-    this._user = args?.user
+    this._user = args.user
     this.transitAccessContexts = {}
   }
 
@@ -95,7 +95,7 @@ export default class TransitHelper {
     if (!networkSettings) {
       throw new Error(`Invalid chain network: ${chainNetwork}.`)
     }
-    const { chainId, host, port, protocol } = networkSettings?.hosts[0] // using first host
+    const { chainId, host, port, protocol } = networkSettings?.hosts[0] || {} // using first host
     return { host, port, protocol, chainId }
   }
 
@@ -279,8 +279,12 @@ export default class TransitHelper {
     this.assertProviderValidForChainNetwork(walletType, chainNetwork)
     let result = null
     if (this.canDiscover(walletType)) {
-      result = this.discoverCredentialsInTransitWallet(chainNetwork, walletType, oreAccount, discoveryPathIndexList)
-      console.log('discoverCredentialsInTransitWallet result:', result)
+      result = await this.discoverCredentialsInTransitWallet(
+        chainNetwork,
+        walletType,
+        oreAccount,
+        discoveryPathIndexList,
+      )
     } else {
       // if provider doesn't support a discover function, we can use login to retrieve a single account/key instead
       const transitWallet = await this.setupTransitWallet({ walletType, chainNetwork })
@@ -319,7 +323,7 @@ export default class TransitHelper {
         const { accounts = [], key: publicKey } = credential
         // ethereum may not have a public key - dont save if missing
         if (accounts.length > 0 && !!publicKey) {
-          const { account, authorization } = accounts[0]
+          const [{ account, authorization }] = accounts // get first item in array
           const permissions: WalletPermission[] = [
             {
               account,
@@ -389,6 +393,7 @@ export default class TransitHelper {
         const [first] = result.accounts
 
         if (first) {
+          // eslint-disable-next-line prefer-destructuring
           authorization = first.authorization
         }
       }
@@ -511,7 +516,7 @@ export default class TransitHelper {
 
   /** Determine the chainNetwork from the transitWallet context */
   async getChainNetworkFromTransitWallet(transitWallet: TransitWallet) {
-    const { chainId } = transitWallet?.ctx?.network
+    const { chainId } = transitWallet?.ctx?.network || {}
     if (!chainId) {
       return null
     }

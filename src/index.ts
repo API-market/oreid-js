@@ -1,25 +1,33 @@
+import { Auth } from './auth/auth'
+import { OreIdOptions as OreIdOptionsType } from './core/IOreIdOptions'
 import OreId from './core/oreId'
 import Transaction from './transaction/transaction'
-import { asyncHandler, authCallbackHandler, signCallbackHandler } from './middleware'
+import {
+  getTransitProviderAttributesByChain,
+  transitProviderAttributesData,
+  TransitProviderAttributes as TransitProviderAttributesType,
+} from './transit/transitProviders'
+import { User } from './user/user'
+import Helpers from './utils/helpers'
 import { appendHmacToUrl, generateHmac, generateHmacWithApiKeyOrProxyServer } from './utils/hmac'
-import { getTransitProviderAttributesByChain } from './transit/transitProviders'
 import { DummyStorage, MemoryStorage } from './utils/storage'
 
-import Helpers from './utils/helpers'
-
+export * from './models'
+export * from './plugins'
 export {
   appendHmacToUrl,
-  asyncHandler,
-  authCallbackHandler,
+  Auth,
   DummyStorage,
   generateHmac,
   generateHmacWithApiKeyOrProxyServer,
   getTransitProviderAttributesByChain,
+  transitProviderAttributesData,
   Helpers,
   MemoryStorage,
   OreId,
-  signCallbackHandler,
   Transaction,
+  User,
 }
 
-export * from './models'
+export type OreIdOptions = OreIdOptionsType
+export type TransitProviderAttributes = TransitProviderAttributesType

@@ -1,17 +1,3 @@
-import OreIdContext from '../core/IOreidContext'
-import Helpers from '../utils/helpers'
-import AccessTokenHelper from './accessTokenHelper'
-import LocalState from '../utils/localState'
-import {
-  AuthResult,
-  LoginOptions,
-  LoginWithOreIdResult,
-  LoginWithTokenOptions,
-  LoginWithWalletOptions,
-} from '../models'
-import { providersNotImplemented } from '../constants'
-import User from '../user/user'
-import TransitHelper from '../transit/TransitHelper'
 import {
   ApiConvertOauthTokensParams,
   ApiLoginUserWithTokenParams,
@@ -21,15 +7,27 @@ import {
   callApiLoginUserWithToken,
   callApiNewUserWithToken,
 } from '../api'
+import { providersNotImplemented } from '../constants'
+import OreIdContext from '../core/IOreidContext'
 import { getOreIdAuthUrl } from '../core/urlGenerators'
-import { NewUserWithTokenOptions } from './models'
+import TransitHelper from '../transit/TransitHelper'
+import { User } from '../user/user'
+import Helpers from '../utils/helpers'
+import LocalState from '../utils/localState'
+import { Observable } from '../utils/observable'
+import { AccessTokenHelper } from './accessTokenHelper'
+import { AuthResult, LoginWithOreIdResult } from '../core/models'
+import { LoginOptions, LoginWithTokenOptions, LoginWithWalletOptions, NewUserWithTokenOptions } from './models'
 
-export default class Auth {
+export type SubscriberAuth = (auth: Auth) => void
+
+export class Auth extends Observable<SubscriberAuth> {
   constructor(args: { oreIdContext: OreIdContext }) {
+    super()
     this._oreIdContext = args.oreIdContext
     this._localState = this._oreIdContext.localState
     this._transitHelper = new TransitHelper({ oreIdContext: this._oreIdContext, user: this._user })
-    this._accessTokenHelper = new AccessTokenHelper()
+    this.initAccessTokenHelper()
   }
 
   private _accessTokenHelper: AccessTokenHelper
@@ -47,6 +45,15 @@ export default class Auth {
     return this._accessTokenHelper
   }
 
+  private initAccessTokenHelper() {
+    this._accessTokenHelper = new AccessTokenHelper()
+    const savedToken = this._localState?.accessToken
+    this.accessToken = savedToken
+    this.saveAccessTokenAndNotifySubscribers(savedToken) // if savedToken is expired, it will be not set here
+    // listen for future changes to accessTokenHelper
+    this._accessTokenHelper.subscribe(this.onUpdateAccessTokenHelper)
+  }
+
   /** User's OreID (accountName) */
   get accountName(): string {
     return this._accessTokenHelper?.accessToken ? this._accessTokenHelper?.accountName : null
@@ -58,34 +65,34 @@ export default class Auth {
 
   /** retrieve accessToken saved in local storage - is automatically deleted when token expires */
   get accessToken() {
-    if (!this._accessTokenHelper.accessToken) {
-      const savedToken = this._localState?.accessToken
-      if (!savedToken) return null
-      this.accessToken = savedToken // sets accessTokenHelper
-    }
-    const hasExpired = this.clearAccessTokenIfExpired()
-    if (hasExpired) return null
     return this._accessTokenHelper?.accessToken
   }
 
   /** Sets the access token in local storage (and in accessTokenHelper)
    * this token will be used to call ORE ID APIs (on behalf of the user)
    * This token is user-specific - call logout to clear it upon user log-out
-   * For an expired token, this function will delete the accessToken (and matching user) from local storage
-   * NOTE: This function will be called automatically if you use handleAuthCallback() */
+   * When the accessToken token expires, it will be deleted from local storage and user will be cleared
+   */
   set accessToken(accessToken: string) {
     try {
       // decodes and validates accessToken is a valid token
+      // if incoming token has expired, _accessTokenHelper will throw (and token wont be saved)
       this._accessTokenHelper.setAccessToken(accessToken)
+      // NOTE: We dont save the access token to local storage here as that will happen when onUpdateAccessTokenHelper is called
     } catch (error) {
-      console.log(`accessToken can't be set using: ${accessToken} `, error.message)
-      return
+      console.log('Cant set accessToken.', error.message)
     }
-    const hasExpired = this.clearAccessTokenIfExpired()
-    if (!hasExpired) {
+  }
+
+  /** set private variable and save to localState
+   * NOTE: This is called every time this._accessTokenHelper.accessToken changes (or expires)
+   */
+  private saveAccessTokenAndNotifySubscribers(accessToken: string) {
+    if (this._localState?.accessToken !== accessToken) {
       this._localState.saveAccessToken(accessToken)
+      this._user = null
     }
-    this._user = null
+    super.callSubscribers()
   }
 
   /** Returns user object matching current accessToken
@@ -95,8 +102,8 @@ export default class Auth {
     if (!this._user) {
       this._user = new User({
         oreIdContext: this._oreIdContext,
-        getAccessToken: this.accessToken, // accessToken getter
-        getAccountName: this.accountName, // accountName getter
+        accessTokenHelper: this._accessTokenHelper, // accessToken helper
+        accountName: this.accountName, // accountName
       })
     }
     return this._user
@@ -107,19 +114,18 @@ export default class Auth {
     return !!this.accessToken
   }
 
+  /** runs when accessTokenHelper changes */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private onUpdateAccessTokenHelper = (newAccessTokenHelper: AccessTokenHelper) => {
+    // save new access token
+    this.saveAccessTokenAndNotifySubscribers(this._accessTokenHelper.accessToken)
+  }
+
   private clearAccessToken() {
     // clear accessToken and user
     this._localState.clearAccessToken()
-    this._accessTokenHelper.setAccessToken(null)
-  }
-
-  private clearAccessTokenIfExpired(): boolean {
-    const hasExpired = this._accessTokenHelper?.hasExpired()
-    if (!hasExpired) return false
-    // clear expired accessToken and user
-    this.clearAccessToken()
-    console.log('accessToken has expired and has been cleared')
-    return true
+    this._accessTokenHelper.clearAccessToken()
+    super.callSubscribers()
   }
 
   /** Calls the 'connect' function on a external wallet (e.g. Metamask)
@@ -319,6 +325,7 @@ export default class Auth {
   setAuthResult(authResponse: AuthResult) {
     const { accessToken, idToken } = authResponse
     if (!accessToken) throw Error('Cant setAuthResult. accessToken is missing')
+    if (idToken) this._accessTokenHelper.setIdToken(null) // clear the existing idToken first (so set accessToken wont throw a mismatch when set)
     this.accessToken = accessToken // saves the token to localstorage
     if (idToken) {
       this._accessTokenHelper.setIdToken(idToken)

@@ -1,8 +1,12 @@
 import Helpers from '../utils/helpers'
 import { JWTToken } from './models'
+import { Observable } from '../utils/observable'
 
-class AccessTokenHelper {
+export type SubscriberAccessTokenHelper = (accessTokenHelper: AccessTokenHelper) => void
+
+export class AccessTokenHelper extends Observable<SubscriberAccessTokenHelper> {
   constructor(accessToken?: string, ignoreIssuer = false) {
+    super()
     this._ignoreIssuer = ignoreIssuer
     this.setAccessToken(accessToken)
   }
@@ -22,7 +26,7 @@ class AccessTokenHelper {
   }
 
   get decodedAccessToken() {
-    this.assertHasAccessToken()
+    if (!this.accessToken) return null
     return this._decodedAccessToken
   }
 
@@ -35,9 +39,19 @@ class AccessTokenHelper {
   }
 
   get accountName() {
-    this.assertHasAccessToken()
+    if (!this.accessToken) return null
     AccessTokenHelper.assertIsTokenValid(this.decodedAccessToken)
     return Helpers.getClaimFromJwtTokenBySearchString(this.decodedAccessToken, 'https://oreid.aikon.com/account')
+  }
+
+  /** clear accessToken */
+  clearAccessToken() {
+    this.setAccessToken(null)
+  }
+
+  /** clear idToken */
+  clearIdToken() {
+    this.setIdToken(null)
   }
 
   /** Whether current accessToken is expired (or is missing)
@@ -55,27 +69,39 @@ class AccessTokenHelper {
   setAccessToken(value: string) {
     if (!value) {
       this._accessToken = null // allows clearing of value
-      return
+    } else {
+      const decodedAccessToken = Helpers.jwtDecodeSafe(value) as JWTToken
+      if (!decodedAccessToken) throw Error(`Can't set accessToken. Value provided: ${value}`)
+      AccessTokenHelper.assertIsTokenValid(decodedAccessToken, this._ignoreIssuer)
+      AccessTokenHelper.assertIdTokenMatchesAccessToken(decodedAccessToken, this.decodedIdToken)
+      this._decodedAccessToken = decodedAccessToken
+      this._accessToken = value
+      // Set a timer to clear the token when it expires (will clear if already expired)
+      Helpers.runAtTime(() => {
+        this.clearAccessToken()
+        console.log('accessToken has expired and has been cleared')
+      }, this._decodedAccessToken.exp * 1000)
     }
-    const decodedAccessToken = Helpers.jwtDecodeSafe(value) as JWTToken
-    if (!decodedAccessToken) throw Error(`Can't set accessToken. Value provided: ${value}`)
-    AccessTokenHelper.assertIsTokenValid(decodedAccessToken, this._ignoreIssuer)
-    AccessTokenHelper.assertIdTokenMatchesAccessToken(decodedAccessToken, this.decodedIdToken)
-    this._decodedAccessToken = decodedAccessToken
-    this._accessToken = value
+    super.callSubscribers()
   }
 
   setIdToken(value: string) {
     if (!value) {
       this._decodedIdToken = null // allows clearing of value
-      return
+    } else {
+      const decodedIdToken = Helpers.jwtDecodeSafe(value) as JWTToken
+      if (!decodedIdToken) throw Error(`Can't set IdToken. Value provided: ${value}`)
+      AccessTokenHelper.assertIsTokenValid(decodedIdToken, this._ignoreIssuer)
+      AccessTokenHelper.assertIdTokenMatchesAccessToken(this.decodedAccessToken, decodedIdToken)
+      this._decodedIdToken = decodedIdToken
+      this._idToken = value
+      // Set a timer to clear the token when it expires (will clear if already expired)
+      Helpers.runAtTime(() => {
+        this.clearIdToken()
+        console.log('idToken has expired and has been cleared')
+      }, this._decodedIdToken.exp * 1000)
     }
-    const decodedIdToken = Helpers.jwtDecodeSafe(value) as JWTToken
-    if (!decodedIdToken) throw Error(`Can't set IdToken. Value provided: ${value}`)
-    AccessTokenHelper.assertIsTokenValid(decodedIdToken, this._ignoreIssuer)
-    AccessTokenHelper.assertIdTokenMatchesAccessToken(this.decodedAccessToken, decodedIdToken)
-    this._decodedIdToken = decodedIdToken
-    this._idToken = value
+    super.callSubscribers()
   }
 
   /** Throws if accessToken is NOT set yet */
@@ -95,10 +121,14 @@ class AccessTokenHelper {
 
   /** Throws if decodedToken is NOT a valid OREID issued token */
   static assertIsTokenValid(decodedToken: Partial<JWTToken>, ignoreIssuer = false) {
+    const now = new Date()
     if (!decodedToken) throw Error('JWT (access or id) token is invalid, or expired)')
     // check if ORE ID issued this token
     if (!ignoreIssuer && !decodedToken.iss.includes('oreid.io')) {
       throw Error('Access token not issued by ORE ID')
+    }
+    if (!AccessTokenHelper.isTokenDateValidNow(decodedToken, now)) {
+      throw Error('Access token has expired')
     }
   }
 
@@ -127,5 +157,3 @@ class AccessTokenHelper {
     return true
   }
 }
-
-export default AccessTokenHelper

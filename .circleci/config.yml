@@ -58,22 +58,16 @@ jobs:
       # get npmrc token
       - run: echo $NPMRC | base64 -d > ~/.npmrc
       - run: yarn run build
-      - run: yarn run publish --no-git-tag-version
+      - run: yarn publish --no-git-tag-version
 
 # define the jobs to run
 workflows:
   build_and_test:
     jobs:
-      - setup:
-          filters:
-            tags: 
-              only: /^v[0-9]+(\.[0-9]+)*$/
+      - setup
       - test:
           requires:
             - setup
-          filters:
-            tags: 
-              only: /^v[0-9]+(\.[0-9]+)*$/
       - deploy:
           requires:
             - test
@@ -83,6 +77,5 @@ workflows:
           filters:
             # ignore any commit on any branch by default
             branches:
-              ignore: /.*/
-            tags:
-              only: /^v[0-9]+(\.[0-9]+)*$/
+              only: 
+                - master

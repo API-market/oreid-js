@@ -3,13 +3,21 @@
     "outDir": "dist",
     "allowJs": true,
     "alwaysStrict": true,
+    // enabling declaration (.d.ts) emit
     "declaration": true,
+    // optional - in general it's a good practice to decouple declaration files from your actual transpiled JavaScript files
+    // "declarationDir": "./dist/dts",
+    // optional if you're using babel to transpile TS -> JS
+    // "emitDeclarationOnly": true
     "downlevelIteration": true,
-    "lib": [
-      "es2017",
-      "dom"
-    ],
-    "module": "CommonJS",
+    "lib": ["es2017", "dom"],
+    "module": "esnext",
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true,
+    "noEmit": true, // older
     "esModuleInterop": true,
     "moduleResolution": "node",
     "noImplicitAny": true,
@@ -17,20 +25,13 @@
     "target": "es5",
     "baseUrl": "./",
     "paths": {
-      "*" : ["src/@customTypes/*"]
+      "*": ["src/@customTypes/*"],
+      "crypto": [
+        "node_modules/crypto-js" // use browser version of crypto library
+      ]
     },
     "resolveJsonModule": true
   },
-  "exclude": [
-    "dist",
-    "dist.browser",
-    "node_modules",
-    "./src/**/?(*.)test.ts",
-    "./src/tests/*.*",
-    "./src/testHelpers",
-  ],
-  "include": [
-    "./src/**/*.js",
-    "./src/**/*.ts"
-  ]
+  "exclude": ["dist", "dist.browser", "node_modules"],
+  "include": ["src/**/*.js", "src/**/*.ts"]
 }

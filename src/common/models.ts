@@ -37,6 +37,8 @@ export enum ChainNetwork {
   WaxMain = 'wax_main',
   WaxTest = 'wax_test',
   UxMain = 'ux_main',
+  PolygonMain = 'polygon_main',
+  PolygonMumbai = 'polygon_mumbai',
 }
 
 /** Physical structure of account */
