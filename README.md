@@ -22,20 +22,19 @@ Example code:
 ```javascript
 // import this library and the Web popup widget
 import { OreId } from "oreid-js";
-import { OreIdWebWidget } from "oreid-webwidget";
+import { WebPopup } from "oreid-webpopup";
 ```
 ## Auth
 ```javascript
 //Initialize the libraries
-let oreId = new OreId({ appId, apiKey });
-const webwidget = new OreIdWebWidget(oreId, window);
+const oreId = new OreId({ appId, apiKey, plugins:{popup: WebPopup()}});
+await oreId.init()
 
-//Start the OAuth flow - after login, 
-webwidget.onAuth({
-    params: { provider: ‘google’ },
-    onError: (errors) => {console.log(errors)},
-    onSuccess: (data) => {console.log(data)},
-});
+// Start the OAuth flow - after login, 
+oreId.popup.auth({ provider: 'google' })
+  .then((data) => {console.log(data)})
+  .catch((errors) => {console.log(errors)});
+
 ```
 ## User
 ```javascript
@@ -48,23 +47,24 @@ console.log(`Hello ${userData.name}`)
 ```javascript
 // Get the first Ethereum account in the user's account
 const ethAccount = user.data.chainAccounts.find(ca => ca.chainNetwork === 'eth_ropsten')
-// create and sign transaction
-const transaction = await oreid.createTransaction({
-  chainAccount: ethAccount,
-  chainNetwork: 'eth_ropsten',
-  transaction: { to: '0x123...', amount: '.0001' },
+
+// transactionBody is blockchain transaction (differs by chainNetwork)
+const transactionBody = {
+  from: "0xF478d…",
+  to: "0xA200c…",
+  value: "1"
+};
+
+// compose a blockchain transaction
+const transaction = await oreId.createTransaction({
+  transaction: transactionBody,
+  chainAccount: ethAccount.chainAccount,
+  chainNetwork: ethAccount.chainNetwork,
   signOptions: { broadcast: true },
 })
 
-// popup sign flow - when completed, transaction info is returned
-await oreidWebPopUp.sign({
-  transaction,
-  onSuccess: (data: any) => {
-    console.log('transaction signed:', data.transactionId)
-  },
-  onError: showErrors,
-})
-
+// launch popup to have the user approve signature
+const { transactionId } = await oreId.popup.sign({ transaction })
 
 ```
 
