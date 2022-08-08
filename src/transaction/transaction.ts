@@ -199,6 +199,7 @@ export default class Transaction {
   /** Sign with a supported blockchain wallet via Transit provider */
   async signWithWallet(walletType: ExternalWalletType) {
     const transactionData = this.data
-    return this._oreIdContext.walletHelper.signWithWallet(walletType, transactionData)
+    const signResult = await this._oreIdContext.walletHelper.signWithWallet(walletType, transactionData)
+    return signResult
   }
 }
