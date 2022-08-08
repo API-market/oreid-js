@@ -73,7 +73,7 @@ test('Login user with an invalidly signed token (invalided by backend)', async (
   await expect(promise).rejects.toThrowError('tokenInvalid, Token invalid or expired')
 })
 
-test('Login user with an corrupted token', async () => {
+test.only('Login user with an third-party token requires api-key', async () => {
   const oreId = getOreId()
 
   const mockServer = nock('https://service.oreid.io')
@@ -81,12 +81,12 @@ test('Login user with an corrupted token', async () => {
     .post('/api/account/login-user-with-token')
     .reply(400, { processId: '889cae07d220', errorCode: 'tokenInvalid', errorMessage: 'Token invalid or expired' })
 
-  const response = await oreId.auth.loginWithToken({
-    accessToken:
-      'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkM0N0I2NUI4OTNBRTEwN0ExNkE5MTQ0Njk2ODBCMDVEREVGQjFEMjcifQ.eyJpc3MiOiJodHRwczovL29yZWlkLmlvzExNDM3MTYwOTkRhZ2luZy5zZXJ2aWNlLm9yZWlkLmlvIiwiaHR0cHM6Ly9zdGFnaW5nLnNlcnZpY2Uub3JlaWQuaW8vdXNlcmluZm8iLCJodHRwczovL29yZWlkLmFpa29uLmNvbSIsImh0dHBzOi8vYWlrb24uYXV0aDAuY29tL3VzZXJpbmZvIl0sImF6cCI6InRfNDY4M2FmYzA3NGFiNDQ0ZWJkZjFiZjA4ZWQ4ZDE3NTciLCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIHBob25lIiwiaHR0cHM6Ly9vcmVpZC5haWtvbi5jb20vYXBwSWQiOiJ0XzQ2ODNhZmMwNzRhYjQ0NGViZGYxYmYwOGVkOGQxNzU3IiwiaHR0cHM6Ly9vcmVpZC5haWtvbi5jb20vcHJvdmlkZXIiOiJnb29nbGUiLCJodHRwczovL29yZWlkLmFpa29uLmNvbS9hY2NvdW50Ijoib3JlMXQyc3djNHpuIiwiaHR0cHM6Ly9vcmVpZC5haWtvbi5jb20vYWRtaW5TZXJ2aWNlIjoiYWlrb24tYWRtaW4iLCJpYXQiOjE2NTYzNDY3NzQsImV4cCI6MTY1NjM0NzI3NH0=.skA5HUFqxaTt2lLRKKbIl4OgvcD7iczNvZeWQXr2nKWb7kVUVWYSLLxDTqanfveALQ9YEQgo4OJnFRZ6CMSlJFQfDWPCk2YZJuIi4BOOWsN8aTuwdoD8Z6ZQWmwnCWMpMKFzVQE_ui75DST8dQAB7guR4Hk2iC5FJOmUkn_oJodMJDc3OML0xWbdrnYH2K5r4Rjq5E6X7Nqu9uHf3uZE9EhGMJOIuaBbR9ft34CEEOCA9Mzdmp0XGsc8AKrscfRDpNJsP6SP3sdOml0K-ZfSB30Ssbz_DKAzTrz5WrOCQ67FBNvpBYDsIjEt607dNMZncyYwzHB5aT2Aob7yla7JaA',
+  const promise = oreId.auth.loginWithToken({
+    accessToken: 'xxxxx',
+    provider: 'google' as any,
   })
+  await expect(promise).rejects.toThrowError('Missing required header for API login-user-with-token: Must have an options.apiKey')
 
-  expect(response).toEqual({ accessToken: null, errors: 'token_invalid', processId: undefined })
 })
 
 test('Login user with an expired token', async () => {

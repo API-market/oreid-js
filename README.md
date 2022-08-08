@@ -21,8 +21,8 @@ Example code:
 
 ```javascript
 // import this library and the Web popup widget
-import { OreId } from 'oreid-js'
-import { WebPopup } from 'oreid-webpopup'
+import { OreId } from "oreid-js";
+import { WebPopup } from "oreid-webpopup";
 ```
 
 ```javascript
@@ -38,8 +38,14 @@ oreId
 ## Auth
 
 ```javascript
+//Initialize the libraries
+const oreId = new OreId({ appId, apiKey, plugins:{popup: WebPopup()}});
+await oreId.init()
+
 // launch popup for user to login
-oreId.popup.auth({ provider }).then(onSuccess).catch(onError)
+oreId.popup.auth({ provider: 'google' })
+  .then((data) => {console.log(data)})
+  .catch((errors) => {console.log(errors)});
 ```
 
 ## User

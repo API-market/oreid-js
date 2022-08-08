@@ -172,7 +172,7 @@ export class Auth extends Observable<SubscriberAuth> {
     if (!loginOptions?.idToken && !loginOptions?.accessToken) {
       throw new Error('Cant loginWithToken - missing required parameter: accessToken OR idToken')
     }
-    const { accessToken, error, processId } = await this.loginWithJwtToken(loginOptions)
+    const { accessToken, error, processId } = await this.loginWithAccessOrIdTokenToken(loginOptions)
     if (!error) {
       this.accessToken = accessToken // saves in cache and in local storage
       this.user.getData()
@@ -188,11 +188,7 @@ export class Auth extends Observable<SubscriberAuth> {
    * Returns: OreId issued accessToken
    * */
   async newUserWithToken(loginOptions: NewUserWithTokenOptions): Promise<LoginWithOreIdResult> {
-    const { idToken } = loginOptions || {}
-    if (!idToken) {
-      throw new Error('Cant do newUserWithToken - missing required parameter: idToken')
-    }
-    const { accessToken, error, processId } = await this.newAccountWithIdToken({ idToken })
+    const { accessToken, error, processId } = await this.newAccountWithIdToken(loginOptions)
     if (!error) {
       this.accessToken = accessToken // saves in cache and in local storage
       this.user.getData()
@@ -201,7 +197,7 @@ export class Auth extends Observable<SubscriberAuth> {
   }
 
   /** Calls api account/login-user-with-token for loginWithToken() (after checking for valid token */
-  private checkJwtTokenAndReturnError(jwtTokenString: string): { error?: string; message?: string } {
+  static checkJwtTokenAndReturnError(jwtTokenString: string): { error?: string; message?: string } {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const accessTokenHelper = new AccessTokenHelper(jwtTokenString, true)
@@ -216,15 +212,19 @@ export class Auth extends Observable<SubscriberAuth> {
   }
 
   /** Calls api account/login-user-with-token for loginWithToken() (after checking for valid token */
-  private async loginWithJwtToken(
+  private async loginWithAccessOrIdTokenToken(
     oauthOptions: ApiLoginUserWithTokenParams,
   ): Promise<{ accessToken: string } & ApiMessageResult> {
     const { accessToken, idToken } = oauthOptions
-    // check valid idToken
-    let tokenCheckError = accessToken ? this.checkJwtTokenAndReturnError(accessToken) : null
-    if (tokenCheckError) return { accessToken: null, ...tokenCheckError }
-    // check valid accessToken
-    tokenCheckError = idToken ? this.checkJwtTokenAndReturnError(idToken) : null
+    let tokenCheckError
+
+    // check valid JWT tokens (Note: accessToken can be a JWT or not)
+    if (accessToken && Helpers.jwtDecodeSafe(accessToken)) {
+      tokenCheckError = accessToken ? Auth.checkJwtTokenAndReturnError(accessToken) : null
+    } else {
+      tokenCheckError = idToken ? Auth.checkJwtTokenAndReturnError(idToken) : null
+    }
+
     if (tokenCheckError) return { accessToken: null, ...tokenCheckError }
 
     const response = await callApiLoginUserWithToken(this._oreIdContext, oauthOptions)
@@ -245,8 +245,8 @@ export class Auth extends Observable<SubscriberAuth> {
   ): Promise<{ accessToken: string } & ApiMessageResult> {
     const { idToken } = oauthOptions
     // check valid ifToken
-    const tokenCheckError = idToken ? this.checkJwtTokenAndReturnError(idToken) : null
-    if (tokenCheckError) return { accessToken: null, ...tokenCheckError }
+    const idTokenCheckError = idToken ? Auth.checkJwtTokenAndReturnError(idToken) : null
+    if (idTokenCheckError) return { accessToken: null, ...idTokenCheckError }
 
     const response = await callApiNewUserWithToken(this._oreIdContext, oauthOptions)
     if (!response?.errorCode) {
