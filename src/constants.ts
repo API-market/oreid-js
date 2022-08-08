@@ -5,4 +5,4 @@ export const externalWalletsNotImplemented = ['metro']
 export const defaultOreIdServiceUrl = 'https://service.oreid.io'
 
 export const { version } = pjson
-export const publicApiEndpoints = [ApiEndpoint.LoginUserWithToken] // api endpoints that dont require authorization
+export const publicApiEndpoints = [ApiEndpoint.LoginUserWithToken, ApiEndpoint.NewUserWithToken] // api endpoints that dont require authorization

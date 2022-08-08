@@ -45,10 +45,17 @@ export type LoginWithWalletOptions = {
 }
 
 export type LoginWithTokenOptions = {
+  /** accessToken issued by provider specified (or ORE ID if no provider specified) */
   accessToken?: string
   idToken?: string
+  /** the OAuth provider that issued the accessToken */
+  provider?: AuthProvider
 }
 
 export type NewUserWithTokenOptions = {
+  /** accessToken issued by provider specified */
+  accessToken?: string
   idToken?: string
+  /** the OAuth provider that issued the accessToken */
+  provider?: AuthProvider
 }
