@@ -169,7 +169,7 @@ export default class UalHelper {
     const chainId = await ualUser.getChainId()
     const chainNetwork = await this._oreIdContext.settings.getChainNetworkByChainId(chainId)
     const account = await ualUser.getAccountName()
-    const publicKeys = await ualUser.getKeys()
+    const publicKeys = await this.getKeys(ualUser)
     // for each publicKey in the user's wallet, return a WalletPermission object
     const permissions = publicKeys.map(publicKey => ({
       account,
@@ -215,7 +215,7 @@ export default class UalHelper {
     let signedTransactionResponse: SignTransactionResponse
     try {
       this._oreIdContext.setIsBusy(true)
-      signedTransactionResponse = await ualUser.signTransaction({ actions: [transaction] }, { broadcast })
+      signedTransactionResponse = await ualUser.signTransaction(transaction, { broadcast })
 
       // TODO: Test that this code works
 
@@ -241,7 +241,7 @@ export default class UalHelper {
     const { ualUser } = await this.connectToUalProvider({ walletType, chainNetwork, chainAccount })
     try {
       this._oreIdContext.setIsBusy(true)
-      const keys = await ualUser.getKeys()
+      const keys = await this.getKeys(ualUser)
       const response = await ualUser.signArbitrary(keys[0], string, message)
       return { signedString: response }
     } catch (error) {
@@ -280,6 +280,26 @@ export default class UalHelper {
   /** Whether this UAL provider was installed upon instantiation */
   hasUalProvider(walletType: ExternalWalletType): boolean {
     return this._oreIdContext.ualProvidersInstalled.includes(walletType)
+  }
+
+  /**
+   * get user account keys
+   * some wallets don't support getKeys
+   */
+  async getKeys(ualUser: UalUser): Promise<string[]> {
+    let keys: string[]
+
+    try {
+      keys = await ualUser.getKeys()
+    } catch (error) {
+      // TODO: add logic to get permissions from eos chain for this account
+      // const account = await ualUser.getAccountName()
+      // const ualUserAccount = (ualUser as any).client && (await (ualUser as any).client.v1.chain.get_account(account))
+      // const keys = await (ualUser as any).extractAccountKeys(ualUserAccount)
+      keys = []
+    }
+
+    return keys
   }
 
   /** Throw if the provider doesnt support the specified chainNetwork */
