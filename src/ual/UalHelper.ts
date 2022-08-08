@@ -316,7 +316,6 @@ export default class UalHelper {
 
   /** set isBusy on oreIdContext while wallet authenticator isLoading */
   private async waitWhileWalletIsBusy(ualAuthenticator: UalAuthenticator, walletType: ExternalWalletType) {
-    console.log('ualAuthenticator.isLoading:', ualAuthenticator.isLoading())
     while (ualAuthenticator.isLoading()) {
       this._oreIdContext.setIsBusy(true)
       // todo: add timeout
