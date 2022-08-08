@@ -1,6 +1,9 @@
 import { Authenticator, Chain, User } from 'universal-authenticator-library'
 import { ChainAccount, ChainNetwork, ExternalWalletType, PublicKey } from '../common/models'
+import { WalletProviderAttributes } from '../wallets/models'
 import { WalletPermission } from '../user/models'
+
+export type UalProviderAttributes = WalletProviderAttributes
 
 // TODO: Redefine Chain
 export type UalChain = Chain

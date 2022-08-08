@@ -119,11 +119,6 @@ export enum AuthProvider {
   OreId = 'oreid',
 }
 
-export enum ExternalWalletInterface {
-  Transit = 'transit',
-  Ual = 'ual',
-}
-
 export enum ApiKeyUsedFor {
   AccountMigration = 'accountMigration',
   Airdrop = 'airdrop',

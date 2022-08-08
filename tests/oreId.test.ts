@@ -44,7 +44,7 @@ describe('OreId', () => {
   })
 
   it('sets the chainNetworks correctly when initializing', async () => {
-    const results = await oreId.getAllChainNetworkSettings()
+    const results = await oreId.settings.getAllChainNetworkSettings()
     expect(results).toEqual(demoChainNetworks)
   })
 

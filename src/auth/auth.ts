@@ -137,7 +137,7 @@ export class Auth extends Observable<SubscriberAuth> {
   async connectWithWallet(loginOptions: LoginWithWalletOptions) {
     const { walletType } = loginOptions
 
-    if (!this._oreIdContext.isAValidExternalWalletType(walletType)) {
+    if (!this._oreIdContext.walletHelper.isAValidExternalWalletType(walletType)) {
       throw new Error(`loginWithWallet not supported for external wallet type: ${walletType}`)
     }
 
@@ -148,13 +148,7 @@ export class Auth extends Observable<SubscriberAuth> {
    *  For some wallet types, this will include an unlock and 'login' flow to select a chain account
    *  If a chainAccount is selected, it and it's associated publicKey (if available) will be saved to the user's OreId wallet as an 'external key' */
   private async connectToWalletProvider(loginOptions: LoginWithWalletOptions) {
-    const { walletType } = loginOptions
-    if (this._transitHelper.hasTransitProvider(walletType)) {
-      return this._transitHelper.loginWithTransitProvider(loginOptions)
-    } else if (this._ualHelper.hasUalProvider(walletType)) {
-      return this._ualHelper.loginWithUalProvider(loginOptions)
-    }
-    throw new Error(`Wallet type ${walletType} invalid or not installed`)
+    return this._oreIdContext.walletHelper.connectToWalletProvider(loginOptions)
   }
 
   /** Calls the account/convert-oauth api
