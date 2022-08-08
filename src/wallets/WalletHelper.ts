@@ -107,7 +107,7 @@ export default class WalletHelper {
 
     if (this._transitHelper.hasTransitProvider(walletType)) {
       // Treat as Transit interface
-      signResult = this._transitHelper.signWithTransitProvider(transactionData, walletType)
+      signResult = await this._transitHelper.signWithTransitProvider(transactionData, walletType)
       // If we've signed a transaction with a key in a wallet, callDiscoverAfterSign() will add it to the user's wallet
       const { account, chainNetwork } = transactionData
       await this._transitHelper.callDiscoverAfterSign({ account, chainNetwork, signOptions: { provider } })
