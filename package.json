@@ -19,7 +19,6 @@
     "lint": "eslint \"src/**\"",
     "lint:fix": "eslint --fix \"src/**\"",
     "prepare": "yarn run build",
-    "prepublishOnly": "yarn run lint && yarn run test",
     "test:coverage": "jest --coverage",
     "test": "jest --detectOpenHandles",
     "test:watch": "jest --watchAll --detectOpenHandles",

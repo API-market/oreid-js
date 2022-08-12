@@ -3,6 +3,8 @@ import { UserData } from '../../user/models'
 import {
   WebWidgetAuthParams,
   WebWidgetAuthResult,
+  WebWidgetBuyParams,
+  WebWidgetBuyResult,
   WebWidgetLogoutParams,
   WebWidgetNewChainAccountParams,
   WebWidgetNewChainAccountResult,
@@ -12,6 +14,8 @@ import {
 } from '../../webWidget/models'
 
 // params
+
+export type PopupPluginBuyParams = WebWidgetBuyParams
 
 export type PopupPluginAuthParams = WebWidgetAuthParams
 
@@ -25,9 +29,11 @@ export type PopupPluginSignParams = {
   transaction: Transaction
 }
 
-// resuls
+// results
 
 export type PopupPluginAuthSuccessResults = WebWidgetAuthResult & { user: UserData }
+
+export type PopupPluginBuySuccessResults = WebWidgetBuyResult
 
 export type PopupPluginLogoutResults = WebWidgetNewChainAccountResult
 
@@ -42,4 +48,5 @@ export interface PopupPlugin {
   sign: (args: PopupPluginSignParams) => Promise<PopupPluginSignResults>
   newChainAccount: (args: PopupPluginNewChainAccountParams) => Promise<PopupPluginNewChainAccountResults>
   recoverAccount: (args: PopupPluginRecoverAccountParams) => Promise<PopupPluginRecoverAccountResults>
+  buy: (args: PopupPluginBuyParams) => Promise<PopupPluginBuySuccessResults>
 }
