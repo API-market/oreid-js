@@ -16,3 +16,6 @@ localtest.ts
 
 .yalc
 yalc.lock
+
+src/version.json
+
