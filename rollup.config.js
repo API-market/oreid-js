@@ -1,5 +1,6 @@
 import typescript from 'rollup-plugin-typescript2'
 import { terser } from "rollup-plugin-terser";
+import json from '@rollup/plugin-json'
 
 const pkg = require('./package.json')
 
@@ -15,6 +16,7 @@ export default {
     }
   ],
   plugins: [
+    json(),
     typescript({ tsconfig: "./tsconfig.json", allowJs: true }), // generate .js files from .ts files (and types)
     terser() // minify the bundle
   ]
