@@ -99,11 +99,6 @@ export type SignStringParams = {
   message: string
 }
 
-export type BuyParams = {
-  chainAccount: ChainAccount
-  chainNetwork: ChainNetwork
-}
-
 // Function Params
 
 export type GetOreIdNewChainAccountUrlParams = NewAccountOptions & {
