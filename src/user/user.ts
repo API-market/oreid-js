@@ -1,4 +1,10 @@
-import { ApiGetUserParams, callApiGetUser, callApiPasswordLessSendCode, callApiPasswordLessVerifyCode } from '../api'
+import {
+  ApiGetUserParams,
+  callApiDeleteTestUser,
+  callApiGetUser,
+  callApiPasswordLessSendCode,
+  callApiPasswordLessVerifyCode,
+} from '../api'
 import { callApiAddPermission } from '../api/endpoints/addPermission'
 import OreIdContext from '../core/IOreidContext'
 import { getOreIdNewChainAccountUrl } from '../core/urlGenerators'
@@ -161,6 +167,16 @@ export class User extends Observable<SubscriberUser> {
     }
     const newAccountUrl = await getOreIdNewChainAccountUrl(this._oreIdContext, args)
     return { newAccountUrl, errors: null }
+  }
+
+  /** Send a code to the user's primary email (user.email) - in order to verify the user has access to it
+   *  After sending the code, use checkVerificationCodeForEmail() to verify that the user received the code */
+  async deleteTestUser() {
+    if (!this?.accountName) throw new Error('User not authenticated. Must be logged-in (or have set an accessToken).')
+    const result = await callApiDeleteTestUser(this._oreIdContext, {
+      account: this.accountName,
+    })
+    return result
   }
 
   /** Send a code to the user's primary email (user.email) - in order to verify the user has access to it
