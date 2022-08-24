@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "postinstall": "yarn loadConfigs",
-    "loadConfigs": "node scripts/loadConfigs.js",
+    "loadConfigs": "node scripts/index.js",
     "build": "rm -rf dist/ && yarn build:node && yarn build:browser",
     "build:node": "yarn loadConfigs && rollup -c",
     "build:browser": "yarn loadConfigs && webpack",
