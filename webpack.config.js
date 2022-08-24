@@ -9,8 +9,10 @@ module.exports = [
         output: {
             path: path.join(__dirname, "dist"),
             filename: "oreid-browser.js",
-            libraryTarget: 'umd',
-            library: "oreidJs"
+            library: {
+                name: 'oreidJs',
+                type: 'umd',
+            },
         },
         module: {
             rules: [
