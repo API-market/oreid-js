@@ -23,7 +23,7 @@ export type UserSourceData = {
 export type UserData = {
   accountName: AccountName
   email: string
-  picture: URL
+  picture: URL['href']
   name: string
   username: string
   chainAccounts: UserChainAccount[]
