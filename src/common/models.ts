@@ -28,6 +28,7 @@ export enum ChainNetwork {
   EthMain = 'eth_main',
   EthRopsten = 'eth_ropsten',
   EthRinkeby = 'eth_rinkeby',
+  EthGoerli = 'eth_goerli',
   OreMain = 'ore_main',
   OreTest = 'ore_test',
   DappKylin1 = 'kylin-dsp-1.liquidapps.io',
