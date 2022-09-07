@@ -46,6 +46,7 @@ export enum WebWidgetAction {
   NewChainAccount = 'newChainAccount',
   RecoverAccount = 'recoverAccount',
   Sign = 'sign',
+  Buy = 'buy',
 }
 
 /** params for Logout action */
@@ -75,6 +76,19 @@ export type WebWidgetAuthParams = {
   phone?: string
   /** whether the */
   linkToAccount?: boolean
+}
+
+export type WebWidgetBuyParams = {
+  /** Blockchain account (usually the account signing the transaction) */
+  chainAccount: string
+  /** A valid chain network name (e.g. eth_main) */
+  chainNetwork: string
+  /** allowed chain networks for buying */
+  limitToChains?: string[]
+  /** allowed symbols to be bought */
+  limitToSymbols?: string[]
+  /** when true, accepts test credit card number  */
+  useTestMode?: boolean
 }
 
 /** params for New Account action - to create a new blockchain account 'within' a user's OreID account */
@@ -138,6 +152,17 @@ export type WebWidgetAuthResult = {
   accessToken?: string
   /** user's idToken signed by ORE ID (in JWT format) */
   idToken?: string
+}
+
+export type WebWidgetBuyResult = {
+  /** uid for tracking buy requested */
+  requesteId: string
+  /** operation success */
+  success: boolean
+  /** error code if any */
+  errorCode?: string
+  /** error message if any */
+  errorMessage?: string
 }
 
 /** Result for a server-side Logout action (Depricated) */
