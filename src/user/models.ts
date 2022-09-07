@@ -13,19 +13,14 @@ import {
 export type UserSourceData = {
   accountName: AccountName
   email: string
-  picture: URL
+  picture: URL['href']
   name: string
   username: string
   permissions: UserPermissionData[]
 }
 
 /** User personal and blockchain account information */
-export type UserData = {
-  accountName: AccountName
-  email: string
-  picture: URL['href']
-  name: string
-  username: string
+export type UserData = Omit<UserSourceData, 'permissions'> & {
   chainAccounts: UserChainAccount[]
 }
 
