@@ -13,19 +13,19 @@
     "dist"
   ],
   "scripts": {
-    "postinstall": "yarn loadConfigs",
-    "loadConfigs": "node scripts/index.js",
+    "postinstall": "yarn generateVersionFile",
+    "generateVersionFile": "node scripts/generateVersionFile.js",
     "build": "rm -rf dist/ && yarn build:node && yarn build:browser",
-    "build:node": "yarn loadConfigs && rollup -c",
-    "build:browser": "yarn loadConfigs && webpack",
-    "dev": "yarn loadConfigs && rollup -c -w",
-    "lint": "yarn loadConfigs && eslint \"src/**\"",
-    "lint:fix": "yarn loadConfigs && eslint --fix \"src/**\"",
+    "build:node": "yarn generateVersionFile && rollup -c",
+    "build:browser": "yarn generateVersionFile && webpack",
+    "dev": "yarn generateVersionFile && rollup -c -w",
+    "lint": "yarn generateVersionFile && eslint \"src/**\"",
+    "lint:fix": "yarn generateVersionFile && eslint --fix \"src/**\"",
     "prepare": "yarn run build",
     "prepublishOnly": "yarn run lint && yarn run test",
-    "test:coverage": "yarn loadConfigs && jest --coverage",
-    "test": "yarn loadConfigs && jest --detectOpenHandles",
-    "test:watch": "yarn loadConfigs && jest --watchAll --detectOpenHandles"
+    "test:coverage": "yarn generateVersionFile && jest --coverage",
+    "test": "yarn generateVersionFile && jest --detectOpenHandles",
+    "test:watch": "yarn generateVersionFile && jest --watchAll --detectOpenHandles"
   },
   "repository": {
     "type": "git",
