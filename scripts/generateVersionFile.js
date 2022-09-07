@@ -8,4 +8,5 @@ function getVersionFromPackageJSON() {
     fs.writeFileSync('./src/version.json', JSON.stringify(config, null, 2))
 }
 
-module.exports = getVersionFromPackageJSON;
+// module.exports = getVersionFromPackageJSON;
+getVersionFromPackageJSON()
