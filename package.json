@@ -37,7 +37,7 @@
   "homepage": "https://github.com/api-market/oreid-js#readme",
   "dependencies": {
     "@aikon/eos-transit": "^4.0.8",
-    "@msgpack/msgpack": "^2.7.2",
+    "@msgpack/msgpack": "^2.8.0",
     "@types/express": "^4.17.8",
     "axios": "^0.26.0",
     "canonicalize": "^1.0.8",
