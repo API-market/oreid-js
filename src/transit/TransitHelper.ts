@@ -448,13 +448,13 @@ export default class TransitHelper {
     return { signedTransaction }
   }
 
-  async signStringWithTransitProvider({ walletType, chainNetwork, string, message }: SignStringParams) {
+  async signStringWithTransitProvider({ walletType, chainNetwork, string, message, metadata }: SignStringParams) {
     this.assertHasProviderInstalled(walletType, ExternalWalletInterface.Transit)
     this.assertProviderValidForChainNetwork(walletType, chainNetwork)
     const { transitWallet } = await this.connectToTransitProvider({ walletType, chainNetwork })
     try {
       this._oreIdContext.setIsBusy(true)
-      const response = await transitWallet.signArbitrary(string, message)
+      const response = await transitWallet.signArbitrary(string, message, metadata)
       return { signedString: response }
     } catch (error) {
       console.error(error)
