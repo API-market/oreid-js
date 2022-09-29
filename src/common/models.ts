@@ -18,28 +18,48 @@ export enum ChainPlatformType {
   ore = 'ore',
 }
 
+/** Named chain network */
 export enum ChainNetwork {
+  // Algo
   AlgoMain = 'algo_main',
   AlgoBeta = 'algo_beta',
   AlgoTest = 'algo_test',
-  EosMain = 'eos_main',
-  EosKylin = 'eos_kylin',
-  EosJugle = 'eos_jungle',
+  // AVALANCHE
+  AvalancheC_Main = 'avalanchec_main',
+  AvalancheC_Fuji = 'avalanchec_fuji',
+  // Dsp/EOS
+  DspEosKylin1 = 'kylin-dsp-1.liquidapps.io',
+  DspEosKylin2 = 'kylin-dsp-2.liquidapps.io',
+  DspMoonlighting = 'eos_moon_blockstartdsp_com',
+  DspMoonlightingTest = 'eos_moontest_blockstartdsp_com',
+  // ETH
   EthMain = 'eth_main',
   EthRopsten = 'eth_ropsten',
   EthRinkeby = 'eth_rinkeby',
   EthGoerli = 'eth_goerli',
+  // EOS
+  EosMain = 'eos_main',
+  EosKylin = 'eos_kylin',
+  EosJungle = 'eos_jungle',
+  MigrateEosMain = 'migrate_eos_main',
+  // ORE
   OreMain = 'ore_main',
   OreTest = 'ore_test',
-  DappKylin1 = 'kylin-dsp-1.liquidapps.io',
-  DappKylin2 = 'kylin-dsp-2.liquidapps.io',
-  TelosMain = 'telos_main',
-  TelosTest = 'telos_test',
-  WaxMain = 'wax_main',
-  WaxTest = 'wax_test',
-  UxMain = 'ux_main',
+  // Polygon
   PolygonMain = 'polygon_main',
   PolygonMumbai = 'polygon_mumbai',
+  // TELOS
+  TelosMain = 'telos_main',
+  TelosTest = 'telos_test',
+  // TELOS EVM
+  TelosEvmMain = 'telosevm_main',
+  TelosEvmTest = 'telosevm_test',
+  // UX
+  UxMain = 'ux_main',
+  // UxTest = 'ux_test', (there is no test network) - this is left here as a placeholder
+  // WAX
+  WaxMain = 'wax_main',
+  WaxTest = 'wax_test',
 }
 
 /** Physical structure of account */

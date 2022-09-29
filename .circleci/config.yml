@@ -20,7 +20,7 @@ jobs:
     shell: /bin/bash --login -e
     executor: node-executor
     steps:
-      # checkout the code. Because the default working_directory is the name of the repo 
+      # checkout the code. Because the default working_directory is the name of the repo
       # we need to go up a directory thus the `path: ".."`
       - checkout
       # call `yarn install`
@@ -28,7 +28,19 @@ jobs:
           pkg-manager: yarn
       # call the linter
       - run: yarn run lint
+      - run: yarn run build
       # save the installed modules and configured repo for the following steps
+      - persist_to_workspace:
+          root: ~/API-market
+          paths:
+            - oreid-js
+
+  build:
+    working_directory: ~/API-market/oreid-js
+    shell: /bin/bash --login -e
+    executor: node-executor
+    steps:
+      - run: yarn run build
       - persist_to_workspace:
           root: ~/API-market
           paths:
@@ -46,7 +58,7 @@ jobs:
           at: ~/API-market
       - run: yarn run test
 
-  deploy:
+  publish:
     # directory commands will run from by default
     # usually set to organization/repo
     working_directory: ~/API-market/oreid-js
@@ -60,6 +72,42 @@ jobs:
       - run: yarn run build
       - run: yarn publish --no-git-tag-version
 
+  deploy:
+    working_directory: ~/API-market/oreid-js
+    shell: /bin/bash --login -e
+    docker:
+      - image: google/cloud-sdk:latest
+    steps:
+      - attach_workspace:
+          at: ~/API-market
+      - run:
+          working_directory: ~/
+          command: |
+            echo $GCLOUD_SERVICE_ACCT_KEY | base64 --decode > ${HOME}/gcloud-service-key.json
+            gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
+            gcloud config set project $GOOGLE_PROJECT_ID
+      - run:
+          command: |
+            PACKAGE_VERSION=$(cat package.json \
+              | grep version \
+              | head -1 \
+              | awk -F: '{ print $2 }' \
+              | sed 's/[",]//g' \
+              | xargs)
+
+            if [ "$CIRCLE_BRANCH" == "master" ]; then
+              BUCKET=oreid-dist
+            else
+              BUCKET=oreid-$CIRCLE_BRANCH-dist
+            fi
+
+            MINOR_VERSION=$(echo $PACKAGE_VERSION | sed 's/\.[0-9]*$//')
+            MAJOR_VERSION=$(echo $MINOR_VERSION | sed 's/\.[0-9]*$//')
+
+            gcloud storage cp dist/oreid-browser.js gs://$BUCKET/oreid-js/v$PACKAGE_VERSION/oreid-js.js
+            gcloud storage cp dist/oreid-browser.js gs://$BUCKET/oreid-js/v$MINOR_VERSION/oreid-js.js
+            gcloud storage cp dist/oreid-browser.js gs://$BUCKET/oreid-js/v$MAJOR_VERSION/oreid-js.js
+
 # define the jobs to run
 workflows:
   build_and_test:
@@ -68,14 +116,25 @@ workflows:
       - test:
           requires:
             - setup
-      - deploy:
+      - publish:
           requires:
             - test
-          # only run deploy step on tags
           context:
             - global-env
           filters:
             # ignore any commit on any branch by default
             branches:
-              only: 
+              only:
+                - master
+      - deploy:
+          requires:
+            - test
+          context:
+            - gcloud-<< pipeline.git.branch >>
+          filters:
+            # ignore any commit on any branch by default
+            branches:
+              only:
+                - dev
+                - staging
                 - master
