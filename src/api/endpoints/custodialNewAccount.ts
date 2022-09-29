@@ -1,9 +1,11 @@
 import OreIdContext from '../../core/IOreidContext'
-import { AccountName, AccountType, ApiEndpoint, RequestType, ApiKeyUsedFor } from '../../models'
+import { AccountName, AccountType, ApiEndpoint, LoginProvider, RequestType, ApiKeyUsedFor } from '../../models'
 import { assertHasApiKey, assertParamsHaveOnlyOneOfValues, assertParamsHaveRequiredValues } from '../helpers'
 import { ApiResultWithErrorCode } from '../models'
 
 export type ApiCustodialNewAccountParams = {
+  accessToken?: string
+  accessTokenProvider?: LoginProvider
   accountType: AccountType
   email?: string
   emailVerified?: boolean
@@ -18,6 +20,8 @@ export type ApiCustodialNewAccountParams = {
 }
 
 export type ApiCustodialNewAccountBodyParams = {
+  access_token?: string
+  access_token_provider?: LoginProvider
   account_type: AccountType
   email?: string
   email_verified?: boolean
@@ -50,6 +54,8 @@ export async function callApiCustodialNewAccount(
   const apiName = ApiEndpoint.CustodialNewAccount
 
   const {
+    accessToken,
+    accessTokenProvider,
     accountType,
     email,
     emailVerified,
@@ -63,6 +69,8 @@ export async function callApiCustodialNewAccount(
     userPassword,
   } = params
   const body: ApiCustodialNewAccountBodyParams = {
+    access_token: accessToken,
+    access_token_provider: accessTokenProvider,
     account_type: accountType,
     email,
     email_verified: emailVerified,
@@ -83,9 +91,15 @@ export async function callApiCustodialNewAccount(
     ['user_password', 'user_password_encrypted', 'user_password_encrypted_backup'],
     apiName,
   )
+  assertParamsHaveOnlyOneOfValues(params, ['access_token', 'id_token'], apiName)
+  if (accessToken && !accessTokenProvider) {
+    throw new Error(`Missing required parameter: accessTokenProvider. It is required when using accessToken`)
+  }
 
-  if (!idToken && !(email && name)) {
-    throw new Error(`Missing required parameter(s) for API ${apiName}: Must include email AND name or an idToken`)
+  if (!accessToken && !idToken && !(email && name)) {
+    throw new Error(
+      `Missing required parameter(s) for API ${apiName}: Must include email AND name or an idToken or accessToken`,
+    )
   }
 
   const results = await oreIdContext.callOreIdApi(RequestType.Post, ApiEndpoint.CustodialNewAccount, body, null)
