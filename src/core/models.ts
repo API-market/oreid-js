@@ -97,6 +97,7 @@ export type SignStringParams = {
   chainNetwork: ChainNetwork
   string: string
   message: string
+  metadata?: any
 }
 
 // Function Params
