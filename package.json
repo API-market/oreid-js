@@ -13,7 +13,6 @@
     "dist"
   ],
   "scripts": {
-    "postinstall": "yarn generateVersionFile",
     "generateVersionFile": "node scripts/generateVersionFile.js",
     "build": "rm -rf dist/ && yarn build:node && yarn build:browser",
     "build:node": "yarn generateVersionFile && rollup -c",
