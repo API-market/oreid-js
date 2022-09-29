@@ -6,10 +6,13 @@ import { ApiResultWithErrorCode } from '../models'
 export type ApiCustodialNewAccountParams = {
   accountType: AccountType
   email?: string
+  emailVerified?: boolean
   idToken?: string
+  isTestUser?: boolean
   name?: string
   picture?: string
   phone?: string
+  phoneVerified?: boolean
   userName?: string
   userPassword?: string
 }
@@ -17,10 +20,13 @@ export type ApiCustodialNewAccountParams = {
 export type ApiCustodialNewAccountBodyParams = {
   account_type: AccountType
   email?: string
+  email_verified?: boolean
   id_token?: string
+  is_test_user?: boolean
   name?: string
   picture?: string
   phone?: string
+  phone_verified?: boolean
   user_name?: string
   user_password?: string
   user_password_encrypted?: string
@@ -43,13 +49,28 @@ export async function callApiCustodialNewAccount(
 ): Promise<ApiCustodialNewAccountResult> {
   const apiName = ApiEndpoint.CustodialNewAccount
 
-  const { accountType, email, idToken, name, picture, phone, userName, userPassword } = params
+  const {
+    accountType,
+    email,
+    emailVerified,
+    idToken,
+    isTestUser,
+    name,
+    picture,
+    phone,
+    phoneVerified,
+    userName,
+    userPassword,
+  } = params
   const body: ApiCustodialNewAccountBodyParams = {
     account_type: accountType,
     email,
+    email_verified: emailVerified,
     id_token: idToken,
+    is_test_user: isTestUser,
     name,
     phone,
+    phone_verified: phoneVerified,
     picture,
     user_name: userName,
     user_password: userPassword,
