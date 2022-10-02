@@ -17,6 +17,7 @@ export type UserSourceData = {
   name: string
   username: string
   permissions: UserPermissionData[]
+  delayWalletSetup?: boolean
 }
 
 /** User personal and blockchain account information */
