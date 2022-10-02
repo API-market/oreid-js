@@ -10,16 +10,20 @@ import { ApiResultWithErrorCode } from '../models'
 
 export type ApiNewUserWithTokenParams = {
   accessToken?: string
+  /** whether we should skip creation of blockchain accounts for a new user */
+  delayWalletSetup?: boolean
+  isTestUser?: boolean
   idToken?: string
   provider?: AuthProvider
-  isTestUser?: boolean
 }
 
 export type ApiNewUserWithTokenBodyParams = {
-  id_token?: string
   access_token?: string
-  provider?: string
+  /** whether we should skip creation of blockchain accounts for a new user */
+  delay_wallet_setup?: boolean
   is_test_user?: boolean
+  id_token?: string
+  provider?: string
 }
 
 /** Call api account/new-user-with-token
@@ -37,7 +41,7 @@ export async function callApiNewUserWithToken(
   params: ApiNewUserWithTokenParams,
 ): Promise<{ accessToken: string } & ApiResultWithErrorCode> {
   const apiName = ApiEndpoint.NewUserWithToken
-  const { accessToken, idToken, isTestUser, provider } = params
+  const { accessToken, delayWalletSetup, isTestUser, idToken, provider } = params
 
   // This function does not require authentication of any kind - since it allows auth by using any accessToken or idToken
   assertParamsHaveAtLeastOneOfValues(params, ['idToken', 'accessToken'], apiName)
@@ -57,9 +61,8 @@ export async function callApiNewUserWithToken(
     body.provider = provider
   }
 
-  if (isTestUser === true) {
-    body.is_test_user = true
-  }
+  if (isTestUser === true) body.is_test_user = true
+  if (delayWalletSetup === true) body.delay_wallet_setup = true
 
   const results = await oreIdContext.callOreIdApi(
     RequestType.Post,
