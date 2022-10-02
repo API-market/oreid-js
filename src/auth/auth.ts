@@ -157,8 +157,8 @@ export class Auth extends Observable<SubscriberAuth> {
    * The third-party (e.g. Auth0 or Google) must be registered in the AppRegistration.oauthSettings
    * Returns: OreId issued accessToken and idToken
    * */
-  private async convertOauthTokens(oauthOptions: ApiConvertOauthTokensParams) {
-    return callApiConvertOauthTokens(this._oreIdContext, oauthOptions)
+  private async convertOauthTokens(parms: ApiConvertOauthTokensParams) {
+    return callApiConvertOauthTokens(this._oreIdContext, parms)
   }
 
   /**
@@ -213,9 +213,9 @@ export class Auth extends Observable<SubscriberAuth> {
 
   /** Calls api account/login-user-with-token for loginWithToken() (after checking for valid token */
   private async loginWithAccessOrIdTokenToken(
-    oauthOptions: ApiLoginUserWithTokenParams,
+    params: ApiLoginUserWithTokenParams,
   ): Promise<{ accessToken: string } & ApiMessageResult> {
-    const { accessToken, idToken } = oauthOptions
+    const { accessToken, idToken } = params
     let tokenCheckError
 
     // check valid JWT tokens (Note: accessToken can be a JWT or not)
@@ -227,7 +227,7 @@ export class Auth extends Observable<SubscriberAuth> {
 
     if (tokenCheckError) return { accessToken: null, ...tokenCheckError }
 
-    const response = await callApiLoginUserWithToken(this._oreIdContext, oauthOptions)
+    const response = await callApiLoginUserWithToken(this._oreIdContext, params)
     if (!response?.errorCode) {
       this.setAuthResult({ accessToken: response?.accessToken })
     }
@@ -241,14 +241,14 @@ export class Auth extends Observable<SubscriberAuth> {
 
   /** Calls api account/new-user-with-token for newUserWithToken() (after checking for valid token */
   private async newAccountWithIdToken(
-    oauthOptions: ApiNewUserWithTokenParams,
+    params: ApiNewUserWithTokenParams,
   ): Promise<{ accessToken: string } & ApiMessageResult> {
-    const { idToken } = oauthOptions
+    const { idToken } = params
     // check valid ifToken
     const idTokenCheckError = idToken ? Auth.checkJwtTokenAndReturnError(idToken) : null
     if (idTokenCheckError) return { accessToken: null, ...idTokenCheckError }
 
-    const response = await callApiNewUserWithToken(this._oreIdContext, oauthOptions)
+    const response = await callApiNewUserWithToken(this._oreIdContext, params)
     if (!response?.errorCode) {
       this.setAuthResult({ accessToken: response?.accessToken })
     }
