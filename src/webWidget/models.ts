@@ -74,8 +74,10 @@ export type WebWidgetAuthParams = {
   email?: string
   /** passwordless login - phone to login with (and to send a verification code to) */
   phone?: string
-  /** whether the */
+  /** whether we should link this login attempt to an existing user */
   linkToAccount?: boolean
+  /** whether we should skip creation of blockchain accounts for a new user */
+  delayWalletSetup?: boolean
 }
 
 export type WebWidgetBuyParams = {
