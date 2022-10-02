@@ -21,6 +21,7 @@ export enum ApiEndpoint {
   PasswordLessSendCode = 'account/login-passwordless-send-code',
   PasswordLessVerifyCode = 'account/login-passwordless-verify-code',
   TransactionSign = 'transaction/sign',
+  UpdateDelayWalletSetup = 'account/update-delay-wallet-setup',
 }
 
 /** Typical API Response (when no data returned) */
