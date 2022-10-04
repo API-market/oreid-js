@@ -88,6 +88,7 @@ export enum LoginProvider {
 
 export enum ExternalWalletType {
   AlgoSigner = 'algosigner',
+  Anchor = 'anchor',
   Keycat = 'keycat',
   Ledger = 'ledger',
   Lynx = 'lynx',
@@ -100,6 +101,7 @@ export enum ExternalWalletType {
   WalletConnect = 'walletconnect',
   Web3 = 'web3',
   WhaleVault = 'whalevault',
+  Wombat = 'wombat',
 }
 
 /** All auth providers - including OreId login types (eg 'Facebook') and wallets (eg 'Scatter') */
@@ -120,6 +122,7 @@ export enum AuthProvider {
   Twitter = 'twitter',
   // ExternalWalletType
   AlgoSigner = 'algosigner',
+  Anchor = 'anchor',
   Keycat = 'keycat',
   Ledger = 'ledger',
   Lynx = 'lynx',
@@ -132,12 +135,9 @@ export enum AuthProvider {
   WalletConnect = 'walletconnect',
   Web3 = 'web3',
   WhaleVault = 'whalevault',
+  Wombat = 'wombat',
   // placeholder for signing - meaning non an external wallet
   OreId = 'oreid',
-}
-
-export enum ExternalWalletInterface {
-  Transit = 'transit',
 }
 
 export enum ApiKeyUsedFor {

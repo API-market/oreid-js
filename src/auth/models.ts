@@ -41,7 +41,7 @@ export type LoginWithWalletOptions = {
   chainAccount?: ChainAccount
   /** Optionally specify a specific blockchain to select from wallet (some wallets don't support this) */
   chainNetwork?: ChainNetwork
-  provider?: ExternalWalletType
+  walletType?: ExternalWalletType
 }
 
 export type LoginWithTokenOptions = {
@@ -60,4 +60,6 @@ export type NewUserWithTokenOptions = {
   provider?: AuthProvider
   /** whether user is used only for testing - user may be deleted with deleteTestUser */
   isTestUser?: boolean
+  /** whether we should skip creation of blockchain accounts for a new user */
+  delayWalletSetup?: boolean
 }

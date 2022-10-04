@@ -16,6 +16,7 @@ import {
 } from '../api'
 import { getOreIdSignUrl } from '../core/urlGenerators'
 import Helpers from '../utils/helpers'
+import UalHelper from '../ual/UalHelper'
 import { User } from '../user/user'
 
 export default class Transaction {
@@ -24,6 +25,7 @@ export default class Transaction {
     this._user = args.user
     this.assertValidTransactionAndSetData(args.data)
     this._transitHelper = new TransitHelper({ oreIdContext: this._oreIdContext, user: this._user })
+    this._ualHelper = new UalHelper({ oreIdContext: this._oreIdContext, user: this._user })
   }
 
   private _oreIdContext: OreIdContext
@@ -31,6 +33,8 @@ export default class Transaction {
   private _data: TransactionData
 
   private _transitHelper: TransitHelper
+
+  private _ualHelper: UalHelper
 
   private _user: User
 
@@ -195,13 +199,7 @@ export default class Transaction {
   /** Sign with a supported blockchain wallet via Transit provider */
   async signWithWallet(walletType: ExternalWalletType) {
     const transactionData = this.data
-    const isTransitProvider = this._transitHelper.isTransitProvider(walletType)
-    if (!isTransitProvider) return null
-    const signResult = await this._transitHelper.signWithTransitProvider(transactionData, walletType)
-    // If we've signed a transaction with a key in a wallet, callDiscoverAfterSign() will add it to the user's wallet
-    const provider = Helpers.toEnumValue(AuthProvider, walletType)
-    const { account, chainNetwork } = transactionData
-    await this._transitHelper.callDiscoverAfterSign({ account, chainNetwork, signOptions: { provider } })
+    const signResult = await this._oreIdContext.walletHelper.signWithWallet(walletType, transactionData)
     return signResult
   }
 }

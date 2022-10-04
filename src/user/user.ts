@@ -21,6 +21,7 @@ import {
   WalletPermission,
 } from './models'
 import { AccessTokenHelper } from '../auth/accessTokenHelper'
+import { callApiUpdateDelayWalletSetup } from '../api/endpoints/updateDelayWalletSetup'
 
 const { isNullOrEmpty } = Helpers
 
@@ -169,13 +170,30 @@ export class User extends Observable<SubscriberUser> {
     return { newAccountUrl, errors: null }
   }
 
-  /** Send a code to the user's primary email (user.email) - in order to verify the user has access to it
-   *  After sending the code, use checkVerificationCodeForEmail() to verify that the user received the code */
+  /** Delete a test user
+   * Test users are created by setting isTestUser:true on first authentication)
+   */
   async deleteTestUser() {
     if (!this?.accountName) throw new Error('User not authenticated. Must be logged-in (or have set an accessToken).')
     const result = await callApiDeleteTestUser(this._oreIdContext, {
       account: this.accountName,
     })
+    return result
+  }
+
+  /** If the user hasn't already setup their wallet, this will prompt the setup on their next interactive authentication
+   * Used to turn-off the delayWalletSetup for a user's account
+   * delayWalletSetup is enabled by passing delayWalletSetup:true for a user's first authentication (e.g. popup.auth(delayWalletSetup:true))
+   * Delayed Wallet Setup allows a user to login without creating blockchain accounts right away
+   * Call this function (to disable delayWalletSetup) just before the user needs a blockchain account (e.g. before signing a transaction)
+   */
+  async disableDelayedWalletSetup() {
+    if (!this?.accountName) throw new Error('User not authenticated. Must be logged-in (or have set an accessToken).')
+    const result = await callApiUpdateDelayWalletSetup(this._oreIdContext, {
+      account: this.accountName,
+      delayWalletSetup: false,
+    })
+    await this.getData(true)
     return result
   }
 

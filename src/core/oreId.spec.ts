@@ -43,7 +43,7 @@ describe('Network and ChainNetwork functions', () => {
     spy.mockResolvedValue(null)
 
     expect(spy).not.toBeCalled()
-    oreId.getAllChainNetworkSettings()
+    oreId.settings.getAllChainNetworkSettings()
     expect(spy).toBeCalled()
   })
 
@@ -53,7 +53,7 @@ describe('Network and ChainNetwork functions', () => {
     spy.mockResolvedValue(null)
 
     expect(spy).not.toBeCalled()
-    oreId.getChainNetworkSettings('my-chain-network' as any)
+    oreId.settings.getChainNetworkSettings('my-chain-network' as any)
     expect(spy).toBeCalledWith('my-chain-network')
   })
 
@@ -66,10 +66,10 @@ describe('Network and ChainNetwork functions', () => {
     const spy = jest.spyOn(oreId._settings, 'getAllChainNetworkSettings')
     spy.mockResolvedValue([setting] as any)
 
-    const chain = await oreId.getChainNetworkByChainId('chainId')
+    const chain = await oreId.settings.getChainNetworkByChainId('chainId')
     expect(chain).toBe(setting.network)
 
-    const notChain = await oreId.getChainNetworkByChainId('Not-chainId')
+    const notChain = await oreId.settings.getChainNetworkByChainId('Not-chainId')
     expect(notChain).toBeNull()
   })
 })
