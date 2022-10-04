@@ -564,6 +564,7 @@ export default class TransitHelper {
       // todo: add timeout
       // eslint-disable-next-line no-await-in-loop
       await Helpers.sleep(250)
+      // this is here to help a developer debug - dont remove this - if a wallet is not open to connect to, it will hang here
       console.log(`connecting to ${walletType} via eos-transit wallet in progress:`, transitWallet.inProgress)
     }
     this._oreIdContext.setIsBusy(false)

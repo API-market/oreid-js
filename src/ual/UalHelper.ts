@@ -321,6 +321,7 @@ export default class UalHelper {
       // todo: add timeout
       // eslint-disable-next-line no-await-in-loop
       await Helpers.sleep(250)
+      // this is here to help a developer debug - dont remove this - if a wallet is not open to connect to, it will hang here
       console.log(`connecting to ${walletType} via UAL wallet in progress:`, ualAuthenticator.isLoading())
     }
     this._oreIdContext.setIsBusy(false)
