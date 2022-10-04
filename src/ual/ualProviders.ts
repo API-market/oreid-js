@@ -7,7 +7,7 @@ export const ualProviderAttributesData: UalProviderAttributes[] = [
     providerId: 'Anchor',
     chainType: ChainPlatformType.eos,
     requiresLogin: true,
-    supportsSignArbitrary: true,
+    supportsSignArbitrary: false,
     requiresLogoutLoginToDiscover: false,
     requiresDiscoverToLogin: false,
     supportsDiscovery: false,
