@@ -5,6 +5,8 @@ import { ApiResultWithErrorCode } from '../models'
 
 export type ApiCustodialNewAccountParams = {
   accountType: AccountType
+  /** whether we should skip creation of blockchain accounts for a new user */
+  delayWalletSetup?: boolean
   email?: string
   emailVerified?: boolean
   idToken?: string
@@ -19,6 +21,8 @@ export type ApiCustodialNewAccountParams = {
 
 export type ApiCustodialNewAccountBodyParams = {
   account_type: AccountType
+  /** whether we should skip creation of blockchain accounts for a new user */
+  delay_wallet_setup?: boolean
   email?: string
   email_verified?: boolean
   id_token?: string
@@ -51,6 +55,7 @@ export async function callApiCustodialNewAccount(
 
   const {
     accountType,
+    delayWalletSetup,
     email,
     emailVerified,
     idToken,
@@ -64,6 +69,7 @@ export async function callApiCustodialNewAccount(
   } = params
   const body: ApiCustodialNewAccountBodyParams = {
     account_type: accountType,
+    delay_wallet_setup: delayWalletSetup,
     email,
     email_verified: emailVerified,
     id_token: idToken,

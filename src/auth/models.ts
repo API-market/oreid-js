@@ -60,4 +60,6 @@ export type NewUserWithTokenOptions = {
   provider?: AuthProvider
   /** whether user is used only for testing - user may be deleted with deleteTestUser */
   isTestUser?: boolean
+  /** whether we should skip creation of blockchain accounts for a new user */
+  delayWalletSetup?: boolean
 }
