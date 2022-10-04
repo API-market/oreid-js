@@ -1,6 +1,6 @@
 {
   "name": "oreid-js",
-  "version": "4.3.4",
+  "version": "4.3.3",
   "description": "Add authentication and signing to any blockchain app",
   "author": "AIKON",
   "license": "MIT",
@@ -24,6 +24,7 @@
     "prepublishOnly": "yarn run lint && yarn run test",
     "test:coverage": "yarn generateVersionFile && jest --coverage",
     "test": "yarn generateVersionFile && jest --detectOpenHandles",
+    "test:watch": "yarn generateVersionFile && jest --watchAll --detectOpenHandles",
     "test:watch": "yarn generateVersionFile && jest --watchAll --detectOpenHandles",
     "localpublish": "zalc publish && zalc push",
     "localpublish-show-usage": "zalc installations show oreid-js",
