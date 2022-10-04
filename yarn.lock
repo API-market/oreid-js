@@ -28,10 +28,10 @@
     eslint-plugin-standard "^5.0.0"
     prettier "^2.6.2"
 
-"@aikon/eos-transit@^4.0.8":
-  version "4.0.8"
-  resolved "https://registry.yarnpkg.com/@aikon/eos-transit/-/eos-transit-4.0.8.tgz#7bf2a6eead0f232d724f80576b800b53c3ce9e5d"
-  integrity sha512-YE/kROgzT74LfTasWL/J3fe/VaQjjoO21sHjrHJy21uXRWhb+UY2/aGO3U5iNILuMy+O+ujPmikZMhiTVWtQWw==
+"@aikon/eos-transit@^4.0.9":
+  version "4.0.9"
+  resolved "https://registry.yarnpkg.com/@aikon/eos-transit/-/eos-transit-4.0.9.tgz#62259da17294c8339f452a907daacc53b8cd57bd"
+  integrity sha512-MeyAONH/CLckbai1qQHicyRKH0w8isHR7cpP/BrMLQWX38V6c53snnjUvEiYojGp1dgc4UfF0m2Jkfr2ln5X7Q==
   dependencies:
     "@types/uuid" "^7.0.3"
     eosjs "^20.0.0"
