@@ -2,6 +2,7 @@ import { Color } from '../common/models'
 import { PopupPlugin } from '../plugins/models'
 import { Plugin } from '../plugins/plugin'
 import { TransitWalletProviderFactory } from '../transit'
+import { UalAuthenticatorFactory } from '../ual'
 import IStorage from './IStorage'
 
 export interface OreIdOptions {
@@ -20,6 +21,7 @@ export interface OreIdOptions {
   oreIdUrl?: string
   setBusyCallback?: (isBusy: boolean) => void
   eosTransitWalletProviders?: TransitWalletProviderFactory[]
+  ualAuthenticators?: UalAuthenticatorFactory[]
   /** Custom implementation of a storage class that saves persistant state for accessToken, etc. */
   storageHandler?: IStorage
   plugins?: { popup?: Plugin<PopupPlugin> }

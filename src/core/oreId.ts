@@ -16,8 +16,6 @@ import {
   ApiEndpoint,
   AppAccessToken,
   AppAccessTokenMetadata,
-  AuthProvider,
-  ChainNetwork,
   ExternalWalletType,
   NewAccountResult,
   ProcessId,
@@ -31,7 +29,7 @@ import { PopupPlugin } from '../plugins'
 import { Plugin } from '../plugins/plugin'
 import Transaction from '../transaction/transaction'
 import TransitHelper from '../transit/TransitHelper'
-import { getTransitProviderAttributes } from '../transit/transitProviders'
+import UalHelper from '../ual/UalHelper'
 import Helpers from '../utils/helpers'
 import { appendHmacToUrl, generateHmacWithApiKeyOrProxyServer } from '../utils/hmac'
 import LocalState from '../utils/localState'
@@ -39,6 +37,7 @@ import StorageHandler from '../utils/storage'
 import IOreidContext from './IOreidContext'
 import { OreIdOptions } from './IOreIdOptions'
 import Settings from './Settings'
+import WalletHelper from '../wallets/WalletHelper'
 
 const { isNullOrEmpty } = Helpers
 
@@ -51,8 +50,14 @@ export default class OreId implements IOreidContext {
     this._settings = new Settings({ oreIdContext: this })
     this._auth = new Auth({ oreIdContext: this })
     this._transitHelper = new TransitHelper({ oreIdContext: this, user: this._auth.user })
-    // All installed TransitProviders
     this._transitHelper.installTransitProviders(this.options?.eosTransitWalletProviders)
+    this._ualHelper = new UalHelper({ oreIdContext: this, user: this._auth.user })
+    this._ualHelper.installUalProviders(this.options?.ualAuthenticators)
+    this._walletHelper = new WalletHelper({
+      oreIdContext: this,
+      transitHelper: this._transitHelper,
+      ualHelper: this._ualHelper,
+    })
     this._initializerPlugins = options.plugins || {}
     this._isInitialized = false
   }
@@ -73,10 +78,17 @@ export default class OreId implements IOreidContext {
 
   private _transitHelper: TransitHelper
 
+  private _ualHelper: UalHelper
+
+  private _walletHelper: WalletHelper
+
   isBusy: boolean
 
   /** Names of all Transit providers installed (provided to this constructor) */
   transitProvidersInstalled: ExternalWalletType[] = []
+
+  /** Names of all Ual wallet providers installed (provided to this constructor) */
+  ualProvidersInstalled: ExternalWalletType[] = []
 
   /** accessToken (stored in localState) */
   get accessToken() {
@@ -128,9 +140,14 @@ export default class OreId implements IOreidContext {
     return Helpers.isInBrowser && !this.isDemoApp
   }
 
-  /** Transit wallet plugin helper functions and connections */
-  get transitHelper() {
-    return this._transitHelper
+  /** oreid settings helper */
+  get settings() {
+    return this._settings
+  }
+
+  /** External wallet helper functions and connections */
+  get walletHelper() {
+    return this._walletHelper
   }
 
   /** perform asynchronous setup tasks */
@@ -151,34 +168,16 @@ export default class OreId implements IOreidContext {
     }
   }
 
-  /** Retrieve settings for all chain networks defined by OreId service
-   * and caches the result */
-  async getAllChainNetworkSettings() {
-    return this._settings.getAllChainNetworkSettings()
-  }
-
-  /** Returns config for specified chain network */
-  async getChainNetworkSettings(chainNetwork: ChainNetwork) {
-    return this._settings.getChainNetworkSettings(chainNetwork)
-  }
-
   /** Clears user's accessToken and user profile data */
   logout() {
     this.auth.logout()
   }
 
   /** Sign an arbitrary string (instead of a transaction)
-   *  NOTE: Currently this only supports Transit wallets - not OREID siging
+   * This only supports Transit and Ual wallets
    */
   async signStringWithWallet(params: SignStringParams) {
-    const { account, walletType, chainNetwork } = params
-    if (!this.transitHelper.canSignString(walletType)) {
-      throw Error(`The specific walletType ${walletType} does not support signString`)
-    }
-    const signResult = await this.transitHelper.signStringWithTransitProvider(params)
-    const provider = Helpers.toEnumValue(AuthProvider, walletType)
-    await this.transitHelper.callDiscoverAfterSign({ account, chainNetwork, signOptions: { provider } })
-    return signResult
+    return this.walletHelper.signStringWithWallet(params)
   }
 
   /** Create a new user account that is managed by your app
@@ -206,23 +205,11 @@ export default class OreId implements IOreidContext {
     return response
   }
 
-  /** Return ChainNetwork that matches chainId (as defined in OreId Chain Network Settings) */
-  async getChainNetworkByChainId(chainId: string) {
-    const networks = await this.getAllChainNetworkSettings()
-    const chainSettings = networks.find(n => n.hosts.find(h => h.chainId === chainId))
-
-    if (!isNullOrEmpty(chainSettings)) {
-      return chainSettings.network
-    }
-    return null
-  }
-
-  /** Returns metadata about the external wallet type (e.g. name, logo) and which features it supports */
-  geExternalWalletInfo(walletType: ExternalWalletType) {
-    if (!this._transitHelper.isTransitProvider(walletType)) {
-      throw new Error(`Invalid walletType:${walletType}`)
-    }
-    return getTransitProviderAttributes(walletType)
+  /** Returns metadata about the installed external wallet type (e.g. name, logo) and which features it supports
+   *  Returns different data depending on the wallet interface type (Transit or Ual)
+   */
+  getExternalWalletInfo(walletType: ExternalWalletType) {
+    return this.walletHelper.getExternalWalletInfo(walletType)
   }
 
   /** Create a new Transaction object - used for composing and signing transactions */

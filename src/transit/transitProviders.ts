@@ -4,27 +4,8 @@ import {
   TransitDiscoverKeyLookupCallback,
   TransitDiscoveryAccount,
   TransitDiscoverContinueCallback,
+  TransitProviderAttributes,
 } from './models'
-
-export type TransitProviderAttributes = {
-  providerName: ExternalWalletType
-  chainType: ChainPlatformType
-  providerId: string
-  requiresLogin: boolean
-  supportsDiscovery: boolean
-  supportsSignArbitrary: boolean
-  requiresLogoutLoginToDiscover: boolean
-  requiresDiscoverToLogin: boolean
-  defaultDiscoveryPathIndexList?: number[]
-  helpText: {
-    login: string
-    sign: string
-    discover: string
-    versionsRequired: string
-  }
-  discoveryKeyLookupFunc?: TransitDiscoverKeyLookupCallback
-  logoUrl: string
-}
 
 /** Function used within transit provider to transform a wallet's public key to a full account strucutre */
 const AlgorandDiscoveryKeyLookupFunc: TransitDiscoverKeyLookupCallback = (

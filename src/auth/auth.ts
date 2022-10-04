@@ -7,10 +7,10 @@ import {
   callApiLoginUserWithToken,
   callApiNewUserWithToken,
 } from '../api'
-import { providersNotImplemented } from '../constants'
 import OreIdContext from '../core/IOreidContext'
 import { getOreIdAuthUrl } from '../core/urlGenerators'
 import TransitHelper from '../transit/TransitHelper'
+import UalHelper from '../ual/UalHelper'
 import { User } from '../user/user'
 import Helpers from '../utils/helpers'
 import LocalState from '../utils/localState'
@@ -27,6 +27,7 @@ export class Auth extends Observable<SubscriberAuth> {
     this._oreIdContext = args.oreIdContext
     this._localState = this._oreIdContext.localState
     this._transitHelper = new TransitHelper({ oreIdContext: this._oreIdContext, user: this._user })
+    this._ualHelper = new UalHelper({ oreIdContext: this._oreIdContext, user: this._user })
     this.initAccessTokenHelper()
   }
 
@@ -37,6 +38,8 @@ export class Auth extends Observable<SubscriberAuth> {
   private _oreIdContext: OreIdContext
 
   private _transitHelper: TransitHelper
+
+  private _ualHelper: UalHelper
 
   private _user: User
 
@@ -132,10 +135,10 @@ export class Auth extends Observable<SubscriberAuth> {
    *  For most, however, this function returns the chainAccount selected by the user in the wallet app
    *  Different wallets have different behavior. Some do not support this feature. */
   async connectWithWallet(loginOptions: LoginWithWalletOptions) {
-    const { provider } = loginOptions
+    const { walletType } = loginOptions
 
-    if (!this._transitHelper.isTransitProvider(provider) || providersNotImplemented.includes(provider)) {
-      throw new Error(`loginWithWallet not supprted for provider: ${provider}`)
+    if (!this._oreIdContext.walletHelper.isAValidExternalWalletType(walletType)) {
+      throw new Error(`loginWithWallet not supported for external wallet type: ${walletType}`)
     }
 
     return this.connectToWalletProvider(loginOptions)
@@ -145,11 +148,7 @@ export class Auth extends Observable<SubscriberAuth> {
    *  For some wallet types, this will include an unlock and 'login' flow to select a chain account
    *  If a chainAccount is selected, it and it's associated publicKey (if available) will be saved to the user's OreId wallet as an 'external key' */
   private async connectToWalletProvider(loginOptions: LoginWithWalletOptions) {
-    const { provider } = loginOptions
-    if (this._transitHelper.isTransitProvider(provider)) {
-      return this._transitHelper.loginWithTransitProvider(loginOptions)
-    }
-    throw new Error(`Not a valid External Wallet provider: ${provider}`)
+    return this._oreIdContext.walletHelper.connectToWalletProvider(loginOptions)
   }
 
   /** Calls the account/convert-oauth api

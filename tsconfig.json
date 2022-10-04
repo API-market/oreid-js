@@ -12,6 +12,7 @@
     "downlevelIteration": true,
     "lib": ["es2017", "dom"],
     "module": "esnext",
+    // "module": "CommonJS", // used for local testing
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
