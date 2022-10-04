@@ -58,4 +58,6 @@ export type NewUserWithTokenOptions = {
   idToken?: string
   /** the OAuth provider that issued the accessToken */
   provider?: AuthProvider
+  /** whether user is used only for testing - user may be deleted with deleteTestUser */
+  isTestUser?: boolean
 }

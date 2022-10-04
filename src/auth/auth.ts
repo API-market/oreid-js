@@ -186,8 +186,8 @@ export class Auth extends Observable<SubscriberAuth> {
    * Requires a valid idToken but no current accessToken or apiKey
    * Returns: OreId issued accessToken
    * */
-  async newUserWithToken(loginOptions: NewUserWithTokenOptions): Promise<LoginWithOreIdResult> {
-    const { accessToken, error, processId } = await this.newAccountWithIdToken(loginOptions)
+  async newUserWithToken(userOptions: NewUserWithTokenOptions): Promise<LoginWithOreIdResult> {
+    const { accessToken, error, processId } = await this.newAccountWithIdToken(userOptions)
     if (!error) {
       this.accessToken = accessToken // saves in cache and in local storage
       this.user.getData()
