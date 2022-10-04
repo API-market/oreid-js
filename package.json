@@ -24,7 +24,11 @@
     "prepublishOnly": "yarn run lint && yarn run test",
     "test:coverage": "yarn generateVersionFile && jest --coverage",
     "test": "yarn generateVersionFile && jest --detectOpenHandles",
-    "test:watch": "yarn generateVersionFile && jest --watchAll --detectOpenHandles"
+    "test:watch": "yarn generateVersionFile && jest --watchAll --detectOpenHandles",
+    "test:watch": "yarn generateVersionFile && jest --watchAll --detectOpenHandles",
+    "localpublish": "zalc publish && zalc push",
+    "localpublish-show-usage": "zalc installations show oreid-js",
+    "localunpublish": "yalc installations clean oreid-js"
   },
   "repository": {
     "type": "git",
