@@ -9,6 +9,7 @@ import {
   ChainPlatformType,
   ExternalWalletType,
   LoginWithWalletOptions,
+  SignatureProviderSignResult,
   SignStringParams,
   TransactionData,
 } from '../models'
@@ -98,8 +99,11 @@ export default class WalletHelper {
   }
 
   /** Sign with a supported blockchain wallet via Transit provider */
-  async signWithWallet(walletType: ExternalWalletType, transactionData: TransactionData) {
-    let signResult = {}
+  async signWithWallet(
+    walletType: ExternalWalletType,
+    transactionData: TransactionData,
+  ): Promise<{ signedTransaction: SignatureProviderSignResult }> {
+    let signResult: { signedTransaction: SignatureProviderSignResult }
     if (!this._oreIdContext.walletHelper.isAValidExternalWalletType(walletType)) {
       throw new Error(`signWithWallet not supported for external wallet type: ${walletType}`)
     }
