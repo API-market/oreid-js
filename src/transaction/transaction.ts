@@ -1,9 +1,9 @@
 import OreIdContext from '../core/IOreidContext'
 import {
   ApiKeyUsedFor,
-  AuthProvider,
   CreateTransactionData,
   ExternalWalletType,
+  SignatureProviderSignResult,
   SignWithOreIdResult,
   TransactionData,
 } from '../models'
@@ -197,7 +197,9 @@ export default class Transaction {
   }
 
   /** Sign with a supported blockchain wallet via Transit provider */
-  async signWithWallet(walletType: ExternalWalletType) {
+  async signWithWallet(walletType: ExternalWalletType): Promise<{
+    signedTransaction: SignatureProviderSignResult
+  }> {
     const transactionData = this.data
     const signResult = await this._oreIdContext.walletHelper.signWithWallet(walletType, transactionData)
     return signResult
