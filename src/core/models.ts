@@ -187,7 +187,7 @@ export interface SignatureProviderArgs {
   abis: BinaryAbi[]
 }
 
-/** Arguments for `push_transaction` */
+/** Results from external wallet signTransction() - e.g. via Transit or UAL */
 export interface SignatureProviderSignResult {
   signatures: string[]
   serializedTransaction: Uint8Array
