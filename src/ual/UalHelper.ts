@@ -7,6 +7,7 @@ import {
   ExternalWalletInterface,
   ExternalWalletType,
   LoginWithWalletOptions,
+  SignatureProviderSignResult,
   SignStringParams,
   TransactionData,
 } from '../models'
@@ -206,7 +207,10 @@ export default class UalHelper {
   }
 
   /** sign with a UAL wallet */
-  async signWithUalProvider(transactionData: TransactionData, walletType: ExternalWalletType) {
+  async signWithUalProvider(
+    transactionData: TransactionData,
+    walletType: ExternalWalletType,
+  ): Promise<{ signedTransaction: SignatureProviderSignResult }> {
     const { chainNetwork, transaction, chainAccount, signOptions } = transactionData
     const { provider, broadcast } = signOptions
     this.assertHasProviderInstalled(walletType, ExternalWalletInterface.Ual)
@@ -216,8 +220,6 @@ export default class UalHelper {
     try {
       this._oreIdContext.setIsBusy(true)
       signedTransactionResponse = await ualUser.signTransaction(transaction, { broadcast })
-
-      // TODO: Test that this code works
 
       // Convert serializedTransaction from UInt8Array to Buffer
       // i.e. when stringified change from: '{\"0\":129,\"1\":163'} to {"type":"Buffer","data":[129,163]}

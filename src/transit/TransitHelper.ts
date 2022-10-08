@@ -453,7 +453,10 @@ export default class TransitHelper {
   }
 
   /** sign transaction using EOS SDK .transact function */
-  private async signTransactionWithTransitAndEosSDK(transactionData: TransactionData, transitWallet: Wallet) {
+  private async signTransactionWithTransitAndEosSDK(
+    transactionData: TransactionData,
+    transitWallet: Wallet,
+  ): Promise<SignatureProviderSignResult> {
     const { expireSeconds, transaction } = transactionData
     const { broadcast } = transactionData?.signOptions || {}
     const { signatures, serializedTransaction } = await transitWallet.eosApi.transact(
@@ -471,7 +474,10 @@ export default class TransitHelper {
   }
 
   /** sign transaction using Algorand SDK */
-  private async signTransactionWithTransitAndAlgorandSDK(transactionData: TransactionData, transitWallet: Wallet) {
+  private async signTransactionWithTransitAndAlgorandSDK(
+    transactionData: TransactionData,
+    transitWallet: Wallet,
+  ): Promise<SignatureProviderSignResult> {
     const { chainNetwork, transaction } = transactionData
     // Other chains - use sign function on walletProvider
     const networkConfig = await this._oreIdContext.settings.getChainNetworkNextworkConfig(chainNetwork)
@@ -487,7 +493,10 @@ export default class TransitHelper {
   }
 
   /** sign transaction using ethereum web3 SDK */
-  private async signTransactionWithTransitAndEthereumSDK(transactionData: TransactionData, transitWallet: Wallet) {
+  private async signTransactionWithTransitAndEthereumSDK(
+    transactionData: TransactionData,
+    transitWallet: Wallet,
+  ): Promise<SignatureProviderSignResult> {
     const { chainNetwork, transaction } = transactionData
     // Other chains - use sign function on walletProvider
     const networkConfig = await this._oreIdContext.settings.getChainNetworkNextworkConfig(chainNetwork)
