@@ -76,7 +76,7 @@ export default class WalletHelper {
       this._oreIdContext.transitProvidersInstalled.includes(info.providerName),
     )
     const ualWalletsInstalledInfo = ualProviderAttributesData.filter(info =>
-      this._oreIdContext.transitProvidersInstalled.includes(info.providerName),
+      this._oreIdContext.ualProvidersInstalled.includes(info.providerName),
     )
 
     return [...transitWalletsInstalledInfo, ...ualWalletsInstalledInfo].filter(p => p.chainType === chain)
