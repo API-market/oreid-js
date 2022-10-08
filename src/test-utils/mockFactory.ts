@@ -55,6 +55,7 @@ export const createOreIdContext = (): OreIdContext => ({
   localState: getLocalState(),
   options: getOreIdOptions(),
   transitProvidersInstalled: [],
+  ualProvidersInstalled: [],
   addAccessTokenAndHmacToUrl: jest.fn(),
   callOreIdApi: jest.fn(),
   getAllChainNetworkSettings: jest.fn(),
