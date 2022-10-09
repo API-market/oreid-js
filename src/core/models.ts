@@ -100,6 +100,10 @@ export type SignStringParams = {
   metadata?: any
 }
 
+export type SignStringResult = {
+  signedString: string
+}
+
 // Function Params
 
 export type GetOreIdNewChainAccountUrlParams = NewAccountOptions & {
