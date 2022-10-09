@@ -22,6 +22,7 @@ import {
   RequestType,
   SignResult,
   SignStringParams,
+  SignStringResult,
   TransactionData,
   WebWidgetProps,
 } from '../models'
@@ -176,7 +177,7 @@ export default class OreId implements IOreidContext {
   /** Sign an arbitrary string (instead of a transaction)
    * This only supports Transit and Ual wallets
    */
-  async signStringWithWallet(params: SignStringParams) {
+  async signStringWithWallet(params: SignStringParams): Promise<SignStringResult> {
     return this.walletHelper.signStringWithWallet(params)
   }
 
