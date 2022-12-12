@@ -219,6 +219,9 @@ export class User extends Observable<SubscriberUser> {
     return result
   }
 
+  // TODO: rename sendVerificationCodeToEmail - passwordlessVerificationSendCode(type, email, phone)
+  // TODO: rename checkVerificationCodeForEmail - passwordlessVerificationVerifyCode(type, email, phone)
+
   /** Map permission from server data to local UserPermission object */
   mapUserPermission(permission: UserPermissionData): UserPermissionForChainAccount {
     if (isNullOrEmpty(permission)) return null
