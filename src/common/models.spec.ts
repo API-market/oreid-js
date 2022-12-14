@@ -520,15 +520,14 @@ describe('JSON Array type', () => {
 function isJSONObject(obj: any): obj is JSONObject {
   let value: string
   Object.keys(obj).forEach(item => {
-    if (item.includes('0')) {
+    if (item.includes('x')) {
       value = (obj as Lookup)[item]
     }
   })
-  console.log(`value: ${JSON.stringify(value)}`)
-  return JSON.stringify(value) === '{"key1":"value1"}'
+  return JSON.stringify(value) === '{"y":"jsonValue value"}'
 }
 
-const jo: JSONObject = jsonv
+const jo: JSONObject = { x: { y: jsonv } }
 
 describe('JSON Object interface', () => {
   test('interface can be instantiated', () => {
