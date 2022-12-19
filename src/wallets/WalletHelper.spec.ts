@@ -6,7 +6,6 @@ import { RequestType, ApiEndpoint } from '../api'
 import { AppAccessTokenMetadata } from '../core/models'
 import { ExternalWalletInterface, ExternalWalletType } from '../models'
 import { externalWalletsNotImplemented } from '../constants'
-import { IAM } from 'aws-sdk'
 
 let walletHelper: WalletHelper
 

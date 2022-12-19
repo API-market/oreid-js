@@ -33,7 +33,7 @@ describe('Web Widget OreId Options type', () => {
     expect(isWebWidgetOreIdOptions(wwoo)).toBeTruthy()
 
     const setBusyCallbackMock = jest.fn(() => true)
-    expect(wwoo.setBusyCallback({isBusy: setBusyCallbackMock})).toBeTruthy()
+    expect(wwoo.setBusyCallback({ isBusy: setBusyCallbackMock })).toBeTruthy()
   })
 
   // test('enum can be snapshotted', () => {

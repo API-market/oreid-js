@@ -1,10 +1,7 @@
 import { TransactionData } from './models'
 
 function isTransactionData(obj: any): obj is TransactionData {
-  return (
-    'accessToken' in obj &&
-    obj.accessToken === 'accessToken value'
-  )
+  return 'accessToken' in obj && obj.accessToken === 'accessToken value'
 }
 
 const td: TransactionData = {

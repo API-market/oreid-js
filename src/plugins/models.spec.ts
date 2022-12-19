@@ -1,10 +1,7 @@
 import { PluginType } from './models'
 
 function isPluginType(obj: any): obj is PluginType {
-  return (
-    'accessToken' in obj &&
-    obj.accessToken === 'accessToken value'
-  )
+  return 'accessToken' in obj && obj.accessToken === 'accessToken value'
 }
 
 const pt: PluginType = {

@@ -1,10 +1,7 @@
 import { UserSourceData } from './models'
 
 function isUserSourceData(obj: any): obj is UserSourceData {
-  return (
-    'accessToken' in obj &&
-    obj.accessToken === 'accessToken value'
-  )
+  return 'accessToken' in obj && obj.accessToken === 'accessToken value'
 }
 
 const usd: UserSourceData = {

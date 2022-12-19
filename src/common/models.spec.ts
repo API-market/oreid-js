@@ -247,7 +247,7 @@ describe('External Wallet Type enum', () => {
     externalWalletType = ExternalWalletType.Meetone
     expect(externalWalletType).toEqual('meetone')
     externalWalletType = ExternalWalletType.Metro
-    expect(externalWalletType).toEqual( 'metro')
+    expect(externalWalletType).toEqual('metro')
     externalWalletType = ExternalWalletType.Portis
     expect(externalWalletType).toEqual('portis')
     externalWalletType = ExternalWalletType.Scatter
