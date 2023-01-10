@@ -174,7 +174,7 @@ export class Auth extends Observable<SubscriberAuth> {
     const { accessToken, error, processId } = await this.loginWithAccessOrIdTokenToken(loginOptions)
     if (!error) {
       this.accessToken = accessToken // saves in cache and in local storage
-      this.user.getData()
+      await this.user.getData()
     }
     return { accessToken, errors: error, processId }
   }
@@ -190,7 +190,7 @@ export class Auth extends Observable<SubscriberAuth> {
     const { accessToken, error, processId } = await this.newAccountWithIdToken(userOptions)
     if (!error) {
       this.accessToken = accessToken // saves in cache and in local storage
-      this.user.getData()
+      await this.user.getData()
     }
     return { accessToken, errors: error, processId }
   }
@@ -322,10 +322,11 @@ export class Auth extends Observable<SubscriberAuth> {
 
   /** store response from auth flow (accountName, accessToken, idToken) in localState */
   setAuthResult(authResponse: AuthResult) {
-    const { accessToken, idToken } = authResponse
+    const { accessToken, idToken, account } = authResponse
     if (!accessToken) throw Error('Cant setAuthResult. accessToken is missing')
     this._accessTokenHelper.setIdToken(null) // clear the existing idToken first (so set accessToken wont throw a mismatch when set)
     this.accessToken = accessToken // saves the token to localstorage
+    this._accessTokenHelper.setAccountName(account) // save accountName if account is passed in params
     if (idToken) {
       this._accessTokenHelper.setIdToken(idToken)
     }
