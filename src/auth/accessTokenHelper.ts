@@ -13,6 +13,8 @@ export class AccessTokenHelper extends Observable<SubscriberAccessTokenHelper> {
 
   _accessToken: string
 
+  _accountName: string
+
   _decodedAccessToken: JWTToken
 
   _idToken: string
@@ -38,8 +40,13 @@ export class AccessTokenHelper extends Observable<SubscriberAccessTokenHelper> {
     return this._decodedIdToken
   }
 
+  /**
+   * Gets the accountName from _accountName property
+   * Fallbacks to getting the accountName from the decodedAccessToken
+   */
   get accountName() {
     if (!this.accessToken) return null
+    if (this._accountName) return this._accountName
     AccessTokenHelper.assertIsTokenValid(this.decodedAccessToken)
     return Helpers.getClaimFromJwtTokenBySearchString(this.decodedAccessToken, 'https://oreid.aikon.com/account')
   }
@@ -64,6 +71,14 @@ export class AccessTokenHelper extends Observable<SubscriberAccessTokenHelper> {
       return true
     }
     return false
+  }
+
+  setAccountName(value: string) {
+    if (!value) {
+      this._accountName = null // allows clearing of value
+    } else {
+      this._accountName = value
+    }
   }
 
   setAccessToken(value: string) {
