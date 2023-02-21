@@ -67,7 +67,7 @@ export type WebWidgetActionParams =
 /** params for Auth action */
 export type WebWidgetAuthParams = {
   /** Login provider (e.g. google, email) */
-  provider: AuthProvider
+  provider?: AuthProvider
   /** user's idToken - can be from a 3rd-party (e.g. Google) - can be used to create a new user account */
   idToken?: string
   /** passwordless login - email to login with (and to send a verification code to) */
