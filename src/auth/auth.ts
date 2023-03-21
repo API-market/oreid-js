@@ -174,7 +174,7 @@ export class Auth extends Observable<SubscriberAuth> {
     const { accessToken, error, processId } = await this.loginWithAccessOrIdTokenToken(loginOptions)
     if (!error) {
       this.accessToken = accessToken // saves in cache and in local storage
-      this.user.getData()
+      await this.user.getData()
     }
     return { accessToken, errors: error, processId }
   }
@@ -190,7 +190,7 @@ export class Auth extends Observable<SubscriberAuth> {
     const { accessToken, error, processId } = await this.newAccountWithIdToken(userOptions)
     if (!error) {
       this.accessToken = accessToken // saves in cache and in local storage
-      this.user.getData()
+      await this.user.getData()
     }
     return { accessToken, errors: error, processId }
   }
