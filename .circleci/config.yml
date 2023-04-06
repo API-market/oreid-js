@@ -68,7 +68,7 @@ jobs:
       - attach_workspace:
           at: ~/API-market
       # get npmrc token
-      - run: echo $NPMRC | base64 -d > ~/.npmrc
+      - run: echo $NPMRC_PUBLISH | base64 -d > ~/.npmrc
       - run: yarn run build
       - run: yarn publish --no-git-tag-version
 
