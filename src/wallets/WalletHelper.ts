@@ -9,7 +9,9 @@ import {
   ChainPlatformType,
   ExternalWalletType,
   LoginWithWalletOptions,
+  SignatureProviderSignResult,
   SignStringParams,
+  SignStringResult,
   TransactionData,
 } from '../models'
 import TransitHelper from '../transit/TransitHelper'
@@ -75,7 +77,7 @@ export default class WalletHelper {
       this._oreIdContext.transitProvidersInstalled.includes(info.providerName),
     )
     const ualWalletsInstalledInfo = ualProviderAttributesData.filter(info =>
-      this._oreIdContext.transitProvidersInstalled.includes(info.providerName),
+      this._oreIdContext.ualProvidersInstalled.includes(info.providerName),
     )
 
     return [...transitWalletsInstalledInfo, ...ualWalletsInstalledInfo].filter(p => p.chainType === chain)
@@ -98,8 +100,11 @@ export default class WalletHelper {
   }
 
   /** Sign with a supported blockchain wallet via Transit provider */
-  async signWithWallet(walletType: ExternalWalletType, transactionData: TransactionData) {
-    let signResult = {}
+  async signWithWallet(
+    walletType: ExternalWalletType,
+    transactionData: TransactionData,
+  ): Promise<{ signedTransaction: SignatureProviderSignResult }> {
+    let signResult: { signedTransaction: SignatureProviderSignResult }
     if (!this._oreIdContext.walletHelper.isAValidExternalWalletType(walletType)) {
       throw new Error(`signWithWallet not supported for external wallet type: ${walletType}`)
     }
@@ -123,9 +128,9 @@ export default class WalletHelper {
   /** Sign an arbitrary string (instead of a transaction)
    * This only supports Transit and Ual wallets
    */
-  async signStringWithWallet(params: SignStringParams) {
+  async signStringWithWallet(params: SignStringParams): Promise<SignStringResult> {
     const { account, walletType, chainNetwork } = params
-    let signResult = {}
+    let signResult: SignStringResult
     if (!this.isAValidExternalWalletType(walletType)) {
       throw new Error(`signStringWithWallet not supported for external wallet type: ${walletType}`)
     }
@@ -134,14 +139,14 @@ export default class WalletHelper {
     if (this._transitHelper.hasTransitProvider(walletType)) {
       // Treat as Transit interface
       if (!this._transitHelper.canSignString(walletType)) {
-        throw Error(`The specific walletType ${walletType} does not support signString`)
+        throw Error(`The walletType ${walletType} does not support signString`)
       }
       signResult = await this._transitHelper.signStringWithTransitProvider(params)
       await this._transitHelper.callDiscoverAfterSign({ account, chainNetwork, signOptions: { provider } })
     } else if (this._ualHelper.hasUalProvider(walletType)) {
       // Treat as UAL interface
       if (!this._ualHelper.canSignString(walletType)) {
-        throw Error(`The specific walletType ${walletType} does not support signString`)
+        throw Error(`The walletType ${walletType} does not support signString`)
       }
       signResult = await this._ualHelper.signStringWithUalProvider(params)
       // await this.ualHelper.callDiscoverAfterSign({ account, chainNetwork, signOptions: { provider } })

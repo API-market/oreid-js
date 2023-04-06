@@ -9,7 +9,7 @@ https://github.com/auth0/auth0.js/tree/master/src/helper/storage
 
 */
 
-import Cookie from 'js-cookie'
+import * as Cookie from 'js-cookie'
 import { JSONObject } from '../models'
 import IStorage from '../core/IStorage'
 import Helpers from './helpers'

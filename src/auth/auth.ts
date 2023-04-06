@@ -174,7 +174,7 @@ export class Auth extends Observable<SubscriberAuth> {
     const { accessToken, error, processId } = await this.loginWithAccessOrIdTokenToken(loginOptions)
     if (!error) {
       this.accessToken = accessToken // saves in cache and in local storage
-      this.user.getData()
+      await this.user.getData()
     }
     return { accessToken, errors: error, processId }
   }
@@ -190,7 +190,7 @@ export class Auth extends Observable<SubscriberAuth> {
     const { accessToken, error, processId } = await this.newAccountWithIdToken(userOptions)
     if (!error) {
       this.accessToken = accessToken // saves in cache and in local storage
-      this.user.getData()
+      await this.user.getData()
     }
     return { accessToken, errors: error, processId }
   }
@@ -324,7 +324,7 @@ export class Auth extends Observable<SubscriberAuth> {
   setAuthResult(authResponse: AuthResult) {
     const { accessToken, idToken } = authResponse
     if (!accessToken) throw Error('Cant setAuthResult. accessToken is missing')
-    if (idToken) this._accessTokenHelper.setIdToken(null) // clear the existing idToken first (so set accessToken wont throw a mismatch when set)
+    this._accessTokenHelper.setIdToken(null) // clear the existing idToken first (so set accessToken wont throw a mismatch when set)
     this.accessToken = accessToken // saves the token to localstorage
     if (idToken) {
       this._accessTokenHelper.setIdToken(idToken)
