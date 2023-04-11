@@ -41,7 +41,15 @@ export default class WalletHelper {
     return this._ualHelper
   }
 
-  //** Whether wallet type is a Transit or Ual wallet */
+  /**
+   * Indicates whether the given wallet type is a Transit or Ual wallet and is not an external wallet that is not implemented.
+   *
+   * @remarks
+   * This method is part of the {@link core-library | Statistics subsystem}.
+   *
+   * @param walletType - One of the wallet type enumerations
+   * @returns Whether the wallet is valid or not, indicated by true or false
+   */
   isAValidExternalWalletType(walletType: ExternalWalletType) {
     return (
       (this._transitHelper.isTransitProvider(walletType) || this._ualHelper.isUalProvider(walletType)) &&
