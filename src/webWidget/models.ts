@@ -47,6 +47,7 @@ export enum WebWidgetAction {
   RecoverAccount = 'recoverAccount',
   Sign = 'sign',
   Buy = 'buy',
+  KeyExport = 'keyExport',
 }
 
 /** params for Logout action */
@@ -146,6 +147,8 @@ export type WebWidgetSignParams = {
   }
 }
 
+export type WebWidgetKeyExportParams = {}
+
 /** Result for Auth action */
 export type WebWidgetAuthResult = {
   /** User's OreID account (aka wallet account name) */
@@ -189,9 +192,15 @@ export type WebWidgetSignResult = {
   transactionId?: string
 }
 
+/** Result for Key Export action */
+export type WebWidgetKeyExportResult = {
+  //  no result - just success or error
+}
+
 export type WebWidgetActionResult =
   | WebWidgetAuthResult
   | WebWidgetLogoutResult
   | WebWidgetNewChainAccountResult
   | WebWidgetRecoverAccountResult
   | WebWidgetSignResult
+  | WebWidgetKeyExportResult
