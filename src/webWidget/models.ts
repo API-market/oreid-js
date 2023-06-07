@@ -47,7 +47,7 @@ export enum WebWidgetAction {
   RecoverAccount = 'recoverAccount',
   Sign = 'sign',
   Buy = 'buy',
-  KeyExport = 'keyExport',
+  KeyExport = 'key-export',
 }
 
 /** params for Logout action */
@@ -63,6 +63,7 @@ export type WebWidgetActionParams =
   | WebWidgetNewChainAccountParams
   | WebWidgetRecoverAccountParams
   | WebWidgetSignParams
+  | WebWidgetKeyExportParams
   | any
 
 /** params for Auth action */

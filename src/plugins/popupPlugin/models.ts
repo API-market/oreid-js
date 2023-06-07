@@ -55,5 +55,5 @@ export interface PopupPlugin {
   newChainAccount: (args: PopupPluginNewChainAccountParams) => Promise<PopupPluginNewChainAccountResults>
   recoverAccount: (args: PopupPluginRecoverAccountParams) => Promise<PopupPluginRecoverAccountResults>
   buy: (args: PopupPluginBuyParams) => Promise<PopupPluginBuySuccessResults>
-  keyExport: (args: PopupPluginKeyExportParams) => Promise<PopupPluginKeyExportSuccessResults>
+  keyExport: (args?: PopupPluginKeyExportParams) => Promise<PopupPluginKeyExportSuccessResults>
 }
