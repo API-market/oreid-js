@@ -132,7 +132,7 @@ export type WebWidgetSignParams = {
   /** Optional - provided instead of transaction - OreID must have this transaction saved in its database (only applies to special situations) */
   transactionRecordId?: string
   /** Optional params for signing */
-  signOptions: {
+  signOptions?: {
     /** Whether an option is displayed to the user to sign with a key in an external wallet (e.g. Metamask) */
     allowChainAccountSelection?: boolean
     /** Whether signed transaction should be automatically sent to the chain */
@@ -143,7 +143,11 @@ export type WebWidgetSignParams = {
     preventAutosign?: boolean
     /** whether the complete signed transaction should be returned */
     returnSignedTransaction?: boolean
+    /** optional signMethod - uses default method if not provided */
+    signMethod?: string
   }
+  /** populated if signing a string instead of a transaction */
+  stringToSign?: string
 }
 
 /** Result for Auth action */

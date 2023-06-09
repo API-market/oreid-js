@@ -26,7 +26,9 @@ export type PopupPluginNewChainAccountParams = Partial<WebWidgetNewChainAccountP
 export type PopupPluginRecoverAccountParams = Partial<WebWidgetRecoverAccountParams>
 
 export type PopupPluginSignParams = {
-  transaction: Transaction
+  signString?: string
+  signStringMethod?: string
+  transaction?: Transaction
 }
 
 // results
