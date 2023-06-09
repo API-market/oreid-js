@@ -104,6 +104,19 @@ export type SignStringResult = {
   signedString: string
 }
 
+export type CustodialSignStringParams = {
+  account: AccountName
+  chainAccount?: ChainAccount
+  chainNetwork: ChainNetwork
+  string: string
+  userPassword: string
+  options?: { signMethod: string } & any
+}
+
+export type CustodialSignStringResult = {
+  signature: string
+}
+
 // Function Params
 
 export type GetOreIdNewChainAccountUrlParams = NewAccountOptions & {
