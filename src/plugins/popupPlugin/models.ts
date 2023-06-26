@@ -1,3 +1,4 @@
+import { SignStringData } from '../../transaction/models'
 import Transaction from '../../transaction/transaction'
 import { UserData } from '../../user/models'
 import {
@@ -26,8 +27,7 @@ export type PopupPluginNewChainAccountParams = Partial<WebWidgetNewChainAccountP
 export type PopupPluginRecoverAccountParams = Partial<WebWidgetRecoverAccountParams>
 
 export type PopupPluginSignParams = {
-  signString?: string
-  signStringMethod?: string
+  signString?: SignStringData
   transaction?: Transaction
 }
 

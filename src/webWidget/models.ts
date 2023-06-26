@@ -49,6 +49,14 @@ export enum WebWidgetAction {
   Buy = 'buy',
 }
 
+/** Alternative method to sign a transaction or string (chain specific) */
+export enum SignStringMethod {
+  // Sign String methods
+  EthereumPersonalSign = 'ethereum.personal-sign',
+  EthereumSignTypedData = 'ethereum.sign-typed-data',
+  EthereumSign = 'ethereum.eth-sign',
+}
+
 /** params for Logout action */
 export type WebWidgetLogoutParams = {
   /** comma seperated list of login providers e.g. 'google, facebook' or 'all' */
@@ -144,10 +152,11 @@ export type WebWidgetSignParams = {
     /** whether the complete signed transaction should be returned */
     returnSignedTransaction?: boolean
     /** optional signMethod - uses default method if not provided */
-    signMethod?: string
+    // signMethod?: SignTransactionMethod  // Expected to be used for ERC-712, etc.
   }
   /** populated if signing a string instead of a transaction */
   stringToSign?: string
+  signStringMethod?: SignStringMethod
 }
 
 /** Result for Auth action */
