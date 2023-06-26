@@ -77,7 +77,20 @@ export async function signExample() {
   } else {
     // popup sign flow - when completed, transaction info is returned (if requested in options)
     await oreidWebPopUp.sign({
-      data: transaction.data, // just a JSON object - same used as with createTransaction() above
+      transaction, // just a JSON object - same used as with createTransaction() above
+      onSuccess: (data: any) => {
+        console.log('transaction signed:', data.transactionId)
+      },
+      onError: showErrors,
+    })
+    await oreidWebPopUp.sign({
+      signString: {
+        account: 'ore123...',
+        chainNetwork: 'eth_main',
+        chainAccount: '0x123...',
+        string: 'sign this',
+        // signMethod: 'ethereum.sign-typed-data', 
+      },
       onSuccess: (data: any) => {
         console.log('transaction signed:', data.transactionId)
       },
