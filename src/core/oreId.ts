@@ -6,6 +6,7 @@ import {
   ApiCustodialMigrateAccountParams,
   ApiCustodialNewAccountParams,
   ApiCustodialSignStringParams,
+  ApiCustodialSignStringResult,
   ApiGetAppTokenParams,
   callApiCustodialMigrateAccount,
   callApiCustodialNewAccount,
@@ -18,7 +19,6 @@ import {
   ApiEndpoint,
   AppAccessToken,
   AppAccessTokenMetadata,
-  CustodialSignStringResult,
   ExternalWalletType,
   NewAccountResult,
   ProcessId,
@@ -186,7 +186,7 @@ export default class OreId implements IOreidContext {
 
   /** Sign an arbitrary string (instead of a transaction) using ORE ID
    */
-  async custodialSignString(params: ApiCustodialSignStringParams): Promise<CustodialSignStringResult> {
+  async custodialSignString(params: ApiCustodialSignStringParams): Promise<ApiCustodialSignStringResult> {
     const response = await callApiCustodialSignString(this, params)
     if (response?.errorCode || response?.errorMessage) throw new Error(response.errorMessage)
     return response
