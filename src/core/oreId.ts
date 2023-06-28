@@ -5,9 +5,12 @@ import axios from 'axios'
 import {
   ApiCustodialMigrateAccountParams,
   ApiCustodialNewAccountParams,
+  ApiCustodialSignStringParams,
+  ApiCustodialSignStringResult,
   ApiGetAppTokenParams,
   callApiCustodialMigrateAccount,
   callApiCustodialNewAccount,
+  callApiCustodialSignString,
   callApiGetAppToken,
 } from '../api'
 import { Auth } from '../auth/auth'
@@ -179,6 +182,14 @@ export default class OreId implements IOreidContext {
    */
   async signStringWithWallet(params: SignStringParams): Promise<SignStringResult> {
     return this.walletHelper.signStringWithWallet(params)
+  }
+
+  /** Sign an arbitrary string (instead of a transaction) using ORE ID
+   */
+  async custodialSignString(params: ApiCustodialSignStringParams): Promise<ApiCustodialSignStringResult> {
+    const response = await callApiCustodialSignString(this, params)
+    if (response?.errorCode || response?.errorMessage) throw new Error(response.errorMessage)
+    return response
   }
 
   /** Create a new user account that is managed by your app
