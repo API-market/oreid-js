@@ -21,6 +21,8 @@ export enum ApiEndpoint {
   PasswordLessSendCode = 'account/login-passwordless-send-code',
   PasswordLessVerifyCode = 'account/login-passwordless-verify-code',
   TransactionSign = 'transaction/sign',
+  ValidatePayerTransaction = 'transaction/validate-payer',
+  ValidateTransaction = 'transaction/validate',
   UpdateDelayWalletSetup = 'account/update-delay-wallet-setup',
 }
 
