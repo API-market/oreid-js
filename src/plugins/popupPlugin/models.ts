@@ -1,3 +1,4 @@
+import { SignStringData } from '../../transaction/models'
 import Transaction from '../../transaction/transaction'
 import { UserData } from '../../user/models'
 import {
@@ -5,6 +6,8 @@ import {
   WebWidgetAuthResult,
   WebWidgetBuyParams,
   WebWidgetBuyResult,
+  WebWidgetKeyExportParams,
+  WebWidgetKeyExportResult,
   WebWidgetLogoutParams,
   WebWidgetNewChainAccountParams,
   WebWidgetNewChainAccountResult,
@@ -25,8 +28,11 @@ export type PopupPluginNewChainAccountParams = Partial<WebWidgetNewChainAccountP
 
 export type PopupPluginRecoverAccountParams = Partial<WebWidgetRecoverAccountParams>
 
+export type PopupPluginKeyExportParams = WebWidgetKeyExportParams
+
 export type PopupPluginSignParams = {
-  transaction: Transaction
+  signString?: SignStringData
+  transaction?: Transaction
 }
 
 // results
@@ -43,10 +49,13 @@ export type PopupPluginRecoverAccountResults = WebWidgetRecoverAccountResult
 
 export type PopupPluginSignResults = WebWidgetSignResult
 
+export type PopupPluginKeyExportSuccessResults = WebWidgetKeyExportResult
+
 export interface PopupPlugin {
   auth: (args: PopupPluginAuthParams) => Promise<PopupPluginAuthSuccessResults>
   sign: (args: PopupPluginSignParams) => Promise<PopupPluginSignResults>
   newChainAccount: (args: PopupPluginNewChainAccountParams) => Promise<PopupPluginNewChainAccountResults>
   recoverAccount: (args: PopupPluginRecoverAccountParams) => Promise<PopupPluginRecoverAccountResults>
   buy: (args: PopupPluginBuyParams) => Promise<PopupPluginBuySuccessResults>
+  keyExport: (args: PopupPluginKeyExportParams) => Promise<PopupPluginKeyExportSuccessResults>
 }

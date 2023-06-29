@@ -12,6 +12,7 @@ export enum ApiEndpoint {
   ConvertOauthTokens = 'account/convert-oauth',
   CustodialMigrateAccount = 'custodial/migrate-account',
   CustodialNewAccount = 'custodial/new-user',
+  CustodialSignString = 'custodial/sign-string',
   DeleteTestUser = 'account/delete-test-user',
   CustodialSign = 'custodial/sign',
   GetUser = 'account/user',

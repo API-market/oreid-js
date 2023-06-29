@@ -1,6 +1,16 @@
 import { AccountName, AuthProvider, ChainAccount, ChainNetwork, JSONObject } from '../common/models'
+import { SignStringMethod } from '../webWidget/models'
 
 // ORE ID Types
+
+export type SignStringData = {
+  account?: AccountName
+  chainAccount?: ChainAccount | string
+  chainNetwork: ChainNetwork | string
+  /** optional - alternative method of signing (chain-specific) */
+  signMethod?: SignStringMethod
+  string?: string
+}
 
 export type TransactionData = {
   account?: AccountName // user's oreid - set automatically by Transaction object
