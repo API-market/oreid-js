@@ -225,11 +225,20 @@ export default class OreId implements IOreidContext {
   }
 
   /** Create a new Transaction object - used for composing and signing transactions */
-  async createTransaction(data: TransactionData) {
+  async createTransaction(data: TransactionData, dontThrowOnErrors: boolean = false) {
     if (!this._auth.user.hasData) {
       await this._auth.user.getData()
     }
-    return new Transaction({ oreIdContext: this, user: this.auth.user, data })
+    const transaction = new Transaction({ oreIdContext: this, user: this.auth.user, data })
+    await transaction.validate();
+
+    if (!dontThrowOnErrors && transaction.hasErrors) {
+      if (!transaction.validationData.isValid) {
+        throw new Error(`Validation error: ${transaction.validationData.errorMessage}`)
+      }
+      throw new Error(`Fee or Resource error: ${transaction.payerErrors[0]}`)
+    }
+    return transaction
   }
 
   /** Call the setBusyCallback() callback provided in optiont

@@ -46,17 +46,12 @@ export type ValidateTransactionResult = {
   fees: ValidateTransactionFees
   resources: ValidateTransactionResources
   actions: string[]
-}
-
-export type ApiCustodialSignStringResult = {
-  signature: string
 } & ApiResultWithErrorCode
-
 
 export async function callApiValidateTransaction(
   oreIdContext: OreIdContext,
   params: ValidateTransactionParams,
-): Promise<ApiCustodialSignStringResult> {
+): Promise<ValidateTransactionResult> {
   const apiName = ApiEndpoint.ValidateTransaction
 
   const { chainNetwork, encodedTransaction, transactionChainAccount, transactionOptionsStringified, transactionRecordId } = params
@@ -78,7 +73,7 @@ export async function callApiValidateTransaction(
 export async function callApiValidatePayerTransaction(
     oreIdContext: OreIdContext,
     params: ValidateTransactionPayerParams,
-): Promise<ApiCustodialSignStringResult> {
+): Promise<ValidateTransactionResult> {
   const apiName = ApiEndpoint.ValidatePayerTransaction
   
   const { chainNetwork, encodedTransaction, payerChainAccount, transactionChainAccount, transactionOptionsStringified, transactionRecordId } = params

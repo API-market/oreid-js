@@ -6,13 +6,18 @@ import {
   SignatureProviderSignResult,
   SignWithOreIdResult,
   TransactionData,
+  ValidateTransactionFees,
+  ValidateTransactionResources,
 } from '../models'
 import TransitHelper from '../transit/TransitHelper'
 import {
   assertHasApiKey,
   callApiCanAutosignTransaction,
   callApiCustodialSignTransaction,
+  callApiValidateTransaction,
+  callApiValidatePayerTransaction,
   callApiSignTransaction,
+  ValidateTransactionResult,
 } from '../api'
 import { getOreIdSignUrl } from '../core/urlGenerators'
 import Helpers from '../utils/helpers'
@@ -20,7 +25,7 @@ import UalHelper from '../ual/UalHelper'
 import { User } from '../user/user'
 
 export default class Transaction {
-  constructor(args: { oreIdContext: OreIdContext; user: User; data: TransactionData }) {
+    constructor(args: { oreIdContext: OreIdContext; user: User; data: TransactionData }) {
     this._oreIdContext = args.oreIdContext
     this._user = args.user
     this.assertValidTransactionAndSetData(args.data)
@@ -38,12 +43,48 @@ export default class Transaction {
 
   private _user: User
 
+  private _validationData: ValidateTransactionResult;
+
+  private _hasErrors: boolean;
+
+  private _payerFees: ValidateTransactionFees;
+
+  private _payerResources: ValidateTransactionResources;
+
+  private _payerErrors: string[];
+
+  private _validationError: string;
+
   get data() {
     return this._data
   }
 
+  get validationData() {
+    return this._validationData
+  }
+
+  get hasErrors() {
+    return this._hasErrors
+  }
+
+  get payerFees() {
+    return this._payerFees
+  }
+
+  get payerResources() {
+    return this._payerResources
+  }
+
+  get payerErrors() {
+    return this._payerErrors
+  }
+
+  get validationError() {
+    return this._validationError
+  }
+
   /** ensure all required parameters are provided */
-  assertValidTransactionAndSetData(createTransactionData: CreateTransactionData) {
+  async assertValidTransactionAndSetData(createTransactionData: CreateTransactionData) {
     const { chainNetwork, transaction, signedTransaction } = createTransactionData || {}
     const missingFields: string[] = []
     const validationIssues: string[] = []
@@ -59,8 +100,6 @@ export default class Transaction {
     if (!this._user.accountName)
       validationIssues.push('Transaction Data error - Expecting a user.accountName - is the user logged-in in?')
     if (transaction && signedTransaction) validationIssues.push('Only provide one: transaction OR signedTransaction')
-
-    // TODO: call this.validate()
 
     // transaction OR signedTransaction - check for valid JSON object
 
@@ -124,11 +163,18 @@ export default class Transaction {
   // TODO: check user.chainAccounts that
 
   /** validates that transaction is well-formed for the blockcahin
-   * Returns array of errors
+   * Sets validation properties on the transaction object if data or payer validation fails 
    */
-  async validate(): Promise<string[]> {
-    // TODO: call API validateTransaction on OREID Service - transaction/validate api endpoint
-    throw new Error('Not Implemented')
+  async validate() {
+    const payerChainAccount = this._data.chainAccount;
+    const validationResult = await callApiValidateTransaction(this._oreIdContext, this._data)
+    const {fees, resources} = await callApiValidatePayerTransaction(this._oreIdContext, {payerChainAccount, ...this._data})
+    this._validationData = validationResult
+    this._validationError = validationResult.errorMessage
+    this._payerFees = fees
+    this._payerResources = resources
+    this._payerErrors = [...resources.lowResourceErrorMessages, ...fees.feesByPriority.map(f => f.lowFeeErrorMessage)]
+    this._hasErrors = !validationResult.isValid || this.payerErrors.length > 0
   }
 
   // TODO: add depricated
