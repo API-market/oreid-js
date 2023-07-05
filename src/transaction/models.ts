@@ -45,5 +45,24 @@ export type TransactionSignOptions = {
   state?: string
 }
 
+export type FeesByPriority = {
+  priority: any
+  fee: string
+  lowFeeErrorMessage: string
+}
+
+export type ValidateTransactionFees = {
+  chainSupportsFees: boolean
+  feesByPriority: FeesByPriority[]
+  resourceEstimationType: string
+}
+
+export type ValidateTransactionResources = {
+  chainSupportsResources: boolean
+  resourcesRequired: string
+  resourceEstimationType: string
+  lowResourceErrorMessages: string[]
+}
+
 export interface CreateTransactionData
   extends Omit<TransactionData, 'account' | 'encodedSignedTransaction' | 'encodedTransaction'> {}
